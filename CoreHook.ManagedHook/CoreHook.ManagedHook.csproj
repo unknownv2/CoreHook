@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
+    <ProjectReference Include="..\CoreHook.CoreLoad\CoreHook.CoreLoad.csproj" />
+    <ProjectReference Include="..\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj" />
+  </ItemGroup>
+
+</Project>

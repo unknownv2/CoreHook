@@ -2,7 +2,7 @@
 
 namespace CoreHook
 {
-    public class Class1
+    public class CoreHook
     {
     }
 }
