@@ -230,7 +230,7 @@ namespace CoreHook.ManagedHook.Remote
                     binaryLoader.ExecuteWithArgs(proc, coreRunDll, new BinaryLoaderArgs()
                     {
                         Verbose = true,
-                        WaitForDebugger = true,
+                        WaitForDebugger = false,
                         StartAssembly = false,
                         PayloadFileName = Encoding.Unicode.GetBytes(coreLoadDll.PadRight(260, '\0')),
                         CoreRootPath = Encoding.Unicode.GetBytes(coreClrPath.PadRight(260, '\0')),
