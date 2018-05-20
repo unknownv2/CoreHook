@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CoreHook.ManagedHook
+namespace CoreHook
 {
     public static class IntPtrExtensions
     {

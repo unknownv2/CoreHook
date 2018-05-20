@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
 
-namespace CoreHook.ManagedHook
+namespace CoreHook
 {
     /// <summary>
     /// Provides a managed interface to the native thread ACLs.

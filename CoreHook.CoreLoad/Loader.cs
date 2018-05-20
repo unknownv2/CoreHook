@@ -23,30 +23,35 @@ namespace CoreHook.CoreLoad
 
         public static int Load(string paramPtr)
         {
-            if (paramPtr == null) return 0;
+            if (paramPtr == null)
+            {
+                return 0;
+            }
+
             Debug.WriteLine($"CoreHook.CoreLoad.Load: {paramPtr}");
 
             var ptr = (IntPtr)Int64.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
 
             Debug.WriteLine($"CoreHook.CoreLoad.Load: {ptr.ToInt64().ToString()}");
+
             var connection = ConnectionData.LoadData(ptr);
 
-            Debug.WriteLine($"CoreHook.CoreLoad.Load: Library {connection.RemoteInfo.UserLibraryName}");
+            Debug.WriteLine($"CoreHook.CoreLoad.Load: Library {connection.RemoteInfo.UserLibrary}");
 
-            var resolver = new Resolver(connection.RemoteInfo.UserLibraryName);
+            var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
 
-            Thread.Sleep(500);
+            //Thread.Sleep(500);
 
-            LoadUserLibrary(resolver.Assembly);
+            LoadUserLibrary(resolver.Assembly, connection.RemoteInfo.UserParams);
 
             return 0;
         }
-        private static void LoadUserLibrary(Assembly assembly)
+        private static void LoadUserLibrary(Assembly assembly, object[] paramArray)
         {
             var entryPoint = FindEntryPoint(assembly);
-            var paramArray = new object[2];
-            paramArray[0] = new object();
-            paramArray[1] = "CoreHook";
+            //var paramArray = new object[2];
+            //paramArray[0] = new object();
+            //paramArray[1] = "CoreHook_Debug";
 
             var runMethod = FindMatchingMethod(entryPoint, "Run", paramArray);
             var instance = InitializeInstance(entryPoint, paramArray);

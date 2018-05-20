@@ -20,6 +20,7 @@ namespace CoreHook.ManagedHook.ProcessUtils
             return GetProcessListByName(processName)[0];
         }
 
+
         /// <summary>
         /// Returns the current native system process ID.
         /// </summary>
@@ -29,4 +30,5 @@ namespace CoreHook.ManagedHook.ProcessUtils
             return NativeAPI.GetCurrentProcessId();
         }
     }
+
 }

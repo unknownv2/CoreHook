@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace CoreHook.RPC
 {   
-    public interface RemoteClient
+    public interface IRemoteClient
     {
         /// <summary>
         /// Create a client for IPC
@@ -14,7 +14,7 @@ namespace CoreHook.RPC
         T Create<T>();
     }
 
-    public interface RemoteServer
+    public interface IRemoteServer
     {
         /// <summary>
         /// Create a server for IPC
