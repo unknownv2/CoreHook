@@ -6,11 +6,24 @@ using System.Diagnostics;
 using System.Threading;
 using System.Reflection;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace CoreHook.CoreLoad
 {
+    /*
+     * Dependencies for CoreLoad:
+     
+     * Newtonsoft.Json.dll
+     * Microsoft.Extensions.DependencyModel.dll
+     * Microsoft.DotNet.PlatformAbstractions.dll
+    */
+
     public class Loader
     {
+        private const string EntryPointInterface = "CoreHook.IEntryPoint";
+        private const string EntryPointMethodName = "Run";
+
         public Loader()
         {
 
@@ -27,33 +40,42 @@ namespace CoreHook.CoreLoad
             {
                 return 0;
             }
-
             Debug.WriteLine($"CoreHook.CoreLoad.Load: {paramPtr}");
-
             var ptr = (IntPtr)Int64.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
-
             Debug.WriteLine($"CoreHook.CoreLoad.Load: {ptr.ToInt64().ToString()}");
 
             var connection = ConnectionData.LoadData(ptr);
-
             Debug.WriteLine($"CoreHook.CoreLoad.Load: Library {connection.RemoteInfo.UserLibrary}");
 
             var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+            Debug.WriteLine($"CoreHook.CoreLoad.Load: Testing Library Load");
 
-            //Thread.Sleep(500);
+            // Prepare parameter array.
+            var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
+            // The next type cast is not redundant because the object needs to be an explicit IContext
+            // when passed as a parameter to the IEntryPoint constructor and Run() methods.
+            paramArray[0] = connection.UnmanagedInfo;
+            for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
+                paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
 
-            LoadUserLibrary(resolver.Assembly, connection.RemoteInfo.UserParams);
+            LoadUserLibrary(resolver.Assembly, paramArray);
 
             return 0;
         }
         private static void LoadUserLibrary(Assembly assembly, object[] paramArray)
         {
             var entryPoint = FindEntryPoint(assembly);
-            //var paramArray = new object[2];
-            //paramArray[0] = new object();
-            //paramArray[1] = "CoreHook_Debug";
+            BinaryFormatter format = new BinaryFormatter();
+            format.Binder = new AllowAllAssemblyVersionsDeserializationBinder(entryPoint.Assembly);
+            for (int i = 1; i < paramArray.Length; i++)
+            {
+                using (MemoryStream ms = new MemoryStream((byte[])paramArray[i]))
+                {
+                    paramArray[i] = format.Deserialize(ms);
+                }
+            }
 
-            var runMethod = FindMatchingMethod(entryPoint, "Run", paramArray);
+            var runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
             var instance = InitializeInstance(entryPoint, paramArray);
             try
             {
@@ -73,8 +95,7 @@ namespace CoreHook.CoreLoad
             var exportedTypes = assembly.GetExportedTypes();
             foreach (TypeInfo type in exportedTypes)
             {
-                Console.WriteLine(type.Name);
-                if (type.GetInterface("AssemblyResolver.Core.Library.IEntryPoint") != null)
+                if (type.GetInterface(EntryPointInterface) != null)
                 {
                     return type;
                 }

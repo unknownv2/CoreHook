@@ -60,13 +60,23 @@ namespace CoreHook.CoreLoad
             {
                 return string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
             }
+            bool NamesContain(RuntimeLibrary runtime)
+            {
+                return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
 
             Log($"OnResolving: {name}");
 
             try
             {
                 RuntimeLibrary library =
-                    this.dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
+                    dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
+
+                if(library == null)
+                {
+                    library =
+                        dependencyContext.RuntimeLibraries.FirstOrDefault(NamesContain);
+                }
                 if (library != null)
                 {
                     var wrapper = new CompilationLibrary(

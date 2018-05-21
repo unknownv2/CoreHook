@@ -9,11 +9,14 @@ using CoreHook.BinaryInjection;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.Unmanaged;
 using CoreHook.CoreLoad;
+using System.Threading;
 
 namespace CoreHook.ManagedHook.Remote
 {
     public class RemoteHooking
     {
+        private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
+
         /// <summary>
         /// All supported options that will influence the way your library is injected.
         /// </summary>
@@ -79,6 +82,17 @@ namespace CoreHook.ManagedHook.Remote
                 string.Empty,
                 string.Empty,
                 InPassThruArgs);
+        }
+
+        public static void Inject(
+            int InTargetPID,
+            string library)
+        {
+
+            var proc = ProcessHelper.GetProcessById(InTargetPID);
+
+            var binaryLoader = new BinaryLoader();
+            binaryLoader.Load(proc, library);
         }
         public static void Inject(
             int InTargetPID,
@@ -169,6 +183,7 @@ namespace CoreHook.ManagedHook.Remote
             OutProcessId = -1;
         }
 
+
         internal static void InjectEx(
             int InHostPID,
             int InTargetPID,
@@ -227,6 +242,8 @@ namespace CoreHook.ManagedHook.Remote
                     var binaryLoader = new BinaryLoader();
                     binaryLoader.Load(proc, coreRunDll);
 
+                    Thread.Sleep(500);
+
                     binaryLoader.ExecuteWithArgs(proc, coreRunDll, new BinaryLoaderArgs()
                     {
                         Verbose = true,
@@ -238,7 +255,7 @@ namespace CoreHook.ManagedHook.Remote
 
                     });
                     binaryLoader.CallFunctionWithRemoteArgs(proc,
-                        coreRunDll, "CoreHook.CoreLoad.Loader.Load", argsAddr);
+                        coreRunDll, CoreHookLoaderMethodName, argsAddr);
       
                 }
                 finally
