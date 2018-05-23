@@ -118,7 +118,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
         private void CreateHooks()
         {
             string[] functionName = new string[] { "kernelbase.dll", "CreateFile2" };
-            ClientWriteLine($"Adding hook to {functionName[0]}!${functionName[1]}");
+            ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
             CreateFileHook = LocalHook.Create(
                 LocalHook.GetProcAddress(functionName[0], functionName[1]),

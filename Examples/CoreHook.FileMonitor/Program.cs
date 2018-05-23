@@ -83,7 +83,13 @@ namespace CoreHook.FileMonitor
 
         }
         static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
-        {            
+        {
+            if (!File.Exists(easyHookDll))
+            {
+                Console.WriteLine("Cannot find EasyHook dll");
+                return;
+            }
+
             // for now, we use the EasyHook dll to support function hooking on Windows
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId, 
@@ -105,12 +111,6 @@ namespace CoreHook.FileMonitor
             if (!File.Exists(coreLoadDll))
             {
                 Console.WriteLine("Cannot find CoreLoad dll");
-                return;
-            }
-
-            if (!File.Exists(easyHookDll))
-            {
-                Console.WriteLine("Cannot find EasyHook dll");
                 return;
             }
 

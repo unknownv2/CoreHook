@@ -8,9 +8,7 @@ using System.Runtime.InteropServices;
 using JsonRpc.DynamicProxy.Client;
 using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
-using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
-using CoreHook;
 using CoreHook.IPC.Pipes.Client;
 
 namespace CoreHook.FileMonitor.Hook

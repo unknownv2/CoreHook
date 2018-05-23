@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\..\CoreHook\CoreHook.csproj" />
-    <ProjectReference Include="..\..\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
     <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Shared\CoreHook.UWP.FileMonitor.Shared.csproj" />
   </ItemGroup>
 

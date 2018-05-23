@@ -15,7 +15,6 @@ namespace CoreHook.UWP.FileMonitor.Pipe
     public class NpListener
     {
         private bool running;
-        private Thread runningThread;
         private EventWaitHandle terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
         private int _maxConnections = 254;
         private ILog _log = new NullLogger();
@@ -23,6 +22,8 @@ namespace CoreHook.UWP.FileMonitor.Pipe
 
         public string PipeName { get; set; }
         public event EventHandler<PipeClientConnectionEventArgs> RequestRetrieved;
+
+        private PipeSecurity _pipeSecurity = null;
 
         public NpListener(string pipeName, int maxConnections = 254, ILog log = null, IStats stats = null)
         {
@@ -35,8 +36,33 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             }
             _maxConnections = maxConnections;
             PipeName = pipeName;
+            _pipeSecurity = CreateUWPPipeSecurity();
         }
 
+        private PipeSecurity CreateUWPPipeSecurity()
+        {
+            const PipeAccessRights access = PipeAccessRights.ReadWrite;
+
+            var sec = new PipeSecurity();
+
+            using (var identity = WindowsIdentity.GetCurrent())
+            {
+                sec.AddAccessRule(
+                    new PipeAccessRule(identity.User, access, AccessControlType.Allow)
+                );
+
+                if (identity.User != identity.Owner)
+                {
+                    sec.AddAccessRule(
+                        new PipeAccessRule(identity.Owner, access, AccessControlType.Allow)
+                    );
+                }
+            }
+   
+            // Allow all app packages to connect.
+            sec.AddAccessRule(new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), access, AccessControlType.Allow));
+            return sec;
+        }
 
         internal NamedPipeServerStream CreatePipe(string pipeName)
         {
@@ -44,10 +70,11 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                     pipeName,
                     PipeDirection.InOut,
                     _maxConnections,
-                    PipeTransmissionMode.Message,
+                    PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous,
                     65536,
-                    65536
+                    65536,
+                    _pipeSecurity
                     );
         }
 

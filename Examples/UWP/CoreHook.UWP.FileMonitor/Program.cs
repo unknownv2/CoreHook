@@ -13,6 +13,9 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using CoreHook.FileMonitor.Service.Pipe;
+using System.Security.AccessControl;
+using System.Security.Principal;
+
 namespace CoreHook.UWP.FileMonitor
 {
     class Program
@@ -27,11 +30,13 @@ namespace CoreHook.UWP.FileMonitor
 
         const string CoreHookPipeName = "CoreHook";
 
+        const string MSPaintAppName = "Microsoft.MSPaint_8wekyb3d8bbwe!Microsoft.MSPaint";
+
         static void Main(string[] args)
         {
             int TargetPID = 0;
-#if DEBUG 
-            string targetExe = "notepad.exe";
+#if DEBUG
+            string targetApp = MSPaintAppName;
 #else
             // Load the parameter
             while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
@@ -44,9 +49,9 @@ namespace CoreHook.UWP.FileMonitor
                 {
                     Console.WriteLine();
                     Console.WriteLine("Usage: FileMonitor %PID%");
-                    Console.WriteLine("   or: FileMonitor PathToExecutable");
+                    Console.WriteLine("   or: FileMonitor AppUserModelId");
                     Console.WriteLine();
-                    Console.Write("Please enter a process Id or path to executable: ");
+                    Console.Write("Please enter a process Id or the App Id to launch: ");
 
                     args = new string[] { Console.ReadLine() };
 
@@ -59,26 +64,30 @@ namespace CoreHook.UWP.FileMonitor
                 }
             }
 #endif
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            string injectionLibrary = Path.Combine(currentDir,
                 "netstandard2.0", "CoreHook.UWP.FileMonitor.Hook.dll");
+
             if (!File.Exists(injectionLibrary))
             {
                 Console.WriteLine("Cannot find FileMon injection dll");
                 return;
             }
 
-            string easyHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "EasyHook64.dll");
+            string easyHookDll = Path.Combine(currentDir, "EasyHook64.dll");
             if (!File.Exists(easyHookDll))
             {
                 Console.WriteLine("Cannot find EasyHook dll");
                 return;
             }
-            // start process and begin dll loading
-            if (!string.IsNullOrEmpty(targetExe))
+
+            GrantAllAppPkgsAccessToDir(currentDir);
+
+             // start process and begin dll loading
+            if (!string.IsNullOrEmpty(targetApp))
             {
-                TargetPID = Process.Start(targetExe).Id;
+                TargetPID = LaunchAppxPackageForPid(targetApp);
             }
 
             // inject FileMon dll into process
@@ -90,6 +99,12 @@ namespace CoreHook.UWP.FileMonitor
         }
         static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
         {
+            if (!File.Exists(easyHookDll))
+            {
+                Console.WriteLine("Cannot find EasyHook dll");
+                return;
+            }
+
             // for now, we use the EasyHook dll to support function hooking on Windows
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
@@ -111,12 +126,6 @@ namespace CoreHook.UWP.FileMonitor
             if (!File.Exists(coreLoadDll))
             {
                 Console.WriteLine("Cannot find CoreLoad dll");
-                return;
-            }
-
-            if (!File.Exists(easyHookDll))
-            {
-                Console.WriteLine("Cannot find EasyHook dll");
                 return;
             }
 
@@ -177,6 +186,45 @@ namespace CoreHook.UWP.FileMonitor
                 Console.WriteLine("< {0}", context.Response);
             });
             return builder.Build();
+        }
+
+        private static void GrantAllAppPkgsAccessToDir(string directory)
+        {
+            if (!Directory.Exists(directory))
+                return;
+
+            GrantAllAppPkgsAccessToFile(directory);
+            foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
+                    .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
+            {
+                GrantAllAppPkgsAccessToFile(file);
+            }
+        }
+        private static void GrantAllAppPkgsAccessToFile(string fileName)
+        {
+            try
+            {
+                var acl = File.GetAccessControl(fileName);
+
+                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.ReadAndExecute, AccessControlType.Allow);
+                acl.SetAccessRule(rule);
+
+                File.SetAccessControl(fileName, acl);
+            }
+            catch
+            {
+                return;
+            }
+        }
+        private static int LaunchAppxPackageForPid(string appName)
+        {
+            ApplicationActivationManager appActiveManager = new ApplicationActivationManager();
+            uint pid;
+
+            // PackageFamilyName + {Applications.Application.Id}, inside AppxManifest.xml
+            appActiveManager.ActivateApplication(appName, null, ActivateOptions.None, out pid);
+
+            return (int)pid;
         }
     }
 }
