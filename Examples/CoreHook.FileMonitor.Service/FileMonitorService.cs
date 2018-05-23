@@ -20,13 +20,5 @@ namespace CoreHook.FileMonitor.Service
                 Console.WriteLine(fileName);
             }
         }
-        [JsonRpcMethod]
-        public void PrintStringList(string[] files)
-        {
-            foreach (var file in files)
-            {
-                Console.WriteLine(file);
-            }
-        }
     }
 }
