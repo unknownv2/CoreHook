@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
+    <ProjectReference Include="..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,6 @@ using System.Text;
 using System.Diagnostics;
 using System.Threading;
 using System.Reflection;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
@@ -33,22 +32,35 @@ namespace CoreHook.CoreLoad
         {
             return 0;
         }
+        const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
+
+        private static bool IsUwp()
+        {
+            int length = 1024;
+            StringBuilder sb = new StringBuilder(length);
+            int result = GetCurrentPackageFullName(ref length, sb);
+            if (result != APPMODEL_ERROR_NO_PACKAGE)
+            {
+                return true;
+            }
+            return false;
+        }
         public static int Load(string paramPtr)
         {
             if (paramPtr == null)
             {
                 return 0;
             }
-            Debug.WriteLine($"CoreHook.CoreLoad.Load: {paramPtr}");
             var ptr = (IntPtr)Int64.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
-            Debug.WriteLine($"CoreHook.CoreLoad.Load: {ptr.ToInt64().ToString()}");
 
             var connection = ConnectionData.LoadData(ptr);
-            Debug.WriteLine($"CoreHook.CoreLoad.Load: Library {connection.RemoteInfo.UserLibrary}");
 
             var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
-            Debug.WriteLine($"CoreHook.CoreLoad.Load: Testing Library Load");
 
             // Prepare parameter array.
             var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];

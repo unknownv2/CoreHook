@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
 using System.Reflection;
-using CoreHook.FileMonitor.Pipe;
+using CoreHook.UWP.FileMonitor.Pipe;
 using CoreHook.FileMonitor.Service;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using CoreHook.FileMonitor.Service.Pipe;
-
-namespace CoreHook.FileMonitor
+namespace CoreHook.UWP.FileMonitor
 {
     class Program
     {
@@ -27,7 +30,9 @@ namespace CoreHook.FileMonitor
         static void Main(string[] args)
         {
             int TargetPID = 0;
-            string targetExe = string.Empty;
+#if DEBUG 
+            string targetExe = "notepad.exe";
+#else
             // Load the parameter
             while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
@@ -53,9 +58,10 @@ namespace CoreHook.FileMonitor
                     break;
                 }
             }
+#endif
 
             string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "netstandard2.0", "CoreHook.FileMonitor.Hook.dll");
+                "netstandard2.0", "CoreHook.UWP.FileMonitor.Hook.dll");
             if (!File.Exists(injectionLibrary))
             {
                 Console.WriteLine("Cannot find FileMon injection dll");
@@ -83,10 +89,10 @@ namespace CoreHook.FileMonitor
 
         }
         static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
-        {            
+        {
             // for now, we use the EasyHook dll to support function hooking on Windows
             ManagedHook.Remote.RemoteHooking.Inject(
-                procId, 
+                procId,
                 easyHookDll);
 
             Thread.Sleep(500);
@@ -124,7 +130,7 @@ namespace CoreHook.FileMonitor
                 injectionLibrary,
                 CoreHookPipeName);
         }
-     
+
         static void StartListener()
         {
             var _listener = new NpListener(CoreHookPipeName);
@@ -163,7 +169,7 @@ namespace CoreHook.FileMonitor
 
             // Register FileMonitorService for RPC
             builder.Register(typeof(FileMonitorService));
-            
+
             builder.Intercept(async (context, next) =>
             {
                 Console.WriteLine("> {0}", context.Request);

@@ -4,19 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
+using Microsoft.Extensions.DependencyModel;
 using System.Diagnostics;
 
-namespace CoreHook.CoreLoad
+namespace CoreHook.DependencyModel
 {
-    internal sealed class Resolver : IDisposable
+    internal sealed class AssemblyResolver : IDisposable
     {
         private readonly ICompilationAssemblyResolver assemblyResolver;
         private readonly DependencyContext dependencyContext;
         private readonly AssemblyLoadContext loadContext;
 
-        public Resolver(string path)
+        public AssemblyResolver(string path)
         {
             try
             {
@@ -27,16 +27,16 @@ namespace CoreHook.CoreLoad
                 assemblyResolver = new CompositeCompilationAssemblyResolver
                                         (new ICompilationAssemblyResolver[]
                 {
-                    new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
-                    new ReferenceAssemblyPathResolver(),
-                    new PackageCompilationAssemblyResolver()
+                    new Resolution.AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
+                    new Resolution.PackageCompilationAssemblyResolver(),
+                     new ReferenceAssemblyPathResolver()
                 });
 
                 loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
 
                 loadContext.Resolving += OnResolving;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log($"AssemblyResolver error: {ex.ToString()}");
             }
@@ -72,7 +72,7 @@ namespace CoreHook.CoreLoad
                 RuntimeLibrary library =
                     dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
 
-                if(library == null)
+                if (library == null)
                 {
                     library =
                         dependencyContext.RuntimeLibraries.FirstOrDefault(NamesContain);

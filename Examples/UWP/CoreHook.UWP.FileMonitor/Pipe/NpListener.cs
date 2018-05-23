@@ -10,7 +10,7 @@ using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
 
 
-namespace CoreHook.FileMonitor.Pipe
+namespace CoreHook.UWP.FileMonitor.Pipe
 {
     public class NpListener
     {
