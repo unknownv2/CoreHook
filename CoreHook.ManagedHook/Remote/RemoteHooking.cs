@@ -242,8 +242,6 @@ namespace CoreHook.ManagedHook.Remote
                     var binaryLoader = new BinaryLoader();
                     binaryLoader.Load(proc, coreRunDll);
 
-                    Thread.Sleep(500);
-
                     binaryLoader.ExecuteWithArgs(proc, coreRunDll, new BinaryLoaderArgs()
                     {
                         Verbose = true,
@@ -254,6 +252,9 @@ namespace CoreHook.ManagedHook.Remote
                         CoreLibrariesPath = Encoding.Unicode.GetBytes(coreLibrariesPath.PadRight(260, '\0'))
 
                     });
+
+                    Thread.Sleep(500);
+
                     binaryLoader.CallFunctionWithRemoteArgs(proc,
                         coreRunDll, CoreHookLoaderMethodName, argsAddr);
       
