@@ -105,29 +105,37 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            // for now, we use the EasyHook dll to support function hooking on Windows
-            ManagedHook.Remote.RemoteHooking.Inject(
-                procId,
-                easyHookDll);
-
-            Thread.Sleep(500);
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
             var coreLibrariesPath = Environment.GetEnvironmentVariable("CORE_LIBRARIES");
             var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
 
-            // path to CoreRunDLL.dll
-            var coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
-            // path to CoreHook.CoreLoad.dll
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string coreLoadDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "CoreHook.CoreLoad.dll");
+            // path to CoreRunDLL.dll
+            var coreRunDll = Path.Combine(currentDir, "CoreRunDLL.dll");
+            if (!File.Exists(easyHookDll))
+            {
+                coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
+                if (!File.Exists(coreRunDll))
+                {
+                    Console.WriteLine("Cannot find CoreRun dll");
+                    return;
+                }
+            }
+            // path to CoreHook.CoreLoad.dll
+            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
             {
                 Console.WriteLine("Cannot find CoreLoad dll");
                 return;
             }
+
+            // for now, we use the EasyHook dll to support function hooking on Windows
+            ManagedHook.Remote.RemoteHooking.Inject(
+                procId,
+                easyHookDll);
 
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
@@ -218,7 +226,7 @@ namespace CoreHook.UWP.FileMonitor
         }
         private static int LaunchAppxPackageForPid(string appName)
         {
-            ApplicationActivationManager appActiveManager = new ApplicationActivationManager();
+            var appActiveManager = new ApplicationActivationManager();
             uint pid;
 
             // PackageFamilyName + {Applications.Application.Id}, inside AppxManifest.xml
