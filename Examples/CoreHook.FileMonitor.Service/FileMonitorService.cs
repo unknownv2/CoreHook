@@ -11,7 +11,6 @@ namespace CoreHook.FileMonitor.Service
     {
         private FileMonitorSessionFeature Session => RequestContext.Features.Get<FileMonitorSessionFeature>();
 
-
         [JsonRpcMethod]
         public void OnCreateFile(string[] fileNames)
         {

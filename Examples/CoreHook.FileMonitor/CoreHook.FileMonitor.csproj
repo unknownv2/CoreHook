@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
     <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
+    <PackageReference Include="EasyHookNativePackage" Version="2.7.6684" />
   </ItemGroup>
 
   <ItemGroup>

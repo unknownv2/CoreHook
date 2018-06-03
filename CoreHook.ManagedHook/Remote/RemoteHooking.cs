@@ -250,7 +250,6 @@ namespace CoreHook.ManagedHook.Remote
                         PayloadFileName = Encoding.Unicode.GetBytes(coreLoadDll.PadRight(260, '\0')),
                         CoreRootPath = Encoding.Unicode.GetBytes(coreClrPath.PadRight(260, '\0')),
                         CoreLibrariesPath = Encoding.Unicode.GetBytes(coreLibrariesPath.PadRight(260, '\0'))
-
                     });
 
                     Thread.Sleep(500);

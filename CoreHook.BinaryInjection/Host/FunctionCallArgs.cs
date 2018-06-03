@@ -25,14 +25,13 @@ namespace CoreHook.BinaryInjection
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
         public byte[] Arguments;
 
-        public FunctionCallArgs(string classFunctionName, byte[] arguments)
+        public FunctionCallArgs(string classFunctionName, byte[] arguments = null)
         {
             var args = classFunctionName.Split('.');
             string assembly = "";
             var argsCount = args.Length - 2;
             for (var x = 0; x < argsCount; x++)
-            {
-        
+            {        
                 assembly += args[x];
                 if (x != argsCount - 1)
                 {
@@ -55,7 +54,6 @@ namespace CoreHook.BinaryInjection
             var argsCount = args.Length - 2;
             for (var x = 0; x < argsCount; x++)
             {
-
                 assembly += args[x];
                 if (x != argsCount - 1)
                 {

@@ -98,7 +98,7 @@ namespace CoreHook.UWP.FileMonitor
 
         }
         static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
-        {
+        {          
             if (!File.Exists(easyHookDll))
             {
                 Console.WriteLine("Cannot find EasyHook dll");

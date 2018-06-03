@@ -1,21 +1,16 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO.Pipes;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
 
-
 namespace CoreHook.FileMonitor.Pipe
 {
     public class NpListener
     {
         private bool running;
-        private Thread runningThread;
         private EventWaitHandle terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
         private int _maxConnections = 254;
         private ILog _log = new NullLogger();
@@ -44,7 +39,7 @@ namespace CoreHook.FileMonitor.Pipe
                     pipeName,
                     PipeDirection.InOut,
                     _maxConnections,
-                    PipeTransmissionMode.Message,
+                    PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous,
                     65536,
                     65536
