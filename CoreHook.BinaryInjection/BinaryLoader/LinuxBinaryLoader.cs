@@ -248,7 +248,7 @@ namespace CoreHook.BinaryInjection
             }
         }
 
-        public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies, string dir)
+        public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
             PtraceAttach(targetProcess.Id);
             GetMailboxAddress(targetProcess.Id, binaryPath);
