@@ -237,9 +237,11 @@ namespace CoreHook.ManagedHook.Remote
                     var length = (uint)PassThru.Length;
                     
                     var proc = ProcessHelper.GetProcessById(InTargetPID);
-                    var argsAddr = proc.MemCopyTo(PassThru.GetBuffer(), length);
-
                     var binaryLoader = new BinaryLoader();
+
+                    var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
+                        //proc.MemCopyTo(PassThru.GetBuffer(), length);
+
                     binaryLoader.Load(proc, coreRunDll);
 
                     binaryLoader.ExecuteWithArgs(proc, coreRunDll, new BinaryLoaderArgs()

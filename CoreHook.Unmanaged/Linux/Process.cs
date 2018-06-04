@@ -33,6 +33,6 @@ namespace CoreHook.Unmanaged.Linux
         [DllImport(LIBINJECT, SetLastError = true)]
         public static extern IntPtr find_symbol(IntPtr handle,
          [MarshalAs(UnmanagedType.LPStr)] String symbolName,
-         [MarshalAs(UnmanagedType.LPStr)] String libraryName);
+         [MarshalAs(UnmanagedType.LPStr)] String libraryName = null);
     }
 }
