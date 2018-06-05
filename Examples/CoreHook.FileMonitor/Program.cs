@@ -1,4 +1,7 @@
-﻿using System;
+﻿#define LINUX
+
+
+using System;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
@@ -9,6 +12,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Threading;
 using CoreHook.FileMonitor.Service.Pipe;
+using System.Runtime.InteropServices;
 
 namespace CoreHook.FileMonitor
 {
@@ -27,7 +31,7 @@ namespace CoreHook.FileMonitor
         static void Main(string[] args)
         {
             int TargetPID = 0;
-            string targetExe = string.Empty;
+            string targetProgam = string.Empty;
             // Load the parameter
             while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
@@ -49,7 +53,7 @@ namespace CoreHook.FileMonitor
                 }
                 else
                 {
-                    targetExe = args[0];
+                    targetProgam = args[0];
                     break;
                 }
             }
@@ -58,29 +62,85 @@ namespace CoreHook.FileMonitor
                 "netstandard2.0", "CoreHook.FileMonitor.Hook.dll");
             if (!File.Exists(injectionLibrary))
             {
-                Console.WriteLine("Cannot find FileMon injection dll");
+                Console.WriteLine("Cannot find FileMonitor injection dll");
                 return;
             }
-
-            string easyHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "EasyHook64.dll");
-            if (!File.Exists(easyHookDll))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.WriteLine("Cannot find EasyHook dll");
-                return;
-            }
-            // start process and begin dll loading
-            if (!string.IsNullOrEmpty(targetExe))
-            {
-                TargetPID = Process.Start(targetExe).Id;
-            }
+                string easyHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    "EasyHook64.dll");
+                if (!File.Exists(easyHookDll))
+                {
+                    Console.WriteLine("Cannot find EasyHook dll");
+                    return;
+                }
+                // start process and begin dll loading
+                if (!string.IsNullOrEmpty(targetProgam))
+                {
+                    TargetPID = Process.Start(targetProgam).Id;
+                }
 
-            // inject FileMon dll into process
-            InjectDllIntoTarget(TargetPID, injectionLibrary, easyHookDll);
+                // inject FileMonitor dll into process
+                InjectDllIntoTarget(TargetPID, injectionLibrary, easyHookDll);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                LinuxInjectDllIntoTarget(TargetPID, injectionLibrary);
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+
+            }
 
             // start RPC server
             StartListener();
+        }
+        static void LinuxInjectDllIntoTarget(int procId, string injectionLibrary)
+        {
+            // info on these environment variables: 
+            // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
+            //var coreLibrariesPath = Environment.GetEnvironmentVariable("CORE_LIBRARIES");
+            //var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+            var coreLibrariesPath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
+
+            // path to CoreHook.CoreLoad.dll
+            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+
+            if (!File.Exists(coreLoadDll))
+            {
+                Console.WriteLine("Cannot find CoreLoad dll");
+                return;
+            }
+            var coreRunLib = Path.Combine(currentDir, "libunixcoreruncommon.so");
+            if (!File.Exists(coreRunLib))
+            {
+                Console.WriteLine("Cannot find CoreRun library");
+                return;
+            }
+
+            ManagedHook.Remote.RemoteHooking.Inject(
+                procId,
+                coreRunLib,
+                coreLoadDll,
+                coreLibrariesPath, // path to coreclr, clrjit
+                coreLibrariesPath, // path to .net core shared libs
+                injectionLibrary,
+                injectionLibrary,
+                CoreHookPipeName);
+        }
+        private static Process[] GetProcessListByName(string processName)
+        {
+            return Process.GetProcessesByName(processName);
+        }
+        private static Process GetProcessById(int processId)
+        {
+            return Process.GetProcessById(processId);
+        }
+        private static Process GetProcessByName(string processName)
+        {
+            return GetProcessListByName(processName)[0];
         }
         static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
         {
@@ -119,7 +179,7 @@ namespace CoreHook.FileMonitor
 
             // for now, we use the EasyHook dll to support function hooking on Windows
             ManagedHook.Remote.RemoteHooking.Inject(
-                procId, 
+                procId,
                 easyHookDll);
 
             ManagedHook.Remote.RemoteHooking.Inject(
@@ -132,7 +192,7 @@ namespace CoreHook.FileMonitor
                 injectionLibrary,
                 CoreHookPipeName);
         }
-     
+
         static void StartListener()
         {
             var _listener = new NpListener(CoreHookPipeName);
@@ -171,7 +231,7 @@ namespace CoreHook.FileMonitor
 
             // Register FileMonitorService for RPC
             builder.Register(typeof(FileMonitorService));
-            
+
             builder.Intercept(async (context, next) =>
             {
                 Console.WriteLine("> {0}", context.Request);
