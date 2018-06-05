@@ -8,7 +8,7 @@ using System.Threading;
 
 namespace CoreHook.BinaryInjection
 {
-    public class BinaryLoader: IBinaryLoader
+    public class BinaryLoader : IBinaryLoader
     {
         public void Execute(Process process, string module, string function, string args)
         {
@@ -31,9 +31,9 @@ namespace CoreHook.BinaryInjection
             process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args));
         }
 
-        public void ExecuteWithArgs(Process process, string module, BinaryLoaderArgs args)
+        public void ExecuteWithArgs(Process process, string module, object args)
         {
-            ExecuteAssemblyWithArgs(process, module, args);
+            ExecuteAssemblyWithArgs(process, module, (BinaryLoaderArgs)args);
         }
 
         public void CallFunctionWithArgs(Process process, string module, string function, byte[] arguments)

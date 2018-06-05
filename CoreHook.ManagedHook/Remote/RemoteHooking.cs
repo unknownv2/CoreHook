@@ -228,37 +228,51 @@ namespace CoreHook.ManagedHook.Remote
                     ref InLibraryPath_x86,
                     ref InLibraryPath_x64,
                     PassThru);
-                
+
                 /*
                     Inject library...
                  */
                 try
                 {
                     var length = (uint)PassThru.Length;
-                    
+
                     var proc = ProcessHelper.GetProcessById(InTargetPID);
-                    var binaryLoader = new BinaryLoader();
-
-                    var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
-                        //proc.MemCopyTo(PassThru.GetBuffer(), length);
-
-                    binaryLoader.Load(proc, coreRunDll);
-
-                    binaryLoader.ExecuteWithArgs(proc, coreRunDll, new BinaryLoaderArgs()
+                    using (var binaryLoader = new LinuxBinaryLoader())
                     {
-                        Verbose = true,
-                        WaitForDebugger = false,
-                        StartAssembly = false,
-                        PayloadFileName = Encoding.Unicode.GetBytes(coreLoadDll.PadRight(260, '\0')),
-                        CoreRootPath = Encoding.Unicode.GetBytes(coreClrPath.PadRight(260, '\0')),
-                        CoreLibrariesPath = Encoding.Unicode.GetBytes(coreLibrariesPath.PadRight(260, '\0'))
-                    });
+                        binaryLoader.Load(proc, coreRunDll);
+                        var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
 
-                    Thread.Sleep(500);
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                        {
+                            binaryLoader.ExecuteWithArgs(proc, coreRunDll, new LinuxBinaryLoaderArgs()
+                            {
+                                Verbose = true,
+                                WaitForDebugger = false,
+                                StartAssembly = false,
+                                PayloadFileName = Encoding.ASCII.GetBytes(coreLoadDll.PadRight(4096, '\0')),
+                                CoreRootPath = Encoding.ASCII.GetBytes(coreClrPath.PadRight(4096, '\0')),
+                                CoreLibrariesPath = Encoding.ASCII.GetBytes(coreLibrariesPath.PadRight(4096, '\0'))
+                            });
+                        }
+                        else
+                        {
+                            binaryLoader.ExecuteWithArgs(proc, coreRunDll, new BinaryLoaderArgs()
+                            {
+                                Verbose = true,
+                                WaitForDebugger = false,
+                                StartAssembly = false,
+                                PayloadFileName = Encoding.Unicode.GetBytes(coreLoadDll.PadRight(260, '\0')),
+                                CoreRootPath = Encoding.Unicode.GetBytes(coreClrPath.PadRight(260, '\0')),
+                                CoreLibrariesPath = Encoding.Unicode.GetBytes(coreLibrariesPath.PadRight(260, '\0'))
+                            });
+                        }
+                        Thread.Sleep(500);
 
-                    binaryLoader.CallFunctionWithRemoteArgs(proc,
-                        coreRunDll, CoreHookLoaderMethodName, argsAddr);
-      
+                        binaryLoader.CallFunctionWithRemoteArgs(proc,
+                            coreRunDll,
+                            CoreHookLoaderMethodName,
+                            argsAddr);
+                    }
                 }
                 finally
                 {
@@ -267,7 +281,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             finally
             {
-                
+
             }
         }
         private static GCHandle PrepareInjection(
