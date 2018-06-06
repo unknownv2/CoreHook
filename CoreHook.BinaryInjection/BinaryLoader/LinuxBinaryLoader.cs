@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace CoreHook.BinaryInjection
 {
-    public class LinuxBinaryLoader : IBinaryLoader, IDisposable
+    public class LinuxBinaryLoader : IBinaryLoader
     {
         private int _processAttached = -1;
 
