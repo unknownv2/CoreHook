@@ -272,7 +272,21 @@ namespace CoreHook.ManagedHook.Remote
                             CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
                         };
                     }
-                    
+                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                    {
+                        binaryLoader = new MacOSBinaryLoader();
+                        encoding = Encoding.ASCII;
+                        pathLength = 1024;
+                        binaryLoaderArgs = new MacOSBinaryLoaderArgs()
+                        {
+                            Verbose = true,
+                            WaitForDebugger = false,
+                            StartAssembly = false,
+                            PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
+                            CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
+                            CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
+                        };
+                    }
                     binaryLoader.Load(proc, coreRunDll);
                     var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
                     binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
