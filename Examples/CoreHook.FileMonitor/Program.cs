@@ -140,7 +140,7 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find CoreLoad dll");
                 return;
             }
-            var coreRunLib = Path.Combine(currentDir, "libunixcoreruncommon.so");
+            var coreRunLib = Path.Combine(currentDir, "libcorerun.so");
             if (!File.Exists(coreRunLib))
             {
                 Console.WriteLine("Cannot find CoreRun library");
