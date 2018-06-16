@@ -1,7 +1,4 @@
-﻿#define LINUX
-
-
-using System;
+﻿using System;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
@@ -10,7 +7,6 @@ using CoreHook.FileMonitor.Pipe;
 using CoreHook.FileMonitor.Service;
 using System.IO;
 using System.Diagnostics;
-using System.Threading;
 using CoreHook.FileMonitor.Service.Pipe;
 using System.Runtime.InteropServices;
 
@@ -89,11 +85,42 @@ namespace CoreHook.FileMonitor
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-
+                MacOSInjectDllIntoTarget(TargetPID, injectionLibrary);
             }
 
             // start RPC server
             StartListener();
+        }
+        static void MacOSInjectDllIntoTarget(int procId, string injectionLibrary)
+        {
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            var coreLibrariesPath = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.0";
+
+            // path to CoreHook.CoreLoad.dll
+            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+
+            if (!File.Exists(coreLoadDll))
+            {
+                Console.WriteLine("Cannot find CoreLoad dll");
+                return;
+            }
+            var coreRunLib = Path.Combine(currentDir, "libcorerun.dylib");
+            if (!File.Exists(coreRunLib))
+            {
+                Console.WriteLine("Cannot find CoreRun library");
+                return;
+            }
+
+            ManagedHook.Remote.RemoteHooking.Inject(
+                procId,
+                coreRunLib,
+                coreLoadDll,
+                coreLibrariesPath, // path to coreclr, clrjit
+                coreLibrariesPath, // path to .net core shared libs
+                injectionLibrary,
+                injectionLibrary,
+                CoreHookPipeName);
         }
         static void LinuxInjectDllIntoTarget(int procId, string injectionLibrary)
         {
