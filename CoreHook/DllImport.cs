@@ -220,7 +220,6 @@ namespace CoreHook
         };
         static NativeAPI_x64()
         {
-            string hookLibrary = string.Empty;
             Tuple<ILibLoader, string> map = null;
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -236,8 +235,7 @@ namespace CoreHook
             }
 
             libLoader = map.Item1;
-            hookLibrary = map.Item2;
-            libHandle = libLoader.LoadLibrary(hookLibrary);
+            libHandle = libLoader.LoadLibrary(map.Item2);
         }
  
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
