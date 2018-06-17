@@ -139,10 +139,13 @@ namespace CoreHook
             {
                 IntPtr Callback;
 
+                return NativeAPI.LhBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                /*
                 if (NativeAPI.Is64Bit)
                     return NativeAPI_x64.LhBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
                 else
                     return NativeAPI_x86.LhBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                */
             }
         }
 

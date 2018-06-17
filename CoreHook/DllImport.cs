@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
-
+using CoreHook.ImportUtils;
 namespace CoreHook
 {
-#pragma warning disable 1591
-
     static class NativeAPI_x86
     {
         private const String DllName = "EasyHook32.dll";
@@ -204,6 +202,44 @@ namespace CoreHook
     {
         private const String DllName = "EasyHook64.dll";
 
+        internal static ILibLoader libLoader;
+        internal static IntPtr libHandle;
+
+        private static Dictionary<OSPlatform, Tuple<ILibLoader, string>>
+            _hookingLibMaps = new Dictionary<OSPlatform, Tuple<ILibLoader, string>>()
+        {
+            {
+                OSPlatform.Windows, new Tuple<ILibLoader, string>(new LibLoaderWindows(), "EasyHook64.dll")
+            },
+            {
+                OSPlatform.Linux, new Tuple<ILibLoader, string>(new LibLoaderUnix(), "libcorehook.so")
+            },
+            {
+                OSPlatform.OSX, new Tuple<ILibLoader, string>(new LibLoaderMacOS(), "libcorehook.dylib")
+            }
+        };
+        static NativeAPI_x64()
+        {
+            string hookLibrary = string.Empty;
+            Tuple<ILibLoader, string> map = null;
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                map = _hookingLibMaps[OSPlatform.Windows];
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                map = _hookingLibMaps[OSPlatform.Linux];
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                map = _hookingLibMaps[OSPlatform.OSX];
+            }
+
+            libLoader = map.Item1;
+            hookLibrary = map.Item2;
+            libHandle = libLoader.LoadLibrary(hookLibrary);
+        }
+ 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern String RtlGetLastErrorStringCopy();
 
@@ -217,9 +253,15 @@ namespace CoreHook
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern void LhUninstallAllHooks();
-
+        
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhInstallHook(
+        public static extern Int32 LhInstallHookF(
+            IntPtr InEntryPoint,
+            IntPtr InHookProc,
+            IntPtr InCallback,
+            IntPtr OutHandle);
+
+        public delegate Int32 LhInstallHook(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
@@ -244,8 +286,14 @@ namespace CoreHook
                     Int32 InThreadCount,
                     IntPtr InHandle);
 
+        public delegate Int32 LhSetExclusiveACL(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+                    Int32[] InThreadIdList,
+            Int32 InThreadCount,
+            IntPtr InHandle);
+
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetExclusiveACL(
+        public static extern Int32 LhSetExclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     Int32[] InThreadIdList,
                     Int32 InThreadCount,
@@ -257,14 +305,24 @@ namespace CoreHook
                     Int32[] InThreadIdList,
                     Int32 InThreadCount);
 
+        public delegate Int32 LhSetGlobalExclusiveACL(
+            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
+                    Int32[] InThreadIdList,
+            Int32 InThreadCount);
+
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetGlobalExclusiveACL(
+        public static extern Int32 LhSetGlobalExclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     Int32[] InThreadIdList,
                     Int32 InThreadCount);
 
+        public delegate Int32 LhIsThreadIntercepted(
+            IntPtr InHandle,
+            Int32 InThreadID,
+            out Boolean OutResult);
+
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhIsThreadIntercepted(
+        public static extern Int32 LhIsThreadInterceptedF(
                     IntPtr InHandle,
                     Int32 InThreadID,
                     out Boolean OutResult);
@@ -275,8 +333,10 @@ namespace CoreHook
             They will all fail with STATUS_NOT_SUPPORTED if called outside a
             valid hook handler...
         */
+        public delegate Int32 LhBarrierGetCallback(out IntPtr OutValue);
+
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetCallback(out IntPtr OutValue);
+        public static extern Int32 LhBarrierGetCallbackF(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern Int32 LhBarrierGetReturnAddress(out IntPtr OutValue);
@@ -442,6 +502,13 @@ namespace CoreHook
         public const Int32 STATUS_WOW_ASSERTION = unchecked((Int32)0xC0009898L);
         public const Int32 STATUS_ACCESS_DENIED = unchecked((Int32)0xC0000022L);
 
+        internal static T LoadFunction<T>(string name, ILibLoader loader, IntPtr handle) where T : class
+        {
+            IntPtr address = loader.GetProcAddress(handle, name);
+            var function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
+            return function as T;
+        }
+
         private static String ComposeString()
         {
             return String.Format("{0} (Code: {1})", RtlGetLastErrorString(), RtlGetLastError());
@@ -494,7 +561,16 @@ namespace CoreHook
             IntPtr InCallback,
             IntPtr OutHandle)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+            if (Is64Bit)
+            {
+                var LhInstallHook = LoadFunction<NativeAPI_x64.LhInstallHook>(
+                    "LhInstallHook",
+                    NativeAPI_x64.libLoader,
+                    NativeAPI_x64.libHandle);
+                Force(LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+
+                //Force(NativeAPI_x64.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+            }
             else Force(NativeAPI_x86.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
         }
 
@@ -515,7 +591,15 @@ namespace CoreHook
                     Int32 InThreadID,
                     out Boolean OutResult)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+            if (Is64Bit)
+            {
+                var LhIsThreadIntercepted = LoadFunction<NativeAPI_x64.LhIsThreadIntercepted>(
+                     "LhIsThreadIntercepted",
+                     NativeAPI_x64.libLoader,
+                     NativeAPI_x64.libHandle);
+                Force(LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+                //Force(NativeAPI_x64.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+            }
             else Force(NativeAPI_x86.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
         }
 
@@ -533,7 +617,15 @@ namespace CoreHook
                     Int32 InThreadCount,
                     IntPtr InHandle)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            if (Is64Bit)
+            {
+                var LhSetExclusiveACL = LoadFunction<NativeAPI_x64.LhSetExclusiveACL>(
+                                "LhSetExclusiveACL",
+                                NativeAPI_x64.libLoader,
+                                NativeAPI_x64.libHandle);
+                Force(LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+                //Force(NativeAPI_x64.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            }
             else Force(NativeAPI_x86.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
         }
 
@@ -549,7 +641,15 @@ namespace CoreHook
                     Int32[] InThreadIdList,
                     Int32 InThreadCount)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+            if (Is64Bit)
+            {
+                var LhSetGlobalExclusiveACL = LoadFunction<NativeAPI_x64.LhSetGlobalExclusiveACL>(
+                                "LhSetGlobalExclusiveACL",
+                                NativeAPI_x64.libLoader,
+                                NativeAPI_x64.libHandle);
+                Force(LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+                //Force(NativeAPI_x64.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+            }
             else Force(NativeAPI_x86.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
         }
 
@@ -559,10 +659,22 @@ namespace CoreHook
             else Force(NativeAPI_x86.LhBarrierGetCallingModule(out OutValue));
         }
 
-        public static void LhBarrierGetCallback(out IntPtr OutValue)
+        public static int LhBarrierGetCallback(out IntPtr OutValue)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetCallback(out OutValue));
-            else Force(NativeAPI_x86.LhBarrierGetCallback(out OutValue));
+            if (Is64Bit)
+            {
+                var LhBarrierGetCallback = LoadFunction<NativeAPI_x64.LhBarrierGetCallback>(
+                                "LhBarrierGetCallback",
+                                NativeAPI_x64.libLoader,
+                                NativeAPI_x64.libHandle);
+                return LhBarrierGetCallback(out OutValue);
+                //Force(NativeAPI_x64.LhBarrierGetCallback(out OutValue));
+            }
+            else
+            {
+                return NativeAPI_x86.LhBarrierGetCallback(out OutValue);
+                //Force(NativeAPI_x86.LhBarrierGetCallback(out OutValue));
+            }
         }
 
         public static void LhBarrierGetReturnAddress(out IntPtr OutValue)
