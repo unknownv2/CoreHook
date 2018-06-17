@@ -246,11 +246,6 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern String RtlGetLastErrorStringCopy();
 
-        public static String RtlGetLastErrorString()
-        {
-            return RtlGetLastErrorStringCopy();
-        }
-
         public delegate Int32 RtlGetLastError();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]

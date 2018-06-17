@@ -28,10 +28,6 @@ namespace CoreHook.FileMonitor
         {
             int TargetPID = 0;
             string targetProgam = string.Empty;
-#if DEBUG
-            targetProgam = @"C:\Users\Thierry\Documents\Visual Studio 2015\Projects\TestCPP\Debug\TestCPP.exe";
-            TargetPID = 1;
-#endif
             // Load the parameter
             while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
