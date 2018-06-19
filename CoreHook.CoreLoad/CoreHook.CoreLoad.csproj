@@ -21,4 +21,8 @@
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\CoreHook.DependencyModel\CoreHook.DependencyModel.csproj" />
+  </ItemGroup>
+
 </Project>
