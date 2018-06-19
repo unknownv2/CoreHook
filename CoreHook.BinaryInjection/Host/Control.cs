@@ -1,8 +1,5 @@
-﻿using CoreHook.Unmanaged;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
+﻿using System.Diagnostics;
+using CoreHook.Unmanaged;
 
 namespace CoreHook.BinaryInjection
 {

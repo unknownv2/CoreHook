@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyModel;
 
 namespace CoreHook.DependencyModel.Resolution
 {
-    class PackageCompilationAssemblyResolver : ICompilationAssemblyResolver
+    public class PackageCompilationAssemblyResolver : ICompilationAssemblyResolver
     {
         public static void Log(string message)
         {
@@ -129,7 +129,7 @@ namespace CoreHook.DependencyModel.Resolution
                     //PipeHelper.SendPipeMsg(fullName);
                     if (!ResolverUtils.TryResolveAssemblyFile(fileSystem, basePath, assembly, out fullName))
                     {
-                        Log($"TryResolveAssemblyFile fullName: {fullName} failed before UWP_Acccess");
+                        Log($"TryResolveAssemblyFile fullName: {fullName} failed after UWP_Acccess");
 
                         // if one of the files can't be found, skip this package path completely.
                         // there are package paths that don't include all of the "ref" assemblies 

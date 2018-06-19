@@ -6,7 +6,7 @@ using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
 
-namespace CoreHook.FileMonitor.Pipe
+namespace CoreHook.Unix.FileMonitor.Pipe
 {
     public class NpListener
     {
@@ -130,7 +130,7 @@ namespace CoreHook.FileMonitor.Pipe
                 }
 
                 var pipeStream = CreatePipe(PipeName);
-     
+
                 try
                 {
                     pipeStream.WaitForConnection();

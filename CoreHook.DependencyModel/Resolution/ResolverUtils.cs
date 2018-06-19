@@ -22,6 +22,11 @@ namespace CoreHook.DependencyModel.Resolution
             {
                 return true;
             }
+            // check all lower case for systems with case sensitive filepath
+            if (fileSystem.Directory.Exists(packagePath.ToLower()))
+            {
+                return true;
+            }
             return false;
         }
 

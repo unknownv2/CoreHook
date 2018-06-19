@@ -2,17 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Platforms>AnyCPU;x86</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\Build\bin\Debug\</OutputPath>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>    
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\Build\bin\Debug\</OutputPath>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\..\CoreHook\CoreHook.csproj" />
-    <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Shared\CoreHook.UWP.FileMonitor.Shared.csproj" />
+    <ProjectReference Include="..\..\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
   </ItemGroup>
 
 </Project>
