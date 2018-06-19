@@ -220,7 +220,6 @@ namespace CoreHook
         };
         static OSPlatform GetOSPlatform()
         {
-
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return OSPlatform.Windows;

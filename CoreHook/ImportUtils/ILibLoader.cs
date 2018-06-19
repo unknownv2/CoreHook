@@ -2,7 +2,7 @@
 
 namespace CoreHook.ImportUtils
 {
-    internal interface ILibLoader
+    public interface ILibLoader
     {
         IntPtr LoadLibrary(string fileName);
         void FreeLibrary(IntPtr handle);

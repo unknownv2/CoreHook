@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.ImportUtils
 {
-    internal class LibLoaderUnix : ILibLoader
+    public class LibLoaderUnix : ILibLoader
     {
         public IntPtr LoadLibrary(string fileName)
         {
