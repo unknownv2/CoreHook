@@ -12,7 +12,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 * [EasyHook](https://github.com/EasyHook/EasyHook)
 * [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
 
-Currently only supports 64-bit programs on [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x) and it works for Win32 and UWP apps. It also works on [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x) and [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x).
+Currently, CoreHook supports 32-bit and 64-bit programs on [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x) and it works for both Win32 and UWP apps. It also works on [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x) and [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x) for 64-bit programs.
 
 So far it has been tested on Ubuntu 14, Ubuntu 16, macOS High Sierra, and Windows 10.
 

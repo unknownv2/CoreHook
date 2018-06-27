@@ -114,7 +114,8 @@ namespace CoreHook.FileMonitor
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // path to CoreRunDLL.dll
-            var coreRunDll = Path.Combine(currentDir, "CoreRunDLL.dll");
+            var coreRunDll = Path.Combine(currentDir,
+                Environment.Is64BitProcess ? "CoreRunDLL.dll" : "CoreRunDLL32.dll");
             if (!File.Exists(coreRunDll))
             {
                 coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
@@ -125,7 +126,7 @@ namespace CoreHook.FileMonitor
                 }
             }
             // path to CoreHook.CoreLoad.dll
-            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+            var coreLoadDll = Path.Combine(currentDir, "netstandard2.0", "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
             {
