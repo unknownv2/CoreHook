@@ -115,7 +115,7 @@ namespace CoreHook.FileMonitor
 
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "CoreRunDLL.dll" : "CoreRunDLL32.dll");
+                Environment.Is64BitProcess ? "CoreRunDLL64.dll" : "CoreRunDLL32.dll");
             if (!File.Exists(coreRunDll))
             {
                 coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
