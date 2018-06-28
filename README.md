@@ -6,11 +6,12 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 ## Dependencies
 
+* [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
 * [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
 * [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
 * [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
 * [EasyHook](https://github.com/EasyHook/EasyHook)
-* [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
+* [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard) 
 
 Currently, CoreHook supports Win32 and UWP apps (x86, x64) on [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). It also works on [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x) and [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x) for x64 applications.
 
