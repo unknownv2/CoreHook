@@ -83,17 +83,35 @@ namespace CoreHook.ManagedHook.Remote
                 string.Empty,
                 InPassThruArgs);
         }
-
+        private static IBinaryLoader GetBinaryLoader()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return new LinuxBinaryLoader();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return new MacOSBinaryLoader();
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new BinaryLoader();
+            }
+            else
+            {
+                throw new Exception("Unsupported platform for binary injection");
+            }
+        }
         public static void Inject(
             int InTargetPID,
             string library)
         {
-
-            var proc = ProcessHelper.GetProcessById(InTargetPID);
-
-            var binaryLoader = new BinaryLoader();
-            binaryLoader.Load(proc, library);
+            using (var binaryLoader = GetBinaryLoader())
+            {
+                binaryLoader.Load(ProcessHelper.GetProcessById(InTargetPID), library);
+            }
         }
+
         public static void Inject(
             int InTargetPID,
             string coreRunDll,
@@ -237,68 +255,65 @@ namespace CoreHook.ManagedHook.Remote
                     var proc = ProcessHelper.GetProcessById(InTargetPID);
                     var length = (uint)PassThru.Length;
 
-                    IBinaryLoader binaryLoader = null;
-                    Encoding encoding = null;
-                    int pathLength = -1;
-                    Object binaryLoaderArgs = null;
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    using (var binaryLoader = GetBinaryLoader())
                     {
-                        binaryLoader = new LinuxBinaryLoader();
-                        encoding = Encoding.ASCII;
-                        pathLength = 4096;
-                        binaryLoaderArgs = new LinuxBinaryLoaderArgs()
+                        Encoding encoding = null;
+                        int pathLength = -1;
+                        Object binaryLoaderArgs = null;
+                        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                         {
-                            Verbose = true,
-                            WaitForDebugger = false,
-                            StartAssembly = false,
-                            PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
-                            CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
-                            CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
-                        };
+                            encoding = Encoding.ASCII;
+                            pathLength = 4096;
+                            binaryLoaderArgs = new LinuxBinaryLoaderArgs()
+                            {
+                                Verbose = true,
+                                WaitForDebugger = false,
+                                StartAssembly = false,
+                                PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
+                                CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
+                                CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
+                            };
 
-                    }
-                    else if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                    {
-                        binaryLoader = new BinaryLoader();
-                        encoding = Encoding.Unicode;
-                        pathLength = 260;
-                        binaryLoaderArgs = new BinaryLoaderArgs()
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                         {
-                            Verbose = true,
-                            WaitForDebugger = false,
-                            StartAssembly = false,
-                            PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
-                            CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
-                            CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
-                        };
-                    }
-                    else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                    {
-                        binaryLoader = new MacOSBinaryLoader();
-                        encoding = Encoding.ASCII;
-                        pathLength = 1024;
-                        binaryLoaderArgs = new MacOSBinaryLoaderArgs()
+                            encoding = Encoding.Unicode;
+                            pathLength = 260;
+                            binaryLoaderArgs = new BinaryLoaderArgs()
+                            {
+                                Verbose = true,
+                                WaitForDebugger = false,
+                                StartAssembly = false,
+                                PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
+                                CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
+                                CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
+                            };
+                        }
+                        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                         {
-                            Verbose = true,
-                            WaitForDebugger = false,
-                            StartAssembly = false,
-                            PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
-                            CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
-                            CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
-                        };
+                            encoding = Encoding.ASCII;
+                            pathLength = 1024;
+                            binaryLoaderArgs = new MacOSBinaryLoaderArgs()
+                            {
+                                Verbose = true,
+                                WaitForDebugger = false,
+                                StartAssembly = false,
+                                PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
+                                CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
+                                CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
+                            };
+                        }
+                        binaryLoader.Load(proc, coreRunDll);
+                        var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
+                        binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
+
+                        Thread.Sleep(500);
+
+                        binaryLoader.CallFunctionWithRemoteArgs(proc,
+                            coreRunDll,
+                            CoreHookLoaderMethodName,
+                            argsAddr);
                     }
-                    binaryLoader.Load(proc, coreRunDll);
-                    var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
-                    binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
-
-                    Thread.Sleep(500);
-
-                    binaryLoader.CallFunctionWithRemoteArgs(proc,
-                        coreRunDll,
-                        CoreHookLoaderMethodName,
-                        argsAddr);
-
-                    binaryLoader.Dispose();
                 }
                 finally
                 {

@@ -441,7 +441,6 @@ namespace CoreHook
     /// This class will provide various static members to be used with local hooking and
     /// is also the instance class of a hook.
     /// </summary>
-    /// <include file='FileMonInject.xml' path='remarks'/>
     public partial class LocalHook : CriticalFinalizerObject, IDisposable
     {
         private Object m_ThreadSafe = new Object();

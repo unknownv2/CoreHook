@@ -7,7 +7,7 @@ namespace CoreHook.RPC
     public interface IRemoteClient
     {
         /// <summary>
-        /// Create a client for IPC
+        /// Create a client for RPC
         /// </summary>
         /// <typeparam name="T">Interface implemented by the server</typeparam>
         /// <returns>A proxy handle to interface with the server.</returns>
@@ -17,7 +17,7 @@ namespace CoreHook.RPC
     public interface IRemoteServer
     {
         /// <summary>
-        /// Create a server for IPC
+        /// Create a server for RPC
         /// </summary>
         /// <typeparam name="T">Interface implemented by the server</typeparam>
         void Create<T>();
