@@ -59,7 +59,7 @@ namespace CoreHook.UWP.FileMonitor
                 }
                 else
                 {
-                    targetExe = args[0];
+                    targetApp = args[0];
                     break;
                 }
             }
@@ -75,16 +75,13 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            string easyHookDll = Path.Combine(currentDir, "EasyHook64.dll");
-            if (!File.Exists(easyHookDll))
-            {
-                Console.WriteLine("Cannot find EasyHook dll");
-                return;
-            }
+            string easyHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                Environment.Is64BitProcess ? "EasyHook64.dll" : "EasyHook32.dll");
 
             GrantAllAppPkgsAccessToDir(currentDir);
+            GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "netstandard2.0"));
 
-             // start process and begin dll loading
+            // start process and begin dll loading
             if (!string.IsNullOrEmpty(targetApp))
             {
                 TargetPID = LaunchAppxPackageForPid(targetApp);
@@ -113,7 +110,8 @@ namespace CoreHook.UWP.FileMonitor
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // path to CoreRunDLL.dll
-            var coreRunDll = Path.Combine(currentDir, "CoreRunDLL.dll");
+            var coreRunDll = Path.Combine(currentDir,
+                Environment.Is64BitProcess ? "CoreRunDLL64.dll" : "CoreRunDLL32.dll");
             if (!File.Exists(easyHookDll))
             {
                 coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
