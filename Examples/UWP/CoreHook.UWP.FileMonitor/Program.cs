@@ -30,14 +30,12 @@ namespace CoreHook.UWP.FileMonitor
 
         const string CoreHookPipeName = "CoreHook";
 
-        const string MSPaintAppName = "Microsoft.MSPaint_8wekyb3d8bbwe!Microsoft.MSPaint";
-
         static void Main(string[] args)
         {
             int TargetPID = 0;
-#if DEBUG
-            string targetApp = MSPaintAppName;
-#else
+
+            string targetApp = string.Empty;
+
             // Load the parameter
             while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
@@ -63,7 +61,7 @@ namespace CoreHook.UWP.FileMonitor
                     break;
                 }
             }
-#endif
+
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string injectionLibrary = Path.Combine(currentDir,
