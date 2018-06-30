@@ -73,7 +73,7 @@ namespace CoreHook.Unix.FileMonitor.Hook
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 dllLoadUtils = new ImportUtils.LibLoaderUnix();
-                dllHandle = dllLoadUtils.LoadLibrary("/lib/x86_64-linux-gnu/libc.so.6");
+                dllHandle = dllLoadUtils.LoadLibrary("libc.so");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
