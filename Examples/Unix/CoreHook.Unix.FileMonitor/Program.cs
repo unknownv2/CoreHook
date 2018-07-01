@@ -55,7 +55,7 @@ namespace CoreHook.Unix.FileMonitor
             }
 
             string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "netstandard2.0", "CoreHook.FileMonitor.Hook.dll");
+                "netstandard2.0", "CoreHook.Unix.FileMonitor.Hook.dll");
             if (!File.Exists(injectionLibrary))
             {
                 Console.WriteLine("Cannot find FileMonitor injection dll");
