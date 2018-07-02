@@ -47,10 +47,7 @@ namespace CoreHook.BinaryInjection
 
             if (addr != IntPtr.Zero)
             {
-                //Thread.Sleep(1000);
-                Console.WriteLine($"Reading mailbox at {addr.ToInt64().ToString("X")}");
                 _mailboxAddress = ReadIntPtr(pid, addr.ToInt64());
-                Console.WriteLine($"Mailbox was at {_mailboxAddress.ToString("X")}");
             }
             else
             {
@@ -62,7 +59,6 @@ namespace CoreHook.BinaryInjection
             var addrSize = IntPtr.Size;
             var addrPtr = Marshal.AllocHGlobal(addrSize);
             Unmanaged.Linux.Process.ptrace_read(pid, new IntPtr(address), addrPtr, addrSize);
-
 
             byte[] managedArray = new byte[addrSize];
             Marshal.Copy(addrPtr, managedArray, 0, addrSize);
@@ -82,10 +78,7 @@ namespace CoreHook.BinaryInjection
         private static long ReadIntPtr(int pid, long address)
         {
             var addrSize = IntPtr.Size;
-            var addrPtr = Marshal.AllocHGlobal(addrSize);
-
-            Console.WriteLine($"ReadIntPtr address at {address.ToString("X")}," +
-                $"size: {addrSize}");            
+            var addrPtr = Marshal.AllocHGlobal(addrSize);       
 
             return PtraceReadPtr(pid, address);
         }
@@ -134,7 +127,6 @@ namespace CoreHook.BinaryInjection
             }
             else
             {
-                Console.WriteLine($"Searching for {libName}!{function}");
                 var addr = Unmanaged.Linux.Process.find_symbol(_symbolHandle, function, libName == _libcName ? null : libName);
                 if (addr != new IntPtr(-1))
                 {
@@ -163,8 +155,7 @@ namespace CoreHook.BinaryInjection
                 var argsBuf = Binary.StructToByteArray(args);
                 var bufPtr = CopyMemoryTo(process, argsBuf, (uint)argsBuf.Length);
 
-                //WriteRpcMsgArgs(pid, _mailboxAddress, args);
-                   SendRpcRequest(
+                SendRpcRequest(
                   pid,
                   _mailboxAddress,
                   new RemoteThreadArgs
@@ -211,11 +202,8 @@ namespace CoreHook.BinaryInjection
         private static void SendRpcRequest(int pid, long mailbox, object args, bool waitForRet = true)
         {
             var rpcArgs = Binary.StructToByteArray(args);
-            Console.WriteLine($"SendRpcRequest at {mailbox.ToString("X")}," +
-                $" length: {rpcArgs.Length}");
 
             PtraceWrite(pid, mailbox, rpcArgs, rpcArgs.Length);
-            Console.WriteLine($"SendRpcRequest WaitingForRet");
             if (waitForRet)
             {
                 WaitForRpc(pid, mailbox);
@@ -256,9 +244,7 @@ namespace CoreHook.BinaryInjection
         {
             if (IsAttached(process.Id))
             {
-                var addr = GetFunctionAddress(module, function);
-                Console.WriteLine($"{module}!{function} is at {addr.ToInt64()}");
-            }
+                var addr = GetFunctionAddress(module, function);            }
         }
         private const string LinuxLoadAssembly = "LoadAssemblyBinaryArgs";
         public void ExecuteWithArgs(Process process, string module, object args)
@@ -266,7 +252,6 @@ namespace CoreHook.BinaryInjection
             if (IsAttached(process.Id))
             {
                 var pid = process.Id;
-                //WriteRpcMsgArgs(pid, _mailboxAddress, args);
                 var argsBuf = Binary.StructToByteArray(args);
                 var bufPtr = CopyMemoryTo(process, argsBuf, (uint)argsBuf.Length);
  
