@@ -20,10 +20,13 @@ namespace CoreHook.BinaryInjection
         private Dictionary<string, IntPtr> _cachedFunctions = new Dictionary<string, IntPtr>();
 
         private const string _libcName = "libc";
+        private const string _mallocName = "malloc";
 
         private const string _mailboxName = "RemoteThreadMailbox";
 
-        private const string _mallocName = "malloc";
+        private const string LinuxExecDotnetAssembly = "ExecuteDotnetAssembly";
+
+        private const string LinuxExecAssemblyFunction = "ExecuteManagedAssemblyClassFunction";
 
         private long _mailboxAddress;
 
@@ -47,23 +50,40 @@ namespace CoreHook.BinaryInjection
 
             if (addr != IntPtr.Zero)
             {
-                _mailboxAddress = ReadInt64(pid, addr.ToInt64());
+                _mailboxAddress = ReadIntPtr(pid, addr.ToInt64());
             }
             else
             {
                 throw new Exception("Failed to find mailbox address");
             }
         }
-        private static long ReadInt64(int pid, long address)
+        private static long PtraceReadPtr(int pid, long address)
         {
             var addrSize = IntPtr.Size;
             var addrPtr = Marshal.AllocHGlobal(addrSize);
+            Unmanaged.Linux.Process.ptrace_read(pid, new IntPtr(address), addrPtr, addrSize);
 
-            Unmanaged.Linux.Process.ptrace_read(pid, address, addrPtr, addrSize);
             byte[] managedArray = new byte[addrSize];
             Marshal.Copy(addrPtr, managedArray, 0, addrSize);
+            Marshal.FreeHGlobal(addrPtr);
+            return (addrSize == 8 ? BitConverter.ToInt64(managedArray, 0)
+                : BitConverter.ToUInt32(managedArray, 0));
+        }
+        private static void PtraceWrite(int pid, long addr, byte[] buffer, int length)
+        {
+            var addrSize = IntPtr.Size;
+            var addrPtr = new IntPtr(addr);
+            // clear memory
+            Unmanaged.Linux.Process.ptrace_write(pid, addrPtr, new byte[length], length);
+            // write new function args          
+            Unmanaged.Linux.Process.ptrace_write(pid, addrPtr, buffer, length);
+        }
+        private static long ReadIntPtr(int pid, long address)
+        {
+            var addrSize = IntPtr.Size;
+            var addrPtr = Marshal.AllocHGlobal(addrSize);       
 
-            return BitConverter.ToInt64(managedArray, 0);
+            return PtraceReadPtr(pid, address);
         }
         private void PtraceAttach(int pid)
         {
@@ -89,7 +109,6 @@ namespace CoreHook.BinaryInjection
             try
             {
                 Unmanaged.Linux.Process.ptrace_detach(pid);
-
             }
             catch
             {
@@ -128,8 +147,7 @@ namespace CoreHook.BinaryInjection
         {
             return GetCachedFunction(libName, function);
         }
-        private const string LinuxExecAssembly = "ExecuteDotnetAssembly";
-        private const string LinuxExecAssemblyFunction = "ExecuteManagedAssemblyClassFunction";
+
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
             if (IsAttached(process.Id))
@@ -138,8 +156,6 @@ namespace CoreHook.BinaryInjection
                 var args = new LinuxFunctionCallArgs(function, arguments);
                 var argsBuf = Binary.StructToByteArray(args);
                 var bufPtr = CopyMemoryTo(process, argsBuf, (uint)argsBuf.Length);
-
-                //WriteRpcMsgArgs(pid, _mailboxAddress, args);
 
                 SendRpcRequest(
                   pid,
@@ -163,7 +179,6 @@ namespace CoreHook.BinaryInjection
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
             var id = proc.Id;
-
             SendRpcRequest(
               id,
               _mailboxAddress,
@@ -180,7 +195,7 @@ namespace CoreHook.BinaryInjection
               }
             );
 
-            var memAddrLong = ReadInt64(id, _mailboxAddress + 8);
+            var memAddrLong = ReadIntPtr(id, _mailboxAddress + 8);
 
             WriteBuffer(id, memAddrLong, buffer, (int)length);
 
@@ -190,8 +205,7 @@ namespace CoreHook.BinaryInjection
         {
             var rpcArgs = Binary.StructToByteArray(args);
 
-            Unmanaged.Linux.Process.ptrace_write(pid, mailbox, rpcArgs, rpcArgs.Length);
-
+            PtraceWrite(pid, mailbox, rpcArgs, rpcArgs.Length);
             if (waitForRet)
             {
                 WaitForRpc(pid, mailbox);
@@ -205,9 +219,10 @@ namespace CoreHook.BinaryInjection
 
             bool IsRpcComplete()
             {
-                Unmanaged.Linux.Process.ptrace_read(pid, mailbox, statusPtr, statusSize);
+                Unmanaged.Linux.Process.ptrace_read(pid, new IntPtr(mailbox), statusPtr, statusSize);
 
                 Marshal.Copy(statusPtr, statusArray, 0, statusSize);
+
                 return BitConverter.ToInt32(statusArray, 0) == 0;
             }
 
@@ -225,10 +240,7 @@ namespace CoreHook.BinaryInjection
         }
         private static void WriteBuffer(int pid, long addr, byte[] buffer, int length)
         {
-            // clear memory
-            Unmanaged.Linux.Process.ptrace_write(pid, addr, new byte[length], length);
-            // write new function args          
-            Unmanaged.Linux.Process.ptrace_write(pid, addr, buffer, length);
+            PtraceWrite(pid, addr, buffer, length);
         }
         public void Execute(Process process, string module, string function, string args)
         {
@@ -243,23 +255,23 @@ namespace CoreHook.BinaryInjection
             if (IsAttached(process.Id))
             {
                 var pid = process.Id;
-                //WriteRpcMsgArgs(pid, _mailboxAddress, args);
                 var argsBuf = Binary.StructToByteArray(args);
                 var bufPtr = CopyMemoryTo(process, argsBuf, (uint)argsBuf.Length);
+ 
                 SendRpcRequest(
                   pid,
                   _mailboxAddress,
-                  new RemoteThreadArgs
-                  {
-                      Status = 1,
-                      ProcFlags = 0,
-                      Result = 0,
-                      ThreadAttributes = 0,
-                      CreationFlags = 1,
-                      StackSize = 0,
-                      StartAddress = GetCachedFunction(module, LinuxLoadAssembly),
-                      Params = bufPtr
-                  }
+                   new RemoteThreadArgs
+                   {
+                       Status = 1,
+                       ProcFlags = 0,
+                       Result = 0,
+                       ThreadAttributes = 0,
+                       CreationFlags = 1,
+                       StackSize = 0,
+                       StartAddress = GetCachedFunction(module, LinuxLoadAssembly),
+                       Params = bufPtr
+                   }
                 );
             }
         }
@@ -284,7 +296,6 @@ namespace CoreHook.BinaryInjection
             PtraceAttach(targetProcess.Id);
 
             GetMailboxAddress(targetProcess.Id, binaryPath);
-
         }
 
         #region IDisposable Support
