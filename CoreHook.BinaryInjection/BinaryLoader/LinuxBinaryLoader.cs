@@ -20,10 +20,13 @@ namespace CoreHook.BinaryInjection
         private Dictionary<string, IntPtr> _cachedFunctions = new Dictionary<string, IntPtr>();
 
         private const string _libcName = "libc";
+        private const string _mallocName = "malloc";
 
         private const string _mailboxName = "RemoteThreadMailbox";
 
-        private const string _mallocName = "malloc";
+        private const string LinuxExecDotnetAssembly = "ExecuteDotnetAssembly";
+
+        private const string LinuxExecAssemblyFunction = "ExecuteManagedAssemblyClassFunction";
 
         private long _mailboxAddress;
 
@@ -144,8 +147,7 @@ namespace CoreHook.BinaryInjection
         {
             return GetCachedFunction(libName, function);
         }
-        private const string LinuxExecAssembly = "ExecuteDotnetAssembly";
-        private const string LinuxExecAssemblyFunction = "ExecuteManagedAssemblyClassFunction";
+
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
             if (IsAttached(process.Id))
@@ -244,7 +246,8 @@ namespace CoreHook.BinaryInjection
         {
             if (IsAttached(process.Id))
             {
-                var addr = GetFunctionAddress(module, function);            }
+                var addr = GetFunctionAddress(module, function);
+            }
         }
         private const string LinuxLoadAssembly = "LoadAssemblyBinaryArgs";
         public void ExecuteWithArgs(Process process, string module, object args)
