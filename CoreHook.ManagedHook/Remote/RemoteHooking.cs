@@ -312,7 +312,11 @@ namespace CoreHook.ManagedHook.Remote
                         binaryLoader.CallFunctionWithRemoteArgs(proc,
                             coreRunDll,
                             CoreHookLoaderMethodName,
-                            argsAddr);
+                            new RemoteFunctionArgs()
+                            {
+                                UserData = argsAddr,
+                                UserDataSize = length
+                            });
                     }
                 }
                 finally
