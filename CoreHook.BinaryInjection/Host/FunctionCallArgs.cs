@@ -68,6 +68,28 @@ namespace CoreHook.BinaryInjection
             Function = Encoding.Unicode.GetBytes(function.PadRight(256, '\0'));
             Arguments = Binary.StructToByteArray(arguments, 512);
         }
+
+        public FunctionCallArgs(string classFunctionName, RemoteFunctionArgs arguments)
+        {
+            var args = classFunctionName.Split('.');
+            string assembly = "";
+            var argsCount = args.Length - 2;
+            for (var x = 0; x < argsCount; x++)
+            {
+                assembly += args[x];
+                if (x != argsCount - 1)
+                {
+                    assembly += ".";
+                }
+            }
+            var type = args[argsCount++];
+            var function = args[argsCount];
+
+            Assembly = Encoding.Unicode.GetBytes(assembly.PadRight(256, '\0'));
+            Class = Encoding.Unicode.GetBytes(string.Format("{0}.{1}", assembly, type).PadRight(256, '\0'));
+            Function = Encoding.Unicode.GetBytes(function.PadRight(256, '\0'));
+            Arguments = Binary.StructToByteArray(arguments, 512);
+        }
         public FunctionCallArgs(string assembly, string type, string function, byte[] arguments)
         {
             Assembly = Encoding.Unicode.GetBytes(assembly.PadRight(256, '\0'));

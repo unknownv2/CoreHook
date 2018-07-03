@@ -176,6 +176,35 @@ namespace CoreHook.BinaryInjection
             }
         }
 
+
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        {
+            if (IsAttached(process.Id))
+            {
+                var pid = process.Id;
+                var args = new LinuxFunctionCallArgs(function, arguments);
+                var argsBuf = Binary.StructToByteArray(args);
+                var bufPtr = CopyMemoryTo(process, argsBuf, (uint)argsBuf.Length);
+
+                SendRpcRequest(
+                  pid,
+                  _mailboxAddress,
+                  new RemoteThreadArgs
+                  {
+                      Status = 1,
+                      ProcFlags = 0,
+                      Result = 0,
+                      ThreadAttributes = 0,
+                      CreationFlags = 1,
+                      StackSize = 0,
+                      StartAddress = GetCachedFunction(module, LinuxExecAssemblyFunction),
+                      Params = bufPtr
+                  },
+                  false
+                );
+            }
+        }
+
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
             var id = proc.Id;

@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Runtime.InteropServices;
 
 namespace CoreHook.BinaryInjection
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct DotnetAssemblyFunctionCall
     {
-       [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
         public byte[] coreRunLib;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
         public byte[] binaryLoaderFunctionName;
