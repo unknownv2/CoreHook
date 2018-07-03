@@ -1,6 +1,6 @@
 # CoreHook
 
-A library to hook unmanaged applications by hosting .NET Core and running managed code to extend an application's functionality (more information [here](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md)).  
+A library to hook unmanaged applications by hosting .NET Core and running managed code to extend an application's functionality (more information [here](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md)) on various architectures running  [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x), [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x), and [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x).  
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook).
 
@@ -13,14 +13,30 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 * [EasyHook](https://github.com/EasyHook/EasyHook)
 * [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard) 
 
-Currently, CoreHook supports Win32 and UWP apps (x86, x64) on [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). It also works on [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x) and [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x) for x64 applications.
 
-So far it has been tested on Ubuntu 14, Ubuntu 16, macOS High Sierra, and Windows 10.
+## Supported Platforms
+
+| Architecture  | Operating System      | Working    |
+| ------------- |:---------------------:|:----------:|
+| x86           | Windows               | Yes        |
+| x64           | Linux, macOS, Windows | Yes        |
+| ARM32         | Linux, Windows        | WIP        |
+| ARM64         | Linux, Windows        | WIP        |
+
+## Tested Platforms
+
+| Operating System   | Architecture(s)       |
+| ------------------ |:---------------------:|
+| macOS High Sierra  | x64                   |
+| Ubuntu 14          | x64                   |
+| Ubuntu 16          | x64                   |
+| Windows 10 (Win32) | x86, x64              |
+| Windows 10 (UWP)   | x86, x64              |
 
 ## Examples
 
  * [FileMonitor - Linux and macOS (Unix)](Examples/Unix/CoreHook.Unix.FileMonitor/)
- * [FileMonitor - Uiversal Windows Platform (UWP)](Examples/UWP/CoreHook.UWP.FileMonitor/) 
+ * [FileMonitor - Universal Windows Platform (UWP)](Examples/UWP/CoreHook.UWP.FileMonitor/) 
  * [FileMonitor - Windows Desktop Applications (Win32)](Examples/CoreHook.FileMonitor)
 
 
