@@ -40,7 +40,10 @@ namespace CoreHook.BinaryInjection
         {
             LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
         }
-
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        {
+            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
+        }
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
             LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
