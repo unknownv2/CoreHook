@@ -27,6 +27,21 @@ namespace CoreHook.BinaryInjection
             Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);
         }
 
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        {
+            // combinary functioncallargs and binaryloader args
+            var paramArgs = new DotnetAssemblyFunctionCall()
+            {
+                coreRunLib = System.Text.Encoding.ASCII.GetBytes(_coreRunLib.PadRight(1024, '\0')),
+                binaryLoaderFunctionName = System.Text.Encoding.ASCII.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
+                assemblyCallFunctionName = System.Text.Encoding.ASCII.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
+                binaryLoaderArgs = (MacOSBinaryLoaderArgs)_binaryLoaderArgs,
+                assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
+            };
+            byte[] parameters = Binary.StructToByteArray(paramArgs);
+            Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);
+        }
+
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
             return Unmanaged.MacOS.Process.copyMemToProcessByPid(proc.Id, buffer, length);
