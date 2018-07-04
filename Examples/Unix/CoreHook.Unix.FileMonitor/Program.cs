@@ -23,11 +23,16 @@ namespace CoreHook.Unix.FileMonitor
         };
 
         const string CoreHookPipeName = "CoreHook";
-
+        static bool IsArchitectureArm()
+        {
+            var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+            return arch == Architecture.Arm || arch == Architecture.Arm64;
+        }
         static void Main(string[] args)
         {
             int TargetPID = 0;
             string targetProgam = string.Empty;
+            IsArchitectureArm();
             // Load the parameter
             while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
@@ -112,8 +117,11 @@ namespace CoreHook.Unix.FileMonitor
             //var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var coreLibrariesPath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
+            var coreLibrariesPath = !IsArchitectureArm()
+                ? "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/"
+                : currentDir;
 
+            coreLibrariesPath = currentDir;
             // path to CoreHook.CoreLoad.dll
             var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
