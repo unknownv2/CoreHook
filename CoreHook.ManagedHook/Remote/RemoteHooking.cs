@@ -388,7 +388,7 @@ namespace CoreHook.ManagedHook.Remote
                 Convert managed arguments to binary stream...
              */
 
-            BinaryFormatter Format = new BinaryFormatter();
+            var Format = new BinaryFormatter();
 
             Format.Serialize(InPassThruStream, InRemoteInfo);
 
