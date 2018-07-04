@@ -25,8 +25,8 @@ namespace CoreHook.BinaryInjection
         private const string _mailboxName = "RemoteThreadMailbox";
 
         private const string LinuxExecDotnetAssembly = "ExecuteDotnetAssembly";
-
         private const string LinuxExecAssemblyFunction = "ExecuteManagedAssemblyClassFunction";
+        private const string LinuxLoadAssembly = "LoadAssemblyBinaryArgs";
 
         private long _mailboxAddress;
 
@@ -278,7 +278,6 @@ namespace CoreHook.BinaryInjection
                 var addr = GetFunctionAddress(module, function);
             }
         }
-        private const string LinuxLoadAssembly = "LoadAssemblyBinaryArgs";
         public void ExecuteWithArgs(Process process, string module, object args)
         {
             if (IsAttached(process.Id))
@@ -307,6 +306,7 @@ namespace CoreHook.BinaryInjection
 
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
+            var injHandle = StartInjection(targetProcess.Id);
             if (dependencies != null)
             {
                 foreach (var binary in dependencies)
@@ -320,13 +320,33 @@ namespace CoreHook.BinaryInjection
                 }
             }
 
-            Unmanaged.Linux.Process.injectByPid(targetProcess.Id, binaryPath);
+            InjectLibrary(injHandle, binaryPath);
+            //Unmanaged.Linux.Process.injectByPid(targetProcess.Id, binaryPath);
+
+            EndInjection(injHandle);
 
             PtraceAttach(targetProcess.Id);
 
             GetMailboxAddress(targetProcess.Id, binaryPath);
         }
 
+        private IntPtr StartInjection(int pid)
+        {
+            var addrSize = IntPtr.Size;
+            var addrPtr = Marshal.AllocHGlobal(addrSize);
+            Unmanaged.Linux.ProcessLibInjector.injector_attach(ref addrPtr, pid);
+            return addrPtr;
+        }
+        private int InjectLibrary(IntPtr handle, string libraryName)
+        {
+            return Unmanaged.Linux.ProcessLibInjector.injector_inject(handle, libraryName);
+        }
+        private int EndInjection(IntPtr handle)
+        {
+            // injector_detach frees our injector handle so no need to do it ourselves
+            return Unmanaged.Linux.ProcessLibInjector.injector_detach(handle); ;
+
+        }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
