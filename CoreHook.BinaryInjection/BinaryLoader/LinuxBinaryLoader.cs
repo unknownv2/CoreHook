@@ -80,9 +80,6 @@ namespace CoreHook.BinaryInjection
         }
         private static long ReadIntPtr(int pid, long address)
         {
-            var addrSize = IntPtr.Size;
-            var addrPtr = Marshal.AllocHGlobal(addrSize);       
-
             return PtraceReadPtr(pid, address);
         }
         private void PtraceAttach(int pid)

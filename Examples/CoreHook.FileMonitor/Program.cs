@@ -24,6 +24,11 @@ namespace CoreHook.FileMonitor
 
         const string CoreHookPipeName = "CoreHook";
 
+        private static bool IsArchitectureArm()
+        {
+            var arch = RuntimeInformation.ProcessArchitecture;
+            return arch == Architecture.Arm || arch == Architecture.Arm64;
+        }
         static void Main(string[] args)
         {
             int TargetPID = 0;
@@ -62,14 +67,10 @@ namespace CoreHook.FileMonitor
                 return;
             }
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                string easyHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    Environment.Is64BitProcess ? "EasyHook64.dll" : "EasyHook32.dll");
-                if (!File.Exists(easyHookDll))
-                {
-                    Console.WriteLine("Cannot find EasyHook dll");
-                    return;
-                }
+            {                
+                string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
+
                 // start process and begin dll loading
                 if (!string.IsNullOrEmpty(targetProgam))
                 {
@@ -77,7 +78,7 @@ namespace CoreHook.FileMonitor
                 }
 
                 // inject FileMonitor dll into process
-                InjectDllIntoTarget(TargetPID, injectionLibrary, easyHookDll);
+                InjectDllIntoTarget(TargetPID, injectionLibrary, coreHookDll);
             }
             else
             {
@@ -98,20 +99,24 @@ namespace CoreHook.FileMonitor
         {
             return GetProcessListByName(processName)[0];
         }
-        static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
+        static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
-            if (!File.Exists(easyHookDll))
+            if (!IsArchitectureArm() && !File.Exists(coreHookDll))
             {
-                Console.WriteLine("Cannot find EasyHook dll");
+                Console.WriteLine("Cannot find corehook dll");
                 return;
             }
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = Environment.GetEnvironmentVariable("CORE_LIBRARIES");
-            var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
+            var coreLibrariesPath = !IsArchitectureArm() ? 
+                Environment.GetEnvironmentVariable("CORE_LIBRARIES")
+                : currentDir;
+            var coreRootPath = !IsArchitectureArm() ? 
+                Environment.GetEnvironmentVariable("CORE_ROOT")
+                : currentDir;
 
-            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,
@@ -126,7 +131,7 @@ namespace CoreHook.FileMonitor
                 }
             }
             // path to CoreHook.CoreLoad.dll
-            var coreLoadDll = Path.Combine(currentDir, "netstandard2.0", "CoreHook.CoreLoad.dll");
+            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
             {
@@ -134,11 +139,12 @@ namespace CoreHook.FileMonitor
                 return;
             }
 
-            // for now, we use the EasyHook dll to support function hooking on Windows
-            ManagedHook.Remote.RemoteHooking.Inject(
-                procId,
-                easyHookDll);
-
+            if (!IsArchitectureArm())
+            {
+                ManagedHook.Remote.RemoteHooking.Inject(
+                    procId,
+                    coreHookDll);
+            }
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
                 coreRunDll,

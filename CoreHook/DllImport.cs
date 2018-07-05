@@ -7,7 +7,7 @@ namespace CoreHook
 {
     static class NativeAPI_x86
     {
-        private const String DllName = "EasyHook32.dll";
+        private const String DllName = "corehook32.dll";
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern String RtlGetLastErrorStringCopy();
@@ -200,7 +200,7 @@ namespace CoreHook
 
     static class NativeAPI_x64
     {
-        private const String DllName = "EasyHook64.dll";
+        private const String DllName = "corehook64.dll";
 
         internal static ILibLoader libLoader;
         internal static IntPtr libHandle;
@@ -209,7 +209,7 @@ namespace CoreHook
             _hookingLibMaps = new Dictionary<OSPlatform, Tuple<ILibLoader, string>>()
         {
             {
-                OSPlatform.Windows, new Tuple<ILibLoader, string>(new LibLoaderWindows(), "EasyHook64.dll")
+                OSPlatform.Windows, new Tuple<ILibLoader, string>(new LibLoaderWindows(), "corehook64.dll")
             },
             {
                 OSPlatform.Linux, new Tuple<ILibLoader, string>(new LibLoaderUnix(), "libcorehook.so")
@@ -537,13 +537,17 @@ namespace CoreHook
         public const Int32 STATUS_WOW_ASSERTION = unchecked((Int32)0xC0009898L);
         public const Int32 STATUS_ACCESS_DENIED = unchecked((Int32)0xC0000022L);
 
-        internal static T LoadFunction<T>(string name, ILibLoader loader, IntPtr handle) where T : class
+        private static T LoadFunction<T>(string name, ILibLoader loader, IntPtr handle) where T : class
         {
             IntPtr address = loader.GetProcAddress(handle, name);
             var function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
             return function as T;
         }
-
+        private static bool IsArchitectureArm()
+        {
+            var arch = RuntimeInformation.ProcessArchitecture;
+            return arch == Architecture.Arm || arch == Architecture.Arm64;
+        }
         private static String ComposeString()
         {
             return String.Format("{0} (Code: {1})", RtlGetLastErrorString(), RtlGetLastError());
@@ -625,7 +629,7 @@ namespace CoreHook
                     NativeAPI_x64.libHandle);
                 Force(LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
             }
-            else Force(NativeAPI_x86.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+            else Force(NativeAPI_x86.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));            
         }
 
         public static void LhUninstallHook(IntPtr RefHandle)

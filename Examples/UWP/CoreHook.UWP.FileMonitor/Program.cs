@@ -28,7 +28,7 @@ namespace CoreHook.UWP.FileMonitor
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        const string CoreHookPipeName = "CoreHook";
+        private const string CoreHookPipeName = "CoreHook";
 
         static void Main(string[] args)
         {
@@ -73,8 +73,8 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            string easyHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                Environment.Is64BitProcess ? "EasyHook64.dll" : "EasyHook32.dll");
+            string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
             GrantAllAppPkgsAccessToDir(currentDir);
             GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "netstandard2.0"));
@@ -86,17 +86,17 @@ namespace CoreHook.UWP.FileMonitor
             }
 
             // inject FileMon dll into process
-            InjectDllIntoTarget(TargetPID, injectionLibrary, easyHookDll);
+            InjectDllIntoTarget(TargetPID, injectionLibrary, coreHookDll);
 
             // start RPC server
             StartListener();
 
         }
-        static void InjectDllIntoTarget(int procId, string injectionLibrary, string easyHookDll)
+        static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {          
-            if (!File.Exists(easyHookDll))
+            if (!File.Exists(coreHookDll))
             {
-                Console.WriteLine("Cannot find EasyHook dll");
+                Console.WriteLine("Cannot find corehook dll");
                 return;
             }
 
@@ -110,7 +110,7 @@ namespace CoreHook.UWP.FileMonitor
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "CoreRunDLL64.dll" : "CoreRunDLL32.dll");
-            if (!File.Exists(easyHookDll))
+            if (!File.Exists(coreRunDll))
             {
                 coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
                 if (!File.Exists(coreRunDll))
@@ -128,10 +128,9 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            // for now, we use the EasyHook dll to support function hooking on Windows
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
-                easyHookDll);
+                coreHookDll);
 
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,

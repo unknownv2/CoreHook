@@ -7,10 +7,10 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 ## Dependencies
 
 * [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
+* [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking)
 * [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
 * [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
 * [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
-* [EasyHook](https://github.com/EasyHook/EasyHook)
 * [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard) 
 
 
