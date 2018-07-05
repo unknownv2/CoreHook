@@ -129,7 +129,7 @@ namespace CoreHook.Unix.FileMonitor.Hook
 
                 var proxy = builder.CreateProxy<CoreHook.FileMonitor.Shared.IFileMonitor>(client);
 
-                //CreateHooks();
+                CreateHooks();
                 try
                 {
                     while (true)
