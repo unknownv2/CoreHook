@@ -8,19 +8,10 @@ namespace CoreHook.Unmanaged.Linux
         private const string LIBINJECT = "inject.so";
 
         [DllImport(LIBINJECT, SetLastError = true)]
-        public static extern int injectByName(string targetName, string injectionLib, ref int pid);
+        public static extern void ptrace_read(int targetPid, IntPtr addr, IntPtr data, int len);
 
         [DllImport(LIBINJECT, SetLastError = true)]
-        public static extern int findProcessByName(string targetName);
-
-        [DllImport(LIBINJECT, SetLastError = true)]
-        public static extern int injectByPid(int targetPid, string injectionLib);
-
-        [DllImport(LIBINJECT, SetLastError = true)]
-        public static extern void ptrace_read(int targetPid, IntPtr addr, IntPtr vptr, int len);
-
-        [DllImport(LIBINJECT, SetLastError = true)]
-        public static extern void ptrace_write(int targetPid, IntPtr addr, byte[] vptr, int len);
+        public static extern void ptrace_write(int targetPid, IntPtr addr, byte[] data, int len);
 
         [DllImport(LIBINJECT, SetLastError = true)]
         public static extern void ptrace_detach(int targetPid);
