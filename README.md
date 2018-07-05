@@ -20,7 +20,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 | ------------- |:---------------------:|:----------:|
 | x86           | Windows               | Yes        |
 | x64           | Linux, macOS, Windows | Yes        |
-| ARM32         | Linux, Windows        | WIP        |
+| ARM32         | Linux, Windows        | Windows    |
 | ARM64         | Linux, Windows        | WIP        |
 
 ## Tested Platforms
@@ -30,7 +30,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 | macOS High Sierra  | x64                   |
 | Ubuntu 14          | x64                   |
 | Ubuntu 16          | x64                   |
-| Windows 10 (Win32) | x86, x64              |
+| Windows 10 (Win32) | x86, x64, ARM32       |
 | Windows 10 (UWP)   | x86, x64              |
 
 ## Examples
