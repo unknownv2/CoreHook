@@ -311,17 +311,16 @@ namespace CoreHook.BinaryInjection
             {
                 foreach (var binary in dependencies)
                 {
-                    var fname = Path.Combine(dir, binary);
-                    if (!File.Exists(fname))
+                    var libName = Path.Combine(dir, binary);
+                    if (!File.Exists(libName))
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
-                    Unmanaged.Linux.Process.injectByPid(targetProcess.Id, fname);
+                    InjectLibrary(injHandle, libName);
                 }
             }
 
             InjectLibrary(injHandle, binaryPath);
-            //Unmanaged.Linux.Process.injectByPid(targetProcess.Id, binaryPath);
 
             EndInjection(injHandle);
 
@@ -344,8 +343,7 @@ namespace CoreHook.BinaryInjection
         private int EndInjection(IntPtr handle)
         {
             // injector_detach frees our injector handle so no need to do it ourselves
-            return Unmanaged.Linux.ProcessLibInjector.injector_detach(handle); ;
-
+            return Unmanaged.Linux.ProcessLibInjector.injector_detach(handle);
         }
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

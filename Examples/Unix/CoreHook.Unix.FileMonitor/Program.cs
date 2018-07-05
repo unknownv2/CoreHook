@@ -117,11 +117,8 @@ namespace CoreHook.Unix.FileMonitor
             //var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var coreLibrariesPath = !IsArchitectureArm()
-                ? "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/"
-                : currentDir;
+            var coreLibrariesPath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
 
-            coreLibrariesPath = currentDir;
             // path to CoreHook.CoreLoad.dll
             var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
