@@ -307,7 +307,7 @@ namespace CoreHook.ManagedHook.Remote
                         var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
                         binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
 
-                        Thread.Sleep(500);
+                        Thread.Sleep(10000);
 
                         binaryLoader.CallFunctionWithRemoteArgs(proc,
                             coreRunDll,
