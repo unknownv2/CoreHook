@@ -306,11 +306,11 @@ namespace CoreHook.ManagedHook.Remote
                         binaryLoader.Load(proc, coreRunDll);
                         var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
 
-                        Thread.Sleep(5000);
+                        //Thread.Sleep(5000);
 
                         binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
 
-                        Thread.Sleep(5000);
+                        Thread.Sleep(2000);
 
                         binaryLoader.CallFunctionWithRemoteArgs(proc,
                             coreRunDll,

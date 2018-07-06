@@ -6,6 +6,11 @@ namespace CoreHook.Unmanaged
 {
     public static class NativeMethods
     {
+        public const UInt32 INFINITE = 0xFFFFFFFF;
+        public const UInt32 WAIT_ABANDONED = 0x00000080;
+        public const UInt32 WAIT_OBJECT_0 = 0x00000000;
+        public const UInt32 WAIT_TIMEOUT = 0x00000102;
+
         internal static IntPtr InvalidHandleValue = new IntPtr(-1);
 
         [DllImport("user32.dll")]
@@ -111,6 +116,11 @@ namespace CoreHook.Unmanaged
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool CloseHandle(
             IntPtr hObject);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern uint WaitForSingleObject(
+                IntPtr hHandle,
+                uint dwMilliseconds);
 
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         internal static extern bool VirtualFreeEx(

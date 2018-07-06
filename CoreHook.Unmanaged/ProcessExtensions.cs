@@ -145,6 +145,8 @@ namespace CoreHook.Unmanaged
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
 
+                    NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
+
                     // We don't need this handle.
                     NativeMethods.CloseHandle(hThread);
                 }
