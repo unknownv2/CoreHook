@@ -5,8 +5,6 @@ namespace CoreHook.IPC.NamedPipes
 {
     public static partial class NamedPipeMessages
     {
-        public const string UnknownGVFSState = "UnknownGVFSState";
-        public const string MountNotReadyResult = "MountNotReady";
         private const string ResponseSuffix = "Response";
         public const string UnknownRequest = "UnknownRequest";
         private const char MessageSeparator = '|';
