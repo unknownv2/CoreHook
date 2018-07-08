@@ -224,6 +224,37 @@ namespace CoreHook
             IntPtr lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessW);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        public static extern Boolean DetourCreateProcessWithDllsExW(String lpApplicationName,
+              String lpCommandLine,
+              IntPtr lpProcessAttributes,
+              IntPtr lpThreadAttributes,
+              bool bInheritHandles,
+              uint dwCreationFlags,
+              IntPtr lpEnvironment,
+              String lpCurrentDirectory,
+              IntPtr lpStartupInfo,
+              IntPtr lpProcessInformation,
+              uint nDlls,
+              IntPtr rlpDlls,
+              IntPtr pfCreateProcessW);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        public static extern Boolean DetourCreateProcessWithDllsExA(String lpApplicationName,
+            String lpCommandLine,
+            IntPtr lpProcessAttributes,
+            IntPtr lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            String lpCurrentDirectory,
+            IntPtr lpStartupInfo,
+            IntPtr lpProcessInformation,
+            uint nDlls,
+            IntPtr rlpDlls,
+            IntPtr pfCreateProcessW);
     }
 
     static class NativeAPI_x64
@@ -579,6 +610,66 @@ namespace CoreHook
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
             String lpDllName,
+            IntPtr pfCreateProcessW);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
+        public static extern Boolean DetourCreateProcessWithDllsExWF(String lpApplicationName,
+              String lpCommandLine,
+              IntPtr lpProcessAttributes,
+              IntPtr lpThreadAttributes,
+              bool bInheritHandles,
+              uint dwCreationFlags,
+              IntPtr lpEnvironment,
+              String lpCurrentDirectory,
+              IntPtr lpStartupInfo,
+              IntPtr lpProcessInformation,
+              uint nDlls,
+              IntPtr rlpDlls,
+              IntPtr pfCreateProcessW);
+
+        public delegate Boolean DetourCreateProcessWithDllsExW(
+                        String lpApplicationName,
+                        String lpCommandLine,
+                        IntPtr lpProcessAttributes,
+                        IntPtr lpThreadAttributes,
+                        bool bInheritHandles,
+                        uint dwCreationFlags,
+                        IntPtr lpEnvironment,
+                        String lpCurrentDirectory,
+                        IntPtr lpStartupInfo,
+                        IntPtr lpProcessInformation,
+                        uint nDlls,
+                        IntPtr rlpDlls,
+                        IntPtr pfCreateProcessW);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        public static extern Boolean DetourCreateProcessWithDllsExAF(String lpApplicationName,
+            String lpCommandLine,
+            IntPtr lpProcessAttributes,
+            IntPtr lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            String lpCurrentDirectory,
+            IntPtr lpStartupInfo,
+            IntPtr lpProcessInformation,
+            uint nDlls,
+            IntPtr rlpDlls,
+            IntPtr pfCreateProcessW);
+
+        public delegate Boolean DetourCreateProcessWithDllsExA(
+            String lpApplicationName,
+            String lpCommandLine,
+            IntPtr lpProcessAttributes,
+            IntPtr lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            String lpCurrentDirectory,
+            IntPtr lpStartupInfo,
+            IntPtr lpProcessInformation,
+            uint nDlls,
+            IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
     }
 
@@ -1028,6 +1119,110 @@ namespace CoreHook
                         lpStartupInfo,
                         lpProcessInformation,
                         lpDllName,
+                        pfCreateProcessW));
+            }
+        }
+        public static bool DetourCreateProcessWithDllsExA(
+            String lpApplicationName,
+            String lpCommandLine,
+            IntPtr lpProcessAttributes,
+            IntPtr lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            String lpCurrentDirectory,
+            IntPtr lpStartupInfo,
+            IntPtr lpProcessInformation,
+            uint nDlls,
+            IntPtr rlpDlls,
+            IntPtr pfCreateProcessW)
+        {
+            if (Is64Bit)
+            {
+                var DetourCreateProcessWithDllsExA = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllsExA>(
+                                "DetourCreateProcessWithDllsExA",
+                                NativeAPI_x64.libLoader,
+                                NativeAPI_x64.libHandle);
+                return (DetourCreateProcessWithDllsExA(lpApplicationName,
+                        lpCommandLine,
+                        lpProcessAttributes,
+                        lpThreadAttributes,
+                        bInheritHandles,
+                        dwCreationFlags,
+                        lpEnvironment,
+                        lpCurrentDirectory,
+                        lpStartupInfo,
+                        lpProcessInformation,
+                        nDlls,
+                        rlpDlls,
+                        pfCreateProcessW));
+            }
+            else
+            {
+                return (NativeAPI_x86.DetourCreateProcessWithDllsExA(lpApplicationName,
+                        lpCommandLine,
+                        lpProcessAttributes,
+                        lpThreadAttributes,
+                        bInheritHandles,
+                        dwCreationFlags,
+                        lpEnvironment,
+                        lpCurrentDirectory,
+                        lpStartupInfo,
+                        lpProcessInformation,
+                        nDlls,
+                        rlpDlls,
+                        pfCreateProcessW));
+            }
+        }
+        public static bool DetourCreateProcessWithDllsExW(
+            String lpApplicationName,
+            String lpCommandLine,
+            IntPtr lpProcessAttributes,
+            IntPtr lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            String lpCurrentDirectory,
+            IntPtr lpStartupInfo,
+            IntPtr lpProcessInformation,
+            uint nDlls,
+            IntPtr rlpDlls,
+            IntPtr pfCreateProcessW)
+        {
+            if (Is64Bit)
+            {
+                var DetourCreateProcessWithDllsExW = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllsExW>(
+                                "DetourCreateProcessWithDllsExW",
+                                NativeAPI_x64.libLoader,
+                                NativeAPI_x64.libHandle);
+                return (DetourCreateProcessWithDllsExW(lpApplicationName,
+                        lpCommandLine,
+                        lpProcessAttributes,
+                        lpThreadAttributes,
+                        bInheritHandles,
+                        dwCreationFlags,
+                        lpEnvironment,
+                        lpCurrentDirectory,
+                        lpStartupInfo,
+                        lpProcessInformation,
+                        nDlls,
+                        rlpDlls,
+                        pfCreateProcessW));
+            }
+            else
+            {
+                return (NativeAPI_x86.DetourCreateProcessWithDllsExW(lpApplicationName,
+                        lpCommandLine,
+                        lpProcessAttributes,
+                        lpThreadAttributes,
+                        bInheritHandles,
+                        dwCreationFlags,
+                        lpEnvironment,
+                        lpCurrentDirectory,
+                        lpStartupInfo,
+                        lpProcessInformation,
+                        nDlls,
+                        rlpDlls,
                         pfCreateProcessW));
             }
         }
