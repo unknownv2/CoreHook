@@ -31,8 +31,7 @@ namespace CoreHook.FileMonitor.Pipe
             _maxConnections = maxConnections;
             PipeName = pipeName;
         }
-
-
+        
         internal NamedPipeServerStream CreatePipe(string pipeName)
         {
             return new NamedPipeServerStream(
@@ -78,7 +77,6 @@ namespace CoreHook.FileMonitor.Pipe
         {
             try
             {
-                ProcessNextClient();
                 while (running)
                 {
                     ProcessNextClient();
@@ -98,11 +96,7 @@ namespace CoreHook.FileMonitor.Pipe
         {
             try
             {
-                if (this.RequestRetrieved != null) //has event subscribers
-                {
-                    var args = new PipeClientConnectionEventArgs(pipeStream);
-                    RequestRetrieved(this, args);
-                }
+                RequestRetrieved?.Invoke(this, new PipeClientConnectionEventArgs(pipeStream));
             }
             catch (Exception e)
             {

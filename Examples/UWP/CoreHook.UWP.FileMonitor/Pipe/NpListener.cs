@@ -132,8 +132,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             {
                 if (this.RequestRetrieved != null) //has event subscribers
                 {
-                    var args = new PipeClientConnectionEventArgs(pipeStream);
-                    RequestRetrieved(this, args);
+                    RequestRetrieved(this, new PipeClientConnectionEventArgs(pipeStream));
                 }
             }
             catch (Exception e)

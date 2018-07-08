@@ -98,11 +98,7 @@ namespace CoreHook.Unix.FileMonitor.Pipe
         {
             try
             {
-                if (this.RequestRetrieved != null) //has event subscribers
-                {
-                    var args = new PipeClientConnectionEventArgs(pipeStream);
-                    RequestRetrieved(this, args);
-                }
+                RequestRetrieved?.Invoke(this, new PipeClientConnectionEventArgs(pipeStream));
             }
             catch (Exception e)
             {
