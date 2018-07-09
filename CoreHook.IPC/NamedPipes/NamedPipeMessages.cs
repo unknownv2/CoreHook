@@ -27,13 +27,12 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-
         public class Message
         {
             public Message(string header, string body)
             {
-                this.Header = header;
-                this.Body = body;
+                Header = header;
+                Body = body;
             }
             public string Header { get; }
             public string Body { get; }
@@ -66,6 +65,7 @@ namespace CoreHook.IPC.NamedPipes
                 return result;
             }
         }
+
         public static class Notification
         {
             public class Request
