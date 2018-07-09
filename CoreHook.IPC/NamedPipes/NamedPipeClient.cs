@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Pipes;
+using System.Security.Principal;
 
 namespace CoreHook.IPC.NamedPipes
 {
@@ -22,7 +23,11 @@ namespace CoreHook.IPC.NamedPipes
             }
             try
             {
-                this.clientStream = new NamedPipeClientStream(this.pipeName);
+                this.clientStream = new NamedPipeClientStream(".",
+                    this.pipeName,
+                    PipeDirection.InOut,
+                    PipeOptions.Asynchronous,
+                    TokenImpersonationLevel.Impersonation);
                 this.clientStream.Connect(timeoutMilliseconds);
             }
             catch (TimeoutException)
