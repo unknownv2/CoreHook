@@ -367,6 +367,9 @@ namespace CoreHook.Unmanaged
 
         public static bool FreeMemory(this Process process, IntPtr address, int size = 0)
         {
+            if (address == IntPtr.Zero)
+                return true;
+
             using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
                   NativeMethods.ProcessAccessFlags.QueryInformation |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryOperation)))
