@@ -10,6 +10,7 @@ namespace CoreHook.BinaryInjection
 {
     public class BinaryLoader : IBinaryLoader
     {
+        private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
         public void Execute(Process process, string module, string function, string args)
         {
             var argBytes = Encoding.Unicode.GetBytes(args + "\0");
@@ -21,14 +22,25 @@ namespace CoreHook.BinaryInjection
         private string LoadAssemblyFunc = "LoadAssembly";
         private void ExecuteAssemblyWithArgs(Process process, string module, BinaryLoaderArgs args)
         {
-            process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args));
+            _allocatedAddresses.Add(
+                new MemoryAllocation()
+                {
+                    Process = process,
+                    Address = process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args)),
+                    IsFree = true
+                });      
         }
 
         // Execute a function inside a library using the class name and function name
         private string ExecAssemblyFunc = "ExecuteAssemblyFunction";
         private void LoadAssemblyWithArgs(Process process, string module, FunctionCallArgs args)
         {
-            process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args));
+            _allocatedAddresses.Add(new MemoryAllocation()
+            {
+                Process = process,
+                Address = process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args), false),
+                IsFree = false
+            });        
         }
 
         public void ExecuteWithArgs(Process process, string module, object args)
@@ -51,6 +63,10 @@ namespace CoreHook.BinaryInjection
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
             return proc.MemCopyTo(buffer, length);
+        }
+        public bool FreeMemory(Process proc, IntPtr address, uint length = 0)
+        {
+            return proc.FreeMemory(address, (int)length);
         }
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
@@ -101,6 +117,17 @@ namespace CoreHook.BinaryInjection
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
                 // TODO: set large fields to null.
+                foreach(var memAlloc in _allocatedAddresses)
+                {
+                    if(memAlloc.Address != IntPtr.Zero && !memAlloc.IsFree)
+                    {
+                        if(!FreeMemory(memAlloc.Process, memAlloc.Address))
+                        {
+                            throw new Exception("Failed to free memory");
+                        }
+                    }
+                }
+                _allocatedAddresses.Clear();
 
                 disposedValue = true;
             }
@@ -120,6 +147,13 @@ namespace CoreHook.BinaryInjection
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
         #endregion
+    }
+    public class MemoryAllocation
+    {
+        public Process Process;
+        public IntPtr Address;
+        public bool IsFree;
     }
 }
