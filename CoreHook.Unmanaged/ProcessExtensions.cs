@@ -235,7 +235,8 @@ namespace CoreHook.Unmanaged
         /// <param name="module">The name of the module containing the desired function.</param>
         /// <param name="function">The name of the exported function we will call.</param>
         /// <param name="args">Serialized arguments for passing to the module function.</param>
-        public static void Execute(this Process process, string module, string function, byte[] args)
+        /// <param name="canWait">We can wait for the thread to finish before cleaning up memory or we need to cleanup later.</param>
+        public static IntPtr Execute(this Process process, string module, string function, byte[] args, bool canWait = true)
         {
             using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
                 NativeMethods.ProcessAccessFlags.CreateThread |
@@ -291,12 +292,21 @@ namespace CoreHook.Unmanaged
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
 
+                    if (canWait)
+                    {
+                        NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
+                    }
+
                     // We don't need this handle.
                     NativeMethods.CloseHandle(hThread);
+                    return remoteAllocAddr;
                 }
                 finally
                 {
-                    NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, args.Length, NativeMethods.FreeType.Release);
+                    if (canWait)
+                    {
+                        NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, 0, NativeMethods.FreeType.Release);
+                    }
                 }
             }
         }
@@ -355,6 +365,17 @@ namespace CoreHook.Unmanaged
             }
         }
 
+        public static bool FreeMemory(this Process process, IntPtr address, int size = 0)
+        {
+            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
+                  NativeMethods.ProcessAccessFlags.QueryInformation |
+                  NativeMethods.ProcessAccessFlags.VirtualMemoryOperation)))
+            {
+                return size == 0 ?
+                    NativeMethods.VirtualFreeEx(hProcess.Handle, address, size, NativeMethods.FreeType.Release)
+                    : NativeMethods.VirtualFreeEx(hProcess.Handle, address, size, NativeMethods.FreeType.Decommit);
+            }
+        }
         public static bool Is64Bit(this Process process)
         {
             if (!Environment.Is64BitOperatingSystem)
