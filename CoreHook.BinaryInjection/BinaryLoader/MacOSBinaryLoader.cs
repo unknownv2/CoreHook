@@ -104,6 +104,11 @@ namespace CoreHook.BinaryInjection
             // GC.SuppressFinalize(this);
         }
 
+        public bool FreeMemory(Process proc, IntPtr address, uint length)
+        {
+            throw new NotImplementedException();
+        }
+
         ~MacOSBinaryLoader()
         {
             Dispose();
