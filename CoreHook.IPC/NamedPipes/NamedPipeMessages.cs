@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
 namespace CoreHook.IPC.NamedPipes
@@ -8,6 +9,7 @@ namespace CoreHook.IPC.NamedPipes
         private const string ResponseSuffix = "Response";
         public const string UnknownRequest = "UnknownRequest";
         private const char MessageSeparator = '|';
+
 
         public enum CompletionState
         {
@@ -65,7 +67,74 @@ namespace CoreHook.IPC.NamedPipes
                 return result;
             }
         }
+        public class InjectionCompleteNotification
+        {
+            public const string InjectionComplete = "InjectionComplete";
 
+            public InjectionCompleteNotification(string body)
+            {
+                this.RequestData = InjectionCompleteMessage.FromBody(body);
+            }
+            public InjectionCompleteNotification(int pid, bool didComplete)
+            {
+                this.RequestData = new InjectionCompleteMessage(pid, didComplete);
+            }
+
+            public InjectionCompleteMessage RequestData { get; }
+
+            public Message CreateMessage()
+            {
+                return new Message(InjectionComplete, this.RequestData.ToMessage());
+            }
+        }
+        public class InjectionCompleteMessage
+        {
+            public InjectionCompleteMessage(int pid, bool didComplete)
+            {
+                this.PID = pid;
+                this.Completed = didComplete;
+            }
+
+            public int PID { get; set; }
+
+            public bool Completed{ get; set; }
+
+            internal static InjectionCompleteMessage FromBody(string body)
+            {
+                if (!string.IsNullOrEmpty(body))
+                {
+                    // This mesage is stored using the MessageSeperator delimitor for performance reasons
+                    string[] dataParts = body.Split(MessageSeparator);
+                    int pid;
+                    bool didComplete = false;
+
+
+                    if (dataParts.Length < 3)
+                    {
+                        throw new InvalidOperationException(string.Format("Invalid complete message. Expected at least 3 parts, got: {0} from message: '{1}'", dataParts.Length, body));
+                    }
+
+                    if (!int.TryParse(dataParts[0], out pid))
+                    {
+                        throw new InvalidOperationException(string.Format("Invalid complete message. Expected PID, got: {0} from message: '{1}'", dataParts[0], body));
+                    }
+
+                    if (!bool.TryParse(dataParts[1], out didComplete))
+                    {
+                        throw new InvalidOperationException(string.Format("Invalid complete message. Expected bool for didComplete, got: {0} from message: '{1}'", dataParts[1], body));
+                    }
+
+                    return new InjectionCompleteMessage(pid, didComplete);
+                }
+
+                return null;
+            }
+
+            internal string ToMessage()
+            {
+                return string.Join(MessageSeparator.ToString(), this.PID, this.Completed);
+            }
+        }
         public static class Notification
         {
             public class Request
