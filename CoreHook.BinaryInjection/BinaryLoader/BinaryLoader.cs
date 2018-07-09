@@ -62,7 +62,14 @@ namespace CoreHook.BinaryInjection
         }
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
-            return proc.MemCopyTo(buffer, length);
+            var address = proc.MemCopyTo(buffer, length);
+            _allocatedAddresses.Add(new MemoryAllocation()
+            {
+                Process = proc,
+                Address = address,
+                IsFree = false
+            });
+            return address;
         }
         public bool FreeMemory(Process proc, IntPtr address, uint length = 0)
         {
@@ -119,7 +126,7 @@ namespace CoreHook.BinaryInjection
                 // TODO: set large fields to null.
                 foreach(var memAlloc in _allocatedAddresses)
                 {
-                    if(memAlloc.Address != IntPtr.Zero && !memAlloc.IsFree)
+                    if(!memAlloc.IsFree)
                     {
                         if(!FreeMemory(memAlloc.Process, memAlloc.Address))
                         {
