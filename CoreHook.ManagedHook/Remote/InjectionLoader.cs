@@ -29,6 +29,7 @@ namespace CoreHook.ManagedHook.Remote
             switch (message.Header)
             {
                 case NamedPipeMessages.InjectionCompleteNotification.InjectionComplete:
+                    Console.WriteLine("Received InjectionComplete message");
                     var msg = new NamedPipeMessages.InjectionCompleteNotification(message.Body);
                     var reqData = msg.RequestData;
                     if (reqData.Completed)
@@ -39,22 +40,7 @@ namespace CoreHook.ManagedHook.Remote
             }
         }
 
-        public static bool SendInjectionComplete(string pipeName, int pid)
-        {
-            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
-            {
-                if (pipeClient.Connect())
-                {
-                    var request = new NamedPipeMessages.InjectionCompleteNotification(pid, true);
-                    if (pipeClient.TrySendRequest(request.CreateMessage()))
-                    {
-                        return true;
-                    }
-                }
-            }
 
-            return false;
-        }
         private static SortedList<Int32, InjectionWait> InjectionList = new SortedList<Int32, InjectionWait>();
         public static void BeginInjection(int InTargetPID)
         {
