@@ -14,6 +14,7 @@ namespace CoreHook.IPC.NamedPipes
         private Action<Connection> handleConnection;
         private IPipePlatform platform;
         private NamedPipeServerStream listeningPipe;
+
         private NamedPipeServer(string pipeName, IPipePlatform platform, Action<Connection> handleConnection)
         {
             this.pipeName = pipeName;
@@ -21,6 +22,7 @@ namespace CoreHook.IPC.NamedPipes
             this.handleConnection = handleConnection;
             this.isStopping = false;
         }
+
         public static NamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, Connection> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
@@ -31,6 +33,7 @@ namespace CoreHook.IPC.NamedPipes
             pipeServer.OpenListeningPipe();
             return pipeServer;
         }
+
         public void Dispose()
         {
             this.isStopping = true;
@@ -40,6 +43,7 @@ namespace CoreHook.IPC.NamedPipes
                 pipe.Dispose();
             }
         }
+
         private static void HandleConnection(Connection connection, Action<string, Connection> handleRequest)
         {
             while (connection.IsConnected)
@@ -53,6 +57,7 @@ namespace CoreHook.IPC.NamedPipes
                 handleRequest(request, connection);
             }
         }
+
         private void OpenListeningPipe()
         {
             try
@@ -69,10 +74,12 @@ namespace CoreHook.IPC.NamedPipes
                 this.LogErrorAndExit("OpenListeningPipe caught unhandled exception, exiting process", e);
             }
         }
+
         private void OnNewConnection(IAsyncResult ar)
         {
             this.OnNewConnection(ar, createNewThreadIfSynchronous: true);
         }
+
         private void OnNewConnection(IAsyncResult ar, bool createNewThreadIfSynchronous)
         {
             if (createNewThreadIfSynchronous &&
@@ -129,10 +136,12 @@ namespace CoreHook.IPC.NamedPipes
                 pipe.Dispose();
             }
         }
+
         private void LogErrorAndExit(string message, Exception e)
         {
    
         }
+
         public class Connection
         {
             private NamedPipeServerStream serverStream;
