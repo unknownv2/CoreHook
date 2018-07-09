@@ -109,7 +109,7 @@ namespace CoreHook.IPC.NamedPipes
                     bool didComplete = false;
 
 
-                    if (dataParts.Length < 3)
+                    if (dataParts.Length < 2)
                     {
                         throw new InvalidOperationException(string.Format("Invalid complete message. Expected at least 3 parts, got: {0} from message: '{1}'", dataParts.Length, body));
                     }
