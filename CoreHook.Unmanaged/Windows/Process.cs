@@ -9,8 +9,9 @@ namespace CoreHook.Unmanaged.Windows
     {
         private const String DllName = "corehook32.dll";
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllExW(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllExW(
+            [MarshalAs(UnmanagedType.LPWStr)]String lpApplicationName,
             String lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -19,12 +20,13 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessW);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllExA(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllExA(
+            String lpApplicationName,
             String lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -33,28 +35,14 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessA);
 
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllsExW(String lpApplicationName,
-              String lpCommandLine,
-              IntPtr lpProcessAttributes,
-              IntPtr lpThreadAttributes,
-              bool bInheritHandles,
-              uint dwCreationFlags,
-              IntPtr lpEnvironment,
-              String lpCurrentDirectory,
-              ref NativeMethods.StartupInfo lpStartupInfo,
-              ref NativeMethods.ProcessInformation lpProcessInformation,
-              uint nDlls,
-              IntPtr rlpDlls,
-              IntPtr pfCreateProcessW);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllsExA(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllsExW(
+            String lpApplicationName,
             String lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -63,7 +51,23 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
+            uint nDlls,
+            IntPtr rlpDlls,
+            IntPtr pfCreateProcessW);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllsExA(
+            String lpApplicationName,
+            String lpCommandLine,
+            IntPtr lpProcessAttributes,
+            IntPtr lpThreadAttributes,
+            bool bInheritHandles,
+            uint dwCreationFlags,
+            IntPtr lpEnvironment,
+            String lpCurrentDirectory,
+            ref NativeMethods.StartupInfo lpStartupInfo,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessA);
@@ -73,8 +77,9 @@ namespace CoreHook.Unmanaged.Windows
     {
         private const String DllName = "corehook64.dll";
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllExW(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllExW(
+            [MarshalAs(UnmanagedType.LPWStr)]String lpApplicationName,
             String lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -83,12 +88,13 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessW);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllExA(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllExA(
+            String lpApplicationName,
             String lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -97,12 +103,13 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessA);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllsExW(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllsExW(
+              [MarshalAs(UnmanagedType.LPWStr)]String lpApplicationName,
               String lpCommandLine,
               IntPtr lpProcessAttributes,
               IntPtr lpThreadAttributes,
@@ -111,13 +118,14 @@ namespace CoreHook.Unmanaged.Windows
               IntPtr lpEnvironment,
               String lpCurrentDirectory,
               ref NativeMethods.StartupInfo lpStartupInfo,
-              ref NativeMethods.ProcessInformation lpProcessInformation,
+              out NativeMethods.ProcessInformation lpProcessInformation,
               uint nDlls,
               IntPtr rlpDlls,
               IntPtr pfCreateProcessW);
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllsExA(String lpApplicationName,
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern Boolean DetourCreateProcessWithDllsExA(
+            String lpApplicationName,
             String lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -126,7 +134,7 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessA);
@@ -227,7 +235,7 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessA)
         {
@@ -242,7 +250,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         lpDllName,
                         pfCreateProcessA));
             }
@@ -257,7 +265,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         lpDllName,
                         pfCreateProcessA));
             }
@@ -273,7 +281,7 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             String lpDllName,
             IntPtr pfCreateProcessW)
         {
@@ -288,7 +296,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         lpDllName,
                         pfCreateProcessW));
             }
@@ -303,7 +311,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         lpDllName,
                         pfCreateProcessW));
             }
@@ -319,7 +327,7 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessA)
@@ -335,7 +343,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         nDlls,
                         rlpDlls,
                         pfCreateProcessA));
@@ -351,7 +359,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         nDlls,
                         rlpDlls,
                         pfCreateProcessA));
@@ -368,7 +376,7 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr lpEnvironment,
             String lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
-            ref NativeMethods.ProcessInformation lpProcessInformation,
+            out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW)
@@ -384,7 +392,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         nDlls,
                         rlpDlls,
                         pfCreateProcessW));
@@ -400,7 +408,7 @@ namespace CoreHook.Unmanaged.Windows
                         lpEnvironment,
                         lpCurrentDirectory,
                         ref lpStartupInfo,
-                        ref lpProcessInformation,
+                        out lpProcessInformation,
                         nDlls,
                         rlpDlls,
                         pfCreateProcessW));

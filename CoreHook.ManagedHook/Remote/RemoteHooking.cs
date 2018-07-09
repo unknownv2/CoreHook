@@ -183,7 +183,7 @@ namespace CoreHook.ManagedHook.Remote
             var si = new NativeMethods.StartupInfo();
             var pi = new NativeMethods.ProcessInformation();
 
-            if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExA(InEXEPath,
+            if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(InEXEPath,
                 null,
                 IntPtr.Zero,
                 IntPtr.Zero,
@@ -200,7 +200,7 @@ namespace CoreHook.ManagedHook.Remote
                 IntPtr.Zero,
                 null,
                 ref si,
-                ref pi,
+                out pi,
                 coreHookDll,
                 //ProcessHelper.Is64Bit ? InLibraryPath_x64 : InLibraryPath_x86,
                 IntPtr.Zero
