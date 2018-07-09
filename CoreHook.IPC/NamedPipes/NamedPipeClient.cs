@@ -11,6 +11,7 @@ namespace CoreHook.IPC.NamedPipes
         private NamedPipeClientStream clientStream;
         private StreamReader reader;
         private StreamWriter writer;
+        private const string serverName = ".";
         public NamedPipeClient(string pipeName)
         {
             this.pipeName = pipeName;
@@ -23,12 +24,13 @@ namespace CoreHook.IPC.NamedPipes
             }
             try
             {
-                this.clientStream = new NamedPipeClientStream(".",
+                this.clientStream = new NamedPipeClientStream(
+                    serverName,
                     this.pipeName,
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous,
                     TokenImpersonationLevel.Impersonation);
-                this.clientStream.Connect(timeoutMilliseconds);
+                    this.clientStream.Connect(timeoutMilliseconds);
             }
             catch (TimeoutException)
             {

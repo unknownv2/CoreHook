@@ -94,7 +94,7 @@ namespace CoreHook.UWP.FileMonitor
             StartListener();
         }
 
-        static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
+        private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {          
             if (!File.Exists(coreHookDll))
             {
@@ -146,7 +146,7 @@ namespace CoreHook.UWP.FileMonitor
                 CoreHookPipeName);
         }
 
-        static void StartListener()
+        private static void StartListener()
         {
             var _listener = new NpListener(CoreHookPipeName);
             _listener.RequestRetrieved += ClientConnectionMade;
@@ -156,7 +156,7 @@ namespace CoreHook.UWP.FileMonitor
             Console.ReadLine();
         }
 
-        static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
+        private static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
         {
             var pipeServer = args.PipeStream;
 

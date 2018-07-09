@@ -18,51 +18,7 @@ namespace CoreHook.ManagedHook.Remote
         private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
 
         private const string CoreHookInjectionHelperPipe = "CoreHookInjection";
-        /// <summary>
-        /// All supported options that will influence the way your library is injected.
-        /// </summary>
-        [Flags]
-        public enum InjectionOptions
-        {
-            /// <summary>
-            /// Default injection procedure.
-            /// </summary>
-            Default = 0x0,
 
-            /// <summary>
-            /// Use of services is not permitted.
-            /// </summary>
-            NoService = 0x1,
-
-            /// <summary>
-            /// Use of WOW64 bypass is not permitted.
-            /// </summary>
-            NoWOW64Bypass = 0x2,
-
-            /// <summary>
-            /// Allow injection without a strong name (e.g. no GAC registration). This option requires that the full path to injected assembly be provided
-            /// </summary>
-            DoNotRequireStrongName = 0x4,
-        }
-
-        /// <summary>
-        /// See <see cref="Inject(Int32, InjectionOptions, String, String, Object[])"/> for more information.
-        /// </summary>
-        /// <param name="InTargetPID">
-        /// The target process ID.
-        /// </param>
-        /// <param name="InLibraryPath_x86">
-        /// A partially qualified assembly name or a relative/absolute file path of the 32-bit version of your library. 
-        /// For example "MyAssembly, PublicKeyToken=248973975895496" or ".\Assemblies\MyAssembly.dll". 
-        /// </param>
-        /// <param name="InLibraryPath_x64">
-        /// A partially qualified assembly name or a relative/absolute file path of the 64-bit version of your library. 
-        /// For example "MyAssembly, PublicKeyToken=248973975895496" or ".\Assemblies\MyAssembly.dll". 
-        /// </param>
-        /// <param name="InPassThruArgs">
-        /// A serializable list of parameters being passed to your library entry points <c>Run()</c> and
-        /// constructor (see <see cref="IEntryPoint"/>).
-        /// </param>
         public static void Inject(
             int InTargetPID,
             string InLibraryPath_x86,
@@ -113,57 +69,7 @@ namespace CoreHook.ManagedHook.Remote
                 binaryLoader.Load(ProcessHelper.GetProcessById(InTargetPID), library);
             }
         }
-        /// <summary>
-        /// Creates a new process which is started suspended until you call <see cref="WakeUpProcess"/>
-        /// from within your injected library <c>Run()</c> method. This allows you to hook the target
-        /// BEFORE any of its usual code is executed. In situations where a target has debugging and
-        /// hook preventions, you will get a chance to block those mechanisms for example...
-        /// </summary>
-        /// <remarks>
-        /// <para>
-        /// Please note that this method might fail when injecting into managed processes, especially
-        /// when the target is using the CLR hosting API and takes advantage of AppDomains. For example,
-        /// the Internet Explorer won't be hookable with this method. In such a case your only options
-        /// are either to hook the target with the unmanaged API or to hook it after (non-supended) creation 
-        /// with the usual <see cref="Inject"/> method.
-        /// </para>
-        /// <para>
-        /// See <see cref="Inject"/> for more information. The exceptions listed here are additional
-        /// to the ones listed for <see cref="Inject"/>.
-        /// </para>
-        /// </remarks>
-        /// <param name="InEXEPath">
-        /// A relative or absolute path to the desired executable.
-        /// </param>
-        /// <param name="InCommandLine">
-        /// Optional command line parameters for process creation.
-        /// </param>
-        /// <param name="InProcessCreationFlags">
-        /// Internally CREATE_SUSPENDED is already passed to CreateProcess(). With this
-        /// parameter you can add more flags like DETACHED_PROCESS, CREATE_NEW_CONSOLE or
-        /// whatever!
-        /// </param>
-        /// <param name="InOptions">
-        /// A valid combination of options.
-        /// </param>
-        /// <param name="InLibraryPath_x86">
-        /// A partially qualified assembly name or a relative/absolute file path of the 32-bit version of your library. 
-        /// For example "MyAssembly, PublicKeyToken=248973975895496" or ".\Assemblies\\MyAssembly.dll". 
-        /// </param>
-        /// <param name="InLibraryPath_x64">
-        /// A partially qualified assembly name or a relative/absolute file path of the 64-bit version of your library. 
-        /// For example "MyAssembly, PublicKeyToken=248973975895496" or ".\Assemblies\\MyAssembly.dll". 
-        /// </param>
-        /// <param name="OutProcessId">
-        /// The process ID of the newly created process.
-        /// </param>
-        /// <param name="InPassThruArgs">
-        /// A serializable list of parameters being passed to your library entry points <c>Run()</c> and
-        /// constructor (see <see cref="IEntryPoint"/>).
-        /// </param>
-        /// <exception cref="ArgumentException">
-        /// The given EXE path could not be found.
-        /// </exception>
+
         public static void CreateAndInject(
             string InEXEPath,
             string coreHookDll,
@@ -173,10 +79,10 @@ namespace CoreHook.ManagedHook.Remote
             string coreLibrariesPath,
             string InCommandLine,
             int InProcessCreationFlags,
-            InjectionOptions InOptions,
             string InLibraryPath_x86,
             string InLibraryPath_x64,
             out int OutProcessId,
+            IPC.Platform.IPipePlatform pipePlatform,
             params object[] InPassThruArgs)
         {
             OutProcessId = -1;
@@ -188,13 +94,10 @@ namespace CoreHook.ManagedHook.Remote
                 IntPtr.Zero,
                 IntPtr.Zero,
                 false,
-
                 (uint)(InProcessCreationFlags) |
                 (uint)
                 (
-                0
-                    //NativeMethods.CreateProcessFlags.CREATE_SUSPENDED | 
-                    //NativeMethods.CreateProcessFlags.CREATE_DEFAULT_ERROR_MODE
+                NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
                 )
                 ,
                 IntPtr.Zero,
@@ -202,10 +105,11 @@ namespace CoreHook.ManagedHook.Remote
                 ref si,
                 out pi,
                 coreHookDll,
-                //ProcessHelper.Is64Bit ? InLibraryPath_x64 : InLibraryPath_x86,
                 IntPtr.Zero
                 ))
             {
+                OutProcessId = pi.dwProcessId;
+
                 InjectEx(
                     ProcessHelper.GetCurrentProcessId(),
                     pi.dwProcessId,
@@ -219,7 +123,7 @@ namespace CoreHook.ManagedHook.Remote
                     coreLoadDll,
                     coreClrPath,
                     coreLibrariesPath,
-                    null,
+                    pipePlatform,
                     InPassThruArgs);
             }
             else
