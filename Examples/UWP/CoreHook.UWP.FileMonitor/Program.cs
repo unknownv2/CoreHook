@@ -15,6 +15,8 @@ using System.Threading;
 using CoreHook.FileMonitor.Service.Pipe;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using CoreHook.IPC.Platform;
+using System.IO.Pipes;
 
 namespace CoreHook.UWP.FileMonitor
 {
@@ -90,8 +92,8 @@ namespace CoreHook.UWP.FileMonitor
 
             // start RPC server
             StartListener();
-
         }
+
         static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {          
             if (!File.Exists(coreHookDll))
@@ -140,6 +142,7 @@ namespace CoreHook.UWP.FileMonitor
                 coreLibrariesPath, // path to .net core shared libs
                 injectionLibrary,
                 injectionLibrary,
+                new PipePlatform(),
                 CoreHookPipeName);
         }
 

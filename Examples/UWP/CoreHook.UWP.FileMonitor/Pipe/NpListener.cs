@@ -110,7 +110,6 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         {
             try
             {
-                ProcessNextClient();
                 while (running)
                 {
                     ProcessNextClient();
@@ -130,10 +129,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         {
             try
             {
-                if (this.RequestRetrieved != null) //has event subscribers
-                {
-                    RequestRetrieved(this, new PipeClientConnectionEventArgs(pipeStream));
-                }
+                RequestRetrieved?.Invoke(this, new PipeClientConnectionEventArgs(pipeStream));
             }
             catch (Exception e)
             {

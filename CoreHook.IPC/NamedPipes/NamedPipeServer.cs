@@ -139,7 +139,7 @@ namespace CoreHook.IPC.NamedPipes
 
         private void LogErrorAndExit(string message, Exception e)
         {
-   
+            Console.WriteLine(message);
         }
 
         public class Connection
