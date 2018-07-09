@@ -21,6 +21,7 @@ namespace CoreHook.BinaryInjection
 
         private const string _libcName = "libc";
         private const string _mallocName = "malloc";
+        private const string _freeName = "free";
 
         private const string _mailboxName = "RemoteThreadMailbox";
 
@@ -379,6 +380,11 @@ namespace CoreHook.BinaryInjection
             Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
+        }
+
+        public bool FreeMemory(Process proc, IntPtr address, uint length)
+        {
+            throw new NotImplementedException();
         }
 
         ~LinuxBinaryLoader()
