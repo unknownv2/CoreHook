@@ -9,8 +9,7 @@ namespace CoreHook.IPC.NamedPipes
         private const string ResponseSuffix = "Response";
         public const string UnknownRequest = "UnknownRequest";
         private const char MessageSeparator = '|';
-
-
+        
         public enum CompletionState
         {
             NotCompleted,
@@ -107,7 +106,6 @@ namespace CoreHook.IPC.NamedPipes
                     string[] dataParts = body.Split(MessageSeparator);
                     int pid;
                     bool didComplete = false;
-
 
                     if (dataParts.Length < 2)
                     {
