@@ -7,6 +7,7 @@ using System.Threading;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.CoreLoad
 {
@@ -70,11 +71,11 @@ namespace CoreHook.CoreLoad
             for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
                 paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
 
-            LoadUserLibrary(resolver.Assembly, paramArray);
+            LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
 
             return 0;
         }
-        private static void LoadUserLibrary(Assembly assembly, object[] paramArray)
+        private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
         {
             var entryPoint = FindEntryPoint(assembly);
             BinaryFormatter format = new BinaryFormatter();
@@ -89,17 +90,36 @@ namespace CoreHook.CoreLoad
 
             var runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
             var instance = InitializeInstance(entryPoint, paramArray);
+            SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id);
             try
             {
                 // After this it is safe to enter the Run() method, which will block until assembly unloading...
                 // From now on the user library has to take care about error reporting!
                 runMethod.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
                                            BindingFlags.InvokeMethod, null, paramArray, null);
+  
             }
             finally
             {
                 //Release(entryPoint);
             }
+        }
+
+        public static bool SendInjectionComplete(string pipeName, int pid)
+        {
+            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
+            {
+                if (pipeClient.Connect())
+                {
+                    var request = new NamedPipeMessages.InjectionCompleteNotification(pid, true);
+                    if (pipeClient.TrySendRequest(request.CreateMessage()))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static Type FindEntryPoint(Assembly assembly)
