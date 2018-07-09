@@ -147,12 +147,11 @@ namespace CoreHook.Unmanaged
 
                     NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
 
-                    // We don't need this handle.
                     NativeMethods.CloseHandle(hThread);
                 }
                 finally
                 {
-                    NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, pathBytes.Length, NativeMethods.FreeType.Release);
+                    NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, 0, NativeMethods.FreeType.Release);
                 }
             }
         }
@@ -219,12 +218,13 @@ namespace CoreHook.Unmanaged
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
 
-                    // We don't need this handle.
+                    NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
+
                     NativeMethods.CloseHandle(hThread);
                 }
                 finally
                 {
-                    NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, args.Length, NativeMethods.FreeType.Release);
+                    NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, 0, NativeMethods.FreeType.Release);
                 }
             }
         }

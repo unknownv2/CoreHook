@@ -13,9 +13,7 @@ namespace CoreHook.BinaryInjection
         private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
         public void Execute(Process process, string module, string function, string args)
         {
-            var argBytes = Encoding.Unicode.GetBytes(args + "\0");
-
-            process.Execute(module, function, argBytes);
+            process.Execute(module, function, Encoding.Unicode.GetBytes(args + "\0"));
         }
 
         // Inject an assembly into a process
