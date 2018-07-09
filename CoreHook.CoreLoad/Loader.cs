@@ -118,7 +118,6 @@ namespace CoreHook.CoreLoad
                     }
                 }
             }
-
             return false;
         }
 
