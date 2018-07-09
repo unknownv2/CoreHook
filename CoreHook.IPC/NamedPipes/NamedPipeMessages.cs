@@ -102,7 +102,6 @@ namespace CoreHook.IPC.NamedPipes
             {
                 if (!string.IsNullOrEmpty(body))
                 {
-                    // This mesage is stored using the MessageSeperator delimitor for performance reasons
                     string[] dataParts = body.Split(MessageSeparator);
                     int pid;
                     bool didComplete = false;
@@ -131,23 +130,6 @@ namespace CoreHook.IPC.NamedPipes
             internal string ToMessage()
             {
                 return string.Join(MessageSeparator.ToString(), this.PID, this.Completed);
-            }
-        }
-        public static class Notification
-        {
-            public class Request
-            {
-                public const string Header = nameof(Notification);
-                public int ProcessId { get; set; }
-                public string Message { get; set; }
-                public static Request FromMessage(Message message)
-                {
-                    return JsonConvert.DeserializeObject<Request>(message.Body);
-                }
-                public Message ToMessage()
-                {
-                    return new Message(Header, JsonConvert.SerializeObject(this));
-                }
             }
         }
     }
