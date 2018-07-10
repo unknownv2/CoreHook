@@ -74,13 +74,11 @@ namespace CoreHook.FileMonitor
                 // start process and begin dll loading
                 if (!string.IsNullOrEmpty(targetProgam))
                 {
-                    //TargetPID = Process.Start(targetProgam).Id;
                     CreateAndInjectDll(targetProgam, injectionLibrary, coreHookDll);
                 }
                 else
                 {
                     // inject FileMonitor dll into process
-                    TargetPID = GetProcessByName("TestCPP").Id;
                     InjectDllIntoTarget(TargetPID, injectionLibrary, coreHookDll);
                 }
             }
