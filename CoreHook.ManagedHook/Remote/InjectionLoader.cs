@@ -29,12 +29,15 @@ namespace CoreHook.ManagedHook.Remote
             switch (message.Header)
             {
                 case NamedPipeMessages.InjectionCompleteNotification.InjectionComplete:
-                    Console.WriteLine("Received InjectionComplete message");
                     var msg = new NamedPipeMessages.InjectionCompleteNotification(message.Body);
                     var reqData = msg.RequestData;
                     if (reqData.Completed)
                     {
                         InjectionCompleted(reqData.PID);
+                    }
+                    else
+                    {
+                        throw new Exception("Process injection failed");
                     }
                     break;
             }

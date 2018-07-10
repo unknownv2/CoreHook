@@ -155,6 +155,7 @@ namespace CoreHook.FileMonitor
                 injectionLibrary,
                 out processId,
                 new PipePlatform(),
+                null,
                 CoreHookPipeName);
         }
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
@@ -197,10 +198,10 @@ namespace CoreHook.FileMonitor
                 return;
             }
 
-
+            /*
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
-                coreHookDll);
+                coreHookDll);*/
             
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
@@ -211,6 +212,7 @@ namespace CoreHook.FileMonitor
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
+                new string[] { coreHookDll },
                 CoreHookPipeName);
         }
 

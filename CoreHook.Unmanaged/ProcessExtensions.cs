@@ -319,7 +319,6 @@ namespace CoreHook.Unmanaged
                 NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryWrite)))
             {
-
                 // Allocate space in the remote process for the DLL path. 
                 var remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess.Handle,

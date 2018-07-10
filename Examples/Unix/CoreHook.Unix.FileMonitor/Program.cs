@@ -108,6 +108,7 @@ namespace CoreHook.Unix.FileMonitor
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
+                null,
                 CoreHookPipeName);
         }
         static void LinuxInjectDllIntoTarget(int procId, string injectionLibrary)
@@ -144,6 +145,7 @@ namespace CoreHook.Unix.FileMonitor
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
+                null,
                 CoreHookPipeName);
         }
         private static Process[] GetProcessListByName(string processName)

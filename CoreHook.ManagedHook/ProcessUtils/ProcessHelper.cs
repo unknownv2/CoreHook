@@ -21,7 +21,6 @@ namespace CoreHook.ManagedHook.ProcessUtils
         {
             return GetProcessListByName(processName)[0];
         }
-
         public static Int32 GetCurrentProcessId()
         {
             return Process.GetCurrentProcess().Id;

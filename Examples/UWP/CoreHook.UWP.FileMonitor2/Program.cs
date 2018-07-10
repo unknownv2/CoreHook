@@ -273,7 +273,7 @@ namespace CoreHook.UWP.FileMonitor2
                 {
                     break;
                 }
-                if (args.Length != 1 || !File.Exists(args[0]))
+                if (args.Length != 1)
                 {
                     Console.WriteLine();
                     Console.WriteLine("Usage: FileMonitor %PID%");
@@ -358,10 +358,11 @@ namespace CoreHook.UWP.FileMonitor2
                 return;
             }
 
+            /*
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
                 coreHookDll);
-
+            */
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
                 coreRunDll,
@@ -371,6 +372,7 @@ namespace CoreHook.UWP.FileMonitor2
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
+                new string[] { coreHookDll },
                 CoreHookPipeName);
         }
 

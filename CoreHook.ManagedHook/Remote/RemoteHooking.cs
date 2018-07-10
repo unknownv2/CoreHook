@@ -56,14 +56,15 @@ namespace CoreHook.ManagedHook.Remote
             string coreClrPath,
             string coreLibrariesPath,
             string InCommandLine,
-            uint InProcessCreationFlags,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
-            out int OutProcessId,
+            uint processCreationFlags,
+            string lbraryPath_x86,
+            string libraryPath_x64,
+            out int outProcessId,
             IPC.Platform.IPipePlatform pipePlatform,
+            IEnumerable<string> dependencies,
             params object[] InPassThruArgs)
         {
-            OutProcessId = -1;
+            outProcessId = -1;
             var si = new NativeMethods.StartupInfo();
             var pi = new NativeMethods.ProcessInformation();
 
@@ -72,7 +73,7 @@ namespace CoreHook.ManagedHook.Remote
                 IntPtr.Zero,
                 IntPtr.Zero,
                 false,
-                InProcessCreationFlags |
+                processCreationFlags |
                 (uint)
                 (
                 NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
@@ -85,21 +86,21 @@ namespace CoreHook.ManagedHook.Remote
                 IntPtr.Zero
                 ))
             {
-                OutProcessId = pi.dwProcessId;
+                outProcessId = pi.dwProcessId;
 
                 InjectEx(
                     ProcessHelper.GetCurrentProcessId(),
                     pi.dwProcessId,
                     pi.dwThreadId,
-                    0x20000000,
-                    InLibraryPath_x86,
-                    InLibraryPath_x64,
+                    lbraryPath_x86,
+                    libraryPath_x64,
                     true,
                     coreRunDll,
                     coreLoadDll,
                     coreClrPath,
                     coreLibrariesPath,
                     pipePlatform,
+                    dependencies,
                     InPassThruArgs);
             }
             else
@@ -114,50 +115,51 @@ namespace CoreHook.ManagedHook.Remote
             string coreLoadDll,
             string coreClrPath,
             string coreLibrariesPath,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
+            string lbraryPath_x86,
+            string libraryPath_x64,
             IPC.Platform.IPipePlatform pipePlatform,
+            IEnumerable<string> dependencies,
             params object[] InPassThruArgs)
         {
             InjectEx(
                 ProcessHelper.GetCurrentProcessId(),
                 InTargetPID,
                 0,
-                0x20000000,
-                InLibraryPath_x86,
-                InLibraryPath_x64,
+                lbraryPath_x86,
+                libraryPath_x64,
                 true,
                 coreRunDll,
                 coreLoadDll,
                 coreClrPath,
                 coreLibrariesPath,
                 pipePlatform,
+                dependencies,
                 InPassThruArgs);
         }
 
         public static void InjectEx(
-            int InHostPID,
-            int InTargetPID,
-            int InWakeUpTID,
-            int InNativeOptions,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
+            int hostPID,
+            int targetPID,
+            int wakeUpTID,
+            string lbraryPath_x86,
+            string libraryPath_x64,
             bool InCanBypassWOW64,
             string coreRunDll,
             string coreLoadDll,
             string coreClrPath,
             string coreLibrariesPath,
             IPC.Platform.IPipePlatform pipePlatform,
+            IEnumerable<string> dependencies,
             params object[] InPassThruArgs)
         {
             MemoryStream PassThru = new MemoryStream();
-            InjectionHelper.BeginInjection(InTargetPID);
+            InjectionHelper.BeginInjection(targetPID);
             using (var pipeServer = InjectionHelper.CreateServer(CoreHookInjectionHelperPipe, pipePlatform))
             {
                 try
                 {
                     ManagedRemoteInfo RemoteInfo = new ManagedRemoteInfo();
-                    RemoteInfo.HostPID = InHostPID;
+                    RemoteInfo.HostPID = hostPID;
 
                     BinaryFormatter format = new BinaryFormatter();
                     List<object> args = new List<object>();
@@ -176,14 +178,14 @@ namespace CoreHook.ManagedHook.Remote
 
                     GCHandle hPassThru = PrepareInjection(
                         RemoteInfo,
-                        ref InLibraryPath_x86,
-                        ref InLibraryPath_x64,
+                        ref lbraryPath_x86,
+                        ref libraryPath_x64,
                         PassThru);
 
                     // Start library injection
                     try
                     {
-                        var proc = ProcessHelper.GetProcessById(InTargetPID);
+                        var proc = ProcessHelper.GetProcessById(targetPID);
                         var length = (uint)PassThru.Length;
 
                         using (var binaryLoader = GetBinaryLoader())
@@ -234,7 +236,7 @@ namespace CoreHook.ManagedHook.Remote
                                     CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
                                 };
                             }
-                            binaryLoader.Load(proc, coreRunDll);
+                            binaryLoader.Load(proc, coreRunDll, dependencies);
                             var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
 
                             binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
@@ -248,7 +250,7 @@ namespace CoreHook.ManagedHook.Remote
                                     UserDataSize = length
                                 });
 
-                            InjectionHelper.WaitForInjection(InTargetPID);
+                            InjectionHelper.WaitForInjection(targetPID);
                         }
                     }
                     finally
@@ -258,7 +260,7 @@ namespace CoreHook.ManagedHook.Remote
                 }
                 finally
                 {
-                    InjectionHelper.EndInjection(InTargetPID);
+                    InjectionHelper.EndInjection(targetPID);
                 }
             }
         }
