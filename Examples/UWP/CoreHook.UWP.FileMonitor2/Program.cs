@@ -106,7 +106,7 @@ namespace CoreHook.UWP.FileMonitor2
 
         private static void ClientWriteLine(object msg)
         {
-            Console.WriteLine(msg);
+            System.Diagnostics.Debug.WriteLine(msg);
         }
 
         private static PipeSecurity CreateUWPPipeSecurity()
@@ -357,7 +357,7 @@ namespace CoreHook.UWP.FileMonitor2
             // start process and begin dll loading
             if (!string.IsNullOrEmpty(targetApp))
             {
-                //TargetPID = LaunchAppxPackageForPid(targetApp);
+                TargetPID = LaunchAppxPackageForPid(targetApp);
             }
 
             // inject FileMon dll into process
@@ -495,6 +495,16 @@ namespace CoreHook.UWP.FileMonitor2
             {
                 return;
             }
+        }
+        private static int LaunchAppxPackageForPid(string appName)
+        {
+            var appActiveManager = new ApplicationActivationManager();
+            uint pid;
+
+            // PackageFamilyName + {Applications.Application.Id}, inside AppxManifest.xml
+            appActiveManager.ActivateApplication(appName, null, ActivateOptions.None, out pid);
+
+            return (int)pid;
         }
     }
 }
