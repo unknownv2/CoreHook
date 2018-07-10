@@ -16,7 +16,6 @@ using CoreHook.FileMonitor.Service;
 using System.Reflection;
 using CoreHook.FileMonitor.Service.Pipe;
 
-
 namespace CoreHook.UWP.FileMonitor2
 {
     internal static partial class Libraries

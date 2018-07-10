@@ -19,28 +19,6 @@ namespace CoreHook.ManagedHook.Remote
 
         private const string CoreHookInjectionHelperPipe = "CoreHookInjection";
 
-        public static void Inject(
-            int InTargetPID,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
-            params object[] InPassThruArgs)
-        {
-            InjectEx(
-                ProcessHelper.GetCurrentProcessId(),
-                InTargetPID,
-                0,
-                0x20000000,
-                InLibraryPath_x86,
-                InLibraryPath_x64,
-                true,
-                true,
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                string.Empty,
-                null,
-                InPassThruArgs);
-        }
         private static IBinaryLoader GetBinaryLoader()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -78,7 +56,7 @@ namespace CoreHook.ManagedHook.Remote
             string coreClrPath,
             string coreLibrariesPath,
             string InCommandLine,
-            int InProcessCreationFlags,
+            uint InProcessCreationFlags,
             string InLibraryPath_x86,
             string InLibraryPath_x64,
             out int OutProcessId,
@@ -90,16 +68,15 @@ namespace CoreHook.ManagedHook.Remote
             var pi = new NativeMethods.ProcessInformation();
 
             if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(InEXEPath,
-                null,
+                InCommandLine,
                 IntPtr.Zero,
                 IntPtr.Zero,
                 false,
-                (uint)(InProcessCreationFlags) |
+                InProcessCreationFlags |
                 (uint)
                 (
                 NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
-                )
-                ,
+                ),
                 IntPtr.Zero,
                 null,
                 ref si,
@@ -118,7 +95,6 @@ namespace CoreHook.ManagedHook.Remote
                     InLibraryPath_x86,
                     InLibraryPath_x64,
                     true,
-                    true,
                     coreRunDll,
                     coreLoadDll,
                     coreClrPath,
@@ -128,7 +104,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new Exception("failed to start processs");
+                throw new Exception($"Failed to start process {InEXEPath}");
             }
         }
 
@@ -151,7 +127,6 @@ namespace CoreHook.ManagedHook.Remote
                 InLibraryPath_x86,
                 InLibraryPath_x64,
                 true,
-                true,
                 coreRunDll,
                 coreLoadDll,
                 coreClrPath,
@@ -160,7 +135,7 @@ namespace CoreHook.ManagedHook.Remote
                 InPassThruArgs);
         }
 
-        internal static void InjectEx(
+        public static void InjectEx(
             int InHostPID,
             int InTargetPID,
             int InWakeUpTID,
@@ -168,7 +143,6 @@ namespace CoreHook.ManagedHook.Remote
             string InLibraryPath_x86,
             string InLibraryPath_x64,
             bool InCanBypassWOW64,
-            bool InRequireStrongName,
             string coreRunDll,
             string coreLoadDll,
             string coreClrPath,
@@ -200,17 +174,13 @@ namespace CoreHook.ManagedHook.Remote
                     }
                     RemoteInfo.UserParams = args.ToArray();
 
-                    RemoteInfo.RequireStrongName = InRequireStrongName;
-
                     GCHandle hPassThru = PrepareInjection(
                         RemoteInfo,
                         ref InLibraryPath_x86,
                         ref InLibraryPath_x64,
                         PassThru);
 
-                    /*
-                        Inject library...
-                     */
+                    // Start library injection
                     try
                     {
                         var proc = ProcessHelper.GetProcessById(InTargetPID);
@@ -308,9 +278,7 @@ namespace CoreHook.ManagedHook.Remote
             if ((InLibraryPath_x64 != null) && File.Exists(InLibraryPath_x64))
                 InLibraryPath_x64 = Path.GetFullPath(InLibraryPath_x64);
 
-            /*
-                validate assembly name...
-             */
+            // validate assembly type
             InRemoteInfo.UserLibrary = InLibraryPath_x86;
 
             if (ProcessHelper.Is64Bit)
@@ -327,32 +295,6 @@ namespace CoreHook.ManagedHook.Remote
             }
 
             InRemoteInfo.ChannelName = CoreHookInjectionHelperPipe;
-
-            /*
-            // Attempt to load the library by its FullName and if that fails, by its original library filename
-            Assembly UserAsm = null;
-            try
-            {
-                if (!String.IsNullOrEmpty(InRemoteInfo.UserLibraryName))
-                {
-                    UserAsm = Assembly.ReflectionOnlyLoad(InRemoteInfo.UserLibraryName);
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                // We already know the file exists at this point so try to load from original library filename instead
-                UserAsm = null;
-            }
-            if (UserAsm == null && (UserAsm = Assembly.ReflectionOnlyLoadFrom(InRemoteInfo.UserLibrary)) == null)
-                throw new DllNotFoundException(String.Format("The given assembly could not be found. {0}", InRemoteInfo.UserLibrary));
-
-            // Check for a strong name if necessary
-            if (InRemoteInfo.RequireStrongName && (Int32)(UserAsm.GetName().Flags & AssemblyNameFlags.PublicKey) == 0)
-                throw new ArgumentException("The given assembly has no strong name.");
-            */
-            /*
-                Convert managed arguments to binary stream...
-             */
 
             var Format = new BinaryFormatter();
             Format.Serialize(InPassThruStream, InRemoteInfo);

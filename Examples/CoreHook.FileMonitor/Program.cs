@@ -103,7 +103,7 @@ namespace CoreHook.FileMonitor
         }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
-            if (!IsArchitectureArm() && !File.Exists(coreHookDll))
+            if (!File.Exists(coreHookDll))
             {
                 Console.WriteLine("Cannot find corehook dll");
                 return;
@@ -149,7 +149,7 @@ namespace CoreHook.FileMonitor
                 coreLoadDll,
                 coreRootPath, // path to coreclr, clrjit
                 coreLibrariesPath, // path to .net core shared libs
-                string.Empty,
+                null,
                 0,
                 injectionLibrary,
                 injectionLibrary,
@@ -159,7 +159,7 @@ namespace CoreHook.FileMonitor
         }
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
-            if (!IsArchitectureArm() && !File.Exists(coreHookDll))
+            if (!File.Exists(coreHookDll))
             {
                 Console.WriteLine("Cannot find corehook dll");
                 return;
@@ -197,12 +197,11 @@ namespace CoreHook.FileMonitor
                 return;
             }
 
-            if (!IsArchitectureArm())
-            {
-                ManagedHook.Remote.RemoteHooking.Inject(
-                    procId,
-                    coreHookDll);
-            }
+
+            ManagedHook.Remote.RemoteHooking.Inject(
+                procId,
+                coreHookDll);
+            
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
                 coreRunDll,

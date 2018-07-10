@@ -107,6 +107,7 @@ namespace CoreHook.Unix.FileMonitor
                 coreLibrariesPath, // path to .net core shared libs
                 injectionLibrary,
                 injectionLibrary,
+                new PipePlatform(),
                 CoreHookPipeName);
         }
         static void LinuxInjectDllIntoTarget(int procId, string injectionLibrary)
@@ -142,6 +143,7 @@ namespace CoreHook.Unix.FileMonitor
                 coreLibrariesPath, // path to .net core shared libs
                 injectionLibrary,
                 injectionLibrary,
+                new PipePlatform(),
                 CoreHookPipeName);
         }
         private static Process[] GetProcessListByName(string processName)
@@ -156,7 +158,7 @@ namespace CoreHook.Unix.FileMonitor
         {
             return GetProcessListByName(processName)[0];
         }
-        static void StartListener()
+        private static void StartListener()
         {
             var _listener = new NpListener(CoreHookPipeName);
             _listener.RequestRetrieved += ClientConnectionMade;
@@ -166,7 +168,7 @@ namespace CoreHook.Unix.FileMonitor
             Console.ReadLine();
         }
 
-        static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
+        private static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
         {
             var pipeServer = args.PipeStream;
 
