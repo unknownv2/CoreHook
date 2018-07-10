@@ -5,14 +5,12 @@ namespace CoreHook.Unix.FileMonitor
 {
     public class PipePlatform : IPipePlatform
     {
-        private int _maxConnections = 254;
-
         public NamedPipeServerStream CreatePipeByName(string pipeName)
         {
             return new NamedPipeServerStream(
              pipeName,
              PipeDirection.InOut,
-             _maxConnections,
+             NamedPipeServerStream.MaxAllowedServerInstances,
              PipeTransmissionMode.Byte,
              PipeOptions.Asynchronous,
              65536,

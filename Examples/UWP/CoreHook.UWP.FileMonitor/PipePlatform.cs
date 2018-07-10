@@ -12,8 +12,6 @@ namespace CoreHook.UWP.FileMonitor
 {
     public class PipePlatform : IPipePlatform
     {
-        private int _maxConnections = 254;
-
         private static PipeSecurity CreateUWPPipeSecurity()
         {
             const PipeAccessRights access = PipeAccessRights.ReadWrite;
@@ -44,7 +42,7 @@ namespace CoreHook.UWP.FileMonitor
             return new NamedPipeServerStream(
                     pipeName,
                     PipeDirection.InOut,
-                    _maxConnections,
+                    NamedPipeServerStream.MaxAllowedServerInstances,
                     PipeTransmissionMode.Byte,
                     PipeOptions.Asynchronous,
                     65536,
