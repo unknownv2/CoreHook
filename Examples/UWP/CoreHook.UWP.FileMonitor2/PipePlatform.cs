@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CoreHook.IPC.Platform;
+﻿
 using System.IO.Pipes;
+using CoreHook.IPC.Platform;
 
-namespace CoreHook.FileMonitor
+namespace CoreHook.UWP.FileMonitor2
 {
     public class PipePlatform : IPipePlatform
     {
