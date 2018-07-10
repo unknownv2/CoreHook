@@ -242,50 +242,6 @@ namespace CoreHook.UWP.FileMonitor2
             Started = true;
         }
     }
-    /*
-    class Program
-    {
-        static string PipeName = "CoreHook";
-        static Library library = new Library(PipeName);
-        static void Main(string[] args)
-        {
-            // hook named pipe
-
-            Thread thread = new Thread(CreateLib);
-            thread.Start();
-            CreatePipe();
-
-            Console.ReadLine();
-        }
-        private static void CreateLib()
-        {
-            library.Start();
-        }
-        private static void CreatePipe()
-        {
-            while(!library.Started)
-            {
-                Thread.Sleep(500);
-            }
-            Console.WriteLine("Hello World!");
-
-            // create test pipe to trigger hook
-            var testPipe = CreatePipe(PipeName);
-        }
-        private static NamedPipeServerStream CreatePipe(string pipeName)
-        {
-            return new NamedPipeServerStream(
-                    pipeName,
-                    PipeDirection.InOut,
-                    254,
-                    PipeTransmissionMode.Byte,
-                    PipeOptions.Asynchronous,
-                    65536,
-                    65536
-                    );
-        }
-
-    }*/
     class Program
     {
         private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
