@@ -18,13 +18,12 @@ using CoreHook.FileMonitor.Service.Pipe;
 
 namespace CoreHook.UWP.FileMonitor2
 {
-    internal static partial class Libraries
-    {
-        internal const string Kernel32 = "kernel32.dll";
-    }
-
     public class Library
     {
+        internal static partial class Libraries
+        {
+            internal const string Kernel32 = "kernel32.dll";
+        }
         private string PipeName;
 
         public Library(string pipeName)
@@ -49,18 +48,6 @@ namespace CoreHook.UWP.FileMonitor2
                 while (true)
                 {
                     Thread.Sleep(500);
-
-                    if (Queue.Count > 0)
-                    {
-                        string[] Package = null;
-
-                        lock (Queue)
-                        {
-                            Package = Queue.ToArray();
-
-                            Queue.Clear();
-                        }
-                    }
                 }
             }
             catch (Exception ex)
@@ -105,7 +92,7 @@ namespace CoreHook.UWP.FileMonitor2
 
         private static void ClientWriteLine(object msg)
         {
-            System.Diagnostics.Debug.WriteLine(msg);
+            Console.WriteLine(msg);
         }
 
         private static PipeSecurity CreateUWPPipeSecurity()
@@ -127,8 +114,15 @@ namespace CoreHook.UWP.FileMonitor2
                     );
                 }
             }
-
+            // And the user's Admin user.
+            sec.AddAccessRule(
+               new PipeAccessRule(
+                   new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), access, AccessControlType.Allow)
+            );
+            System.Security.Principal.SecurityIdentifier sid = new System.Security.Principal.SecurityIdentifier(System.Security.Principal.WellKnownSidType.WorldSid, null);
+            PipeAccessRule psRule = new PipeAccessRule(sid, access, System.Security.AccessControl.AccessControlType.Allow);
             // Allow all app packages to connect.
+            sec.AddAccessRule(psRule);
             sec.AddAccessRule(new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), access, AccessControlType.Allow));
             return sec;
         }
@@ -176,40 +170,39 @@ namespace CoreHook.UWP.FileMonitor2
                 Library This = (Library)HookRuntimeInfo.Callback;
                 if (This != null)
                 {
-                    lock (This.Queue)
-                    {
-                        This.Queue.Push(pipeName);
-                    }
-                }
 
-                if (pipeName.Contains(This.PipeName)) {
-                    var pinningHandle = new GCHandle();
-                    IntPtr result = IntPtr.Zero;
-                    try
+                    if (pipeName.Contains(This.PipeName))
                     {
-                        var security = GetSecAttrs(
-                            HandleInheritability.None,
-                            CreateUWPPipeSecurity(),
-                            ref pinningHandle);
-
-                        result = CreateNamedPipe(
-                           pipeName,
-                            openMode,
-                            pipeMode,
-                            maxInstances,
-                            outBufferSize,
-                            inBufferSize,
-                            defaultTimeout,
-                            ref security);
-                    }
-                    finally
-                    {
-                        if (pinningHandle.IsAllocated)
+                        var pinningHandle = new GCHandle();
+                        IntPtr result = IntPtr.Zero;
+                        try
                         {
-                            pinningHandle.Free();
+                            var security = GetSecAttrs(
+                                HandleInheritability.None,
+                                CreateUWPPipeSecurity(),
+                                ref pinningHandle);
+
+                            ClientWriteLine("Returning modified pipe");
+
+                            result = CreateNamedPipe(
+                               pipeName,
+                                openMode,
+                                pipeMode,
+                                maxInstances,
+                                outBufferSize,
+                                inBufferSize,
+                                defaultTimeout,
+                                ref security);
                         }
+                        finally
+                        {
+                            if (pinningHandle.IsAllocated)
+                            {
+                                pinningHandle.Free();
+                            }
+                        }
+                        return result;
                     }
-                    return result;
                 }
             }
             catch (Exception ex)
@@ -243,6 +236,25 @@ namespace CoreHook.UWP.FileMonitor2
     }
     class Program
     {
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct SECURITY_ATTRIBUTES
+        {
+            internal uint nLength;
+            internal IntPtr lpSecurityDescriptor;
+            internal bool bInheritHandle;
+        }
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "CreateNamedPipeW",
+    CallingConvention = CallingConvention.StdCall)]
+        internal static extern IntPtr CreateNamedPipe(
+    [MarshalAs(UnmanagedType.LPWStr)]string pipeName,
+    int openMode,
+    int pipeMode,
+    int maxInstances,
+    int outBufferSize,
+    int inBufferSize,
+    int defaultTimeout,
+    SECURITY_ATTRIBUTES securityAttributes);
         private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
         {
             // Use camelcase for RPC method names.
@@ -253,21 +265,36 @@ namespace CoreHook.UWP.FileMonitor2
 
         private const string CoreHookPipeName = "CoreHook";
         static Library library = new Library(CoreHookPipeName);
+        static Thread thread;
+        private static bool IsArchitectureArm()
+        {
+            var arch = RuntimeInformation.ProcessArchitecture;
+            return arch == Architecture.Arm || arch == Architecture.Arm64;
+        }
         private static void CreateLib()
         {
             library.Start();
         }
         static void Main(string[] args)
         {
-            Thread thread = new Thread(CreateLib);
+            thread = new Thread(CreateLib);
             thread.Start();
+            while(!library.Started)
+            {
+                Thread.Sleep(500);
+            }
+            /*
+            SECURITY_ATTRIBUTES sec = new SECURITY_ATTRIBUTES();
+            var pipeTest = CreateNamedPipe(@"\\.\pipe\CoreHookInjection",
+                0, 0, 0, 0, 0, 0, sec);
+            Console.WriteLine($"CreateNamedPipe returned {pipeTest.ToInt32()}");*/
 
             int TargetPID = 0;
 
             string targetApp = string.Empty;
 
             // Load the parameter
-            while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
+            while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID))
             {
                 if (TargetPID > 0)
                 {
@@ -306,8 +333,8 @@ namespace CoreHook.UWP.FileMonitor2
             string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
-            GrantAllAppPkgsAccessToDir(currentDir);
-            GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "../netstandard2.0"));
+            //GrantAllAppPkgsAccessToDir(currentDir);
+            //GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "../netstandard2.0"));
 
             // start process and begin dll loading
             if (!string.IsNullOrEmpty(targetApp))
@@ -330,12 +357,16 @@ namespace CoreHook.UWP.FileMonitor2
                 return;
             }
 
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = Environment.GetEnvironmentVariable("CORE_LIBRARIES");
-            var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
-
-            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var coreLibrariesPath = !IsArchitectureArm() ?
+                Environment.GetEnvironmentVariable("CORE_LIBRARIES")
+                : currentDir;
+            var coreRootPath = !IsArchitectureArm() ?
+                Environment.GetEnvironmentVariable("CORE_ROOT")
+                : currentDir;
 
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,
@@ -372,7 +403,7 @@ namespace CoreHook.UWP.FileMonitor2
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
-                new string[] { coreHookDll },
+                new List<string>() { coreHookDll },
                 CoreHookPipeName);
         }
 
@@ -429,7 +460,7 @@ namespace CoreHook.UWP.FileMonitor2
             if (!Directory.Exists(directory))
                 return;
 
-            GrantAllAppPkgsAccessToFile(directory);
+            //GrantAllAppPkgsAccessToFile(directory);
             foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
             {
