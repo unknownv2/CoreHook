@@ -12,6 +12,15 @@ namespace CoreHook.BinaryInjection
         private const string LoadAssemblyBinaryArgsFuncName = "LoadAssemblyBinaryArgs";
         private const string ExecManagedAssemblyClassFunctionName = "ExecuteManagedAssemblyClassFunction";
 
+        private object _binaryLoaderArgs;
+
+        private IMemoryManager _memoryManager;
+
+        public MacOSBinaryLoader(IMemoryManager memoryManager)
+        {
+            _memoryManager = memoryManager;
+        }
+
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
             // combinary functioncallargs and binaryloader args
@@ -46,9 +55,6 @@ namespace CoreHook.BinaryInjection
         {
             return Unmanaged.MacOS.Process.copyMemToProcessByPid(proc.Id, buffer, length);
         }
-
-
-        private object _binaryLoaderArgs;
         public void ExecuteWithArgs(Process process, string module, object args)
         {
             _binaryLoaderArgs = args;
@@ -82,7 +88,7 @@ namespace CoreHook.BinaryInjection
             {
                 if (disposing)
                 {
-
+                    _memoryManager.Dispose();
                 }
 
                 disposedValue = true;
@@ -104,7 +110,7 @@ namespace CoreHook.BinaryInjection
             // GC.SuppressFinalize(this);
         }
 
-        public bool FreeMemory(Process proc, IntPtr address, uint length)
+        public static bool FreeMemory(Process proc, IntPtr address, uint length)
         {
             throw new NotImplementedException();
         }

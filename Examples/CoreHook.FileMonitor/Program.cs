@@ -86,6 +86,7 @@ namespace CoreHook.FileMonitor
             {
                 throw new Exception("Unsupported platform detected");
             }
+
             // start RPC server
             StartListener();
         }

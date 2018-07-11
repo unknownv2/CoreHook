@@ -18,7 +18,6 @@ using CoreHook.FileMonitor.Service.Pipe;
 
 namespace CoreHook.UWP.FileMonitor2
 {
-
     class Program
     {
         private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver

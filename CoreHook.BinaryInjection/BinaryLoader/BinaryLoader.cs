@@ -10,35 +10,32 @@ namespace CoreHook.BinaryInjection
 {
     public class BinaryLoader : IBinaryLoader
     {
-        private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
-        public void Execute(Process process, string module, string function, string args)
-        {
-            process.Execute(module, function, Encoding.Unicode.GetBytes(args + "\0"));
-        }
+        private IMemoryManager _memoryManager;
 
+        public BinaryLoader(IMemoryManager memoryManager)
+        {
+            _memoryManager = memoryManager;
+        }
         // Inject an assembly into a process
         private string LoadAssemblyFunc = "LoadAssembly";
         private void ExecuteAssemblyWithArgs(Process process, string module, BinaryLoaderArgs args)
         {
-            _allocatedAddresses.Add(
-                new MemoryAllocation()
-                {
-                    Process = process,
-                    Address = process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args)),
-                    IsFree = true
-                });      
+            _memoryManager.Add(
+                process,
+                process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args)),
+                true
+            );
         }
 
         // Execute a function inside a library using the class name and function name
         private string ExecAssemblyFunc = "ExecuteAssemblyFunction";
         private void LoadAssemblyWithArgs(Process process, string module, FunctionCallArgs args)
         {
-            _allocatedAddresses.Add(new MemoryAllocation()
-            {
-                Process = process,
-                Address = process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args), false),
-                IsFree = false
-            });        
+            _memoryManager.Add(
+                process,
+                process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args), false),
+                false
+            );
         }
 
         public void ExecuteWithArgs(Process process, string module, object args)
@@ -60,50 +57,46 @@ namespace CoreHook.BinaryInjection
         }
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
-            var address = proc.MemCopyTo(buffer, length);
-            _allocatedAddresses.Add(new MemoryAllocation()
-            {
-                Process = proc,
-                Address = address,
-                IsFree = false
-            });
-            return address;
+            return _memoryManager.Add(
+                proc,
+                proc.MemCopyTo(buffer, length),
+                false
+            );
         }
-        public bool FreeMemory(Process proc, IntPtr address, uint length = 0)
+        public static bool FreeMemory(Process proc, IntPtr address, uint length = 0)
         {
-            return proc.FreeMemory(address, (int)length);
+            return proc.FreeMemory(address, 0);
         }
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
-            if (dependencies != null && dir != null)
+            if(targetProcess == null)
+            {
+                Console.WriteLine("targetProcess was null");
+                return;
+            }
+            if (dependencies != null)
             {
                 foreach (var binary in dependencies)
                 {
-                    var fname = Path.Combine(dir, binary);
-                    if (!File.Exists(fname))
+                    //Console.WriteLine($"Load library dep {binary}");
+                    if (!File.Exists(binary))
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
 
                     var moduleName = Path.GetFileName(binary);
+                    //Console.WriteLine($"Loading library dep {binary}");
 
-                    if (targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero)
-                    {
-                        targetProcess.LoadLibrary(fname);
+                    targetProcess.LoadLibrary(binary);
+                    //Console.WriteLine($"Loaded library dep {binary}");
 
-                        var x = 0;
-                        for (; x < 50 && targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero; x++)
-                        {
-                            Thread.Sleep(200);
-                        }
-
-                        if (x == 50)
-                        {
-                            throw new TimeoutException($"'{binary}' failed to load into the process.");
-                        }
-                    }
+                    //if (targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero)
+                    //{
+                    //    targetProcess.LoadLibrary(binary);
+                    //  }
                 }
             }
+            //Console.WriteLine($"Load library {binaryPath}");
 
             targetProcess.LoadLibrary(binaryPath);
         }
@@ -118,21 +111,11 @@ namespace CoreHook.BinaryInjection
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects).
+                    _memoryManager.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-                foreach(var memAlloc in _allocatedAddresses)
-                {
-                    if(!memAlloc.IsFree)
-                    {
-                        if(!FreeMemory(memAlloc.Process, memAlloc.Address))
-                        {
-                            throw new Exception("Failed to free memory");
-                        }
-                    }
-                }
-                _allocatedAddresses.Clear();
+                // TODO: set large fields to null.               
 
                 disposedValue = true;
             }
@@ -154,11 +137,5 @@ namespace CoreHook.BinaryInjection
         }
 
         #endregion
-    }
-    public class MemoryAllocation
-    {
-        public Process Process;
-        public IntPtr Address;
-        public bool IsFree;
     }
 }

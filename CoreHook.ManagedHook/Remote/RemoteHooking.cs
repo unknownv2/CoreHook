@@ -23,15 +23,18 @@ namespace CoreHook.ManagedHook.Remote
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return new LinuxBinaryLoader();
+                return new LinuxBinaryLoader(
+                    new MemoryManager(LinuxBinaryLoader.FreeMemory));
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return new MacOSBinaryLoader();
+                return new MacOSBinaryLoader(
+                    new MemoryManager(MacOSBinaryLoader.FreeMemory));
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new BinaryLoader();
+                return new BinaryLoader(
+                    new MemoryManager(BinaryLoader.FreeMemory));
             }
             else
             {

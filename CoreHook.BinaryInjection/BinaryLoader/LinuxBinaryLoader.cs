@@ -33,6 +33,13 @@ namespace CoreHook.BinaryInjection
 
         private IntPtr _mailboxPtr { get { return new IntPtr(_mailboxAddress); } }
 
+        private IMemoryManager _memoryManager;
+
+        public LinuxBinaryLoader(IMemoryManager memoryManager)
+        {
+            _memoryManager = memoryManager;
+        }
+
         private bool IsAttached(int pid)
         {
             return _processAttached == pid;
@@ -343,6 +350,12 @@ namespace CoreHook.BinaryInjection
             // injector_detach frees our injector handle so no need to do it ourselves
             return Unmanaged.Linux.ProcessLibInjector.injector_detach(handle);
         }
+
+        public static bool FreeMemory(Process proc, IntPtr address, uint length)
+        {
+            throw new NotImplementedException();
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -353,6 +366,8 @@ namespace CoreHook.BinaryInjection
                 if (disposing)
                 {
                     ClearCache();
+
+                    _memoryManager.Dispose();
                 }
 
                 if (IsAttached(_processAttached))
@@ -361,7 +376,6 @@ namespace CoreHook.BinaryInjection
                 }
 
                 _processAttached = -1;
-
 
                 disposedValue = true;
             }
@@ -380,11 +394,6 @@ namespace CoreHook.BinaryInjection
             Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
-        }
-
-        public bool FreeMemory(Process proc, IntPtr address, uint length)
-        {
-            throw new NotImplementedException();
         }
 
         ~LinuxBinaryLoader()

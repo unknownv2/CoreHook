@@ -11,6 +11,5 @@ namespace CoreHook.BinaryInjection
         void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments);
         void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments);
         IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length);
-        bool FreeMemory(Process proc, IntPtr address, uint length);
     }
 }
