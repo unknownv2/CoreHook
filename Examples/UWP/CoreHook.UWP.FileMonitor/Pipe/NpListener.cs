@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
+using CoreHook.IPC.Platform;
 
 namespace CoreHook.UWP.FileMonitor.Pipe
 {
@@ -22,9 +23,9 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         public string PipeName { get; set; }
         public event EventHandler<PipeClientConnectionEventArgs> RequestRetrieved;
 
-        private PipeSecurity _pipeSecurity = null;
+        private readonly IPipePlatform _pipePlatform;
 
-        public NpListener(string pipeName, int maxConnections = 254, ILog log = null, IStats stats = null)
+        public NpListener(string pipeName, IPipePlatform pipePlatform, int maxConnections = 254, ILog log = null, IStats stats = null)
         {
             _log = log ?? _log;
             _stats = stats ?? _stats;
@@ -35,46 +36,12 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             }
             _maxConnections = maxConnections;
             PipeName = pipeName;
-            _pipeSecurity = CreateUWPPipeSecurity();
-        }
-
-        private PipeSecurity CreateUWPPipeSecurity()
-        {
-            const PipeAccessRights access = PipeAccessRights.ReadWrite;
-
-            var sec = new PipeSecurity();
-
-            using (var identity = WindowsIdentity.GetCurrent())
-            {
-                sec.AddAccessRule(
-                    new PipeAccessRule(identity.User, access, AccessControlType.Allow)
-                );
-
-                if (identity.User != identity.Owner)
-                {
-                    sec.AddAccessRule(
-                        new PipeAccessRule(identity.Owner, access, AccessControlType.Allow)
-                    );
-                }
-            }
-   
-            // Allow all app packages to connect.
-            sec.AddAccessRule(new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), access, AccessControlType.Allow));
-            return sec;
+            _pipePlatform = pipePlatform;
         }
 
         internal NamedPipeServerStream CreatePipe(string pipeName)
         {
-            return new NamedPipeServerStream(
-                    pipeName,
-                    PipeDirection.InOut,
-                    _maxConnections,
-                    PipeTransmissionMode.Byte,
-                    PipeOptions.Asynchronous,
-                    65536,
-                    65536,
-                    _pipeSecurity
-                    );
+            return _pipePlatform.CreatePipeByName(pipeName);
         }
 
         public void Start()
@@ -156,7 +123,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                 }
 
                 var pipeStream = CreatePipe(PipeName);
-     
+
                 try
                 {
                     pipeStream.WaitForConnection();

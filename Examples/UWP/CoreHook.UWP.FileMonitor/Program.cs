@@ -1,22 +1,20 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.Threading;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using System.IO.Pipes;
+using System.Security.AccessControl;
+using System.Security.Principal;
+using System.IO;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
-using System.Reflection;
 using CoreHook.UWP.FileMonitor.Pipe;
 using CoreHook.FileMonitor.Service;
-using System.IO;
-using System.Diagnostics;
-using System.Threading;
+using System.Reflection;
 using CoreHook.FileMonitor.Service.Pipe;
-using System.Security.AccessControl;
-using System.Security.Principal;
-using CoreHook.IPC.Platform;
-using System.IO.Pipes;
 
 namespace CoreHook.UWP.FileMonitor
 {
@@ -31,6 +29,12 @@ namespace CoreHook.UWP.FileMonitor
         };
 
         private const string CoreHookPipeName = "CoreHook";
+        private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
+        private static bool IsArchitectureArm()
+        {
+            var arch = RuntimeInformation.ProcessArchitecture;
+            return arch == Architecture.Arm || arch == Architecture.Arm64;
+        }
 
         static void Main(string[] args)
         {
@@ -39,7 +43,7 @@ namespace CoreHook.UWP.FileMonitor
             string targetApp = string.Empty;
 
             // Load the parameter
-            while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
+            while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID))
             {
                 if (TargetPID > 0)
                 {
@@ -95,19 +99,23 @@ namespace CoreHook.UWP.FileMonitor
         }
 
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
-        {          
+        {
             if (!File.Exists(coreHookDll))
             {
                 Console.WriteLine("Cannot find corehook dll");
                 return;
             }
 
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = Environment.GetEnvironmentVariable("CORE_LIBRARIES");
-            var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
-
-            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var coreLibrariesPath = !IsArchitectureArm() ?
+                Environment.GetEnvironmentVariable("CORE_LIBRARIES")
+                : currentDir;
+            var coreRootPath = !IsArchitectureArm() ?
+                Environment.GetEnvironmentVariable("CORE_ROOT")
+                : currentDir;
 
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,
@@ -130,11 +138,6 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            /*
-            ManagedHook.Remote.RemoteHooking.Inject(
-                procId,
-                coreHookDll); */
-
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,
                 coreRunDll,
@@ -143,14 +146,14 @@ namespace CoreHook.UWP.FileMonitor
                 coreLibrariesPath, // path to .net core shared libs
                 injectionLibrary,
                 injectionLibrary,
-                new PipePlatform(),
-                new string[] { coreHookDll },
+                pipePlatform,
+                new List<string>() { coreHookDll },
                 CoreHookPipeName);
         }
 
         private static void StartListener()
         {
-            var _listener = new NpListener(CoreHookPipeName);
+            var _listener = new NpListener(CoreHookPipeName, pipePlatform);
             _listener.RequestRetrieved += ClientConnectionMade;
             _listener.Start();
 
@@ -201,7 +204,7 @@ namespace CoreHook.UWP.FileMonitor
             if (!Directory.Exists(directory))
                 return;
 
-            GrantAllAppPkgsAccessToFile(directory);
+            //GrantAllAppPkgsAccessToFile(directory);
             foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
             {
@@ -212,12 +215,13 @@ namespace CoreHook.UWP.FileMonitor
         {
             try
             {
-                var acl = File.GetAccessControl(fileName);
+                var fInfo = new FileInfo(fileName);
+                var acl = fInfo.GetAccessControl();
 
                 var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);
 
-                File.SetAccessControl(fileName, acl);
+                fInfo.SetAccessControl(acl);
             }
             catch
             {
