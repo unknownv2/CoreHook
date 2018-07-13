@@ -19,10 +19,6 @@ namespace CoreHook.BinaryInjection
 
         public Func<Process, IntPtr, uint, bool> FreeMemory { get; set; }
 
-        public MemoryManager()
-        {
-        }
-
         public IntPtr Add(Process process, IntPtr address, bool isFree, uint size = 0)
         {
             _allocatedAddresses.Add(new MemoryAllocation()
@@ -62,6 +58,7 @@ namespace CoreHook.BinaryInjection
                 if (disposing)
                 {
                     FreeAllocations();
+
                     _allocatedAddresses.Clear();
                 }               
 

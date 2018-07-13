@@ -5,9 +5,10 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using CoreHook.BinaryInjection;
+using CoreHook.CoreLoad;
+using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.Unmanaged;
-using CoreHook.CoreLoad;
 
 namespace CoreHook.ManagedHook.Remote
 {
@@ -54,16 +55,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new UnsupportedPlatformException("Binary injection");
             }
         }
-        public static void Inject(
-            int InTargetPID,
-            string library)
-        {
-            using (var binaryLoader = GetBinaryLoader())
-            {
-                binaryLoader.Load(ProcessHelper.GetProcessById(InTargetPID), library);
-            }
-        }
-
+  
         public static void CreateAndInject(
             string InEXEPath,
             string coreHookDll,
@@ -76,7 +68,7 @@ namespace CoreHook.ManagedHook.Remote
             string lbraryPath_x86,
             string libraryPath_x64,
             out int outProcessId,
-            IPC.Platform.IPipePlatform pipePlatform,
+            IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
             params object[] passThruArgs)
         {
@@ -133,7 +125,7 @@ namespace CoreHook.ManagedHook.Remote
             string coreLibrariesPath,
             string lbraryPath_x86,
             string libraryPath_x64,
-            IPC.Platform.IPipePlatform pipePlatform,
+            IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
             params object[] InPassThruArgs)
         {
@@ -164,7 +156,7 @@ namespace CoreHook.ManagedHook.Remote
             string coreLoadDll,
             string coreClrPath,
             string coreLibrariesPath,
-            IPC.Platform.IPipePlatform pipePlatform,
+            IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
             params object[] InPassThruArgs)
         {

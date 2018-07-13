@@ -71,7 +71,7 @@ namespace CoreHook.UWP.FileMonitor
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string injectionLibrary = Path.Combine(currentDir,
-                "../netstandard2.0", "CoreHook.UWP.FileMonitor.Hook.dll");
+                "netstandard2.0", "CoreHook.UWP.FileMonitor.Hook.dll");
 
             if (!File.Exists(injectionLibrary))
             {
@@ -83,7 +83,7 @@ namespace CoreHook.UWP.FileMonitor
                 Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
             GrantAllAppPkgsAccessToDir(currentDir);
-            GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "../netstandard2.0"));
+            GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "netstandard2.0"));
 
             // start process and begin dll loading
             if (!string.IsNullOrEmpty(targetApp))
