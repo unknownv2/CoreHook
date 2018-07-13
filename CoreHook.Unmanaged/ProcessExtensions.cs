@@ -299,6 +299,7 @@ namespace CoreHook.Unmanaged
 
                     // We don't need this handle.
                     NativeMethods.CloseHandle(hThread);
+
                     return remoteAllocAddr;
                 }
                 finally
@@ -374,7 +375,7 @@ namespace CoreHook.Unmanaged
                   NativeMethods.ProcessAccessFlags.VirtualMemoryOperation)))
             {
                 return size == 0 ?
-                    NativeMethods.VirtualFreeEx(hProcess.Handle, address, size, NativeMethods.FreeType.Release)
+                    NativeMethods.VirtualFreeEx(hProcess.Handle, address, 0, NativeMethods.FreeType.Release)
                     : NativeMethods.VirtualFreeEx(hProcess.Handle, address, size, NativeMethods.FreeType.Decommit);
             }
         }

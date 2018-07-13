@@ -17,7 +17,22 @@ namespace CoreHook.ManagedHook.Remote
     {
         private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
 
-        private const string CoreHookInjectionHelperPipe = "CoreHookInjection";
+        private const string InjectionPipe = "CoreHookInjection";
+
+        public class UnsupportedPlatformException : Exception
+        {
+            public UnsupportedPlatformException(string operation)
+                        : base($"Unsupported platform for {operation}.")
+            {
+            }
+        }
+        public class ProcessStartException : Exception
+        {
+            public ProcessStartException(string processName)
+                        : base($"Failed to start process {processName}.")
+            {
+            }
+        }
 
         private static IBinaryLoader GetBinaryLoader()
         {
@@ -38,7 +53,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new Exception("Unsupported platform for binary injection");
+                throw new UnsupportedPlatformException("Binary injection");
             }
         }
         public static void Inject(
@@ -108,7 +123,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new Exception($"Failed to start process {InEXEPath}");
+                throw new ProcessStartException(InEXEPath);
             }
         }
 
@@ -157,7 +172,7 @@ namespace CoreHook.ManagedHook.Remote
         {
             MemoryStream PassThru = new MemoryStream();
             InjectionHelper.BeginInjection(targetPID);
-            using (var pipeServer = InjectionHelper.CreateServer(CoreHookInjectionHelperPipe, pipePlatform))
+            using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
             {
                 try
                 {
@@ -242,7 +257,7 @@ namespace CoreHook.ManagedHook.Remote
                             binaryLoader.Load(proc, coreRunDll, dependencies);
                             var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
 
-                            binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
+                            //binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
 
                             binaryLoader.CallFunctionWithRemoteArgs(proc,
                                 coreRunDll,
@@ -299,7 +314,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new FileNotFoundException(String.Format("The given assembly could not be found. {0}", InRemoteInfo.UserLibrary), InRemoteInfo.UserLibrary);
             }
 
-            InRemoteInfo.ChannelName = CoreHookInjectionHelperPipe;
+            InRemoteInfo.ChannelName = InjectionPipe;
 
             var Format = new BinaryFormatter();
             Format.Serialize(InPassThruStream, InRemoteInfo);

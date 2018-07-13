@@ -24,7 +24,7 @@ namespace CoreHook.ImportUtils
             var errPtr = dlerror();
             if (errPtr != IntPtr.Zero)
             {
-                throw new Exception("dlsym: " + Marshal.PtrToStringAnsi(errPtr));
+                throw new SymbolResolveException(name, Marshal.PtrToStringAnsi(errPtr));
             }
             return res;
         }

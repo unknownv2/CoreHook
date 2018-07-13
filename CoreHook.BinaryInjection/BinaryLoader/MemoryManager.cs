@@ -5,6 +5,14 @@ using System.Text;
 
 namespace CoreHook.BinaryInjection
 {
+    public class MemoryOperationException : Exception
+    {
+        public MemoryOperationException(string operation)
+                    : base($"Memory operation '{operation}' failed.")
+        {
+        }
+    }
+
     public class MemoryManager : IMemoryManager
     {
         private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
@@ -36,7 +44,7 @@ namespace CoreHook.BinaryInjection
                 {
                     if (!_freeMemory(memAlloc.Process, memAlloc.Address, memAlloc.Size))
                     {
-                        throw new Exception("Failed to free memory");
+                        throw new MemoryOperationException("free");
                     }
                 }
             }

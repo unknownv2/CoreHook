@@ -54,13 +54,13 @@ namespace CoreHook.IPC.NamedPipes
             public override string ToString()
             {
                 string result = string.Empty;
-                if (!string.IsNullOrEmpty(this.Header))
+                if (!string.IsNullOrEmpty(Header))
                 {
                     result = this.Header;
                 }
-                if (this.Body != null)
+                if (Body != null)
                 {
-                    result = result + NamedPipeMessages.MessageSeparator + this.Body;
+                    result = result + NamedPipeMessages.MessageSeparator + Body;
                 }
                 return result;
             }
@@ -89,8 +89,8 @@ namespace CoreHook.IPC.NamedPipes
         {
             public InjectionCompleteMessage(int pid, bool didComplete)
             {
-                this.PID = pid;
-                this.Completed = didComplete;
+                PID = pid;
+                Completed = didComplete;
             }
 
             public int PID { get; set; }
@@ -107,17 +107,17 @@ namespace CoreHook.IPC.NamedPipes
 
                     if (dataParts.Length < 2)
                     {
-                        throw new InvalidOperationException(string.Format("Invalid complete message. Expected at least 3 parts, got: {0} from message: '{1}'", dataParts.Length, body));
+                        throw new InvalidOperationException($"Invalid complete message. Expected at least 2 parts, got: {dataParts.Length} from message: '{body}'");
                     }
 
                     if (!int.TryParse(dataParts[0], out pid))
                     {
-                        throw new InvalidOperationException(string.Format("Invalid complete message. Expected PID, got: {0} from message: '{1}'", dataParts[0], body));
+                        throw new InvalidOperationException($"Invalid complete message. Expected PID, got: {dataParts[0]} from message: '{body}'");
                     }
 
                     if (!bool.TryParse(dataParts[1], out didComplete))
                     {
-                        throw new InvalidOperationException(string.Format("Invalid complete message. Expected bool for didComplete, got: {0} from message: '{1}'", dataParts[1], body));
+                        throw new InvalidOperationException($"Invalid complete message. Expected bool for didComplete, got: {dataParts[1]} from message: '{body}'");
                     }
 
                     return new InjectionCompleteMessage(pid, didComplete);
@@ -128,7 +128,7 @@ namespace CoreHook.IPC.NamedPipes
 
             internal string ToMessage()
             {
-                return string.Join(MessageSeparator.ToString(), this.PID, this.Completed);
+                return string.Join(MessageSeparator.ToString(), PID, Completed);
             }
         }
     }

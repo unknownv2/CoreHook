@@ -169,8 +169,6 @@ namespace CoreHook.UWP.FileMonitor2
                                 CreateUWPPipeSecurity(),
                                 ref pinningHandle);
 
-                            Log("Returning modified pipe");
-
                             result = CreateNamedPipe(
                                pipeName,
                                 openMode,

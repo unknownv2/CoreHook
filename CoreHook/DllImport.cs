@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using CoreHook.ImportUtils;
+
 namespace CoreHook
 {
     static class NativeAPI_x86
@@ -257,6 +257,14 @@ namespace CoreHook
             IntPtr pfCreateProcessW);
     }
 
+    public class UnknownPlatformException : Exception
+    {
+        public UnknownPlatformException()
+                    : base("Failed to determine OS platform.")
+        {
+        }
+    }
+
     static class NativeAPI_x64
     {
         private const String DllName = "corehook64.dll";
@@ -291,7 +299,7 @@ namespace CoreHook
             {
                 return OSPlatform.OSX;
             }
-            throw new Exception("Failed to determine OS platform");
+            throw new UnknownPlatformException();
         }
         static NativeAPI_x64()
         {
@@ -522,9 +530,7 @@ namespace CoreHook
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern Boolean RhIsX64System();
-
-
-
+        
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr GacCreateContext();
 
@@ -547,14 +553,6 @@ namespace CoreHook
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SECURITY_ATTRIBUTES
-        {
-            public int nLength;
-            public IntPtr lpSecurityDescriptor;
-            public int bInheritHandle;
-        }
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern Boolean DetourCreateProcessWithDllExWF(String lpApplicationName,
@@ -1009,21 +1007,6 @@ namespace CoreHook
             else Force(NativeAPI_x86.LhGetHookBypassAddress(handle, out address));
         }
 
-        public static void DetourCreateProcessWithDllExW(IntPtr OutBackup)
-        {
-            if (Is64Bit)
-            {
-                var DetourCreateProcessWithDllExW = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllExW>(
-                                "DetourCreateProcessWithDllExW",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                //Force(DetourCreateProcessWithDllExW(OutBackup));
-            }
-            else
-            {
-                //Force(NativeAPI_x86.DetourCreateProcessWithDllExW(OutBackup));
-            }
-        }
         public static bool DetourCreateProcessWithDllExA(
             String lpApplicationName,
             String lpCommandLine,

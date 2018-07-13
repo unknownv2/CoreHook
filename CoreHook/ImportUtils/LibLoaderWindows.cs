@@ -3,8 +3,12 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.ImportUtils
 {
+
     public class LibLoaderWindows : ILibLoader
     {
+        [DllImport("kernel32.dll")]
+        static extern uint GetLastError();
+
         void ILibLoader.FreeLibrary(IntPtr handle)
         {
             FreeLibrary(handle);
@@ -12,7 +16,12 @@ namespace CoreHook.ImportUtils
 
         IntPtr ILibLoader.GetProcAddress(IntPtr dllHandle, string name)
         {
-            return GetProcAddress(dllHandle, name);
+            IntPtr address = GetProcAddress(dllHandle, name);
+            if(address == IntPtr.Zero)
+            {
+                throw new SymbolResolveException(name, $"last-error code {GetLastError().ToString()}");
+            }
+            return address;
         }
 
         IntPtr ILibLoader.LoadLibrary(string fileName)
