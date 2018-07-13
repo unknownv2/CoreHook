@@ -356,23 +356,26 @@ namespace CoreHook.BinaryInjection
 
         public bool FreeMemory(Process proc, IntPtr address, uint length)
         {
-            var id = proc.Id;
-            SendRpcRequest(
-              id,
-              _mailboxAddress,
-              new RemoteThreadArgs
-              {
-                  Status = 1,
-                  ProcFlags = 0,
-                  Result = 0,
-                  ThreadAttributes = 0,
-                  CreationFlags = 1,
-                  StackSize = 0,
-                  StartAddress = GetCachedLibcFunction(_freeName),
-                  Params = address
-              }
-            );
-            return true;
+            if (IsAttached(proc.Id))
+            {
+                SendRpcRequest(
+                  proc.Id,
+                  _mailboxAddress,
+                  new RemoteThreadArgs
+                  {
+                      Status = 1,
+                      ProcFlags = 0,
+                      Result = 0,
+                      ThreadAttributes = 0,
+                      CreationFlags = 1,
+                      StackSize = 0,
+                      StartAddress = GetCachedLibcFunction(_freeName),
+                      Params = address
+                  }
+                );
+                return true;
+            }
+            return false;
         }
 
         #region IDisposable Support
