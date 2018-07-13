@@ -4,12 +4,10 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using CoreHook.BinaryInjection;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.Unmanaged;
 using CoreHook.CoreLoad;
-using System.Threading;
 
 namespace CoreHook.ManagedHook.Remote
 {
@@ -80,7 +78,7 @@ namespace CoreHook.ManagedHook.Remote
             out int outProcessId,
             IPC.Platform.IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
-            params object[] InPassThruArgs)
+            params object[] passThruArgs)
         {
             outProcessId = -1;
             var si = new NativeMethods.StartupInfo();
@@ -119,7 +117,7 @@ namespace CoreHook.ManagedHook.Remote
                     coreLibrariesPath,
                     pipePlatform,
                     dependencies,
-                    InPassThruArgs);
+                    passThruArgs);
             }
             else
             {

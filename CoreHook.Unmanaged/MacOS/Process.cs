@@ -24,5 +24,8 @@ namespace CoreHook.Unmanaged.MacOS
 
         [DllImport(LIBINJECT, SetLastError = true)]
         public static extern IntPtr injectByPidWithArgs(int targetPid, byte[] parameters, long paramsSize);
+
+        [DllImport(LIBINJECT, SetLastError = true)]
+        public static extern int freeProcessMemByPid(int targetPid, IntPtr address, long size);
     }
 }

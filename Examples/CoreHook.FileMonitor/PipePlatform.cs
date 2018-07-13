@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CoreHook.IPC.Platform;
+﻿using CoreHook.IPC.Platform;
 using System.IO.Pipes;
 
 namespace CoreHook.FileMonitor

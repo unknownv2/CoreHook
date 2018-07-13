@@ -142,7 +142,7 @@ namespace CoreHook.FileMonitor
                 return;
             }
 
-            int processId = -1;
+            int processId;
             ManagedHook.Remote.RemoteHooking.CreateAndInject(
                 exePath,
                 coreHookDll,
@@ -198,11 +198,6 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find CoreLoad dll");
                 return;
             }
-
-            /*
-            ManagedHook.Remote.RemoteHooking.Inject(
-                procId,
-                coreHookDll);*/
             
             ManagedHook.Remote.RemoteHooking.Inject(
                 procId,

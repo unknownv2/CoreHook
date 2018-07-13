@@ -59,8 +59,7 @@ namespace CoreHook.BinaryInjection
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
             return Unmanaged.MacOS.Process.copyMemToProcessByPid(proc.Id, buffer, length);
-        }
-  
+        }  
 
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
@@ -73,7 +72,7 @@ namespace CoreHook.BinaryInjection
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
-                    //Unmanaged.MacOS.Process.injectByPid(targetProcess.Id, fname);
+                    Unmanaged.MacOS.Process.injectByPid(targetProcess.Id, fname);
                 }
             }
 
@@ -111,9 +110,9 @@ namespace CoreHook.BinaryInjection
             // GC.SuppressFinalize(this);
         }
 
-        public static bool FreeMemory(Process proc, IntPtr address, uint length)
+        public static bool FreeMemory(Process targetProcess, IntPtr address, uint length)
         {
-            throw new NotImplementedException();
+            return Unmanaged.MacOS.Process.freeProcessMemByPid(targetProcess.Id, address, length) == 0;
         }
 
         ~MacOSBinaryLoader()

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.IO.Pipes;
 using System.Threading;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
