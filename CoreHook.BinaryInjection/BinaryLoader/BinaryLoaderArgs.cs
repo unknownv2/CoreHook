@@ -5,31 +5,56 @@ using System.Text;
 
 namespace CoreHook.BinaryInjection
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct BinaryLoaderArgs
+    public class BinaryLoaderArgs
     {
-        [FieldOffset(0)]
+        public bool Verbose;
+
+        public bool WaitForDebugger;
+
+        public bool StartAssembly;
+
+        public string PayloadFileName;
+
+        public string CoreRootPath;
+
+        public string CoreLibrariesPath;
+
+        public Encoding Encoding;
+
+        public int PathLength;
+
+        public byte[] GetPathArray(string path)
+        {
+            return Encoding.GetBytes(path.PadRight(PathLength, '\0'));
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BinaryLoaderArgs2
+    {
         [MarshalAs(UnmanagedType.U1)]
         public bool Verbose;
 
-        [FieldOffset(1)]
         [MarshalAs(UnmanagedType.U1)]
         public bool WaitForDebugger;
 
-        [FieldOffset(2)]
         [MarshalAs(UnmanagedType.U1)]
         public bool StartAssembly;
+        [MarshalAs(UnmanagedType.U1)]
+        public bool Reserved1;
+        [MarshalAs(UnmanagedType.U1)]
+        public bool Reserved2;
+        [MarshalAs(UnmanagedType.U1)]
+        public bool Reserved3;
+        [MarshalAs(UnmanagedType.U1)]
+        public bool Reserved4;
+        [MarshalAs(UnmanagedType.U1)]
+        public bool Reserved5;
 
-        [FieldOffset(8)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
         public byte[] PayloadFileName;
 
-        [FieldOffset(528)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
         public byte[] CoreRootPath;
 
-        [FieldOffset(1048)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
         public byte[] CoreLibrariesPath;
     }
 }

@@ -19,7 +19,7 @@ namespace CoreHook.BinaryInjection
         }
         // Inject an assembly into a process
         private string LoadAssemblyFunc = "LoadAssembly";
-        private void ExecuteAssemblyWithArgs(Process process, string module, BinaryLoaderArgs args)
+        private void ExecuteAssemblyWithArgs(Process process, string module, WindowsBinaryLoaderArgs args)
         {
             _memoryManager.Add(
                 process,
@@ -39,18 +39,19 @@ namespace CoreHook.BinaryInjection
             );
         }
 
-        public void ExecuteWithArgs(Process process, string module, object args)
+        public void ExecuteWithArgs(Process process, string module, BinaryLoaderArgs args)
         {
-            ExecuteAssemblyWithArgs(process, module, (BinaryLoaderArgs)args);
+            ExecuteAssemblyWithArgs(process, module, WindowsBinaryLoaderArgs.Create(args));
         }
 
         public void CallFunctionWithArgs(Process process, string module, string function, byte[] arguments)
         {
             LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
         }
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs rfArgs)
         {
-            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
+            ExecuteWithArgs(process, module, blArgs);
+            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, rfArgs));
         }
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {

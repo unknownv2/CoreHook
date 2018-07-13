@@ -207,64 +207,40 @@ namespace CoreHook.ManagedHook.Remote
                         var length = (uint)PassThru.Length;
 
                         using (var binaryLoader = GetBinaryLoader())
-                        {
-                            Encoding encoding = null;
-                            int pathLength = -1;
-                            Object binaryLoaderArgs = null;
+                        {     
+                            var binaryLoaderArgs = new BinaryLoaderArgs()
+                            {
+                                Verbose = true,
+                                WaitForDebugger = false,
+                                StartAssembly = false,
+                                PayloadFileName = coreLoadDll,
+                                CoreRootPath = coreClrPath,
+                                CoreLibrariesPath = coreLibrariesPath,
+                                Encoding = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+                                Encoding.Unicode : Encoding.ASCII
+                                // PathLength = 260,
+                            }; 
                             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                             {
-                                encoding = Encoding.ASCII;
-                                pathLength = 4096;
-                                binaryLoaderArgs = new LinuxBinaryLoaderArgs()
-                                {
-                                    Verbose = true,
-                                    WaitForDebugger = false,
-                                    StartAssembly = false,
-                                    PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
-                                    CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
-                                    CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
-                                };
-
+                                binaryLoaderArgs.PathLength = 4096;
                             }
                             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                             {
-                                encoding = Encoding.Unicode;
-                                pathLength = 260;
-                                binaryLoaderArgs = new BinaryLoaderArgs()
-                                {
-                                    Verbose = true,
-                                    WaitForDebugger = false,
-                                    StartAssembly = false,
-                                    PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
-                                    CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
-                                    CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
-                                };
+                                binaryLoaderArgs.PathLength = 260;
                             }
                             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
                             {
-                                encoding = Encoding.ASCII;
-                                pathLength = 1024;
-                                binaryLoaderArgs = new MacOSBinaryLoaderArgs()
-                                {
-                                    Verbose = true,
-                                    WaitForDebugger = false,
-                                    StartAssembly = false,
-                                    PayloadFileName = encoding.GetBytes(coreLoadDll.PadRight(pathLength, '\0')),
-                                    CoreRootPath = encoding.GetBytes(coreClrPath.PadRight(pathLength, '\0')),
-                                    CoreLibrariesPath = encoding.GetBytes(coreLibrariesPath.PadRight(pathLength, '\0'))
-                                };
+                                binaryLoaderArgs.PathLength = 1024;
                             }
                             binaryLoader.Load(proc, coreRunDll, dependencies);
-                            var argsAddr = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length);
-
-                            //binaryLoader.ExecuteWithArgs(proc, coreRunDll, binaryLoaderArgs);
 
                             binaryLoader.CallFunctionWithRemoteArgs(proc,
                                 coreRunDll,
                                 CoreHookLoaderMethodName,
+                                binaryLoaderArgs,
                                 new RemoteFunctionArgs()
                                 {
-                                    UserData = argsAddr,
+                                    UserData = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length),
                                     UserDataSize = length
                                 });
 

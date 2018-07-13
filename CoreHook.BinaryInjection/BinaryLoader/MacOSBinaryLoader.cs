@@ -12,7 +12,7 @@ namespace CoreHook.BinaryInjection
         private const string LoadAssemblyBinaryArgsFuncName = "LoadAssemblyBinaryArgs";
         private const string ExecManagedAssemblyClassFunctionName = "ExecuteManagedAssemblyClassFunction";
 
-        private object _binaryLoaderArgs;
+        private BinaryLoaderArgs _binaryLoaderArgs;
 
         private IMemoryManager _memoryManager;
         private string _coreRunLib;
@@ -25,20 +25,23 @@ namespace CoreHook.BinaryInjection
 
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
-            // combinary functioncallargs and binaryloader args
-            var paramArgs = new DotnetAssemblyFunctionCall()
+            if (_binaryLoaderArgs != null)
             {
-                coreRunLib = System.Text.Encoding.ASCII.GetBytes(_coreRunLib.PadRight(1024, '\0')),
-                binaryLoaderFunctionName = System.Text.Encoding.ASCII.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
-                assemblyCallFunctionName = System.Text.Encoding.ASCII.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
-                binaryLoaderArgs = (MacOSBinaryLoaderArgs)_binaryLoaderArgs,
-                assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
-            };
-            var parameters = Binary.StructToByteArray(paramArgs);
-            Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);
+                // combinary functioncallargs and binaryloader args
+                var paramArgs = new DotnetAssemblyFunctionCall()
+                {
+                    coreRunLib = System.Text.Encoding.ASCII.GetBytes(_coreRunLib.PadRight(1024, '\0')),
+                    binaryLoaderFunctionName = System.Text.Encoding.ASCII.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
+                    assemblyCallFunctionName = System.Text.Encoding.ASCII.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
+                    binaryLoaderArgs = MacOSBinaryLoaderArgs.Create(_binaryLoaderArgs),
+                    assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
+                };
+                var parameters = Binary.StructToByteArray(paramArgs);
+                Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);
+            }
         }
 
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs arguments)
         {
             // combinary functioncallargs and binaryloader args
             var paramArgs = new DotnetAssemblyFunctionCall()
@@ -46,7 +49,7 @@ namespace CoreHook.BinaryInjection
                 coreRunLib = System.Text.Encoding.ASCII.GetBytes(_coreRunLib.PadRight(1024, '\0')),
                 binaryLoaderFunctionName = System.Text.Encoding.ASCII.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
                 assemblyCallFunctionName = System.Text.Encoding.ASCII.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
-                binaryLoaderArgs = (MacOSBinaryLoaderArgs)_binaryLoaderArgs,
+                binaryLoaderArgs = MacOSBinaryLoaderArgs.Create(blArgs),
                 assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
             };
             var parameters = Binary.StructToByteArray(paramArgs);
@@ -57,10 +60,7 @@ namespace CoreHook.BinaryInjection
         {
             return Unmanaged.MacOS.Process.copyMemToProcessByPid(proc.Id, buffer, length);
         }
-        public void ExecuteWithArgs(Process process, string module, object args)
-        {
-            _binaryLoaderArgs = args;
-        }
+  
 
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {

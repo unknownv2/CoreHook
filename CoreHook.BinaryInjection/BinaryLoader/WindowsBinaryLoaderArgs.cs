@@ -6,7 +6,7 @@ using System.Text;
 namespace CoreHook.BinaryInjection
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct LinuxBinaryLoaderArgs
+    public struct WindowsBinaryLoaderArgs
     {
         [FieldOffset(0)]
         [MarshalAs(UnmanagedType.U1)]
@@ -21,20 +21,20 @@ namespace CoreHook.BinaryInjection
         public bool StartAssembly;
 
         [FieldOffset(8)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4096)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
         public byte[] PayloadFileName;
 
-        [FieldOffset(4104)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4096)]
+        [FieldOffset(528)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
         public byte[] CoreRootPath;
 
-        [FieldOffset(8200)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4096)]
+        [FieldOffset(1048)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
         public byte[] CoreLibrariesPath;
 
-        public static LinuxBinaryLoaderArgs Create(BinaryLoaderArgs args)
+        public static WindowsBinaryLoaderArgs Create(BinaryLoaderArgs args)
         {
-            return new LinuxBinaryLoaderArgs()
+            return new WindowsBinaryLoaderArgs()
             {
                 Verbose = args.Verbose,
                 WaitForDebugger = args.WaitForDebugger,
@@ -42,7 +42,7 @@ namespace CoreHook.BinaryInjection
                 PayloadFileName = args.GetPathArray(args.PayloadFileName),
                 CoreRootPath = args.GetPathArray(args.CoreRootPath),
                 CoreLibrariesPath = args.GetPathArray(args.CoreLibrariesPath)
-            };
+             };
         }
     }
 }

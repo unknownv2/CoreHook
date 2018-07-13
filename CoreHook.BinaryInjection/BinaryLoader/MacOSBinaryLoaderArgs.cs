@@ -41,5 +41,18 @@ namespace CoreHook.BinaryInjection
         public byte[] CoreRootPath;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
         public byte[] CoreLibrariesPath;
+
+        public static MacOSBinaryLoaderArgs Create(BinaryLoaderArgs args)
+        {
+            return new MacOSBinaryLoaderArgs()
+            {
+                Verbose = args.Verbose,
+                WaitForDebugger = args.WaitForDebugger,
+                StartAssembly = args.StartAssembly,
+                PayloadFileName = args.GetPathArray(args.PayloadFileName),
+                CoreRootPath = args.GetPathArray(args.CoreRootPath),
+                CoreLibrariesPath = args.GetPathArray(args.CoreLibrariesPath)
+            };
+        }
     }
 }

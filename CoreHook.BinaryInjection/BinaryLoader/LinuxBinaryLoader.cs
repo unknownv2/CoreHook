@@ -183,10 +183,12 @@ namespace CoreHook.BinaryInjection
         }
 
 
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs arguments)
         {
             if (IsAttached(process.Id))
             {
+                ExecuteWithArgs(process, module, LinuxBinaryLoaderArgs.Create(blArgs));
+
                 var pid = process.Id;
                 var args = new LinuxFunctionCallArgs(function, arguments);
                 var argsBuf = Binary.StructToByteArray(args);
@@ -284,7 +286,7 @@ namespace CoreHook.BinaryInjection
                 var addr = GetFunctionAddress(module, function);
             }
         }
-        public void ExecuteWithArgs(Process process, string module, object args)
+        public void ExecuteWithArgs(Process process, string module, LinuxBinaryLoaderArgs args)
         {
             if (IsAttached(process.Id))
             {

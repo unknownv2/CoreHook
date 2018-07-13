@@ -43,7 +43,7 @@ namespace CoreHook.BinaryInjection
                 {
                     if (!memAlloc.IsFree)
                     {
-                        if (FreeMemory(memAlloc.Process, memAlloc.Address, memAlloc.Size))
+                        if (!FreeMemory(memAlloc.Process, memAlloc.Address, memAlloc.Size))
                         {
                             throw new MemoryOperationException("free");
                         }
