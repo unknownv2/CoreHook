@@ -15,10 +15,12 @@ namespace CoreHook.BinaryInjection
         private object _binaryLoaderArgs;
 
         private IMemoryManager _memoryManager;
+        private string _coreRunLib;
 
         public MacOSBinaryLoader(IMemoryManager memoryManager)
         {
             _memoryManager = memoryManager;
+            _memoryManager.FreeMemory += FreeMemory;
         }
 
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
@@ -32,7 +34,7 @@ namespace CoreHook.BinaryInjection
                 binaryLoaderArgs = (MacOSBinaryLoaderArgs)_binaryLoaderArgs,
                 assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
             };
-            byte[] parameters = Binary.StructToByteArray(paramArgs);
+            var parameters = Binary.StructToByteArray(paramArgs);
             Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);
         }
 
@@ -47,7 +49,7 @@ namespace CoreHook.BinaryInjection
                 binaryLoaderArgs = (MacOSBinaryLoaderArgs)_binaryLoaderArgs,
                 assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
             };
-            byte[] parameters = Binary.StructToByteArray(paramArgs);
+            var parameters = Binary.StructToByteArray(paramArgs);
             Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);
         }
 
@@ -60,7 +62,6 @@ namespace CoreHook.BinaryInjection
             _binaryLoaderArgs = args;
         }
 
-        private string _coreRunLib;
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
             if (dependencies != null)

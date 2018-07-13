@@ -39,17 +39,17 @@ namespace CoreHook.ManagedHook.Remote
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return new LinuxBinaryLoader(
-                    new MemoryManager(LinuxBinaryLoader.FreeMemory));
+                    new MemoryManager());
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return new MacOSBinaryLoader(
-                    new MemoryManager(MacOSBinaryLoader.FreeMemory));
+                    new MemoryManager());
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new BinaryLoader(
-                    new MemoryManager(BinaryLoader.FreeMemory));
+                    new MemoryManager());
             }
             else
             {

@@ -15,6 +15,7 @@ namespace CoreHook.BinaryInjection
         public BinaryLoader(IMemoryManager memoryManager)
         {
             _memoryManager = memoryManager;
+            _memoryManager.FreeMemory += FreeMemory;
         }
         // Inject an assembly into a process
         private string LoadAssemblyFunc = "LoadAssembly";

@@ -17,11 +17,10 @@ namespace CoreHook.BinaryInjection
     {
         private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
 
-        FreeMemory _freeMemory;
+        public Func<Process, IntPtr, uint, bool> FreeMemory { get; set; }
 
-        public MemoryManager(FreeMemory free)
+        public MemoryManager()
         {
-            _freeMemory = free;
         }
 
         public IntPtr Add(Process process, IntPtr address, bool isFree, uint size = 0)
@@ -36,15 +35,18 @@ namespace CoreHook.BinaryInjection
             return address;
         }
  
-        public void FreeAll()
+        public void FreeAllocations()
         {
-            foreach (var memAlloc in _allocatedAddresses)
+            if (FreeMemory != null)
             {
-                if (!memAlloc.IsFree)
+                foreach (var memAlloc in _allocatedAddresses)
                 {
-                    if (!_freeMemory(memAlloc.Process, memAlloc.Address, memAlloc.Size))
+                    if (!memAlloc.IsFree)
                     {
-                        throw new MemoryOperationException("free");
+                        if (FreeMemory(memAlloc.Process, memAlloc.Address, memAlloc.Size))
+                        {
+                            throw new MemoryOperationException("free");
+                        }
                     }
                 }
             }
@@ -59,7 +61,7 @@ namespace CoreHook.BinaryInjection
             {
                 if (disposing)
                 {
-                    FreeAll();
+                    FreeAllocations();
                     _allocatedAddresses.Clear();
                 }               
 

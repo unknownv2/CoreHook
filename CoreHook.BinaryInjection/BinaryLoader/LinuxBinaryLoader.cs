@@ -38,6 +38,7 @@ namespace CoreHook.BinaryInjection
         public LinuxBinaryLoader(IMemoryManager memoryManager)
         {
             _memoryManager = memoryManager;
+            _memoryManager.FreeMemory += FreeMemory;
         }
 
         private bool IsAttached(int pid)
@@ -62,7 +63,7 @@ namespace CoreHook.BinaryInjection
             }
             else
             {
-                throw new Exception("Failed to find mailbox address");
+                throw new BinaryLoaderException("Failed to find mailbox address");
             }
         }
         private static long PtraceReadPtr(int pid, long address)
@@ -351,9 +352,25 @@ namespace CoreHook.BinaryInjection
             return Unmanaged.Linux.ProcessLibInjector.injector_detach(handle);
         }
 
-        public static bool FreeMemory(Process proc, IntPtr address, uint length)
+        public bool FreeMemory(Process proc, IntPtr address, uint length)
         {
-            throw new NotImplementedException();
+            var id = proc.Id;
+            SendRpcRequest(
+              id,
+              _mailboxAddress,
+              new RemoteThreadArgs
+              {
+                  Status = 1,
+                  ProcFlags = 0,
+                  Result = 0,
+                  ThreadAttributes = 0,
+                  CreationFlags = 1,
+                  StackSize = 0,
+                  StartAddress = GetCachedLibcFunction(_freeName),
+                  Params = address
+              }
+            );
+            return true;
         }
 
         #region IDisposable Support
