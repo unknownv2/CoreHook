@@ -23,9 +23,9 @@ namespace CoreHook.BinaryInjection
 
         public int PathLength;
 
-        public byte[] GetPathArray(string path)
+        public static byte[] GetPathArray(string path, int pathLength, Encoding encoding)
         {
-            return Encoding.GetBytes(path.PadRight(PathLength, '\0'));
+            return encoding.GetBytes(path.PadRight(pathLength, '\0'));
         }
     }
 

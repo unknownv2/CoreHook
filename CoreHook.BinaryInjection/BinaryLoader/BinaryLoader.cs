@@ -71,26 +71,18 @@ namespace CoreHook.BinaryInjection
         }
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
-            if(targetProcess == null)
-            {
-                Console.WriteLine("targetProcess was null");
-                return;
-            }
             if (dependencies != null)
             {
                 foreach (var binary in dependencies)
                 {
-                    //Console.WriteLine($"Load library dep {binary}");
                     if (!File.Exists(binary))
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
 
                     var moduleName = Path.GetFileName(binary);
-                    //Console.WriteLine($"Loading library dep {binary}");
 
                     targetProcess.LoadLibrary(binary);
-                    //Console.WriteLine($"Loaded library dep {binary}");
 
                     //if (targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero)
                     //{
@@ -98,7 +90,6 @@ namespace CoreHook.BinaryInjection
                     //  }
                 }
             }
-            //Console.WriteLine($"Load library {binaryPath}");
 
             targetProcess.LoadLibrary(binaryPath);
         }

@@ -215,23 +215,9 @@ namespace CoreHook.ManagedHook.Remote
                                 StartAssembly = false,
                                 PayloadFileName = coreLoadDll,
                                 CoreRootPath = coreClrPath,
-                                CoreLibrariesPath = coreLibrariesPath,
-                                Encoding = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
-                                Encoding.Unicode : Encoding.ASCII
-                                // PathLength = 260,
+                                CoreLibrariesPath = coreLibrariesPath
                             }; 
-                            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                            {
-                                binaryLoaderArgs.PathLength = 4096;
-                            }
-                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                            {
-                                binaryLoaderArgs.PathLength = 260;
-                            }
-                            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                            {
-                                binaryLoaderArgs.PathLength = 1024;
-                            }
+          
                             binaryLoader.Load(proc, coreRunDll, dependencies);
 
                             binaryLoader.CallFunctionWithRemoteArgs(proc,

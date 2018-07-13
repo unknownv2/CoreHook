@@ -21,27 +21,30 @@ namespace CoreHook.BinaryInjection
         public bool StartAssembly;
 
         [FieldOffset(8)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
         public byte[] PayloadFileName;
 
         [FieldOffset(528)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
         public byte[] CoreRootPath;
 
         [FieldOffset(1048)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 520)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
         public byte[] CoreLibrariesPath;
 
+        private static Encoding Encoding = Encoding.Unicode;
+        private const int PathLength = 260;
         public static WindowsBinaryLoaderArgs Create(BinaryLoaderArgs args)
         {
+            var encoding = Encoding.Unicode;
             return new WindowsBinaryLoaderArgs()
             {
                 Verbose = args.Verbose,
                 WaitForDebugger = args.WaitForDebugger,
                 StartAssembly = args.StartAssembly,
-                PayloadFileName = args.GetPathArray(args.PayloadFileName),
-                CoreRootPath = args.GetPathArray(args.CoreRootPath),
-                CoreLibrariesPath = args.GetPathArray(args.CoreLibrariesPath)
+                PayloadFileName = BinaryLoaderArgs.GetPathArray(args.PayloadFileName, PathLength, Encoding),
+                CoreRootPath = BinaryLoaderArgs.GetPathArray(args.CoreRootPath, PathLength, Encoding),
+                CoreLibrariesPath = BinaryLoaderArgs.GetPathArray(args.CoreLibrariesPath, PathLength, Encoding)
              };
         }
     }
