@@ -44,7 +44,14 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
  * [FileMonitor - Universal Windows Platform (UWP)](Examples/UWP/CoreHook.UWP.FileMonitor/) 
  * [FileMonitor - Windows Desktop Applications (Win32)](Examples/CoreHook.FileMonitor)
 
+## Notes on UWP Usage
 
- The UWP sample program requires .NET Framework version 4.6.1 to support setting permissions on the DLL's that are loaded in the target process and .NET Standard 2.0 ([more information here](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)).
+ There are two UWP sample programs included in the Examples folder: CoreHook.UWP.FileMonitor and CoreHook.UWP.FileMonitor2. 
+ 
+ The problem is that there is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/30170).
+
+ `CoreHook.UWP.FileMonitor` targets .NET Framework version 4.6.1 to support setting permissions on the NamedPipeServerStreams we create for communication with the target process since our libraries target .NET Standard 2.0 ([more information here](https://docs.microsoft.com/en-us/dotnet/standard/net-standard)).
+
+ `CoreHook.UWP.FileMonitor2` targets .NET Core 2.1 and uses CoreHook to hook the `kernel32.dll!CreateNamedPipeW` function and in our callback, we set the proper permisions and return the handle for use in our NamedPipeServerStream constructor. Using this method, we can also choose which pipes to modify since we have access to their names as the first argument of the function. 
 
 **The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**

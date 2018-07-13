@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO.Pipes;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
 
-namespace CoreHook.Unix.FileMonitor.Pipe
+namespace CoreHook.UWP.FileMonitor2.Pipe
 {
     public class NpListener
     {
@@ -31,7 +34,6 @@ namespace CoreHook.Unix.FileMonitor.Pipe
             _maxConnections = maxConnections;
             PipeName = pipeName;
         }
-
 
         internal NamedPipeServerStream CreatePipe(string pipeName)
         {
@@ -78,7 +80,6 @@ namespace CoreHook.Unix.FileMonitor.Pipe
         {
             try
             {
-                ProcessNextClient();
                 while (running)
                 {
                     ProcessNextClient();

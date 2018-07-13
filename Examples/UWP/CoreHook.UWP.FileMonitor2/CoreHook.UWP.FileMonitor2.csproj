@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\Build\bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.IO.Pipes.AccessControl" Version="4.5.1" />
+    <PackageReference Include="System.Security.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.Security.Principal" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
+    <ProjectReference Include="..\..\..\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
+  </ItemGroup>
+
+</Project>

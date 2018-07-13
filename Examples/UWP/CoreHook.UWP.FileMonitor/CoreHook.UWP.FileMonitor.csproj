@@ -145,6 +145,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationManager.cs" />
+    <Compile Include="PipePlatform.cs" />
     <Compile Include="Pipe\NpListener.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -154,6 +155,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj">
+      <Project>{84922f87-1e1e-444e-a572-d4453076ab2e}</Project>
+      <Name>CoreHook.IPC</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj">
       <Project>{63fa44a6-211a-4e83-8fb8-88a7256a42b0}</Project>
       <Name>CoreHook.ManagedHook</Name>

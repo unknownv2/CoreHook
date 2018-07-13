@@ -7,10 +7,14 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>bin\Debug\</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <OutputPath>..\Build\bin\Debug\netcoreapp2.0\</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -27,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CoreHook.DependencyModel\CoreHook.DependencyModel.csproj" />
+    <ProjectReference Include="..\CoreHook.IPC\CoreHook.IPC.csproj" />
   </ItemGroup>
 
 </Project>

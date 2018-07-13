@@ -6,7 +6,7 @@ using System.Text;
 namespace CoreHook.BinaryInjection
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct LinuxBinaryLoaderArgs
+    public struct WindowsBinaryLoaderArgs
     {
         [FieldOffset(0)]
         [MarshalAs(UnmanagedType.U1)]
@@ -21,23 +21,23 @@ namespace CoreHook.BinaryInjection
         public bool StartAssembly;
 
         [FieldOffset(8)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
         public byte[] PayloadFileName;
 
-        [FieldOffset(4104)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength)]
+        [FieldOffset(528)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
         public byte[] CoreRootPath;
 
-        [FieldOffset(8200)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength)]
+        [FieldOffset(1048)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
         public byte[] CoreLibrariesPath;
 
-        private static Encoding Encoding = Encoding.ASCII;
-        private const int PathLength = 4096;
-
-        public static LinuxBinaryLoaderArgs Create(BinaryLoaderArgs args)
+        private static Encoding Encoding = Encoding.Unicode;
+        private const int PathLength = 260;
+        public static WindowsBinaryLoaderArgs Create(BinaryLoaderArgs args)
         {
-            return new LinuxBinaryLoaderArgs()
+            var encoding = Encoding.Unicode;
+            return new WindowsBinaryLoaderArgs()
             {
                 Verbose = args.Verbose,
                 WaitForDebugger = args.WaitForDebugger,
@@ -45,7 +45,7 @@ namespace CoreHook.BinaryInjection
                 PayloadFileName = BinaryLoaderArgs.GetPathArray(args.PayloadFileName, PathLength, Encoding),
                 CoreRootPath = BinaryLoaderArgs.GetPathArray(args.CoreRootPath, PathLength, Encoding),
                 CoreLibrariesPath = BinaryLoaderArgs.GetPathArray(args.CoreLibrariesPath, PathLength, Encoding)
-            };
+             };
         }
     }
 }

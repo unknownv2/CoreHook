@@ -10,7 +10,6 @@ namespace CoreHook.CoreLoad
 {
     internal class ConnectionData
     {
-
         public enum ConnectionState
         {
             Invalid = 0,
@@ -21,7 +20,6 @@ namespace CoreHook.CoreLoad
         private RemoteEntryInfo _unmanagedInfo;
         private ManagedRemoteInfo _remoteInfo;
         private ConnectionState _state;
-
 
         /// <summary>
         /// Gets the state of the current <see cref="HostConnectionData"/>.

@@ -403,5 +403,60 @@ namespace CoreHook.Unmanaged
         [DllImport("kernel32.dll")]
         public static extern void GetSystemInfo([MarshalAs(UnmanagedType.Struct)] ref SYSTEM_INFO lpSystemInfo);
 
+        [Flags]
+        public enum CreateProcessFlags : uint
+        {
+            CREATE_BREAKAWAY_FROM_JOB = 0x01000000,
+            CREATE_DEFAULT_ERROR_MODE = 0x04000000,
+            CREATE_NEW_CONSOLE = 0x00000010,
+            CREATE_NEW_PROCESS_GROUP = 0x00000200,
+            CREATE_NO_WINDOW = 0x08000000,
+            CREATE_PROTECTED_PROCESS = 0x00040000,
+            CREATE_PRESERVE_CODE_AUTHZ_LEVEL = 0x02000000,
+            CREATE_SEPARATE_WOW_VDM = 0x00000800,
+            CREATE_SHARED_WOW_VDM = 0x00001000,
+            CREATE_SUSPENDED = 0x00000004,
+            CREATE_UNICODE_ENVIRONMENT = 0x00000400,
+            DEBUG_ONLY_THIS_PROCESS = 0x00000002,
+            DEBUG_PROCESS = 0x00000001,
+            DETACHED_PROCESS = 0x00000008,
+            EXTENDED_STARTUPINFO_PRESENT = 0x00080000,
+            INHERIT_PARENT_AFFINITY = 0x00010000
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        public class StartupInfo
+        {
+            public Int32 cb = 0;
+            public IntPtr lpReserved = IntPtr.Zero;
+            public IntPtr lpDesktop = IntPtr.Zero; // MUST be Zero
+            public IntPtr lpTitle = IntPtr.Zero;
+            public Int32 dwX = 0;
+            public Int32 dwY = 0;
+            public Int32 dwXSize = 0;
+            public Int32 dwYSize = 0;
+            public Int32 dwXCountChars = 0;
+            public Int32 dwYCountChars = 0;
+            public Int32 dwFillAttribute = 0;
+            public Int32 dwFlags = 0;
+            public Int16 wShowWindow = 0;
+            public Int16 cbReserved2 = 0;
+            public IntPtr lpReserved2 = IntPtr.Zero;
+            public IntPtr hStdInput = IntPtr.Zero;
+            public IntPtr hStdOutput = IntPtr.Zero;
+            public IntPtr hStdError = IntPtr.Zero;
+
+            public StartupInfo()
+            {
+                this.cb = Marshal.SizeOf(this);
+            }
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ProcessInformation
+        {
+            public IntPtr hProcess;
+            public IntPtr hThread;
+            public Int32 dwProcessId;
+            public Int32 dwThreadId;
+        }
     }
 }

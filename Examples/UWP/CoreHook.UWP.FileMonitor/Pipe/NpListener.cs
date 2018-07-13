@@ -9,7 +9,6 @@ using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
 
-
 namespace CoreHook.UWP.FileMonitor.Pipe
 {
     public class NpListener
@@ -110,7 +109,6 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         {
             try
             {
-                ProcessNextClient();
                 while (running)
                 {
                     ProcessNextClient();
@@ -130,11 +128,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         {
             try
             {
-                if (this.RequestRetrieved != null) //has event subscribers
-                {
-                    var args = new PipeClientConnectionEventArgs(pipeStream);
-                    RequestRetrieved(this, args);
-                }
+                RequestRetrieved?.Invoke(this, new PipeClientConnectionEventArgs(pipeStream));
             }
             catch (Exception e)
             {

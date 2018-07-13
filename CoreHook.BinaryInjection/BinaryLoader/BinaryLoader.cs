@@ -10,39 +10,48 @@ namespace CoreHook.BinaryInjection
 {
     public class BinaryLoader : IBinaryLoader
     {
-        public void Execute(Process process, string module, string function, string args)
+        private IMemoryManager _memoryManager;
+
+        public BinaryLoader(IMemoryManager memoryManager)
         {
-            var argBytes = Encoding.Unicode.GetBytes(args + "\0");
-
-            process.Execute(module, function, argBytes);
+            _memoryManager = memoryManager;
+            _memoryManager.FreeMemory += FreeMemory;
         }
-
         // Inject an assembly into a process
         private string LoadAssemblyFunc = "LoadAssembly";
-        private void ExecuteAssemblyWithArgs(Process process, string module, BinaryLoaderArgs args)
+        private void ExecuteAssemblyWithArgs(Process process, string module, WindowsBinaryLoaderArgs args)
         {
-            process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args));
+            _memoryManager.Add(
+                process,
+                process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args)),
+                true
+            );
         }
 
         // Execute a function inside a library using the class name and function name
         private string ExecAssemblyFunc = "ExecuteAssemblyFunction";
         private void LoadAssemblyWithArgs(Process process, string module, FunctionCallArgs args)
         {
-            process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args));
+            _memoryManager.Add(
+                process,
+                process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args), false),
+                false
+            );
         }
 
-        public void ExecuteWithArgs(Process process, string module, object args)
+        public void ExecuteWithArgs(Process process, string module, BinaryLoaderArgs args)
         {
-            ExecuteAssemblyWithArgs(process, module, (BinaryLoaderArgs)args);
+            ExecuteAssemblyWithArgs(process, module, WindowsBinaryLoaderArgs.Create(args));
         }
 
         public void CallFunctionWithArgs(Process process, string module, string function, byte[] arguments)
         {
             LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
         }
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs rfArgs)
         {
-            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
+            ExecuteWithArgs(process, module, blArgs);
+            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, rfArgs));
         }
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
@@ -50,37 +59,35 @@ namespace CoreHook.BinaryInjection
         }
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
-            return proc.MemCopyTo(buffer, length);
+            return _memoryManager.Add(
+                proc,
+                proc.MemCopyTo(buffer, length),
+                false
+            );
+        }
+        public static bool FreeMemory(Process proc, IntPtr address, uint length = 0)
+        {
+            return proc.FreeMemory(address, 0);
         }
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
-            if (dependencies != null && dir != null)
+            if (dependencies != null)
             {
                 foreach (var binary in dependencies)
                 {
-                    var fname = Path.Combine(dir, binary);
-                    if (!File.Exists(fname))
+                    if (!File.Exists(binary))
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
 
                     var moduleName = Path.GetFileName(binary);
 
-                    if (targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero)
-                    {
-                        targetProcess.LoadLibrary(fname);
+                    targetProcess.LoadLibrary(binary);
 
-                        var x = 0;
-                        for (; x < 50 && targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero; x++)
-                        {
-                            Thread.Sleep(200);
-                        }
-
-                        if (x == 50)
-                        {
-                            throw new TimeoutException($"'{binary}' failed to load into the process.");
-                        }
-                    }
+                    //if (targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero)
+                    //{
+                    //    targetProcess.LoadLibrary(binary);
+                    //  }
                 }
             }
 
@@ -97,10 +104,11 @@ namespace CoreHook.BinaryInjection
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects).
+                    _memoryManager.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
+                // TODO: set large fields to null.               
 
                 disposedValue = true;
             }
@@ -120,6 +128,7 @@ namespace CoreHook.BinaryInjection
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
         #endregion
     }
 }

@@ -21,6 +21,7 @@ namespace CoreHook.BinaryInjection
 
         private const string _libcName = "libc";
         private const string _mallocName = "malloc";
+        private const string _freeName = "free";
 
         private const string _mailboxName = "RemoteThreadMailbox";
 
@@ -31,6 +32,14 @@ namespace CoreHook.BinaryInjection
         private long _mailboxAddress;
 
         private IntPtr _mailboxPtr { get { return new IntPtr(_mailboxAddress); } }
+
+        private IMemoryManager _memoryManager;
+
+        public LinuxBinaryLoader(IMemoryManager memoryManager)
+        {
+            _memoryManager = memoryManager;
+            _memoryManager.FreeMemory += FreeMemory;
+        }
 
         private bool IsAttached(int pid)
         {
@@ -54,7 +63,7 @@ namespace CoreHook.BinaryInjection
             }
             else
             {
-                throw new Exception("Failed to find mailbox address");
+                throw new BinaryLoaderException("Failed to find mailbox address");
             }
         }
         private static long PtraceReadPtr(int pid, long address)
@@ -174,10 +183,12 @@ namespace CoreHook.BinaryInjection
         }
 
 
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs arguments)
         {
             if (IsAttached(process.Id))
             {
+                ExecuteWithArgs(process, module, LinuxBinaryLoaderArgs.Create(blArgs));
+
                 var pid = process.Id;
                 var args = new LinuxFunctionCallArgs(function, arguments);
                 var argsBuf = Binary.StructToByteArray(args);
@@ -275,7 +286,7 @@ namespace CoreHook.BinaryInjection
                 var addr = GetFunctionAddress(module, function);
             }
         }
-        public void ExecuteWithArgs(Process process, string module, object args)
+        public void ExecuteWithArgs(Process process, string module, LinuxBinaryLoaderArgs args)
         {
             if (IsAttached(process.Id))
             {
@@ -342,6 +353,31 @@ namespace CoreHook.BinaryInjection
             // injector_detach frees our injector handle so no need to do it ourselves
             return Unmanaged.Linux.ProcessLibInjector.injector_detach(handle);
         }
+
+        public bool FreeMemory(Process proc, IntPtr address, uint length)
+        {
+            if (IsAttached(proc.Id))
+            {
+                SendRpcRequest(
+                  proc.Id,
+                  _mailboxAddress,
+                  new RemoteThreadArgs
+                  {
+                      Status = 1,
+                      ProcFlags = 0,
+                      Result = 0,
+                      ThreadAttributes = 0,
+                      CreationFlags = 1,
+                      StackSize = 0,
+                      StartAddress = GetCachedLibcFunction(_freeName),
+                      Params = address
+                  }
+                );
+                return true;
+            }
+            return false;
+        }
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -352,6 +388,8 @@ namespace CoreHook.BinaryInjection
                 if (disposing)
                 {
                     ClearCache();
+
+                    _memoryManager.Dispose();
                 }
 
                 if (IsAttached(_processAttached))
@@ -360,7 +398,6 @@ namespace CoreHook.BinaryInjection
                 }
 
                 _processAttached = -1;
-
 
                 disposedValue = true;
             }
