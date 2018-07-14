@@ -192,7 +192,7 @@ namespace CoreHook.FileMonitor
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
-                new string[] { coreHookDll },
+                new []{ coreHookDll },
                 CoreHookPipeName);
         }
 
