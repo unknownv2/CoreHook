@@ -6,14 +6,17 @@ namespace CoreHook.BinaryInjection
     [StructLayout(LayoutKind.Sequential)]
     public struct DotnetAssemblyFunctionCall
     {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = MacOSBinaryLoaderArgs.PathLength)]
         public byte[] coreRunLib;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMax)]
         public byte[] binaryLoaderFunctionName;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMax)]
         public byte[] assemblyCallFunctionName;
+
         public MacOSBinaryLoaderArgs binaryLoaderArgs;
         public LinuxFunctionCallArgs assemblyFunctionCall;
+
+        private const int FunctionNameMax = 256;
     }
     [StructLayout(LayoutKind.Sequential)]
     public struct MacOSBinaryLoaderArgs
@@ -42,7 +45,7 @@ namespace CoreHook.BinaryInjection
         public byte[] CoreLibrariesPath;
 
         private static Encoding Encoding = Encoding.ASCII;
-        private const int PathLength = 1024;
+        internal const int PathLength = 1024;
 
         public static MacOSBinaryLoaderArgs Create(BinaryLoaderArgs args)
         {
