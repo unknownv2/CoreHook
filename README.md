@@ -44,6 +44,18 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
  * [FileMonitor - Universal Windows Platform (UWP)](Examples/UWP/CoreHook.UWP.FileMonitor/) 
  * [FileMonitor - Windows Desktop Applications (Win32)](Examples/CoreHook.FileMonitor)
 
+## Using
+
+First copy the 3 following DLL's into the same directory as `CoreHook.CoreLoad.dll` ( you can find them in your NuGet packages directory, ex: `C:\Users\{UserName}\.nuget\packages` or the NuGet Fallback Folder, ex: `C:\Program Files\dotnet\sdk\NuGetFallbackFolder`):
+
+```
+Microsoft.Extensions.DependencyModel.dll
+Microsoft.DotNet.PlatformAbstractions.dll
+Newtonsoft.Json.dll
+```
+
+Make sure that any references for the dll's in the other examples are the same version as the ones you place in the `CoreHook.CoreLoad.dll` directory. For example, in the `FileMonitor` examples mentioned above, if `JsonRpc.Standard.dll` (used by `CoreHook.FileMonitor.Hook.dll` after it is injected into the target process) references `Newtonsoft.Json.dll` version `11.0.2` then that should be the same version you copy to the directory containing `CoreHook.CoreLoad.dll`.
+
 ## Notes on UWP Usage
 
  There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/30170) so we use PInvoke to call `kernel32.dll!CreateNamedPipe` directly.
