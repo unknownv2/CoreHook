@@ -54,7 +54,7 @@ Set the  environment variables `CORE_LIBRARIES` and `CORE_ROOT` to the installat
 
 Then open `CoreHook` solution `(.sln file)` in Visual Studio and you can build and start the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
-For `ARM`, you will need to open a command prompt (cmd) and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. For example, the structure should look like this:
+For `ARM`, you will need to open a command prompt (cmd) and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. Make sure to also copy the `CoreRunDLL32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
 
 ```
 [+]Corehook.FileMonitor.PublishFolder\
@@ -62,9 +62,12 @@ For `ARM`, you will need to open a command prompt (cmd) and go to the `CoreHook.
         ...
         [-] CoreHook.FileMonitor.Hook.deps.json
         [-] CoreHook.FileMonitor.Hook.dll
+        ...
     ...    
     [-] CoreHook.FileMonitor.dll
     [-] CoreHook.FileMonitor.exe
+    [-] corehook32.dll
+    [-] CoreRunDLL32.dll
     ...
 ```
 
