@@ -147,7 +147,7 @@ namespace CoreHook.UWP.FileMonitor
                 injectionLibrary,
                 injectionLibrary,
                 pipePlatform,
-                new List<string>() { coreHookDll },
+                new [] { coreHookDll },
                 CoreHookPipeName);
         }
 
