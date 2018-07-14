@@ -8,6 +8,21 @@ namespace CoreHook.ManagedHook.Remote
 {
     public class InjectionHelper
     {
+        private class InjectionLoadException : Exception
+        {
+            public InjectionLoadException(int pid)
+            : base($"Injection into process {pid} failed.")
+            {
+            }
+        }
+        private class UnknownMessageException : Exception
+        {
+            public UnknownMessageException(string message)
+            : base($"Unknown message type {message}.")
+            {
+            }
+        }
+
         private class InjectionWait
         {
             public Mutex ThreadLock = new Mutex(false);
@@ -22,7 +37,7 @@ namespace CoreHook.ManagedHook.Remote
 
         private static void HandleRequest(string request, NamedPipeServer.Connection connection)
         {
-            NamedPipeMessages.Message message = NamedPipeMessages.Message.FromString(request);
+            var message = NamedPipeMessages.Message.FromString(request);
 
             switch (message.Header)
             {
@@ -35,9 +50,11 @@ namespace CoreHook.ManagedHook.Remote
                     }
                     else
                     {
-                        throw new Exception("Process injection failed");
+                        throw new InjectionLoadException(reqData.PID);
                     }
                     break;
+                default:
+                    throw new UnknownMessageException(message.Header);
             }
         }
 
