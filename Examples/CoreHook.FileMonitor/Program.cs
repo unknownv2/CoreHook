@@ -23,12 +23,8 @@ namespace CoreHook.FileMonitor
         };
 
         private const string CoreHookPipeName = "CoreHook";
+        private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
 
-        private static bool IsArchitectureArm()
-        {
-            var arch = RuntimeInformation.ProcessArchitecture;
-            return arch == Architecture.Arm || arch == Architecture.Arm64;
-        }
         static void Main(string[] args)
         {
             int TargetPID = 0;
@@ -89,18 +85,6 @@ namespace CoreHook.FileMonitor
 
             // start RPC server
             StartListener();
-        }
-        private static Process[] GetProcessListByName(string processName)
-        {
-            return Process.GetProcessesByName(processName);
-        }
-        private static Process GetProcessById(int processId)
-        {
-            return Process.GetProcessById(processId);
-        }
-        private static Process GetProcessByName(string processName)
-        {
-            return GetProcessListByName(processName)[0];
         }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
@@ -214,7 +198,7 @@ namespace CoreHook.FileMonitor
 
         private static void StartListener()
         {
-            var _listener = new NpListener(CoreHookPipeName);
+            var _listener = new NpListener(CoreHookPipeName, pipePlatform);
             _listener.RequestRetrieved += ClientConnectionMade;
             _listener.Start();
 
@@ -258,6 +242,24 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("< {0}", context.Response);
             });
             return builder.Build();
+        }
+
+        private static bool IsArchitectureArm()
+        {
+            var arch = RuntimeInformation.ProcessArchitecture;
+            return arch == Architecture.Arm || arch == Architecture.Arm64;
+        }
+        private static Process[] GetProcessListByName(string processName)
+        {
+            return Process.GetProcessesByName(processName);
+        }
+        private static Process GetProcessById(int processId)
+        {
+            return Process.GetProcessById(processId);
+        }
+        private static Process GetProcessByName(string processName)
+        {
+            return GetProcessListByName(processName)[0];
         }
     }
 }

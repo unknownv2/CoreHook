@@ -20,7 +20,8 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         private ILog _log = new NullLogger();
         private IStats _stats = new NullStats();
 
-        public string PipeName { get; set; }
+        public readonly string _pipeName;
+
         public event EventHandler<PipeClientConnectionEventArgs> RequestRetrieved;
 
         private readonly IPipePlatform _pipePlatform;
@@ -35,7 +36,9 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                 maxConnections = 254;
             }
             _maxConnections = maxConnections;
-            PipeName = pipeName;
+
+            _pipeName = pipeName;
+
             _pipePlatform = pipePlatform;
         }
 
@@ -59,7 +62,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
 
                 try
                 {
-                    using (var client = new NamedPipeClientStream(PipeName))
+                    using (var client = new NamedPipeClientStream(_pipeName))
                     {
                         client.Connect(50);
                     }
@@ -122,7 +125,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                     }
                 }
 
-                var pipeStream = CreatePipe(PipeName);
+                var pipeStream = CreatePipe(_pipeName);
 
                 try
                 {
@@ -133,7 +136,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                     pipeStream.Disconnect();
                 }
 
-                Console.WriteLine($"Connection received from pipe {PipeName}");
+                Console.WriteLine($"Connection received from pipe {_pipeName}");
 
                 _previousStream = pipeStream;
 

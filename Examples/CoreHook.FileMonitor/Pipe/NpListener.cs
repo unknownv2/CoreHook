@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
+using CoreHook.IPC.Platform;
 
 namespace CoreHook.FileMonitor.Pipe
 {
@@ -16,10 +17,13 @@ namespace CoreHook.FileMonitor.Pipe
         private ILog _log = new NullLogger();
         private IStats _stats = new NullStats();
 
-        public string PipeName { get; set; }
+        public readonly string _pipeName;
+
         public event EventHandler<PipeClientConnectionEventArgs> RequestRetrieved;
 
-        public NpListener(string pipeName, int maxConnections = 254, ILog log = null, IStats stats = null)
+        private readonly IPipePlatform _pipePlatform;
+
+        public NpListener(string pipeName, IPipePlatform pipePlatform, int maxConnections = 254, ILog log = null, IStats stats = null)
         {
             _log = log ?? _log;
             _stats = stats ?? _stats;
@@ -29,20 +33,15 @@ namespace CoreHook.FileMonitor.Pipe
                 maxConnections = 254;
             }
             _maxConnections = maxConnections;
-            PipeName = pipeName;
+
+            _pipeName = pipeName;
+
+            _pipePlatform = pipePlatform;
         }
-        
+
         internal NamedPipeServerStream CreatePipe(string pipeName)
         {
-            return new NamedPipeServerStream(
-                    pipeName,
-                    PipeDirection.InOut,
-                    _maxConnections,
-                    PipeTransmissionMode.Byte,
-                    PipeOptions.Asynchronous,
-                    65536,
-                    65536
-                    );
+            return _pipePlatform.CreatePipeByName(pipeName);
         }
 
         public void Start()
@@ -60,7 +59,7 @@ namespace CoreHook.FileMonitor.Pipe
 
                 try
                 {
-                    using (var client = new NamedPipeClientStream(PipeName))
+                    using (var client = new NamedPipeClientStream(_pipeName))
                     {
                         client.Connect(50);
                     }
@@ -123,7 +122,7 @@ namespace CoreHook.FileMonitor.Pipe
                     }
                 }
 
-                var pipeStream = CreatePipe(PipeName);
+                var pipeStream = CreatePipe(_pipeName);
                 
                 try
                 {
@@ -134,7 +133,7 @@ namespace CoreHook.FileMonitor.Pipe
                     pipeStream.Disconnect();
                 }
 
-                Console.WriteLine($"Connection received from pipe {PipeName}");
+                Console.WriteLine($"Connection received from pipe {_pipeName}");
 
                 _previousStream = pipeStream;
 
