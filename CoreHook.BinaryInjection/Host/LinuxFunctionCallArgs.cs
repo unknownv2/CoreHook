@@ -10,20 +10,23 @@ namespace CoreHook.BinaryInjection
     public struct LinuxFunctionCallArgs
     {
         [FieldOffset(0)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMax)]
         public byte[] Assembly;
 
         [FieldOffset(256)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMax)]
         public byte[] Class;
 
         [FieldOffset(512)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMax)]
         public byte[] Function;
 
         [FieldOffset(768)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = BinaryArgumentsSize)]
         public byte[] Arguments;
+
+        private const int FunctionNameMax = 256;
+        private const int BinaryArgumentsSize = 512;
 
         public LinuxFunctionCallArgs(string classFunctionName, IntPtr arguments)
         {
@@ -41,10 +44,10 @@ namespace CoreHook.BinaryInjection
             var type = args[argsCount++];
             var function = args[argsCount];
 
-            Assembly = Encoding.ASCII.GetBytes(assembly.PadRight(256, '\0'));
-            Class = Encoding.ASCII.GetBytes(string.Format("{0}.{1}", assembly, type).PadRight(256, '\0'));
-            Function = Encoding.ASCII.GetBytes(function.PadRight(256, '\0'));
-            Arguments = Binary.StructToByteArray(arguments, 512);
+            Assembly = Encoding.ASCII.GetBytes(assembly.PadRight(FunctionNameMax, '\0'));
+            Class = Encoding.ASCII.GetBytes(string.Format("{0}.{1}", assembly, type).PadRight(FunctionNameMax, '\0'));
+            Function = Encoding.ASCII.GetBytes(function.PadRight(FunctionNameMax, '\0'));
+            Arguments = Binary.StructToByteArray(arguments, BinaryArgumentsSize);
         }
         public LinuxFunctionCallArgs(string classFunctionName, RemoteFunctionArgs arguments)
         {
@@ -62,10 +65,10 @@ namespace CoreHook.BinaryInjection
             var type = args[argsCount++];
             var function = args[argsCount];
 
-            Assembly = Encoding.ASCII.GetBytes(assembly.PadRight(256, '\0'));
-            Class = Encoding.ASCII.GetBytes(string.Format("{0}.{1}", assembly, type).PadRight(256, '\0'));
-            Function = Encoding.ASCII.GetBytes(function.PadRight(256, '\0'));
-            Arguments = Binary.StructToByteArray(arguments, 512);
+            Assembly = Encoding.ASCII.GetBytes(assembly.PadRight(FunctionNameMax, '\0'));
+            Class = Encoding.ASCII.GetBytes(string.Format("{0}.{1}", assembly, type).PadRight(FunctionNameMax, '\0'));
+            Function = Encoding.ASCII.GetBytes(function.PadRight(FunctionNameMax, '\0'));
+            Arguments = Binary.StructToByteArray(arguments, BinaryArgumentsSize);
         }
     }
 }
