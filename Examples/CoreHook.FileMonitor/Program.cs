@@ -5,8 +5,9 @@ using JsonRpc.Streams;
 using System.Reflection;
 using CoreHook.FileMonitor.Pipe;
 using CoreHook.FileMonitor.Service;
+using CoreHook.ManagedHook.Remote;
 using System.IO;
-using System.Diagnostics;
+using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.FileMonitor.Service.Pipe;
 using System.Runtime.InteropServices;
 
@@ -97,10 +98,10 @@ namespace CoreHook.FileMonitor
 
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = !IsArchitectureArm() ?
+            var coreLibrariesPath = !ProcessHelper.IsArchitectureArm() ?
                 Environment.GetEnvironmentVariable("CORE_LIBRARIES")
                 : currentDir;
-            var coreRootPath = !IsArchitectureArm() ?
+            var coreRootPath = !ProcessHelper.IsArchitectureArm() ?
                 Environment.GetEnvironmentVariable("CORE_ROOT")
                 : currentDir;
 
@@ -127,7 +128,7 @@ namespace CoreHook.FileMonitor
             }
 
             int processId;
-            ManagedHook.Remote.RemoteHooking.CreateAndInject(
+            RemoteHooking.CreateAndInject(
                 exePath,
                 coreHookDll,
                 coreRunDll,
@@ -154,10 +155,10 @@ namespace CoreHook.FileMonitor
 
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = !IsArchitectureArm() ? 
+            var coreLibrariesPath = !ProcessHelper.IsArchitectureArm() ? 
                 Environment.GetEnvironmentVariable("CORE_LIBRARIES")
                 : currentDir;
-            var coreRootPath = !IsArchitectureArm() ? 
+            var coreRootPath = !ProcessHelper.IsArchitectureArm() ? 
                 Environment.GetEnvironmentVariable("CORE_ROOT")
                 : currentDir;
 
@@ -183,7 +184,7 @@ namespace CoreHook.FileMonitor
                 return;
             }
             
-            ManagedHook.Remote.RemoteHooking.Inject(
+            RemoteHooking.Inject(
                 procId,
                 coreRunDll,
                 coreLoadDll,
@@ -242,24 +243,6 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("< {0}", context.Response);
             });
             return builder.Build();
-        }
-
-        private static bool IsArchitectureArm()
-        {
-            var arch = RuntimeInformation.ProcessArchitecture;
-            return arch == Architecture.Arm || arch == Architecture.Arm64;
-        }
-        private static Process[] GetProcessListByName(string processName)
-        {
-            return Process.GetProcessesByName(processName);
-        }
-        private static Process GetProcessById(int processId)
-        {
-            return Process.GetProcessById(processId);
-        }
-        private static Process GetProcessByName(string processName)
-        {
-            return GetProcessListByName(processName)[0];
         }
     }
 }

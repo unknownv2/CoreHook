@@ -119,7 +119,6 @@ namespace CoreHook.Unix.FileMonitor.Hook
             using (var writer = new ByLineTextMessageWriter(clientStream))
             using (clientHandler.Attach(reader, writer))
             {
-
                 var client = new JsonRpcClient(clientHandler);
 
                 var builder = new JsonRpcProxyBuilder

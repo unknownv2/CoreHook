@@ -103,6 +103,7 @@ namespace CoreHook.IPC.NamedPipes
                 catch (IOException e)
                 {
                     connectionBroken = true;
+                    this.LogErrorAndExit("OnNewConnection caught IO exception, exiting process", e);
                 }
                 catch (ObjectDisposedException)
                 {

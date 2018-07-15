@@ -160,63 +160,61 @@ namespace CoreHook.ManagedHook.Remote
             IEnumerable<string> dependencies,
             params object[] InPassThruArgs)
         {
-            MemoryStream PassThru = new MemoryStream();
+            var passThru = new MemoryStream();
             InjectionHelper.BeginInjection(targetPID);
             using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
             {
                 try
                 {
-                    ManagedRemoteInfo RemoteInfo = new ManagedRemoteInfo();
-                    RemoteInfo.HostPID = hostPID;
+                    var remoteInfo = new ManagedRemoteInfo();
+                    remoteInfo.HostPID = hostPID;
 
-                    BinaryFormatter format = new BinaryFormatter();
-                    List<object> args = new List<object>();
+                    var format = new BinaryFormatter();
+                    var args = new List<object>();
                     if (InPassThruArgs != null)
                     {
                         foreach (var arg in InPassThruArgs)
                         {
-                            using (MemoryStream ms = new MemoryStream())
+                            using (var ms = new MemoryStream())
                             {
                                 format.Serialize(ms, arg);
                                 args.Add(ms.ToArray());
                             }
                         }
                     }
-                    RemoteInfo.UserParams = args.ToArray();
+                    remoteInfo.UserParams = args.ToArray();
 
                     GCHandle hPassThru = PrepareInjection(
-                        RemoteInfo,
+                        remoteInfo,
                         ref lbraryPath_x86,
                         ref libraryPath_x64,
-                        PassThru);
+                        passThru);
 
                     // Start library injection
                     try
                     {
                         var proc = ProcessHelper.GetProcessById(targetPID);
-                        var length = (uint)PassThru.Length;
+                        var length = (uint)passThru.Length;
 
                         using (var binaryLoader = GetBinaryLoader())
-                        {     
-                            var binaryLoaderArgs = new BinaryLoaderArgs()
-                            {
-                                Verbose = true,
-                                WaitForDebugger = false,
-                                StartAssembly = false,
-                                PayloadFileName = coreLoadDll,
-                                CoreRootPath = coreClrPath,
-                                CoreLibrariesPath = coreLibrariesPath
-                            }; 
-          
+                        {              
                             binaryLoader.Load(proc, coreRunDll, dependencies);
 
                             binaryLoader.CallFunctionWithRemoteArgs(proc,
                                 coreRunDll,
                                 CoreHookLoaderMethodName,
-                                binaryLoaderArgs,
+                                new BinaryLoaderArgs()
+                                {
+                                    Verbose = true,
+                                    WaitForDebugger = false,
+                                    StartAssembly = false,
+                                    PayloadFileName = coreLoadDll,
+                                    CoreRootPath = coreClrPath,
+                                    CoreLibrariesPath = coreLibrariesPath
+                                },
                                 new RemoteFunctionArgs()
                                 {
-                                    UserData = binaryLoader.CopyMemoryTo(proc, PassThru.GetBuffer(), length),
+                                    UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
                                     UserDataSize = length
                                 });
 
@@ -234,44 +232,45 @@ namespace CoreHook.ManagedHook.Remote
                 }
             }
         }
+
         private static GCHandle PrepareInjection(
-            ManagedRemoteInfo InRemoteInfo,
-            ref String InLibraryPath_x86,
-            ref String InLibraryPath_x64,
-            MemoryStream InPassThruStream)
+            ManagedRemoteInfo remoteInfo,
+            ref String libraryX86,
+            ref String libraryX64,
+            MemoryStream argsStream)
         {
-            if (String.IsNullOrEmpty(InLibraryPath_x86) && String.IsNullOrEmpty(InLibraryPath_x64))
+            if (String.IsNullOrEmpty(libraryX86) && String.IsNullOrEmpty(libraryX64))
                 throw new ArgumentException("At least one library for x86 or x64 must be provided");
 
             // ensure full path information in case of file names...
-            if ((InLibraryPath_x86 != null) && File.Exists(InLibraryPath_x86))
-                InLibraryPath_x86 = Path.GetFullPath(InLibraryPath_x86);
+            if ((libraryX86 != null) && File.Exists(libraryX86))
+                libraryX86 = Path.GetFullPath(libraryX86);
 
-            if ((InLibraryPath_x64 != null) && File.Exists(InLibraryPath_x64))
-                InLibraryPath_x64 = Path.GetFullPath(InLibraryPath_x64);
+            if ((libraryX64 != null) && File.Exists(libraryX64))
+                libraryX64 = Path.GetFullPath(libraryX64);
 
             // validate assembly type
-            InRemoteInfo.UserLibrary = InLibraryPath_x86;
+            remoteInfo.UserLibrary = libraryX86;
 
             if (ProcessHelper.Is64Bit)
-                InRemoteInfo.UserLibrary = InLibraryPath_x64;
+                remoteInfo.UserLibrary = libraryX64;
 
-            if (File.Exists(InRemoteInfo.UserLibrary))
+            if (File.Exists(remoteInfo.UserLibrary))
             {
                 // translate to assembly name
-                InRemoteInfo.UserLibraryName = AssemblyName.GetAssemblyName(InRemoteInfo.UserLibrary).FullName;
+                remoteInfo.UserLibraryName = AssemblyName.GetAssemblyName(remoteInfo.UserLibrary).FullName;
             }
             else
             {
-                throw new FileNotFoundException(String.Format("The given assembly could not be found. {0}", InRemoteInfo.UserLibrary), InRemoteInfo.UserLibrary);
+                throw new FileNotFoundException(String.Format("The given assembly could not be found. {0}", remoteInfo.UserLibrary), remoteInfo.UserLibrary);
             }
 
-            InRemoteInfo.ChannelName = InjectionPipe;
+            remoteInfo.ChannelName = InjectionPipe;
 
-            var Format = new BinaryFormatter();
-            Format.Serialize(InPassThruStream, InRemoteInfo);
+            var formatter = new BinaryFormatter();
+            formatter.Serialize(argsStream, remoteInfo);
 
-            return GCHandle.Alloc(InPassThruStream.GetBuffer(), GCHandleType.Pinned);
+            return GCHandle.Alloc(argsStream.GetBuffer(), GCHandleType.Pinned);
         }
     }
 }

@@ -95,48 +95,48 @@ namespace CoreHook.ManagedHook.Remote
         }
         public static void WaitForInjection(int InTargetPID)
         {
-            InjectionWait WaitInfo;
+            InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                WaitInfo = InjectionList[InTargetPID];
+                waitInfo = InjectionList[InTargetPID];
             }
 
-            if (!WaitInfo.Completion.WaitOne(20000, false))
+            if (!waitInfo.Completion.WaitOne(20000, false))
             {
                 throw new TimeoutException("Unable to wait for injection completion.");
             }
 
-            if (WaitInfo.Error != null)
-                throw WaitInfo.Error;
+            if (waitInfo.Error != null)
+                throw waitInfo.Error;
         }
 
         public static void InjectionException(
             int clientPID,
             Exception e)
         {
-            InjectionWait WaitInfo;
+            InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                WaitInfo = InjectionList[clientPID];
+                waitInfo = InjectionList[clientPID];
             }
 
-            WaitInfo.Error = e;
-            WaitInfo.Completion.Set();
+            waitInfo.Error = e;
+            waitInfo.Completion.Set();
         }
 
         public static void InjectionCompleted(int clientPID)
         {
-            InjectionWait WaitInfo;
+            InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                WaitInfo = InjectionList[clientPID];
+                waitInfo = InjectionList[clientPID];
             }
 
-            WaitInfo.Error = null;
-            WaitInfo.Completion.Set();
+            waitInfo.Error = null;
+            waitInfo.Completion.Set();
         }
     }
 
