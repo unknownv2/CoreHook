@@ -204,7 +204,7 @@ namespace CoreHook.UWP.FileMonitor
             if (!Directory.Exists(directory))
                 return;
 
-            //GrantAllAppPkgsAccessToFile(directory);
+            GrantAllAppPkgsAccessToFile(directory);
             foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
             {
