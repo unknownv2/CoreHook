@@ -1,6 +1,6 @@
 # CoreHook
 
-A library to hook unmanaged applications by hosting .NET Core and running managed code to extend an application's functionality (more information [here](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md)) on various architectures running  [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x), [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x), and [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x).  
+A library to intercept function calls in applications and extend their functionality with managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime inside applications on various architectures running on  [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x), [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x), and [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x).
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook).
 
@@ -48,7 +48,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 ### Windows
 
-First, set the  environment variables `CORE_LIBRARIES` and `CORE_ROOT` to the installation folder of your desired dotnet runtime. For example, the default installation folder for the .NET Core 2.1 runtime is at `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0 (x64)` and `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.0 (x86)`. So you set both `CORE_LIBRARIES` and `CORE_ROOT` to point to that folder. 
+First, set the  environment variables `CORE_LIBRARIES` and `CORE_ROOT` to the installation folder of your desired dotnet runtime. For example, the default installation folder for the .NET Core 2.1 runtime is at `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0 (x64)` and `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.0 (x86)`. So you set both `CORE_LIBRARIES` and `CORE_ROOT` to *one* of those folders based on the architecture of the program you are targeting. 
 
 Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
