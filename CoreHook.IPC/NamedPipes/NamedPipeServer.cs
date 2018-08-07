@@ -62,16 +62,16 @@ namespace CoreHook.IPC.NamedPipes
         {
             try
             {
-                if (this.listeningPipe != null)
+                if (listeningPipe != null)
                 {
                     throw new InvalidOperationException("There is already a pipe listening for a connection");
                 }
-                this.listeningPipe = this.platform.CreatePipeByName(this.pipeName);
-                this.listeningPipe.BeginWaitForConnection(this.OnNewConnection, this.listeningPipe);
+                listeningPipe = platform.CreatePipeByName(pipeName);
+                listeningPipe.BeginWaitForConnection(OnNewConnection, listeningPipe);
             }
             catch (Exception e)
             {
-                this.LogErrorAndExit("OpenListeningPipe caught unhandled exception, exiting process", e);
+                LogErrorAndExit("OpenListeningPipe caught unhandled exception", e);
             }
         }
 
@@ -88,10 +88,10 @@ namespace CoreHook.IPC.NamedPipes
                 // if this callback got called synchronously, we must not do any blocking IO on this thread
                 // or we will block the original caller. Moving to a new thread so that it will be safe
                 // to call a blocking Read on the NamedPipeServerStream
-                new Thread(() => this.OnNewConnection(ar, createNewThreadIfSynchronous: false)).Start();
+                new Thread(() => OnNewConnection(ar, createNewThreadIfSynchronous: false)).Start();
                 return;
             }
-            this.listeningPipe = null;
+            listeningPipe = null;
             bool connectionBroken = false;
             NamedPipeServerStream pipe = (NamedPipeServerStream)ar.AsyncState;
             try
@@ -103,31 +103,31 @@ namespace CoreHook.IPC.NamedPipes
                 catch (IOException e)
                 {
                     connectionBroken = true;
-                    this.LogErrorAndExit("OnNewConnection caught IO exception, exiting process", e);
+                    LogErrorAndExit("OnNewConnection caught IOException", e);
                 }
                 catch (ObjectDisposedException)
                 {
-                    if (!this.isStopping)
+                    if (!isStopping)
                     {
                         throw;
                     }
                 }
                 catch (Exception e)
                 {
-                    this.LogErrorAndExit("OnNewConnection caught unhandled exception, exiting process", e);
+                    LogErrorAndExit("OnNewConnection caught unhandled exception", e);
                 }
-                if (!this.isStopping)
+                if (!isStopping)
                 {
-                    this.OpenListeningPipe();
+                    OpenListeningPipe();
                     if (!connectionBroken)
                     {
                         try
                         {
-                            this.handleConnection(new Connection(pipe, () => this.isStopping));
+                            handleConnection(new Connection(pipe, () => this.isStopping));
                         }
                         catch (Exception e)
                         {
-                            this.LogErrorAndExit("Unhandled exception in connection handler", e);
+                            LogErrorAndExit("Unhandled exception in connection handler", e);
                         }
                     }
                 }
@@ -141,6 +141,7 @@ namespace CoreHook.IPC.NamedPipes
         private void LogErrorAndExit(string message, Exception e)
         {
             Console.WriteLine(message);
+            Console.WriteLine(e);
         }
 
         public class Connection
@@ -149,26 +150,27 @@ namespace CoreHook.IPC.NamedPipes
             private StreamReader reader;
             private StreamWriter writer;
             private Func<bool> isStopping;
+
             public Connection(NamedPipeServerStream serverStream, Func<bool> isStopping)
             {
                 this.serverStream = serverStream;
                 this.isStopping = isStopping;
-                this.reader = new StreamReader(this.serverStream);
-                this.writer = new StreamWriter(this.serverStream);
+                reader = new StreamReader(this.serverStream);
+                writer = new StreamWriter(this.serverStream);
             }
             public bool IsConnected
             {
-                get { return !this.isStopping() && this.serverStream.IsConnected; }
+                get { return !isStopping() && serverStream.IsConnected; }
             }
             public NamedPipeMessages.Message ReadMessage()
             {
-                return NamedPipeMessages.Message.FromString(this.ReadRequest());
+                return NamedPipeMessages.Message.FromString(ReadRequest());
             }
             public string ReadRequest()
             {
                 try
                 {
-                    return this.reader.ReadLine();
+                    return reader.ReadLine();
                 }
                 catch (IOException)
                 {
@@ -179,8 +181,8 @@ namespace CoreHook.IPC.NamedPipes
             {
                 try
                 {
-                    this.writer.WriteLine(message);
-                    this.writer.Flush();
+                    writer.WriteLine(message);
+                    writer.Flush();
                     return true;
                 }
                 catch (IOException)
@@ -190,7 +192,7 @@ namespace CoreHook.IPC.NamedPipes
             }
             public bool TrySendResponse(NamedPipeMessages.Message message)
             {
-                return this.TrySendResponse(message.ToString());
+                return TrySendResponse(message.ToString());
             }
         }
     }

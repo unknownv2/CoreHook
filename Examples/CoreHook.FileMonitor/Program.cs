@@ -28,12 +28,12 @@ namespace CoreHook.FileMonitor
 
         static void Main(string[] args)
         {
-            int TargetPID = 0;
+            int targetPID = 0;
             string targetProgam = string.Empty;
             // Load the parameter
-            while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
+            while ((args.Length != 1) || !Int32.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
             {
-                if (TargetPID > 0)
+                if (targetPID > 0)
                 {
                     break;
                 }
@@ -76,7 +76,7 @@ namespace CoreHook.FileMonitor
                 else
                 {
                     // inject FileMonitor dll into process
-                    InjectDllIntoTarget(TargetPID, injectionLibrary, coreHookDll);
+                    InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
                 }
             }
             else
@@ -87,6 +87,27 @@ namespace CoreHook.FileMonitor
             // start RPC server
             StartListener();
         }
+
+        // info on these environment variables: 
+        // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
+        private static string GetCoreLibrariesPath()
+        {
+            return !ProcessHelper.IsArchitectureArm() ?
+             Environment.Is64BitProcess ?
+             Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
+             Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
+             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        }
+
+        private static string GetCoreRootPath()
+        {
+            return !ProcessHelper.IsArchitectureArm() ?
+             Environment.Is64BitProcess ?
+             Environment.GetEnvironmentVariable("CORE_ROOT_64") :
+             Environment.GetEnvironmentVariable("CORE_ROOT_32")
+             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        }
+
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
             if (!File.Exists(coreHookDll))
@@ -96,14 +117,8 @@ namespace CoreHook.FileMonitor
             }
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            // info on these environment variables: 
-            // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = !ProcessHelper.IsArchitectureArm() ?
-                Environment.GetEnvironmentVariable("CORE_LIBRARIES")
-                : currentDir;
-            var coreRootPath = !ProcessHelper.IsArchitectureArm() ?
-                Environment.GetEnvironmentVariable("CORE_ROOT")
-                : currentDir;
+            var coreLibrariesPath = GetCoreLibrariesPath();
+            var coreRootPath = GetCoreRootPath();
 
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,
@@ -155,12 +170,8 @@ namespace CoreHook.FileMonitor
 
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = !ProcessHelper.IsArchitectureArm() ? 
-                Environment.GetEnvironmentVariable("CORE_LIBRARIES")
-                : currentDir;
-            var coreRootPath = !ProcessHelper.IsArchitectureArm() ? 
-                Environment.GetEnvironmentVariable("CORE_ROOT")
-                : currentDir;
+            var coreLibrariesPath = GetCoreLibrariesPath();
+            var coreRootPath = GetCoreRootPath();
 
             // path to CoreRunDLL.dll
             var coreRunDll = Path.Combine(currentDir,

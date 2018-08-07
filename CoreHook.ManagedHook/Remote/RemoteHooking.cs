@@ -57,7 +57,7 @@ namespace CoreHook.ManagedHook.Remote
         }
   
         public static void CreateAndInject(
-            string InEXEPath,
+            string exePath,
             string coreHookDll,
             string coreRunDll,
             string coreLoadDll,
@@ -76,7 +76,7 @@ namespace CoreHook.ManagedHook.Remote
             var si = new NativeMethods.StartupInfo();
             var pi = new NativeMethods.ProcessInformation();
 
-            if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(InEXEPath,
+            if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(exePath,
                 InCommandLine,
                 IntPtr.Zero,
                 IntPtr.Zero,
@@ -113,7 +113,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new ProcessStartException(InEXEPath);
+                throw new ProcessStartException(exePath);
             }
         }
 
