@@ -48,7 +48,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 ### Windows
 
-First, set the  environment variables `CORE_LIBRARIES` and `CORE_ROOT` to the installation folder of your desired dotnet runtime. For example, the default installation folder for the .NET Core 2.1 runtime is at `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0 (x64)` and `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.0 (x86)`. So you set both `CORE_LIBRARIES` and `CORE_ROOT` to *one* of those folders based on the architecture of the program you are targeting. 
+First, set the environment variables `CORE_LIBRARIES_32` and `CORE_ROOT_32` to the installation folder of your desired dotnet runtime. For example, the default installation folder for the .NET Core 2.1 runtime is at `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0 (for x64)` and `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.0 (for x86)`. So you set both `CORE_LIBRARIES_32` and `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.0`. Then set both `CORE_LIBRARIES_64` and `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0`.
 
 Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
