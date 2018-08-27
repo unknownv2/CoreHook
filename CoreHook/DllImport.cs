@@ -20,9 +20,6 @@ namespace CoreHook
             },
             {
                 OSPlatform.Linux, new Tuple<ILibLoader, string>(new LibLoaderUnix(), "libcorehook.so")
-            },
-            {
-                OSPlatform.OSX, new Tuple<ILibLoader, string>(new LibLoaderMacOS(), "libcorehook.dylib")
             }
         };
         static OSPlatform GetOSPlatform()
@@ -34,10 +31,6 @@ namespace CoreHook
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 return OSPlatform.Linux;
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return OSPlatform.OSX;
             }
             throw new UnknownPlatformException();
         }
@@ -355,6 +348,11 @@ namespace CoreHook
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        public static extern IntPtr DetourFindFunction(
+            string lpModule,
+            string lpFunction);
     }
 
     public class UnknownPlatformException : Exception
@@ -771,6 +769,10 @@ namespace CoreHook
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
+
+        public delegate IntPtr DetourFindFunction(
+            string lpModule,
+            string lpFunction);
     }
 
     public static class NativeAPI
@@ -1436,6 +1438,25 @@ namespace CoreHook
                         nDlls,
                         rlpDlls,
                         pfCreateProcessW));
+            }
+        }
+        public static IntPtr DetourFindFunction(
+            string lpModule,
+            string lpFunction)
+        {
+            if (Is64Bit)
+            {
+                var DetourFindFunction = LoadFunction<NativeAPI_x64.DetourFindFunction>(
+                                "DetourFindFunction",
+                                NativeAPI_x64.libLoader,
+                                NativeAPI_x64.libHandle);
+                return (DetourFindFunction(lpModule,
+                    lpFunction));
+            }
+            else
+            {
+                return (NativeAPI_x86.DetourFindFunction(lpModule,
+                    lpFunction));
             }
         }
         public static void DbgAttachDebugger()

@@ -798,15 +798,20 @@ namespace CoreHook
             String InModule,
             String InSymbolName)
         {
-            IntPtr Module = NativeAPI.GetModuleHandle(InModule);
+            if(InModule == null)
+            {
+                throw new ArgumentNullException(InModule);
+            }
+            if (InSymbolName == null)
+            {
+                throw new ArgumentNullException(InModule);
+            }
 
-            if (Module == IntPtr.Zero)
-                throw new DllNotFoundException("The given library is not loaded into the current process.");
-
-            IntPtr Method = NativeAPI.GetProcAddress(Module, InSymbolName);
-
+            IntPtr Method = NativeAPI.DetourFindFunction(InModule, InSymbolName);
             if (Method == IntPtr.Zero)
+            {
                 throw new MissingMethodException("The given method does not exist.");
+            }
 
             return Method;
         }

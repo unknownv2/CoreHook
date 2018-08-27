@@ -29,7 +29,7 @@ namespace CoreHook.DependencyModel
                 {
                     new Resolution.AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
                     new Resolution.PackageCompilationAssemblyResolver(),
-                     new ReferenceAssemblyPathResolver()
+                    new ReferenceAssemblyPathResolver()
                 });
 
                 loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
