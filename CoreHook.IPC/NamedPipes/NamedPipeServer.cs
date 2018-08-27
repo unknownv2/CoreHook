@@ -71,7 +71,7 @@ namespace CoreHook.IPC.NamedPipes
             }
             catch (Exception e)
             {
-                LogErrorAndExit("OpenListeningPipe caught unhandled exception", e);
+                LogError("OpenListeningPipe caught unhandled exception", e);
             }
         }
 
@@ -103,7 +103,6 @@ namespace CoreHook.IPC.NamedPipes
                 catch (IOException e)
                 {
                     connectionBroken = true;
-                    LogErrorAndExit("OnNewConnection caught IOException", e);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -114,7 +113,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 catch (Exception e)
                 {
-                    LogErrorAndExit("OnNewConnection caught unhandled exception", e);
+                    LogError("OnNewConnection caught unhandled exception", e);
                 }
                 if (!isStopping)
                 {
@@ -127,7 +126,7 @@ namespace CoreHook.IPC.NamedPipes
                         }
                         catch (Exception e)
                         {
-                            LogErrorAndExit("Unhandled exception in connection handler", e);
+                            LogError("Unhandled exception in connection handler", e);
                         }
                     }
                 }
@@ -138,7 +137,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        private void LogErrorAndExit(string message, Exception e)
+        private void LogError(string message, Exception e)
         {
             Console.WriteLine(message);
             Console.WriteLine(e);
