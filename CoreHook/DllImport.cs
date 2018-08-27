@@ -7,7 +7,7 @@ namespace CoreHook
 {
     static class NativeAPI_x86
     {
-        private const String DllName = "corehook32.dll";
+        private const string DllName = "corehook32.dll";
 
         internal static ILibLoader libLoader;
         internal static IntPtr libHandle;
@@ -42,15 +42,15 @@ namespace CoreHook
         }
 
 
-        public delegate String DRtlGetLastErrorStringCopy();
+        public delegate string DRtlGetLastErrorStringCopy();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern String RtlGetLastErrorStringCopy();
+        public static extern string RtlGetLastErrorStringCopy();
 
-        public delegate Int32 RtlGetLastError();
+        public delegate int RtlGetLastError();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RtlGetLastErrorF();
+        public static extern int RtlGetLastErrorF();
 
         public delegate void LhUninstallAllHooks();
 
@@ -58,29 +58,29 @@ namespace CoreHook
         public static extern void LhUninstallAllHooksF();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhInstallHookF(
+        public static extern int LhInstallHookF(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
             IntPtr OutHandle);
 
-        public delegate Int32 LhInstallHook(
+        public delegate int LhInstallHook(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
             IntPtr OutHandle);
 
-        public delegate Int32 LhUninstallHook(IntPtr RefHandle);
+        public delegate int LhUninstallHook(IntPtr RefHandle);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhUninstallHookF(IntPtr RefHandle);
+        public static extern int LhUninstallHookF(IntPtr RefHandle);
 
-        public delegate Int32 LhWaitForPendingRemovals();
+        public delegate int LhWaitForPendingRemovals();
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhWaitForPendingRemovalsF();
+        public static extern int LhWaitForPendingRemovalsF();
 
 
         /*
@@ -88,64 +88,64 @@ namespace CoreHook
             hook starts suspended. You will have to set a proper ACL to
             make it active!
         */
-        public delegate Int32 LhSetInclusiveACL(
+        public delegate int LhSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetInclusiveACLF(
+        public static extern int LhSetInclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle);
 
-        public delegate Int32 LhSetExclusiveACL(
+        public delegate int LhSetExclusiveACL(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-            Int32 InThreadCount,
+                    int[] InThreadIdList,
+            int InThreadCount,
             IntPtr InHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetExclusiveACLF(
+        public static extern int LhSetExclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle);
 
-        public delegate Int32 LhSetGlobalInclusiveACL(
+        public delegate int LhSetGlobalInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount);
+                    int[] InThreadIdList,
+                    int InThreadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetGlobalInclusiveACLF(
+        public static extern int LhSetGlobalInclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount);
+                    int[] InThreadIdList,
+                    int InThreadCount);
 
-        public delegate Int32 LhSetGlobalExclusiveACL(
+        public delegate int LhSetGlobalExclusiveACL(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-            Int32 InThreadCount);
+                    int[] InThreadIdList,
+            int InThreadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetGlobalExclusiveACLF(
+        public static extern int LhSetGlobalExclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount);
+                    int[] InThreadIdList,
+                    int InThreadCount);
 
-        public delegate Int32 LhIsThreadIntercepted(
+        public delegate int LhIsThreadIntercepted(
             IntPtr InHandle,
-            Int32 InThreadID,
-            out Boolean OutResult);
+            int InThreadID,
+            out bool OutResult);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhIsThreadInterceptedF(
+        public static extern int LhIsThreadInterceptedF(
                     IntPtr InHandle,
-                    Int32 InThreadID,
-                    out Boolean OutResult);
+                    int InThreadID,
+                    out bool OutResult);
 
         /*
             The following barrier methods are meant to be used in hook handlers only!
@@ -153,117 +153,117 @@ namespace CoreHook
             They will all fail with STATUS_NOT_SUPPORTED if called outside a
             valid hook handler...
         */
-        public delegate Int32 LhBarrierGetCallback(out IntPtr OutValue);
+        public delegate int LhBarrierGetCallback(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetCallbackF(out IntPtr OutValue);
+        public static extern int LhBarrierGetCallbackF(out IntPtr OutValue);
 
-        public delegate Int32 LhBarrierGetReturnAddress(out IntPtr OutValue);
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetReturnAddressF(out IntPtr OutValue);
-
-
-        public delegate Int32 LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
+        public delegate int LhBarrierGetReturnAddress(out IntPtr OutValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetAddressOfReturnAddressF(out IntPtr OutValue);
-
-        public delegate Int32 LhBarrierBeginStackTrace(out IntPtr OutBackup);
+        public static extern int LhBarrierGetReturnAddressF(out IntPtr OutValue);
 
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierBeginStackTraceF(out IntPtr OutBackup);
-
-        public delegate Int32 LhBarrierEndStackTrace(IntPtr OutBackup);
+        public delegate int LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierEndStackTraceF(IntPtr OutBackup);
+        public static extern int LhBarrierGetAddressOfReturnAddressF(out IntPtr OutValue);
 
-        public delegate Int32 LhBarrierGetCallingModule(out IntPtr OutValue);
+        public delegate int LhBarrierBeginStackTrace(out IntPtr OutBackup);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetCallingModuleF(out IntPtr OutValue);
+        public static extern int LhBarrierBeginStackTraceF(out IntPtr OutBackup);
+
+        public delegate int LhBarrierEndStackTrace(IntPtr OutBackup);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhBarrierEndStackTraceF(IntPtr OutBackup);
+
+        public delegate int LhBarrierGetCallingModule(out IntPtr OutValue);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhBarrierGetCallingModuleF(out IntPtr OutValue);
 
         /*
             Debug helper API.
         */
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgAttachDebugger();
+        public static extern int DbgAttachDebugger();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgGetThreadIdByHandle(
+        public static extern int DbgGetThreadIdByHandle(
             IntPtr InThreadHandle,
-            out Int32 OutThreadId);
+            out int OutThreadId);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgGetProcessIdByHandle(
+        public static extern int DbgGetProcessIdByHandle(
             IntPtr InProcessHandle,
-            out Int32 OutProcessId);
+            out int OutProcessId);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgHandleToObjectName(
+        public static extern int DbgHandleToObjectName(
             IntPtr InNamedHandle,
             IntPtr OutNameBuffer,
-            Int32 InBufferSize,
-            out Int32 OutRequiredSize);
+            int InBufferSize,
+            out int OutRequiredSize);
 
 
         /*
             Injection support API.
         */
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RhInjectLibrary(
-            Int32 InTargetPID,
-            Int32 InWakeUpTID,
-            Int32 InInjectionOptions,
-            String InLibraryPath_x86,
-            String InLibraryPath_x64,
+        public static extern int RhInjectLibrary(
+            int InTargetPID,
+            int InWakeUpTID,
+            int InInjectionOptions,
+            string InLibraryPath_x86,
+            string InLibraryPath_x64,
             IntPtr InPassThruBuffer,
-            Int32 InPassThruSize);
+            int InPassThruSize);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhIsX64Process(
-            Int32 InProcessId,
-            out Boolean OutResult);
+        public static extern int RhIsX64Process(
+            int InProcessId,
+            out bool OutResult);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean RhIsAdministrator();
+        public static extern bool RhIsAdministrator();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhGetProcessToken(Int32 InProcessId, out IntPtr OutToken);
+        public static extern int RhGetProcessToken(int InProcessId, out IntPtr OutToken);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RtlInstallService(
-            String InServiceName,
-            String InExePath,
-            String InChannelName);
+        public static extern int RtlInstallService(
+            string InServiceName,
+            string InExePath,
+            string InChannelName);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhWakeUpProcess();
+        public static extern int RhWakeUpProcess();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RtlCreateSuspendedProcess(
-           String InEXEPath,
-           String InCommandLine,
-            Int32 InProcessCreationFlags,
-           out Int32 OutProcessId,
-           out Int32 OutThreadId);
+        public static extern int RtlCreateSuspendedProcess(
+           string InEXEPath,
+           string InCommandLine,
+            int InProcessCreationFlags,
+           out int OutProcessId,
+           out int OutThreadId);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RhInstallDriver(
-           String InDriverPath,
-           String InDriverName);
+        public static extern int RhInstallDriver(
+           string InDriverPath,
+           string InDriverName);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhInstallSupportDriver();
+        public static extern int RhInstallSupportDriver();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean RhIsX64System();
+        public static extern bool RhIsX64System();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr GacCreateContext();
@@ -274,16 +274,16 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern bool GacInstallAssembly(
             IntPtr InContext,
-            String InAssemblyPath,
-            String InDescription,
-            String InUniqueID);
+            string InAssemblyPath,
+            string InDescription,
+            string InUniqueID);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern bool GacUninstallAssembly(
             IntPtr InContext,
-            String InAssemblyName,
-            String InDescription,
-            String InUniqueID);
+            string InAssemblyName,
+            string InDescription,
+            string InUniqueID);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int LhGetHookBypassAddressF(IntPtr handle, out IntPtr address);
@@ -291,43 +291,43 @@ namespace CoreHook
         public delegate int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllExW(String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExW(string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllExA(String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExA(string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllsExW(String lpApplicationName,
-              String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExW(string lpApplicationName,
+              string lpCommandLine,
               IntPtr lpProcessAttributes,
               IntPtr lpThreadAttributes,
               bool bInheritHandles,
               uint dwCreationFlags,
               IntPtr lpEnvironment,
-              String lpCurrentDirectory,
+              string lpCurrentDirectory,
               IntPtr lpStartupInfo,
               IntPtr lpProcessInformation,
               uint nDlls,
@@ -335,14 +335,14 @@ namespace CoreHook
               IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllsExA(String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExA(string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
             uint nDlls,
@@ -365,7 +365,7 @@ namespace CoreHook
 
     static class NativeAPI_x64
     {
-        private const String DllName = "corehook64.dll";
+        private const string DllName = "corehook64.dll";
 
         internal static ILibLoader libLoader;
         internal static IntPtr libHandle;
@@ -406,15 +406,15 @@ namespace CoreHook
             libHandle = libLoader.LoadLibrary(map.Item2);
         }
 
-        public delegate String DRtlGetLastErrorStringCopy();
+        public delegate string DRtlGetLastErrorStringCopy();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern String RtlGetLastErrorStringCopy();
+        public static extern string RtlGetLastErrorStringCopy();
 
-        public delegate Int32 RtlGetLastError();
+        public delegate int RtlGetLastError();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RtlGetLastErrorF();
+        public static extern int RtlGetLastErrorF();
 
         public delegate void LhUninstallAllHooks();
 
@@ -422,29 +422,29 @@ namespace CoreHook
         public static extern void LhUninstallAllHooksF();
         
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhInstallHookF(
+        public static extern int LhInstallHookF(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
             IntPtr OutHandle);
 
-        public delegate Int32 LhInstallHook(
+        public delegate int LhInstallHook(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
             IntPtr OutHandle);
 
-        public delegate Int32 LhUninstallHook(IntPtr RefHandle);
+        public delegate int LhUninstallHook(IntPtr RefHandle);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhUninstallHookF(IntPtr RefHandle);
+        public static extern int LhUninstallHookF(IntPtr RefHandle);
 
-        public delegate Int32 LhWaitForPendingRemovals();
+        public delegate int LhWaitForPendingRemovals();
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhWaitForPendingRemovalsF();
+        public static extern int LhWaitForPendingRemovalsF();
 
 
         /*
@@ -452,64 +452,64 @@ namespace CoreHook
             hook starts suspended. You will have to set a proper ACL to
             make it active!
         */
-        public delegate Int32 LhSetInclusiveACL(
+        public delegate int LhSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetInclusiveACLF(
+        public static extern int LhSetInclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle);
 
-        public delegate Int32 LhSetExclusiveACL(
+        public delegate int LhSetExclusiveACL(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-            Int32 InThreadCount,
+                    int[] InThreadIdList,
+            int InThreadCount,
             IntPtr InHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetExclusiveACLF(
+        public static extern int LhSetExclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle);
 
-        public delegate Int32 LhSetGlobalInclusiveACL(
+        public delegate int LhSetGlobalInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount);
+                    int[] InThreadIdList,
+                    int InThreadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetGlobalInclusiveACLF(
+        public static extern int LhSetGlobalInclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount);
+                    int[] InThreadIdList,
+                    int InThreadCount);
 
-        public delegate Int32 LhSetGlobalExclusiveACL(
+        public delegate int LhSetGlobalExclusiveACL(
             [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-            Int32 InThreadCount);
+                    int[] InThreadIdList,
+            int InThreadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhSetGlobalExclusiveACLF(
+        public static extern int LhSetGlobalExclusiveACLF(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount);
+                    int[] InThreadIdList,
+                    int InThreadCount);
 
-        public delegate Int32 LhIsThreadIntercepted(
+        public delegate int LhIsThreadIntercepted(
             IntPtr InHandle,
-            Int32 InThreadID,
-            out Boolean OutResult);
+            int InThreadID,
+            out bool OutResult);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhIsThreadInterceptedF(
+        public static extern int LhIsThreadInterceptedF(
                     IntPtr InHandle,
-                    Int32 InThreadID,
-                    out Boolean OutResult);
+                    int InThreadID,
+                    out bool OutResult);
 
         /*
             The following barrier methods are meant to be used in hook handlers only!
@@ -517,117 +517,117 @@ namespace CoreHook
             They will all fail with STATUS_NOT_SUPPORTED if called outside a
             valid hook handler...
         */
-        public delegate Int32 LhBarrierGetCallback(out IntPtr OutValue);
+        public delegate int LhBarrierGetCallback(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetCallbackF(out IntPtr OutValue);
+        public static extern int LhBarrierGetCallbackF(out IntPtr OutValue);
 
-        public delegate Int32 LhBarrierGetReturnAddress(out IntPtr OutValue);
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetReturnAddressF(out IntPtr OutValue);
-
-
-        public delegate Int32 LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
+        public delegate int LhBarrierGetReturnAddress(out IntPtr OutValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetAddressOfReturnAddressF(out IntPtr OutValue);
-
-        public delegate Int32 LhBarrierBeginStackTrace(out IntPtr OutBackup);
+        public static extern int LhBarrierGetReturnAddressF(out IntPtr OutValue);
 
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierBeginStackTraceF(out IntPtr OutBackup);
-
-        public delegate Int32 LhBarrierEndStackTrace(IntPtr OutBackup);
+        public delegate int LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierEndStackTraceF(IntPtr OutBackup);
+        public static extern int LhBarrierGetAddressOfReturnAddressF(out IntPtr OutValue);
 
-        public delegate Int32 LhBarrierGetCallingModule(out IntPtr OutValue);
+        public delegate int LhBarrierBeginStackTrace(out IntPtr OutBackup);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 LhBarrierGetCallingModuleF(out IntPtr OutValue);
+        public static extern int LhBarrierBeginStackTraceF(out IntPtr OutBackup);
+
+        public delegate int LhBarrierEndStackTrace(IntPtr OutBackup);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhBarrierEndStackTraceF(IntPtr OutBackup);
+
+        public delegate int LhBarrierGetCallingModule(out IntPtr OutValue);
+
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhBarrierGetCallingModuleF(out IntPtr OutValue);
 
         /*
             Debug helper API.
         */
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgAttachDebugger();
+        public static extern int DbgAttachDebugger();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgGetThreadIdByHandle(
+        public static extern int DbgGetThreadIdByHandle(
             IntPtr InThreadHandle,
-            out Int32 OutThreadId);
+            out int OutThreadId);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgGetProcessIdByHandle(
+        public static extern int DbgGetProcessIdByHandle(
             IntPtr InProcessHandle,
-            out Int32 OutProcessId);
+            out int OutProcessId);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 DbgHandleToObjectName(
+        public static extern int DbgHandleToObjectName(
             IntPtr InNamedHandle,
             IntPtr OutNameBuffer,
-            Int32 InBufferSize,
-            out Int32 OutRequiredSize);
+            int InBufferSize,
+            out int OutRequiredSize);
 
 
         /*
             Injection support API.
         */
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RhInjectLibrary(
-            Int32 InTargetPID,
-            Int32 InWakeUpTID,
-            Int32 InInjectionOptions,
-            String InLibraryPath_x86,
-            String InLibraryPath_x64,
+        public static extern int RhInjectLibrary(
+            int InTargetPID,
+            int InWakeUpTID,
+            int InInjectionOptions,
+            string InLibraryPath_x86,
+            string InLibraryPath_x64,
             IntPtr InPassThruBuffer,
-            Int32 InPassThruSize);
+            int InPassThruSize);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhIsX64Process(
-            Int32 InProcessId,
-            out Boolean OutResult);
+        public static extern int RhIsX64Process(
+            int InProcessId,
+            out bool OutResult);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean RhIsAdministrator();
+        public static extern bool RhIsAdministrator();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhGetProcessToken(Int32 InProcessId, out IntPtr OutToken);
+        public static extern int RhGetProcessToken(int InProcessId, out IntPtr OutToken);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RtlInstallService(
-            String InServiceName,
-            String InExePath,
-            String InChannelName);
+        public static extern int RtlInstallService(
+            string InServiceName,
+            string InExePath,
+            string InChannelName);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RtlCreateSuspendedProcess(
-           String InEXEPath,
-           String InCommandLine,
-            Int32 InProcessCreationFlags,
-           out Int32 OutProcessId,
-           out Int32 OutThreadId);
+        public static extern int RtlCreateSuspendedProcess(
+           string InEXEPath,
+           string InCommandLine,
+            int InProcessCreationFlags,
+           out int OutProcessId,
+           out int OutThreadId);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhWakeUpProcess();
+        public static extern int RhWakeUpProcess();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Int32 RhInstallDriver(
-           String InDriverPath,
-           String InDriverName);
+        public static extern int RhInstallDriver(
+           string InDriverPath,
+           string InDriverName);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Int32 RhInstallSupportDriver();
+        public static extern int RhInstallSupportDriver();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean RhIsX64System();
+        public static extern bool RhIsX64System();
         
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern IntPtr GacCreateContext();
@@ -638,16 +638,16 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern bool GacInstallAssembly(
             IntPtr InContext,
-            String InAssemblyPath,
-            String InDescription,
-            String InUniqueID);
+            string InAssemblyPath,
+            string InDescription,
+            string InUniqueID);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern bool GacUninstallAssembly(
             IntPtr InContext,
-            String InAssemblyName,
-            String InDescription,
-            String InUniqueID);
+            string InAssemblyName,
+            string InDescription,
+            string InUniqueID);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int LhGetHookBypassAddressF(IntPtr handle, out IntPtr address);
@@ -655,85 +655,85 @@ namespace CoreHook
         public delegate int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllExWF(String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExWF(string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
-        public delegate Boolean DetourCreateProcessWithDllExW(
-                        String lpApplicationName,
-                        String lpCommandLine,
+        public delegate bool DetourCreateProcessWithDllExW(
+                        string lpApplicationName,
+                        string lpCommandLine,
                         IntPtr lpProcessAttributes,
                         IntPtr lpThreadAttributes,
                         bool bInheritHandles,
                         uint dwCreationFlags,
                         IntPtr lpEnvironment,
-                        String lpCurrentDirectory,
+                        string lpCurrentDirectory,
                         IntPtr lpStartupInfo,
                         IntPtr lpProcessInformation,
-                        String lpDllName,
+                        string lpDllName,
                         IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllExAF(String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExAF(string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
-        public delegate Boolean DetourCreateProcessWithDllExA(
-            String lpApplicationName,
-            String lpCommandLine,
+        public delegate bool DetourCreateProcessWithDllExA(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern Boolean DetourCreateProcessWithDllsExWF(String lpApplicationName,
-              String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExWF(string lpApplicationName,
+              string lpCommandLine,
               IntPtr lpProcessAttributes,
               IntPtr lpThreadAttributes,
               bool bInheritHandles,
               uint dwCreationFlags,
               IntPtr lpEnvironment,
-              String lpCurrentDirectory,
+              string lpCurrentDirectory,
               IntPtr lpStartupInfo,
               IntPtr lpProcessInformation,
               uint nDlls,
               IntPtr rlpDlls,
               IntPtr pfCreateProcessW);
 
-        public delegate Boolean DetourCreateProcessWithDllsExW(
-                        String lpApplicationName,
-                        String lpCommandLine,
+        public delegate bool DetourCreateProcessWithDllsExW(
+                        string lpApplicationName,
+                        string lpCommandLine,
                         IntPtr lpProcessAttributes,
                         IntPtr lpThreadAttributes,
                         bool bInheritHandles,
                         uint dwCreationFlags,
                         IntPtr lpEnvironment,
-                        String lpCurrentDirectory,
+                        string lpCurrentDirectory,
                         IntPtr lpStartupInfo,
                         IntPtr lpProcessInformation,
                         uint nDlls,
@@ -741,29 +741,29 @@ namespace CoreHook
                         IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern Boolean DetourCreateProcessWithDllsExAF(String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExAF(string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
 
-        public delegate Boolean DetourCreateProcessWithDllsExA(
-            String lpApplicationName,
-            String lpCommandLine,
+        public delegate bool DetourCreateProcessWithDllsExA(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
             uint nDlls,
@@ -777,9 +777,9 @@ namespace CoreHook
 
     public static class NativeAPI
     {
-        public const Int32 MAX_HOOK_COUNT = 1024;
-        public const Int32 MAX_ACE_COUNT = 128;
-        public readonly static Boolean Is64Bit = IntPtr.Size == 8;
+        public const int MAX_HOOK_COUNT = 1024;
+        public const int MAX_ACE_COUNT = 128;
+        public readonly static bool Is64Bit = IntPtr.Size == 8;
 
         [DllImport("kernel32.dll")]
         public static extern int GetCurrentThreadId();
@@ -791,36 +791,36 @@ namespace CoreHook
         public static extern int GetCurrentProcessId();
 
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr GetProcAddress(IntPtr InModule, String InProcName);
+        public static extern IntPtr GetProcAddress(IntPtr InModule, string InProcName);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr LoadLibrary(String InPath);
+        public static extern IntPtr LoadLibrary(string InPath);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr GetModuleHandle(String InPath);
+        public static extern IntPtr GetModuleHandle(string InPath);
 
         [DllImport("kernel32.dll")]
-        public static extern Int16 RtlCaptureStackBackTrace(
-            Int32 InFramesToSkip,
-            Int32 InFramesToCapture,
+        public static extern short RtlCaptureStackBackTrace(
+            int InFramesToSkip,
+            int InFramesToCapture,
             IntPtr OutBackTrace,
             IntPtr OutBackTraceHash);
 
-        public const Int32 STATUS_SUCCESS = unchecked((Int32)0);
-        public const Int32 STATUS_INVALID_PARAMETER = unchecked((Int32)0xC000000DL);
-        public const Int32 STATUS_INVALID_PARAMETER_1 = unchecked((Int32)0xC00000EFL);
-        public const Int32 STATUS_INVALID_PARAMETER_2 = unchecked((Int32)0xC00000F0L);
-        public const Int32 STATUS_INVALID_PARAMETER_3 = unchecked((Int32)0xC00000F1L);
-        public const Int32 STATUS_INVALID_PARAMETER_4 = unchecked((Int32)0xC00000F2L);
-        public const Int32 STATUS_INVALID_PARAMETER_5 = unchecked((Int32)0xC00000F3L);
-        public const Int32 STATUS_NOT_SUPPORTED = unchecked((Int32)0xC00000BBL);
+        public const int STATUS_SUCCESS = unchecked((int)0);
+        public const int STATUS_INVALID_PARAMETER = unchecked((int)0xC000000DL);
+        public const int STATUS_INVALID_PARAMETER_1 = unchecked((int)0xC00000EFL);
+        public const int STATUS_INVALID_PARAMETER_2 = unchecked((int)0xC00000F0L);
+        public const int STATUS_INVALID_PARAMETER_3 = unchecked((int)0xC00000F1L);
+        public const int STATUS_INVALID_PARAMETER_4 = unchecked((int)0xC00000F2L);
+        public const int STATUS_INVALID_PARAMETER_5 = unchecked((int)0xC00000F3L);
+        public const int STATUS_NOT_SUPPORTED = unchecked((int)0xC00000BBL);
 
-        public const Int32 STATUS_INTERNAL_ERROR = unchecked((Int32)0xC00000E5L);
-        public const Int32 STATUS_INSUFFICIENT_RESOURCES = unchecked((Int32)0xC000009AL);
-        public const Int32 STATUS_BUFFER_TOO_SMALL = unchecked((Int32)0xC0000023L);
-        public const Int32 STATUS_NO_MEMORY = unchecked((Int32)0xC0000017L);
-        public const Int32 STATUS_WOW_ASSERTION = unchecked((Int32)0xC0009898L);
-        public const Int32 STATUS_ACCESS_DENIED = unchecked((Int32)0xC0000022L);
+        public const int STATUS_INTERNAL_ERROR = unchecked((int)0xC00000E5L);
+        public const int STATUS_INSUFFICIENT_RESOURCES = unchecked((int)0xC000009AL);
+        public const int STATUS_BUFFER_TOO_SMALL = unchecked((int)0xC0000023L);
+        public const int STATUS_NO_MEMORY = unchecked((int)0xC0000017L);
+        public const int STATUS_WOW_ASSERTION = unchecked((int)0xC0009898L);
+        public const int STATUS_ACCESS_DENIED = unchecked((int)0xC0000022L);
 
         private static T LoadFunction<T>(string name, ILibLoader loader, IntPtr handle) where T : class
         {
@@ -833,12 +833,12 @@ namespace CoreHook
             var arch = RuntimeInformation.ProcessArchitecture;
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
-        private static String ComposeString()
+        private static string ComposeString()
         {
-            return String.Format("{0} (Code: {1})", RtlGetLastErrorString(), RtlGetLastError());
+            return string.Format("{0} (Code: {1})", RtlGetLastErrorString(), RtlGetLastError());
         }
 
-        internal static void Force(Int32 InErrorCode)
+        internal static void Force(int InErrorCode)
         {
             switch (InErrorCode)
             {
@@ -861,7 +861,7 @@ namespace CoreHook
             }
         }
 
-        public static Int32 RtlGetLastError()
+        public static int RtlGetLastError()
         {
             if (Is64Bit)
             {
@@ -881,7 +881,7 @@ namespace CoreHook
             }
         }
 
-        public static String RtlGetLastErrorString()
+        public static string RtlGetLastErrorString()
         {
             if (Is64Bit)
             {
@@ -987,8 +987,8 @@ namespace CoreHook
 
         public static void LhIsThreadIntercepted(
                     IntPtr InHandle,
-                    Int32 InThreadID,
-                    out Boolean OutResult)
+                    int InThreadID,
+                    out bool OutResult)
         {
             if (Is64Bit)
             {
@@ -1009,8 +1009,8 @@ namespace CoreHook
         }
 
         public static void LhSetInclusiveACL(
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle)
         {
             if (Is64Bit)
@@ -1032,8 +1032,8 @@ namespace CoreHook
         }
 
         public static void LhSetExclusiveACL(
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount,
+                    int[] InThreadIdList,
+                    int InThreadCount,
                     IntPtr InHandle)
         {
             if (Is64Bit)
@@ -1055,8 +1055,8 @@ namespace CoreHook
         }
 
         public static void LhSetGlobalInclusiveACL(
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount)
+                    int[] InThreadIdList,
+                    int InThreadCount)
         {
             if (Is64Bit)
             {
@@ -1077,8 +1077,8 @@ namespace CoreHook
         }
 
         public static void LhSetGlobalExclusiveACL(
-                    Int32[] InThreadIdList,
-                    Int32 InThreadCount)
+                    int[] InThreadIdList,
+                    int InThreadCount)
         {
             if (Is64Bit)
             {
@@ -1239,17 +1239,17 @@ namespace CoreHook
         }
 
         public static bool DetourCreateProcessWithDllExA(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW)
         {
             if (Is64Bit)
@@ -1288,17 +1288,17 @@ namespace CoreHook
             }
         }
         public static bool DetourCreateProcessWithDllExW(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW)
         {
             if (Is64Bit)
@@ -1337,14 +1337,14 @@ namespace CoreHook
             }
         }
         public static bool DetourCreateProcessWithDllsExA(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
             uint nDlls,
@@ -1389,14 +1389,14 @@ namespace CoreHook
             }
         }
         public static bool DetourCreateProcessWithDllsExW(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             IntPtr lpStartupInfo,
             IntPtr lpProcessInformation,
             uint nDlls,
@@ -1470,7 +1470,7 @@ namespace CoreHook
 
         public static void DbgGetThreadIdByHandle(
             IntPtr InThreadHandle,
-            out Int32 OutThreadId)
+            out int OutThreadId)
         {
             if (Is64Bit) Force(NativeAPI_x64.DbgGetThreadIdByHandle(InThreadHandle, out OutThreadId));
             else Force(NativeAPI_x86.DbgGetThreadIdByHandle(InThreadHandle, out OutThreadId));
@@ -1478,7 +1478,7 @@ namespace CoreHook
 
         public static void DbgGetProcessIdByHandle(
             IntPtr InProcessHandle,
-            out Int32 OutProcessId)
+            out int OutProcessId)
         {
             if (Is64Bit) Force(NativeAPI_x64.DbgGetProcessIdByHandle(InProcessHandle, out OutProcessId));
             else Force(NativeAPI_x86.DbgGetProcessIdByHandle(InProcessHandle, out OutProcessId));
@@ -1487,24 +1487,24 @@ namespace CoreHook
         public static void DbgHandleToObjectName(
             IntPtr InNamedHandle,
             IntPtr OutNameBuffer,
-            Int32 InBufferSize,
-            out Int32 OutRequiredSize)
+            int InBufferSize,
+            out int OutRequiredSize)
         {
             if (Is64Bit) Force(NativeAPI_x64.DbgHandleToObjectName(InNamedHandle, OutNameBuffer, InBufferSize, out OutRequiredSize));
             else Force(NativeAPI_x86.DbgHandleToObjectName(InNamedHandle, OutNameBuffer, InBufferSize, out OutRequiredSize));
         }
 
-        public static Int32 EASYHOOK_INJECT_DEFAULT = 0x00000000;
-        public static Int32 EASYHOOK_INJECT_MANAGED = 0x00000001;
+        public static int EASYHOOK_INJECT_DEFAULT = 0x00000000;
+        public static int EASYHOOK_INJECT_MANAGED = 0x00000001;
 
-        public static Int32 RhInjectLibraryEx(
-            Int32 InTargetPID,
-            Int32 InWakeUpTID,
-            Int32 InInjectionOptions,
-            String InLibraryPath_x86,
-            String InLibraryPath_x64,
+        public static int RhInjectLibraryEx(
+            int InTargetPID,
+            int InWakeUpTID,
+            int InInjectionOptions,
+            string InLibraryPath_x86,
+            string InLibraryPath_x64,
             IntPtr InPassThruBuffer,
-            Int32 InPassThruSize)
+            int InPassThruSize)
         {
             if (Is64Bit) return NativeAPI_x64.RhInjectLibrary(InTargetPID, InWakeUpTID, InInjectionOptions,
                 InLibraryPath_x86, InLibraryPath_x64, InPassThruBuffer, InPassThruSize);
@@ -1513,13 +1513,13 @@ namespace CoreHook
         }
 
         public static void RhInjectLibrary(
-            Int32 InTargetPID,
-            Int32 InWakeUpTID,
-            Int32 InInjectionOptions,
-            String InLibraryPath_x86,
-            String InLibraryPath_x64,
+            int InTargetPID,
+            int InWakeUpTID,
+            int InInjectionOptions,
+            string InLibraryPath_x86,
+            string InLibraryPath_x64,
             IntPtr InPassThruBuffer,
-            Int32 InPassThruSize)
+            int InPassThruSize)
         {
             if (Is64Bit) Force(NativeAPI_x64.RhInjectLibrary(InTargetPID, InWakeUpTID, InInjectionOptions,
                 InLibraryPath_x86, InLibraryPath_x64, InPassThruBuffer, InPassThruSize));
@@ -1528,11 +1528,11 @@ namespace CoreHook
         }
 
         public static void RtlCreateSuspendedProcess(
-           String InEXEPath,
-           String InCommandLine,
-            Int32 InProcessCreationFlags,
-           out Int32 OutProcessId,
-           out Int32 OutThreadId)
+           string InEXEPath,
+           string InCommandLine,
+            int InProcessCreationFlags,
+           out int OutProcessId,
+           out int OutThreadId)
         {
             if (Is64Bit) Force(NativeAPI_x64.RtlCreateSuspendedProcess(InEXEPath, InCommandLine, InProcessCreationFlags,
                 out OutProcessId, out OutThreadId));
@@ -1541,20 +1541,20 @@ namespace CoreHook
         }
 
         public static void RhIsX64Process(
-            Int32 InProcessId,
-            out Boolean OutResult)
+            int InProcessId,
+            out bool OutResult)
         {
             if (Is64Bit) Force(NativeAPI_x64.RhIsX64Process(InProcessId, out OutResult));
             else Force(NativeAPI_x86.RhIsX64Process(InProcessId, out OutResult));
         }
 
-        public static Boolean RhIsAdministrator()
+        public static bool RhIsAdministrator()
         {
             if (Is64Bit) return NativeAPI_x64.RhIsAdministrator();
             else return NativeAPI_x86.RhIsAdministrator();
         }
 
-        public static void RhGetProcessToken(Int32 InProcessId, out IntPtr OutToken)
+        public static void RhGetProcessToken(int InProcessId, out IntPtr OutToken)
         {
             if (Is64Bit) Force(NativeAPI_x64.RhGetProcessToken(InProcessId, out OutToken));
             else Force(NativeAPI_x86.RhGetProcessToken(InProcessId, out OutToken));
@@ -1567,17 +1567,17 @@ namespace CoreHook
         }
 
         public static void RtlInstallService(
-            String InServiceName,
-            String InExePath,
-            String InChannelName)
+            string InServiceName,
+            string InExePath,
+            string InChannelName)
         {
             if (Is64Bit) Force(NativeAPI_x64.RtlInstallService(InServiceName, InExePath, InChannelName));
             else Force(NativeAPI_x86.RtlInstallService(InServiceName, InExePath, InChannelName));
         }
 
         public static void RhInstallDriver(
-           String InDriverPath,
-           String InDriverName)
+           string InDriverPath,
+           string InDriverName)
         {
             if (Is64Bit) Force(NativeAPI_x64.RhInstallDriver(InDriverPath, InDriverName));
             else Force(NativeAPI_x86.RhInstallDriver(InDriverPath, InDriverName));
@@ -1589,7 +1589,7 @@ namespace CoreHook
             else Force(NativeAPI_x86.RhInstallSupportDriver());
         }
 
-        public static Boolean RhIsX64System()
+        public static bool RhIsX64System()
         {
             if (Is64Bit) return NativeAPI_x64.RhIsX64System();
             else return NativeAPI_x86.RhIsX64System();

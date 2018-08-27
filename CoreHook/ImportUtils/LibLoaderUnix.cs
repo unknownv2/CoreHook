@@ -32,10 +32,10 @@ namespace CoreHook.ImportUtils
         const int RTLD_NOW = 2;
 
         [DllImport("libdl.so")]
-        private static extern IntPtr dlopen(String fileName, int flags);
+        private static extern IntPtr dlopen(string fileName, int flags);
 
         [DllImport("libdl.so")]
-        private static extern IntPtr dlsym(IntPtr handle, String symbol);
+        private static extern IntPtr dlsym(IntPtr handle, string symbol);
 
         [DllImport("libdl.so")]
         private static extern int dlclose(IntPtr handle);
