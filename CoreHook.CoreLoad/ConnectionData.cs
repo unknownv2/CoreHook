@@ -14,7 +14,7 @@ namespace CoreHook.CoreLoad
         {
             Invalid = 0,
             NoChannel = 1,
-            Valid = Int32.MaxValue
+            Valid = int.MaxValue
         }
 
         private RemoteEntryInfo _unmanagedInfo;

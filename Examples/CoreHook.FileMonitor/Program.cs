@@ -31,7 +31,7 @@ namespace CoreHook.FileMonitor
             int targetPID = 0;
             string targetProgam = string.Empty;
             // Load the parameter
-            while ((args.Length != 1) || !Int32.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
+            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
             {
                 if (targetPID > 0)
                 {
@@ -47,7 +47,10 @@ namespace CoreHook.FileMonitor
 
                     args = new string[] { Console.ReadLine() };
 
-                    if (String.IsNullOrEmpty(args[0])) return;
+                    if (string.IsNullOrEmpty(args[0]))
+                    {
+                        return;
+                    }
                 }
                 else
                 {
@@ -115,13 +118,13 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find corehook dll");
                 return;
             }
-            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var coreLibrariesPath = GetCoreLibrariesPath();
-            var coreRootPath = GetCoreRootPath();
+            string coreLibrariesPath = GetCoreLibrariesPath();
+            string coreRootPath = GetCoreRootPath();
 
             // path to CoreRunDLL.dll
-            var coreRunDll = Path.Combine(currentDir,
+            string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "CoreRunDLL64.dll" : "CoreRunDLL32.dll");
             if (!File.Exists(coreRunDll))
             {
@@ -134,7 +137,7 @@ namespace CoreHook.FileMonitor
             }
 
             // path to CoreHook.CoreLoad.dll
-            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+            string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
             {
@@ -142,7 +145,7 @@ namespace CoreHook.FileMonitor
                 return;
             }
 
-            int processId;
+
             RemoteHooking.CreateAndInject(
                 exePath,
                 coreHookDll,
@@ -154,7 +157,7 @@ namespace CoreHook.FileMonitor
                 0,
                 injectionLibrary,
                 injectionLibrary,
-                out processId,
+                out _,
                 new PipePlatform(),
                 null,
                 CoreHookPipeName);
@@ -166,15 +169,15 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find corehook dll");
                 return;
             }
-            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            var coreLibrariesPath = GetCoreLibrariesPath();
-            var coreRootPath = GetCoreRootPath();
+            string coreLibrariesPath = GetCoreLibrariesPath();
+            string coreRootPath = GetCoreRootPath();
 
             // path to CoreRunDLL.dll
-            var coreRunDll = Path.Combine(currentDir,
+            string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "CoreRunDLL64.dll" : "CoreRunDLL32.dll");
             if (!File.Exists(coreRunDll))
             {
@@ -187,7 +190,7 @@ namespace CoreHook.FileMonitor
             }
 
             // path to CoreHook.CoreLoad.dll
-            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+            string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
             {
@@ -210,9 +213,9 @@ namespace CoreHook.FileMonitor
 
         private static void StartListener()
         {
-            var _listener = new NpListener(CoreHookPipeName, pipePlatform);
-            _listener.RequestRetrieved += ClientConnectionMade;
-            _listener.Start();
+            var listener = new NpListener(CoreHookPipeName, pipePlatform);
+            listener.RequestRetrieved += ClientConnectionMade;
+            listener.Start();
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
@@ -222,7 +225,7 @@ namespace CoreHook.FileMonitor
         {
             var pipeServer = args.PipeStream;
 
-            var host = BuildServiceHost();
+            IJsonRpcServiceHost host = BuildServiceHost();
 
             var serverHandler = new StreamRpcServerHandler(host);
 

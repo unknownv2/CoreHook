@@ -55,7 +55,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
             // Wait for the client to exit.
             clientTask.GetAwaiter().GetResult();
         }
-        Stack<String> Queue = new Stack<String>();
+        Queue<string> Queue = new Queue<string>();
 
         LocalHook CreateFileHook;
 
@@ -63,10 +63,10 @@ namespace CoreHook.UWP.FileMonitor.Hook
             CharSet = CharSet.Unicode,
             SetLastError = true)]
         delegate IntPtr DCreateFile2(
-            String InFileName,
-            UInt32 InDesiredAccess,
-            UInt32 InShareMode,
-            UInt32 InCreationDisposition,
+            string InFileName,
+            uint InDesiredAccess,
+            uint InShareMode,
+            uint InCreationDisposition,
             IntPtr pCreateExParams);
 
         [DllImport("kernelbase.dll",
@@ -74,18 +74,18 @@ namespace CoreHook.UWP.FileMonitor.Hook
         SetLastError = true,
         CallingConvention = CallingConvention.StdCall)]
         static extern IntPtr CreateFile2(
-            String InFileName,
-            UInt32 InDesiredAccess,
-            UInt32 InShareMode,
-            UInt32 InCreationDisposition,
+            string InFileName,
+            uint InDesiredAccess,
+            uint InShareMode,
+            uint InCreationDisposition,
             IntPtr pCreateExParams);
 
         // this is where we are intercepting all file accesses!
         private static IntPtr CreateFile2_Hooked(
-           String InFileName,
-           UInt32 InDesiredAccess,
-           UInt32 InShareMode,
-           UInt32 InCreationDisposition,
+           string InFileName,
+           uint InDesiredAccess,
+           uint InShareMode,
+           uint InCreationDisposition,
            IntPtr pCreateExParams)
         { 
             ClientWriteLine(string.Format("Creating file: '{0}'...", InFileName));
@@ -97,7 +97,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
                 {
                     lock (This.Queue)
                     {
-                        This.Queue.Push(InFileName);
+                        This.Queue.Enqueue(InFileName);
                     }
                 }
             }
@@ -125,7 +125,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
                 new DCreateFile2(CreateFile2_Hooked),
                 this);
 
-            CreateFileHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            CreateFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
 
         private async Task RunClientAsync(Stream clientStream)

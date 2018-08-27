@@ -21,18 +21,18 @@ namespace CoreHook
     /// </remarks>
     public class HookAccessControl
     {
-        private Int32[] m_ACL = new Int32[0];
+        private int[] m_ACL = new int[0];
         private IntPtr m_Handle;
-        private Boolean m_IsExclusive;
+        private bool m_IsExclusive;
 
         /// <summary>
         /// Is this ACL an exclusive one? Refer to <see cref="SetExclusiveACL"/> for more information.
         /// </summary>
-        public Boolean IsExclusive { get { return m_IsExclusive; } }
+        public bool IsExclusive { get { return m_IsExclusive; } }
         /// <summary>
         /// Is this ACL an inclusive one? Refer to <see cref="SetInclusiveACL"/> for more information.
         /// </summary>
-        public Boolean IsInclusive { get { return !IsExclusive; } }
+        public bool IsInclusive { get { return !IsExclusive; } }
 
         /// <summary>
         /// Sets an inclusive ACL. This means all threads that are enumerated through <paramref name="InACL"/>
@@ -48,12 +48,12 @@ namespace CoreHook
         /// <exception cref="ArgumentException">
         /// The limit of 128 access entries is exceeded!
         /// </exception>
-        public void SetInclusiveACL(Int32[] InACL)
+        public void SetInclusiveACL(int[] InACL)
         {
             if (InACL == null)
-                m_ACL = new Int32[0];
+                m_ACL = new int[0];
             else
-                m_ACL = (Int32[])InACL.Clone();
+                m_ACL = (int[])InACL.Clone();
 
             m_IsExclusive = false;
 
@@ -77,12 +77,12 @@ namespace CoreHook
         /// <exception cref="ArgumentException">
         /// The limit of 128 access entries is exceeded!
         /// </exception>
-        public void SetExclusiveACL(Int32[] InACL)
+        public void SetExclusiveACL(int[] InACL)
         {
             if (InACL == null)
-                m_ACL = new Int32[0];
+                m_ACL = new int[0];
             else
-                m_ACL = (Int32[])InACL.Clone();
+                m_ACL = (int[])InACL.Clone();
 
             m_IsExclusive = true;
 
@@ -99,9 +99,9 @@ namespace CoreHook
         /// <returns>
         /// A copy of the internal thread entries.
         /// </returns>
-        public Int32[] GetEntries()
+        public int[] GetEntries()
         {
-            return (Int32[])m_ACL.Clone();
+            return (int[])m_ACL.Clone();
         }
 
         internal HookAccessControl(IntPtr InHandle)
@@ -126,14 +126,14 @@ namespace CoreHook
     public class HookRuntimeInfo
     {
         private static ProcessModule[] ModuleArray = new ProcessModule[0];
-        private static Int64 LastUpdate = 0;
+        private static long LastUpdate = 0;
 
         /// <summary>
         ///	Is the current thread within a valid hook handler? This is only the case
         ///	if your handler was called through the hooked entry point...
         ///	Executes in max. one micro secound.
         /// </summary>
-        public static Boolean IsHandlerContext
+        public static bool IsHandlerContext
         {
             get
             {
@@ -154,7 +154,7 @@ namespace CoreHook
         /// Executes in max. one micro secound.
         ///	</summary>
         ///	<exception cref="NotSupportedException"> The current thread is not within a valid hook handler. </exception>
-        public static Object Callback
+        public static object Callback
         {
             get
             {
@@ -212,7 +212,7 @@ namespace CoreHook
         /// <returns></returns>
         public static ProcessModule PointerToModule(IntPtr InPointer)
         {
-            Int64 Pointer = InPointer.ToInt64();
+            long Pointer = InPointer.ToInt64();
 
             if ((Pointer == 0) || (Pointer == ~0))
                 return null;
@@ -334,7 +334,7 @@ namespace CoreHook
                 Modules = new ProcessModule[64];
             }
 
-            public void Synchronize(Int32 InCount)
+            public void Synchronize(int InCount)
             {
                 Marshal.Copy(Unmanaged, Managed, 0, Math.Min(64, InCount));
             }
@@ -384,7 +384,7 @@ namespace CoreHook
                     if (StackBuffer == null)
                         StackBuffer = new StackTraceBuffer();
 
-                    Int16 Count = NativeAPI.RtlCaptureStackBackTrace(0, 32, StackBuffer.Unmanaged, IntPtr.Zero);
+                    short Count = NativeAPI.RtlCaptureStackBackTrace(0, 32, StackBuffer.Unmanaged, IntPtr.Zero);
                     ProcessModule[] Result = new ProcessModule[Count];
 
                     StackBuffer.Synchronize(Count);
@@ -443,11 +443,11 @@ namespace CoreHook
     /// </summary>
     public partial class LocalHook : CriticalFinalizerObject, IDisposable
     {
-        private Object m_ThreadSafe = new Object();
+        private object m_ThreadSafe = new object();
         private IntPtr m_Handle = IntPtr.Zero;
         private GCHandle m_SelfHandle;
         private Delegate m_HookProc;
-        private Object m_Callback;
+        private object m_Callback;
         private HookAccessControl m_ThreadACL;
         private static HookAccessControl m_GlobalThreadACL = new HookAccessControl(IntPtr.Zero);
 
@@ -464,7 +464,7 @@ namespace CoreHook
         /// <summary>
         /// The callback passed to <see cref="Create"/>.
         /// </summary>
-        public Object Callback { get { return m_Callback; } }
+        public object Callback { get { return m_Callback; } }
 
         /// <summary>
         /// Returns the thread ACL associated with this hook. Refer to <see cref="IsThreadIntercepted"/>
@@ -558,9 +558,9 @@ namespace CoreHook
         /// <exception cref="ObjectDisposedException">
         /// The underlying hook is already disposed.
         /// </exception>
-        public bool IsThreadIntercepted(Int32 InThreadID)
+        public bool IsThreadIntercepted(int InThreadID)
         {
-            Boolean Result;
+            bool Result;
 
             if (IntPtr.Zero == m_Handle)
                 throw new ObjectDisposedException(typeof(LocalHook).FullName);
@@ -656,7 +656,7 @@ namespace CoreHook
         public static LocalHook Create(
             IntPtr InTargetProc,
             Delegate InNewProc,
-            Object InCallback)
+            object InCallback)
         {
             LocalHook Result = new LocalHook();
 
@@ -795,8 +795,8 @@ namespace CoreHook
         /// The given module does not export the desired method.
         /// </exception>
         public static IntPtr GetProcAddress(
-            String InModule,
-            String InSymbolName)
+            string InModule,
+            string InSymbolName)
         {
             if(InModule == null)
             {
@@ -838,10 +838,10 @@ namespace CoreHook
         /// The given module does not export the given method.
         /// </exception>
         public static TDelegate GetProcDelegate<TDelegate>(
-            String InModule,
-            String InSymbolName)
+            string InModule,
+            string InSymbolName)
         {
-            return (TDelegate)(Object)Marshal.GetDelegateForFunctionPointer(GetProcAddress(InModule, InSymbolName), typeof(TDelegate));
+            return (TDelegate)(object)Marshal.GetDelegateForFunctionPointer(GetProcAddress(InModule, InSymbolName), typeof(TDelegate));
         }
 
         /// <summary>

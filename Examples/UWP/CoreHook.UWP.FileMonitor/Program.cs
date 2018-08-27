@@ -42,7 +42,7 @@ namespace CoreHook.UWP.FileMonitor
             string targetApp = string.Empty;
 
             // Load the parameter
-            while ((args.Length != 1) || !Int32.TryParse(args[0], out targetPID))
+            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID))
             {
                 if (targetPID > 0)
                 {
@@ -58,7 +58,10 @@ namespace CoreHook.UWP.FileMonitor
 
                     args = new string[] { Console.ReadLine() };
 
-                    if (String.IsNullOrEmpty(args[0])) return;
+                    if (string.IsNullOrEmpty(args[0]))
+                    {
+                        return;
+                    }
                 }
                 else
                 {
@@ -110,7 +113,7 @@ namespace CoreHook.UWP.FileMonitor
 
         private static string GetCoreRootPath()
         {
-            return  !IsArchitectureArm() ?
+            return !IsArchitectureArm() ?
              Environment.Is64BitProcess ?
              Environment.GetEnvironmentVariable("CORE_ROOT_64") :
              Environment.GetEnvironmentVariable("CORE_ROOT_32")
@@ -125,13 +128,13 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var coreLibrariesPath = GetCoreLibrariesPath();
-            var coreRootPath = GetCoreRootPath();
+            string coreLibrariesPath = GetCoreLibrariesPath();
+            string coreRootPath = GetCoreRootPath();
 
             // path to CoreRunDLL.dll
-            var coreRunDll = Path.Combine(currentDir,
+            string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "CoreRunDLL64.dll" : "CoreRunDLL32.dll");
             if (!File.Exists(coreRunDll))
             {
@@ -143,7 +146,7 @@ namespace CoreHook.UWP.FileMonitor
                 }
             }
             // path to CoreHook.CoreLoad.dll
-            var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+            string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
             {
@@ -166,9 +169,9 @@ namespace CoreHook.UWP.FileMonitor
 
         private static void StartListener()
         {
-            var _listener = new NpListener(CoreHookPipeName, pipePlatform);
-            _listener.RequestRetrieved += ClientConnectionMade;
-            _listener.Start();
+            var listener = new NpListener(CoreHookPipeName, pipePlatform);
+            listener.RequestRetrieved += ClientConnectionMade;
+            listener.Start();
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
@@ -178,7 +181,7 @@ namespace CoreHook.UWP.FileMonitor
         {
             var pipeServer = args.PipeStream;
 
-            var host = BuildServiceHost();
+            IJsonRpcServiceHost host = BuildServiceHost();
 
             var serverHandler = new StreamRpcServerHandler(host);
 
@@ -215,7 +218,9 @@ namespace CoreHook.UWP.FileMonitor
         private static void GrantAllAppPkgsAccessToDir(string directory)
         {
             if (!Directory.Exists(directory))
+            {
                 return;
+            }
 
             GrantAllAppPkgsAccessToFile(directory);
             foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
@@ -229,7 +234,7 @@ namespace CoreHook.UWP.FileMonitor
             try
             {
                 var fInfo = new FileInfo(fileName);
-                var acl = fInfo.GetAccessControl();
+                FileSecurity acl = fInfo.GetAccessControl();
 
                 var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);

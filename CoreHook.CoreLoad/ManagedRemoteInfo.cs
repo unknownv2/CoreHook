@@ -10,6 +10,5 @@ namespace CoreHook.CoreLoad
         public string UserLibrary;
         public string UserLibraryName;
         public int HostPID;
-        public bool RequireStrongName;
     }
 }

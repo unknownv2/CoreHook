@@ -1,55 +1,53 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace CoreHook.Unmanaged.Windows
 {
     static class NativeAPI_x86
     {
-        private const String DllName = "corehook32.dll";
+        private const string DllName = "corehook32.dll";
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllExW(
-            [MarshalAs(UnmanagedType.LPWStr)]String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExW(
+            [MarshalAs(UnmanagedType.LPWStr)]string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllExA(
-            String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExA(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessA);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllsExW(
-            String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExW(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
@@ -57,15 +55,15 @@ namespace CoreHook.Unmanaged.Windows
             IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllsExA(
-            String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExA(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
@@ -75,48 +73,48 @@ namespace CoreHook.Unmanaged.Windows
 
     static class NativeAPI_x64
     {
-        private const String DllName = "corehook64.dll";
+        private const string DllName = "corehook64.dll";
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllExW(
-            [MarshalAs(UnmanagedType.LPWStr)]String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExW(
+            [MarshalAs(UnmanagedType.LPWStr)]string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllExA(
-            String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllExA(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessA);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllsExW(
-              [MarshalAs(UnmanagedType.LPWStr)]String lpApplicationName,
-              String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExW(
+              [MarshalAs(UnmanagedType.LPWStr)]string lpApplicationName,
+              string lpCommandLine,
               IntPtr lpProcessAttributes,
               IntPtr lpThreadAttributes,
               bool bInheritHandles,
               uint dwCreationFlags,
               IntPtr lpEnvironment,
-              String lpCurrentDirectory,
+              string lpCurrentDirectory,
               ref NativeMethods.StartupInfo lpStartupInfo,
               out NativeMethods.ProcessInformation lpProcessInformation,
               uint nDlls,
@@ -124,15 +122,15 @@ namespace CoreHook.Unmanaged.Windows
               IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern Boolean DetourCreateProcessWithDllsExA(
-            String lpApplicationName,
-            String lpCommandLine,
+        public static extern bool DetourCreateProcessWithDllsExA(
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
@@ -142,9 +140,9 @@ namespace CoreHook.Unmanaged.Windows
 
     public static class NativeAPI
     {
-        public const Int32 MAX_HOOK_COUNT = 1024;
-        public const Int32 MAX_ACE_COUNT = 128;
-        public readonly static Boolean Is64Bit = IntPtr.Size == 8;
+        public const int MAX_HOOK_COUNT = 1024;
+        public const int MAX_ACE_COUNT = 128;
+        public readonly static bool Is64Bit = IntPtr.Size == 8;
 
         [DllImport("kernel32.dll")]
         public static extern int GetCurrentThreadId();
@@ -156,36 +154,36 @@ namespace CoreHook.Unmanaged.Windows
         public static extern int GetCurrentProcessId();
 
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr GetProcAddress(IntPtr InModule, String InProcName);
+        public static extern IntPtr GetProcAddress(IntPtr InModule, string InProcName);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr LoadLibrary(String InPath);
+        public static extern IntPtr LoadLibrary(string InPath);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr GetModuleHandle(String InPath);
+        public static extern IntPtr GetModuleHandle(string InPath);
 
         [DllImport("kernel32.dll")]
-        public static extern Int16 RtlCaptureStackBackTrace(
-            Int32 InFramesToSkip,
-            Int32 InFramesToCapture,
+        public static extern short RtlCaptureStackBackTrace(
+            int InFramesToSkip,
+            int InFramesToCapture,
             IntPtr OutBackTrace,
             IntPtr OutBackTraceHash);
 
-        public const Int32 STATUS_SUCCESS = unchecked((Int32)0);
-        public const Int32 STATUS_INVALID_PARAMETER = unchecked((Int32)0xC000000DL);
-        public const Int32 STATUS_INVALID_PARAMETER_1 = unchecked((Int32)0xC00000EFL);
-        public const Int32 STATUS_INVALID_PARAMETER_2 = unchecked((Int32)0xC00000F0L);
-        public const Int32 STATUS_INVALID_PARAMETER_3 = unchecked((Int32)0xC00000F1L);
-        public const Int32 STATUS_INVALID_PARAMETER_4 = unchecked((Int32)0xC00000F2L);
-        public const Int32 STATUS_INVALID_PARAMETER_5 = unchecked((Int32)0xC00000F3L);
-        public const Int32 STATUS_NOT_SUPPORTED = unchecked((Int32)0xC00000BBL);
+        public const int STATUS_SUCCESS = unchecked((int)0);
+        public const int STATUS_INVALID_PARAMETER = unchecked((int)0xC000000DL);
+        public const int STATUS_INVALID_PARAMETER_1 = unchecked((int)0xC00000EFL);
+        public const int STATUS_INVALID_PARAMETER_2 = unchecked((int)0xC00000F0L);
+        public const int STATUS_INVALID_PARAMETER_3 = unchecked((int)0xC00000F1L);
+        public const int STATUS_INVALID_PARAMETER_4 = unchecked((int)0xC00000F2L);
+        public const int STATUS_INVALID_PARAMETER_5 = unchecked((int)0xC00000F3L);
+        public const int STATUS_NOT_SUPPORTED = unchecked((int)0xC00000BBL);
 
-        public const Int32 STATUS_INTERNAL_ERROR = unchecked((Int32)0xC00000E5L);
-        public const Int32 STATUS_INSUFFICIENT_RESOURCES = unchecked((Int32)0xC000009AL);
-        public const Int32 STATUS_BUFFER_TOO_SMALL = unchecked((Int32)0xC0000023L);
-        public const Int32 STATUS_NO_MEMORY = unchecked((Int32)0xC0000017L);
-        public const Int32 STATUS_WOW_ASSERTION = unchecked((Int32)0xC0009898L);
-        public const Int32 STATUS_ACCESS_DENIED = unchecked((Int32)0xC0000022L);
+        public const int STATUS_INTERNAL_ERROR = unchecked((int)0xC00000E5L);
+        public const int STATUS_INSUFFICIENT_RESOURCES = unchecked((int)0xC000009AL);
+        public const int STATUS_BUFFER_TOO_SMALL = unchecked((int)0xC0000023L);
+        public const int STATUS_NO_MEMORY = unchecked((int)0xC0000017L);
+        public const int STATUS_WOW_ASSERTION = unchecked((int)0xC0009898L);
+        public const int STATUS_ACCESS_DENIED = unchecked((int)0xC0000022L);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct SECURITY_ATTRIBUTES
@@ -197,20 +195,20 @@ namespace CoreHook.Unmanaged.Windows
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct STARTUPINFO
         {
-            public Int32 cb;
+            public int cb;
             public string lpReserved;
             public string lpDesktop;
             public string lpTitle;
-            public Int32 dwX;
-            public Int32 dwY;
-            public Int32 dwXSize;
-            public Int32 dwYSize;
-            public Int32 dwXCountChars;
-            public Int32 dwYCountChars;
-            public Int32 dwFillAttribute;
-            public Int32 dwFlags;
-            public Int16 wShowWindow;
-            public Int16 cbReserved2;
+            public int dwX;
+            public int dwY;
+            public int dwXSize;
+            public int dwYSize;
+            public int dwXCountChars;
+            public int dwYCountChars;
+            public int dwFillAttribute;
+            public int dwFlags;
+            public short wShowWindow;
+            public short cbReserved2;
             public IntPtr lpReserved2;
             public IntPtr hStdInput;
             public IntPtr hStdOutput;
@@ -226,17 +224,17 @@ namespace CoreHook.Unmanaged.Windows
         }
  
         public static bool DetourCreateProcessWithDllExA(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessA)
         {
             if (Is64Bit)
@@ -272,17 +270,17 @@ namespace CoreHook.Unmanaged.Windows
         }
 
         public static bool DetourCreateProcessWithDllExW(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
-            String lpDllName,
+            string lpDllName,
             IntPtr pfCreateProcessW)
         {
             if (Is64Bit)
@@ -318,14 +316,14 @@ namespace CoreHook.Unmanaged.Windows
         }
 
         public static bool DetourCreateProcessWithDllsExA(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,
@@ -367,14 +365,14 @@ namespace CoreHook.Unmanaged.Windows
         }
 
         public static bool DetourCreateProcessWithDllsExW(
-            String lpApplicationName,
-            String lpCommandLine,
+            string lpApplicationName,
+            string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
             bool bInheritHandles,
             uint dwCreationFlags,
             IntPtr lpEnvironment,
-            String lpCurrentDirectory,
+            string lpCurrentDirectory,
             ref NativeMethods.StartupInfo lpStartupInfo,
             out NativeMethods.ProcessInformation lpProcessInformation,
             uint nDlls,

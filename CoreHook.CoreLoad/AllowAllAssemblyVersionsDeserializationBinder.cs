@@ -32,7 +32,7 @@ namespace CoreHook.CoreLoad
             try
             {
                 // 1. First try to bind without overriding assembly
-                typeToDeserialize = Type.GetType(String.Format("{0}, {1}", typeName, assemblyName));
+                typeToDeserialize = Type.GetType(string.Format("{0}, {1}", typeName, assemblyName));
             }
             catch
             {

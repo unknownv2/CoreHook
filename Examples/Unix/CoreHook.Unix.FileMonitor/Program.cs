@@ -34,7 +34,7 @@ namespace CoreHook.Unix.FileMonitor
             string targetProgam = string.Empty;
             IsArchitectureArm();
             // Load the parameter
-            while ((args.Length != 1) || !Int32.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
+            while ((args.Length != 1) || !int.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
                 if (TargetPID > 0)
                 {
@@ -50,7 +50,10 @@ namespace CoreHook.Unix.FileMonitor
 
                     args = new string[] { Console.ReadLine() };
 
-                    if (String.IsNullOrEmpty(args[0])) return;
+                    if (string.IsNullOrEmpty(args[0]))
+                    {
+                        return;
+                    }
                 }
                 else
                 {
@@ -162,9 +165,9 @@ namespace CoreHook.Unix.FileMonitor
         }
         private static void StartListener()
         {
-            var _listener = new NpListener(CoreHookPipeName);
-            _listener.RequestRetrieved += ClientConnectionMade;
-            _listener.Start();
+            var listener = new NpListener(CoreHookPipeName);
+            listener.RequestRetrieved += ClientConnectionMade;
+            listener.Start();
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
