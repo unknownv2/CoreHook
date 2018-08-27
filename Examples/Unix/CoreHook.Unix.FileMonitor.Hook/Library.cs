@@ -23,15 +23,15 @@ namespace CoreHook.Unix.FileMonitor.Hook
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        Stack<String> Queue = new Stack<String>();
+        Queue<string> Queue = new Queue<string>();
 
         LocalHook OpenHook;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Ansi,
             SetLastError = true)]
-        delegate Int32 DOpen(
-            String pathname, int flags, int mode);
+        delegate int DOpen(
+            string pathname, int flags, int mode);
 
         public Library(object InContext, string arg1)
         {
@@ -92,20 +92,20 @@ namespace CoreHook.Unix.FileMonitor.Hook
                 new DOpen(open_hook),
                 this);
 
-            OpenHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            OpenHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
         const string LIBC = "libc";
         [DllImport(LIBC, SetLastError = true)]
-        internal static extern int open(String pathname, int flags, int mode);
+        internal static extern int open(string pathname, int flags, int mode);
 
-        static int open_hook(String pathname, int flags, int mode)
+        static int open_hook(string pathname, int flags, int mode)
         {
             Console.WriteLine($"Opening {pathname}...");
             Library This = (Library)HookRuntimeInfo.Callback;
 
             lock (This.Queue)
             {
-                This.Queue.Push(pathname);
+                This.Queue.Enqueue(pathname);
             }
             return open(pathname, flags, mode);
         }
