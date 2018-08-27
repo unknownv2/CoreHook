@@ -235,11 +235,11 @@ namespace CoreHook.ManagedHook.Remote
 
         private static GCHandle PrepareInjection(
             ManagedRemoteInfo remoteInfo,
-            ref String libraryX86,
-            ref String libraryX64,
+            ref string libraryX86,
+            ref string libraryX64,
             MemoryStream argsStream)
         {
-            if (String.IsNullOrEmpty(libraryX86) && String.IsNullOrEmpty(libraryX64))
+            if (string.IsNullOrEmpty(libraryX86) && string.IsNullOrEmpty(libraryX64))
                 throw new ArgumentException("At least one library for x86 or x64 must be provided");
 
             // ensure full path information in case of file names...
@@ -262,7 +262,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new FileNotFoundException(String.Format("The given assembly could not be found. {0}", remoteInfo.UserLibrary), remoteInfo.UserLibrary);
+                throw new FileNotFoundException(string.Format("The given assembly could not be found. {0}", remoteInfo.UserLibrary), remoteInfo.UserLibrary);
             }
 
             remoteInfo.ChannelName = InjectionPipe;
