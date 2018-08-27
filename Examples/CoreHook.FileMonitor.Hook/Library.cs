@@ -15,6 +15,10 @@ namespace CoreHook.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
+        Queue<string> Queue = new Queue<string>();
+
+        LocalHook CreateFileHook;
+
         public Library(object InContext, string arg1)
         {
         }
@@ -41,10 +45,10 @@ namespace CoreHook.FileMonitor.Hook
 
         private static void ClientWriteLine(object msg)
         {
-            Debug.WriteLine(msg);
+            Console.WriteLine(msg);
         }
 
-        public void StartClient(string pipeName)
+        private void StartClient(string pipeName)
         {
             var clientPipe = new ClientPipe(pipeName);
 
@@ -53,47 +57,45 @@ namespace CoreHook.FileMonitor.Hook
             // Wait for the client to exit.
             clientTask.GetAwaiter().GetResult();
         }
-        Stack<String> Queue = new Stack<String>();
 
-        LocalHook CreateFileHook;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
         delegate IntPtr DCreateFile(
-            String InFileName,
-            UInt32 InDesiredAccess,
-            UInt32 InShareMode,
-            IntPtr InSecurityAttributes,
-            UInt32 InCreationDisposition,
-            UInt32 InFlagsAndAttributes,
-            IntPtr InTemplateFile);
+            string fileName,
+            uint desiredAccess,
+            uint shareMode,
+            IntPtr securityAttributes,
+            uint creationDisposition,
+            uint flagsAndAttributes,
+            IntPtr templateFile);
 
         [DllImport("kernel32.dll",
             CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         static extern IntPtr CreateFile(
-            String InFileName,
-            UInt32 InDesiredAccess,
-            UInt32 InShareMode,
-            IntPtr InSecurityAttributes,
-            UInt32 InCreationDisposition,
-            UInt32 InFlagsAndAttributes,
-            IntPtr InTemplateFile);
+            string fileName,
+            uint desiredAccess,
+            uint shareMode,
+            IntPtr securityAttributes,
+            uint creationDisposition,
+            uint flagsAndAttributes,
+            IntPtr templateFile);
 
         // this is where we are intercepting all file accesses!
         private static IntPtr CreateFile_Hooked(
-            String InFileName,
-            UInt32 InDesiredAccess,
-            UInt32 InShareMode,
-            IntPtr InSecurityAttributes,
-            UInt32 InCreationDisposition,
-            UInt32 InFlagsAndAttributes,
-            IntPtr InTemplateFile)
+            string fileName,
+            uint desiredAccess,
+            uint shareMode,
+            IntPtr securityAttributes,
+            uint creationDisposition,
+            uint flagsAndAttributes,
+            IntPtr templateFile)
         {
 
-            ClientWriteLine(string.Format("Creating file: '{0}'...", InFileName));
+            ClientWriteLine($"Creating file: '{fileName}'...");
 
             try
             {
@@ -102,7 +104,7 @@ namespace CoreHook.FileMonitor.Hook
                 {
                     lock (This.Queue)
                     {
-                        This.Queue.Push(InFileName);
+                        This.Queue.Enqueue(fileName);
                     }
                 }
             }
@@ -114,13 +116,13 @@ namespace CoreHook.FileMonitor.Hook
 
             // call original API...
             return CreateFile(
-                InFileName,
-                InDesiredAccess,
-                InShareMode,
-                InSecurityAttributes,
-                InCreationDisposition,
-                InFlagsAndAttributes,
-                InTemplateFile);
+                fileName,
+                desiredAccess,
+                shareMode,
+                securityAttributes,
+                creationDisposition,
+                flagsAndAttributes,
+                templateFile);
         }
 
         private void CreateHooks()
@@ -132,7 +134,7 @@ namespace CoreHook.FileMonitor.Hook
                 new DCreateFile(CreateFile_Hooked),
                 this);
 
-            CreateFileHook.ThreadACL.SetExclusiveACL(new Int32[] { 0 });
+            CreateFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
 
         private async Task RunClientAsync(Stream clientStream)
@@ -145,7 +147,6 @@ namespace CoreHook.FileMonitor.Hook
             using (var writer = new ByLineTextMessageWriter(clientStream))
             using (clientHandler.Attach(reader, writer))
             {
-
                 var client = new JsonRpcClient(clientHandler);
 
                 var builder = new JsonRpcProxyBuilder
