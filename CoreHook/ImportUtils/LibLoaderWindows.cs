@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.ImportUtils
 {
-
     public class LibLoaderWindows : ILibLoader
     {
         [DllImport("kernel32.dll")]

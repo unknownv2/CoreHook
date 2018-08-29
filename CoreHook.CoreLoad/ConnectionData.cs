@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Diagnostics;
 
 namespace CoreHook.CoreLoad
@@ -17,36 +15,23 @@ namespace CoreHook.CoreLoad
             Valid = int.MaxValue
         }
 
-        private RemoteEntryInfo _unmanagedInfo;
-        private ManagedRemoteInfo _remoteInfo;
-        private ConnectionState _state;
-
         /// <summary>
         /// Gets the state of the current <see cref="HostConnectionData"/>.
         /// </summary>
-        public ConnectionState State
-        {
-            get { return _state; }
-        }
+        public ConnectionState State { get; private set; }
 
         /// <summary>
         /// Gets the unmanaged data containing the pointer to the memory block containing <see cref="RemoteInfo"/>;
         /// </summary>
-        public RemoteEntryInfo UnmanagedInfo
-        {
-            get { return _unmanagedInfo; }
-        }
+        public RemoteEntryInfo UnmanagedInfo { get; private set; }
 
-        public ManagedRemoteInfo RemoteInfo
-        {
-            get { return _remoteInfo; }
-        }
+        public ManagedRemoteInfo RemoteInfo { get; private set; }
 
         private ConnectionData()
         {
-            _state = ConnectionState.Invalid;
-            _remoteInfo = null;
-            _unmanagedInfo = null;
+            State = ConnectionState.Invalid;
+            RemoteInfo = null;
+            UnmanagedInfo = null;
         }
         /// <summary>
         /// Loads <see cref="HostConnectionData"/> from the <see cref="IntPtr"/> specified.
@@ -56,23 +41,23 @@ namespace CoreHook.CoreLoad
         {
             var data = new ConnectionData
             {
-                _state = ConnectionState.Valid,
-                _unmanagedInfo = new RemoteEntryInfo()
+                State = ConnectionState.Valid,
+                UnmanagedInfo = new RemoteEntryInfo()
             };
             try
             {
                 // Get the unmanaged data
-                Marshal.PtrToStructure(unmanagedInfoPointer, data._unmanagedInfo);
+                Marshal.PtrToStructure(unmanagedInfoPointer, data.UnmanagedInfo);
                 using (Stream passThruStream = new MemoryStream())
                 {
-                    byte[] passThruBytes = new byte[data._unmanagedInfo.UserDataSize];
+                    byte[] passThruBytes = new byte[data.UnmanagedInfo.UserDataSize];
                     BinaryFormatter format = new BinaryFormatter();
                     // Workaround for deserialization when not using GAC registration
                     format.Binder = new AllowAllAssemblyVersionsDeserializationBinder();
-                    Marshal.Copy(data._unmanagedInfo.UserData, passThruBytes, 0, data._unmanagedInfo.UserDataSize);
+                    Marshal.Copy(data.UnmanagedInfo.UserData, passThruBytes, 0, data.UnmanagedInfo.UserDataSize);
                     passThruStream.Write(passThruBytes, 0, passThruBytes.Length);
                     passThruStream.Position = 0;
-                    data._remoteInfo = (ManagedRemoteInfo)format.Deserialize(passThruStream);
+                    data.RemoteInfo = (ManagedRemoteInfo)format.Deserialize(passThruStream);
                 }
             }
             catch (Exception ExtInfo)

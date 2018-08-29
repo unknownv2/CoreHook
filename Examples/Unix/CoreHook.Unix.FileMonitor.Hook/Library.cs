@@ -10,6 +10,7 @@ using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
 using CoreHook.IPC.Pipes.Client;
+using CoreHook;
 
 namespace CoreHook.Unix.FileMonitor.Hook
 {

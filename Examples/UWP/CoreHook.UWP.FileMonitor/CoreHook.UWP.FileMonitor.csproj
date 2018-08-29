@@ -8,13 +8,13 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <OutputPath>..\Build\bin\Debug</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Debug\</OutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <OutputPath>..\Build\bin\x86\Debug\</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Debug\</OutputPath>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
@@ -34,7 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\..\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
-    <ProjectReference Include="..\..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
+    <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
     <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Hook\CoreHook.UWP.FileMonitor.Hook.csproj" />
     <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Shared\CoreHook.UWP.FileMonitor.Shared.csproj" />
   </ItemGroup>

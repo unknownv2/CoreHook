@@ -13,7 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\..\CoreHook\CoreHook.csproj" />
-    <ProjectReference Include="..\..\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
+    <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
   </ItemGroup>
 
 </Project>

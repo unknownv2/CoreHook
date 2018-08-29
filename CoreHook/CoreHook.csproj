@@ -10,4 +10,8 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\</OutputPath>
+  </PropertyGroup>
+
 </Project>

@@ -18,21 +18,6 @@ namespace CoreHook.ManagedHook.Remote
 
         private const string InjectionPipe = "CoreHookInjection";
 
-        public class UnsupportedPlatformException : Exception
-        {
-            public UnsupportedPlatformException(string operation)
-                        : base($"Unsupported platform for {operation}.")
-            {
-            }
-        }
-        public class ProcessStartException : Exception
-        {
-            public ProcessStartException(string processName)
-                        : base($"Failed to start process {processName}.")
-            {
-            }
-        }
-
         private static IBinaryLoader GetBinaryLoader()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))

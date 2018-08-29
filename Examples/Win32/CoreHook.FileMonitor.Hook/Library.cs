@@ -15,9 +15,9 @@ namespace CoreHook.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
-        Queue<string> Queue = new Queue<string>();
+        private Queue<string> Queue = new Queue<string>();
 
-        LocalHook CreateFileHook;
+        private LocalHook CreateFileHook;
 
         public Library(object InContext, string arg1)
         {
@@ -128,6 +128,9 @@ namespace CoreHook.FileMonitor.Hook
         private void CreateHooks()
         {
             ClientWriteLine("Adding hook to kernel32.dll!CreateFileW");
+
+            IntPtr SdbGetItemFromItemRefAddr = LocalHook.GetProcAddress(
+                "kernel32.dll", "CheckWnfStateName");
 
             CreateFileHook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),

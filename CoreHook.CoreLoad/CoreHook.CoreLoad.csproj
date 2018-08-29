@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\Build\bin\Debug\netcoreapp2.0\</OutputPath>
+    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>    
@@ -25,8 +25,7 @@
     <OutputPath>..\Build\bin\Debug\netcoreapp2.0</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath> 
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>       
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>       
   </PropertyGroup>
 
   <ItemGroup>

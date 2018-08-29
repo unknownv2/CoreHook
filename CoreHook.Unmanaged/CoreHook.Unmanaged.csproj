@@ -5,4 +5,8 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\</OutputPath>
+  </PropertyGroup>
+
 </Project>

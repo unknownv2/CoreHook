@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.0\</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
-    <ProjectReference Include="..\..\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\..\..\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\CoreHook\CoreHook.csproj" />
     <ProjectReference Include="..\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
   </ItemGroup>
 

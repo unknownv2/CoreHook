@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
+using System.Runtime.Serialization;
 
 namespace CoreHook.CoreLoad
 {
@@ -11,10 +10,10 @@ namespace CoreHook.CoreLoad
     /// 
     /// A custom DeserializationBinder works around this (see http://spazzarama.com/2009/06/25/binary-deserialize-unable-to-find-assembly/)
     /// </summary>
-    internal sealed class AllowAllAssemblyVersionsDeserializationBinder :
-        System.Runtime.Serialization.SerializationBinder
+    internal sealed class AllowAllAssemblyVersionsDeserializationBinder : SerializationBinder
     {
         private Assembly _assembly;
+
         public AllowAllAssemblyVersionsDeserializationBinder()
             : this(Assembly.GetExecutingAssembly())
         {
