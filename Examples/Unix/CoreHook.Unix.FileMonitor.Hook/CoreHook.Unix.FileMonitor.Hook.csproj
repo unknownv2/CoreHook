@@ -4,6 +4,10 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CXuesong.JsonRpc.DynamicProxy" Version="0.4.0" />
     <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
