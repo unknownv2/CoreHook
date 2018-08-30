@@ -129,9 +129,6 @@ namespace CoreHook.FileMonitor.Hook
         {
             ClientWriteLine("Adding hook to kernel32.dll!CreateFileW");
 
-            IntPtr SdbGetItemFromItemRefAddr = LocalHook.GetProcAddress(
-                "kernel32.dll", "CheckWnfStateName");
-
             CreateFileHook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
                 new DCreateFile(CreateFile_Hooked),
