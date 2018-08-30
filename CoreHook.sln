@@ -30,6 +30,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unix", "Unix", "{EC806D59-A8F0-4517-973C-034B84684E3C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Unix.FileMonitor", "Examples\Unix\CoreHook.Unix.FileMonitor\CoreHook.Unix.FileMonitor.csproj", "{4AAFAB40-7BA7-4FD9-AC54-527F76487785}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6354C983-BAA0-43F8-B0D7-D989720D6EA9} = {6354C983-BAA0-43F8-B0D7-D989720D6EA9}
+		{5CD24098-AAA6-4273-8714-FA61E4E1F0D1} = {5CD24098-AAA6-4273-8714-FA61E4E1F0D1}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Unix.FileMonitor.Hook", "Examples\Unix\CoreHook.Unix.FileMonitor.Hook\CoreHook.Unix.FileMonitor.Hook.csproj", "{6354C983-BAA0-43F8-B0D7-D989720D6EA9}"
 EndProject
@@ -38,6 +42,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Win32", "Win32", "{FCEA9FF3-7F84-4562-9512-D3B7AE03620A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.FileMonitor", "Examples\Win32\CoreHook.FileMonitor\CoreHook.FileMonitor.csproj", "{FA09E0BF-9DC5-4737-B2DF-0ED74E3D71E5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5CD24098-AAA6-4273-8714-FA61E4E1F0D1} = {5CD24098-AAA6-4273-8714-FA61E4E1F0D1}
+		{E07B809F-9068-4ADB-BE3E-FA4EB2D44424} = {E07B809F-9068-4ADB-BE3E-FA4EB2D44424}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.FileMonitor.Hook", "Examples\Win32\CoreHook.FileMonitor.Hook\CoreHook.FileMonitor.Hook.csproj", "{E07B809F-9068-4ADB-BE3E-FA4EB2D44424}"
 EndProject
