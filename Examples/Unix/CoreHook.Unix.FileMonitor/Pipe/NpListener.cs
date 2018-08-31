@@ -11,12 +11,17 @@ namespace CoreHook.Unix.FileMonitor.Pipe
     public class NpListener
     {
         private bool running;
+
         private EventWaitHandle terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+
         private int _maxConnections = 254;
+
         private ILog _log = new NullLogger();
+
         private IStats _stats = new NullStats();
 
         public string PipeName { get; set; }
+
         public event EventHandler<PipeClientConnectionEventArgs> RequestRetrieved;
 
         public NpListener(string pipeName, int maxConnections = 254, ILog log = null, IStats stats = null)
@@ -24,14 +29,14 @@ namespace CoreHook.Unix.FileMonitor.Pipe
             _log = log ?? _log;
             _stats = stats ?? _stats;
 
-            if (maxConnections > 254)
+            if (maxConnections < _maxConnections)
             {
-                maxConnections = 254;
+                _maxConnections = maxConnections;
             }
+
             _maxConnections = maxConnections;
             PipeName = pipeName;
         }
-
 
         internal NamedPipeServerStream CreatePipe(string pipeName)
         {

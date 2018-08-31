@@ -56,7 +56,7 @@ namespace CoreHook.IPC.NamedPipes
                 string result = string.Empty;
                 if (!string.IsNullOrEmpty(Header))
                 {
-                    result = this.Header;
+                    result = Header;
                 }
                 if (Body != null)
                 {
@@ -71,18 +71,18 @@ namespace CoreHook.IPC.NamedPipes
 
             public InjectionCompleteNotification(string body)
             {
-                this.RequestData = InjectionCompleteMessage.FromBody(body);
+                RequestData = InjectionCompleteMessage.FromBody(body);
             }
             public InjectionCompleteNotification(int pid, bool didComplete)
             {
-                this.RequestData = new InjectionCompleteMessage(pid, didComplete);
+                RequestData = new InjectionCompleteMessage(pid, didComplete);
             }
 
             public InjectionCompleteMessage RequestData { get; }
 
             public Message CreateMessage()
             {
-                return new Message(InjectionComplete, this.RequestData.ToMessage());
+                return new Message(InjectionComplete, RequestData.ToMessage());
             }
         }
         public class InjectionCompleteMessage
