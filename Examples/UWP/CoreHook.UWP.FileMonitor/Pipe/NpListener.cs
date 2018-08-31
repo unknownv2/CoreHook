@@ -15,10 +15,16 @@ namespace CoreHook.UWP.FileMonitor.Pipe
     public class NpListener
     {
         private bool running;
+
         private EventWaitHandle terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
-        private int _maxConnections = 254;
-        private ILog _log = new NullLogger();
-        private IStats _stats = new NullStats();
+
+        private readonly int _maxConnections = 254;
+
+        private readonly ILog _log = new NullLogger();
+
+        private readonly IStats _stats = new NullStats();
+
+        private NamedPipeServerStream _previousStream = null;
 
         public readonly string _pipeName;
 
@@ -31,11 +37,10 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             _log = log ?? _log;
             _stats = stats ?? _stats;
 
-            if (maxConnections > 254)
+            if (maxConnections < _maxConnections)
             {
-                maxConnections = 254;
+                _maxConnections = maxConnections;
             }
-            _maxConnections = maxConnections;
 
             _pipeName = pipeName;
 
@@ -69,7 +74,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                 }
                 catch (Exception e)
                 {
-                    _log.Error("Stop error: {0}", e.ToString());
+                    _log.Error($"Stop error: {e.ToString()}");
                 }
                 terminateHandle.WaitOne();
             }
@@ -86,7 +91,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             }
             catch (Exception e)
             {
-                _log.Fatal("ServerLoop fatal error: {0}", e.ToString());
+                _log.Fatal($"ServerLoop fatal error: {e.ToString()}");
             }
             finally
             {
@@ -102,7 +107,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             }
             catch (Exception e)
             {
-                _log.Error("ProcessClientThread error: {0}", e.ToString());
+                _log.Error($"ProcessClientThread error: {e.ToString()}");
             }
             finally
             {
@@ -112,7 +117,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             }
         }
 
-        private NamedPipeServerStream _previousStream = null;
+
         public void ProcessNextClient()
         {
             try
@@ -145,7 +150,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             catch (Exception e)
             {
                 //If there are no more avail connections (254 is in use already) then just keep looping until one is avail
-                _log.Error("ProcessNextClient error: {0}", e.ToString());
+                _log.Error($"ProcessNextClient error: {e.ToString()}");
             }
         }
     }
