@@ -22,6 +22,10 @@ namespace CoreHook.IPC.NamedPipes
             {
                 throw new InvalidOperationException();
             }
+            if (this.pipeName == null)
+            {
+                throw new InvalidOperationException("Client pipe name was not set");
+            }
             try
             {
                 this.clientStream = new NamedPipeClientStream(
