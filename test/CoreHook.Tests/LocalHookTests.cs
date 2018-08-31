@@ -1,7 +1,5 @@
-using System;
 using System.Runtime.InteropServices;
 using Xunit;
-using CoreHook;
 
 namespace CoreHook.Tests
 {
@@ -27,7 +25,7 @@ namespace CoreHook.Tests
         }
 
         [Fact]
-        public void HookIsInstalled()
+        public void DetourIsInstalled()
         {
             _beepHookCalled = false;
 
@@ -41,6 +39,29 @@ namespace CoreHook.Tests
             Assert.False(Beep(100, 100));
 
             Assert.True(_beepHookCalled);
+        }
+        [Fact]
+        public void DetourIsBypassedByOriginalFunction()
+        {
+            _beepHookCalled = false;
+
+            LocalHook hook = LocalHook.Create(
+                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
+                new BeepDelegate(BeepHook),
+                this);
+
+            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
+
+            Assert.False(Beep(100, 100));
+
+            Assert.True(_beepHookCalled);
+
+            _beepHookCalled = false;
+
+            BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
+
+            beep(100, 100);
+            Assert.False(_beepHookCalled);
         }
     }
 }
