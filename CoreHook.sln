@@ -57,7 +57,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Unmanaged", "src\C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{651578A4-4B76-4A11-897F-45A3D5714574}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreHook.Tests", "test\CoreHook.Tests\CoreHook.Tests.csproj", "{AAAC3722-8911-4F80-8232-840D81F8C938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests", "test\CoreHook.Tests\CoreHook.Tests.csproj", "{AAAC3722-8911-4F80-8232-840D81F8C938}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -205,8 +205,8 @@ Global
 		{9BF07061-551A-431F-B27B-AD35E7AA7DA8}.Release|x86.Build.0 = Release|x86
 		{AAAC3722-8911-4F80-8232-840D81F8C938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AAAC3722-8911-4F80-8232-840D81F8C938}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AAAC3722-8911-4F80-8232-840D81F8C938}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{AAAC3722-8911-4F80-8232-840D81F8C938}.Debug|x86.Build.0 = Debug|Any CPU
+		{AAAC3722-8911-4F80-8232-840D81F8C938}.Debug|x86.ActiveCfg = Debug|x86
+		{AAAC3722-8911-4F80-8232-840D81F8C938}.Debug|x86.Build.0 = Debug|x86
 		{AAAC3722-8911-4F80-8232-840D81F8C938}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AAAC3722-8911-4F80-8232-840D81F8C938}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AAAC3722-8911-4F80-8232-840D81F8C938}.Release|x86.ActiveCfg = Release|Any CPU
