@@ -60,7 +60,8 @@ namespace CoreHook.Tests
 
             BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
 
-            beep(100, 100);
+            Assert.True(beep(100, 100));
+
             Assert.False(_beepHookCalled);
         }
     }
