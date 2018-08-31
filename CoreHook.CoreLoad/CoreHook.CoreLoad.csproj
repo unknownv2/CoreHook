@@ -32,4 +32,8 @@
     <ProjectReference Include="..\CoreHook.IPC\CoreHook.IPC.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(TargetDir)$(TargetFileName) $(OutDir)..\x86\$(TargetFileName)&#xD;&#xA;copy $(TargetDir)$(TargetName).deps.json $(OutDir)..\x86\$(TargetName).deps.json&#xD;&#xA;copy $(TargetDir)$(TargetName).pdb $(OutDir)..\x86\$(TargetName).pdb" />
+  </Target>
+
 </Project>

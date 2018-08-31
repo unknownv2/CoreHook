@@ -25,4 +25,8 @@
     <ProjectReference Include="..\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(TargetDir)$(TargetFileName) $(OutDir)..\..\x86\netstandard2.0\$(TargetFileName)&#xD;&#xA;copy $(TargetDir)$(TargetName).deps.json $(OutDir)..\..\x86\netstandard2.0\$(TargetName).deps.json&#xD;&#xA;copy $(TargetDir)$(TargetName).pdb $(OutDir)..\..\x86\netstandard2.0\$(TargetName).pdb" />
+  </Target>
+
 </Project>
