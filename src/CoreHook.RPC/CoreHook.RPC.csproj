@@ -6,11 +6,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
+    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
   </PropertyGroup>
 
 </Project>

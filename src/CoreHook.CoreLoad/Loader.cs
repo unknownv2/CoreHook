@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Diagnostics;
-using System.Threading;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -24,21 +22,49 @@ namespace CoreHook.CoreLoad
         private const string EntryPointInterface = "CoreHook.IEntryPoint";
         private const string EntryPointMethodName = "Run";
 
-        public Loader()
-        {
-
-        }
-
-        public static int LoadUnmanaged([MarshalAs(UnmanagedType.LPWStr)]String inParam)
-        {
-            return 0;
-        }
         const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
+
+  
+        public Loader()
+        {
+
+        }
+
+        public static int LoadUnmanaged([MarshalAs(UnmanagedType.LPWStr)]string inParam)
+        {
+            return 0;
+        }
+
+        public static int Load(string paramPtr)
+        {
+            if (paramPtr == null)
+            {
+                return 0;
+            }
+            var ptr = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
+
+            var connection = ConnectionData.LoadData(ptr);
+
+            var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+
+            // Prepare parameter array.
+            var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
+
+            // The next type cast is not redundant because the object needs to be an explicit IContext
+            // when passed as a parameter to the IEntryPoint constructor and Run() methods.
+            paramArray[0] = connection.UnmanagedInfo;
+            for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
+                paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+
+            LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
+
+            return 0;
+        }
 
         private static bool IsUwp()
         {
@@ -51,46 +77,26 @@ namespace CoreHook.CoreLoad
             }
             return false;
         }
-        public static int Load(string paramPtr)
-        {
-            if (paramPtr == null)
-            {
-                return 0;
-            }
-            var ptr = (IntPtr)Int64.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
 
-            var connection = ConnectionData.LoadData(ptr);
-
-            var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
-
-            // Prepare parameter array.
-            var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
-            // The next type cast is not redundant because the object needs to be an explicit IContext
-            // when passed as a parameter to the IEntryPoint constructor and Run() methods.
-            paramArray[0] = connection.UnmanagedInfo;
-            for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
-                paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
-
-            LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
-
-            return 0;
-        }
         private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
         {
-            var entryPoint = FindEntryPoint(assembly);
+            Type entryPoint = FindEntryPoint(assembly);
             BinaryFormatter format = new BinaryFormatter();
             format.Binder = new AllowAllAssemblyVersionsDeserializationBinder(entryPoint.Assembly);
             for (int i = 1; i < paramArray.Length; i++)
             {
-                using (MemoryStream ms = new MemoryStream((byte[])paramArray[i]))
+                using (var ms = new MemoryStream((byte[])paramArray[i]))
                 {
                     paramArray[i] = format.Deserialize(ms);
                 }
             }
 
-            var runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
+            MethodInfo runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
+
             var instance = InitializeInstance(entryPoint, paramArray);
+
             SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id);
+
             try
             {
                 // After this it is safe to enter the Run() method, which will block until assembly unloading...
@@ -105,7 +111,7 @@ namespace CoreHook.CoreLoad
             }
         }
 
-        public static bool SendInjectionComplete(string pipeName, int pid)
+        private static bool SendInjectionComplete(string pipeName, int pid)
         {
             using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
             {

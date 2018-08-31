@@ -33,8 +33,8 @@ namespace CoreHook.Unmanaged.Linux
 
         [DllImport(LIBINJECT, SetLastError = true)]
         public static extern IntPtr find_symbol(IntPtr handle,
-         [MarshalAs(UnmanagedType.LPStr)] String symbolName,
-         [MarshalAs(UnmanagedType.LPStr)] String libraryName = null);
+         [MarshalAs(UnmanagedType.LPStr)] string symbolName,
+         [MarshalAs(UnmanagedType.LPStr)] string libraryName = null);
     }
     public static class ProcessLibInjector
     {
@@ -48,5 +48,8 @@ namespace CoreHook.Unmanaged.Linux
 
         [DllImport(LIBINJECT, SetLastError = true)]
         public static extern int injector_detach(IntPtr injectHandle);
+
+        [DllImport(LIBINJECT, SetLastError = true)]
+        public static extern int injector_load_assembly(IntPtr injectHandle, int pid, byte[] args);
     }
 }

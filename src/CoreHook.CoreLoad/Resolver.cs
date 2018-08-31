@@ -51,32 +51,25 @@ namespace CoreHook.CoreLoad
 
         public void Dispose()
         {
-            loadContext.Resolving -= this.OnResolving;
+            loadContext.Resolving -= OnResolving;
         }
 
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
-            bool NamesMatch(RuntimeLibrary runtime)
+            bool NamesMatchOrContain(RuntimeLibrary runtime)
             {
-                return string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
+                return string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase)
+                    || runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
             }
-            bool NamesContain(RuntimeLibrary runtime)
-            {
-                return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
-            }
+     
 
             Log($"OnResolving: {name}");
 
             try
             {
                 RuntimeLibrary library =
-                    dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
+                    dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatchOrContain);
 
-                if(library == null)
-                {
-                    library =
-                        dependencyContext.RuntimeLibraries.FirstOrDefault(NamesContain);
-                }
                 if (library != null)
                 {
                     var wrapper = new CompilationLibrary(

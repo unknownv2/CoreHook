@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>      
@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
+    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>    
@@ -31,9 +31,5 @@
     <ProjectReference Include="..\CoreHook.DependencyModel\CoreHook.DependencyModel.csproj" />
     <ProjectReference Include="..\CoreHook.IPC\CoreHook.IPC.csproj" />
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetDir)$(TargetFileName) $(OutDir)..\x86\$(TargetFileName)&#xD;&#xA;copy $(TargetDir)$(TargetName).deps.json $(OutDir)..\x86\$(TargetName).deps.json&#xD;&#xA;copy $(TargetDir)$(TargetName).pdb $(OutDir)..\x86\$(TargetName).pdb" />
-  </Target>
 
 </Project>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Reflection;
 using CoreHook.ImportUtils;
 
 namespace CoreHook
@@ -822,12 +823,25 @@ namespace CoreHook
         public const int STATUS_WOW_ASSERTION = unchecked((int)0xC0009898L);
         public const int STATUS_ACCESS_DENIED = unchecked((int)0xC0000022L);
 
-        private static T LoadFunction<T>(string name, ILibLoader loader, IntPtr handle) where T : class
+        private static T LoadFunction<T>(string functionName, ILibLoader loader, IntPtr handle) where T : class
         {
-            IntPtr address = loader.GetProcAddress(handle, name);
-            var function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
+            IntPtr address = loader.GetProcAddress(handle, functionName);
+            Delegate function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
             return function as T;
         }
+        private static T GetNativeFunctionDelegate<T>(string functionName ) where T : class
+        {
+            IntPtr address =
+                (Is64Bit ? NativeAPI_x64.libLoader : NativeAPI_x86.libLoader)
+                .GetProcAddress(
+                    Is64Bit ? NativeAPI_x64.libHandle : NativeAPI_x86.libHandle, 
+                    functionName
+                );
+
+            Delegate function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
+            return function as T;
+        }
+
         private static bool IsArchitectureArm()
         {
             var arch = RuntimeInformation.ProcessArchitecture;
@@ -1198,31 +1212,23 @@ namespace CoreHook
             }
         }
 
+
+        public delegate int DLhBarrierEndStackTrace(IntPtr OutBackup);
+
+
         public static void LhBarrierEndStackTrace(IntPtr OutBackup)
         {
-            if (Is64Bit)
-            {
-                var LhBarrierEndStackTrace = LoadFunction<NativeAPI_x64.LhBarrierEndStackTrace>(
-                                "LhBarrierEndStackTrace",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhBarrierEndStackTrace(OutBackup));
-            }
-            else
-            {
-                var LhBarrierEndStackTrace = LoadFunction<NativeAPI_x86.LhBarrierEndStackTrace>(
-                                       "LhBarrierEndStackTrace",
-                                       NativeAPI_x86.libLoader,
-                                       NativeAPI_x86.libHandle);
-                Force(LhBarrierEndStackTrace(OutBackup));
-            }
+            DLhBarrierEndStackTrace LhBarrierEndStackTraceFunc =
+                GetNativeFunctionDelegate<DLhBarrierEndStackTrace>("LhBarrierEndStackTrace");
+
+            Force(LhBarrierEndStackTraceFunc(OutBackup));
         }
 
         public static void LhGetHookBypassAddress(IntPtr handle, out IntPtr address)
         {
             if (Is64Bit)
-            {
-                var LhGetHookBypassAddress = LoadFunction<NativeAPI_x64.LhGetHookBypassAddress>(
+            {   
+                var LhGetHookBypassAddress = LoadFunction<NativeAPI_x64.LhGetHookBypassAddress> (
                                      "LhGetHookBypassAddress",
                                      NativeAPI_x64.libLoader,
                                      NativeAPI_x64.libHandle);
@@ -1235,9 +1241,14 @@ namespace CoreHook
                                      NativeAPI_x86.libLoader,
                                      NativeAPI_x86.libHandle);
                 Force(LhGetHookBypassAddress(handle, out address));
+    
             }
-        }
 
+        }
+        private static T DoSomething<T>(Func<T> actionWithResult)
+        {
+            return actionWithResult();
+        }
         public static bool DetourCreateProcessWithDllExA(
             string lpApplicationName,
             string lpCommandLine,

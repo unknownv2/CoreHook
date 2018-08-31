@@ -20,6 +20,6 @@ namespace CoreHook.RPC
         /// Create a server for RPC
         /// </summary>
         /// <typeparam name="T">Interface implemented by the server</typeparam>
-        void Create<T>();
+        void Create<T>(Type serverImp);
     }
 }
