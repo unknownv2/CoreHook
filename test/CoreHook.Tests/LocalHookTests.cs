@@ -7,10 +7,10 @@ namespace CoreHook.Tests
     {
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool Beep(uint dwFreq, uint dwDuration);
+        private static extern bool Beep(uint dwFreq, uint dwDuration);
 
         [return: MarshalAs(UnmanagedType.Bool)]
-        delegate bool BeepDelegate(uint dwFreq, uint dwDuration);
+        private delegate bool BeepDelegate(uint dwFreq, uint dwDuration);
 
         private bool _beepHookCalled;
 

@@ -86,7 +86,7 @@ You can then start the `CoreHook.FileMonitor.exe` program on your ARM device.
 
 ## Notes on UWP Usage
 
- There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/30170) so we use PInvoke to call `kernel32.dll!CreateNamedPipe` directly.
+ There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
 
 
 ## Original Licenses
