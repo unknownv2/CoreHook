@@ -6,6 +6,10 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 **The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**
 
+## Features
+* Intercept public API functions and internal functions if symbol files are available (PDBs on Windows)
+* Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
+
 ## Dependencies
 
 * [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
@@ -84,10 +88,33 @@ For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go t
     [-] CoreRunDLL32.dll
     ...
 ```
-
 You can then start the `CoreHook.FileMonitor.exe` program on your ARM device.
 
-## Notes on UWP Usage
+### Windows Symbol Support
+
+CoreHook supports symbol lookup for DLLs when calling `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
+
+**Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can find symsrv.dll in your Visual Studio directory or by installing a Windows SDK. You can also download them from [here](https://github.com/DarthTon/Blackbone/tree/master/DIA), but they could be outdated.**
+
+Example locations where you can find `symsrv.dll` are:
+
+* *C:\Program Files (x86)\Microsoft Visual Studio\2017\Product_Version\Common7\IDE* (where Product_Version is Community, Enterprise, etc...)
+* *C:\Program Files (x86)\Windows Kits\10\Debuggers\x86* (For 32-bit applications)
+* *C:\Program Files (x86)\Windows Kits\10\Debuggers\x64* (For 64-bit applications)
+
+
+
+An example of what you can set the environment variable `_NT_SYMBOL_PATH` to is:
+
+```
+srv*C:\SymbolCache*https://msdl.microsoft.com/downloads/symbols
+```
+
+The `C:\SymbolCache` folder is a local cache directory where symbol files can be stored or downloaded to. When Windows needs to retrieve a PDB for a DLL, it can download them from `https://msdl.microsoft.com/downloads/symbols` and store them in a folder for use by a debugger.
+
+You can test symbol support by running the `DetourInternalFunction{XX}` [tests](test/CoreHook.Tests/LocalHookTests.Windows.cs)
+
+### Notes on Windows UWP Usage
 
  There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
 
