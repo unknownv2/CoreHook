@@ -266,26 +266,6 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern bool RhIsX64System();
 
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern IntPtr GacCreateContext();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern void GacReleaseContext(ref IntPtr RefContext);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern bool GacInstallAssembly(
-            IntPtr InContext,
-            string InAssemblyPath,
-            string InDescription,
-            string InUniqueID);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern bool GacUninstallAssembly(
-            IntPtr InContext,
-            string InAssemblyName,
-            string InDescription,
-            string InUniqueID);
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int LhGetHookBypassAddressF(IntPtr handle, out IntPtr address);
 
@@ -630,26 +610,6 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern bool RhIsX64System();
         
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern IntPtr GacCreateContext();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern void GacReleaseContext(ref IntPtr RefContext);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern bool GacInstallAssembly(
-            IntPtr InContext,
-            string InAssemblyPath,
-            string InDescription,
-            string InUniqueID);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern bool GacUninstallAssembly(
-            IntPtr InContext,
-            string InAssemblyName,
-            string InDescription,
-            string InUniqueID);
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int LhGetHookBypassAddressF(IntPtr handle, out IntPtr address);
 
