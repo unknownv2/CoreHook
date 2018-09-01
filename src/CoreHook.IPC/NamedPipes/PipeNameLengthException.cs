@@ -2,9 +2,9 @@
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public class PipeNameLengthException : Exception
+    internal class PipeNameLengthException : Exception
     {
-        public PipeNameLengthException(string message)
+        internal PipeNameLengthException(string message)
             : base(message)
         {
         }
