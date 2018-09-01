@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace CoreHook.RPC
 {   
@@ -9,7 +7,7 @@ namespace CoreHook.RPC
         /// <summary>
         /// Create a client for RPC
         /// </summary>
-        /// <typeparam name="T">Interface implemented by the server</typeparam>
+        /// <typeparam name="T">Interface implemented by the server.</typeparam>
         /// <returns>A proxy handle to interface with the server.</returns>
         T Create<T>();
     }
@@ -19,7 +17,8 @@ namespace CoreHook.RPC
         /// <summary>
         /// Create a server for RPC
         /// </summary>
-        /// <typeparam name="T">Interface implemented by the server</typeparam>
-        void Create<T>(Type serverImp);
+        /// <typeparam name="T">Interface implemented by the server.</typeparam>
+        /// <param name="serverImp">Implementation of server interface</param>
+        void Create(Type serverImp);
     }
 }
