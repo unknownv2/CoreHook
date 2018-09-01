@@ -8,7 +8,7 @@ namespace CoreHook
 {
     static class NativeAPI_x86
     {
-        private const string DllName = "corehook32.dll";
+        private const string DllName = "corehook32";
 
         internal static ILibLoader libLoader;
         internal static IntPtr libHandle;
@@ -336,17 +336,9 @@ namespace CoreHook
             string lpFunction);
     }
 
-    public class UnknownPlatformException : Exception
-    {
-        public UnknownPlatformException()
-                    : base("Failed to determine OS platform.")
-        {
-        }
-    }
-
     static class NativeAPI_x64
     {
-        private const string DllName = "corehook64.dll";
+        private const string DllName = "corehook64";
 
         internal static ILibLoader libLoader;
         internal static IntPtr libHandle;
