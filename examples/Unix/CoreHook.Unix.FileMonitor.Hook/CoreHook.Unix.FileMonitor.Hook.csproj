@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CXuesong.JsonRpc.DynamicProxy" Version="0.4.0" />
+    <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
+    <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

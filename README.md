@@ -6,6 +6,10 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 **The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**
 
+## Features
+* Intercept public API functions and internal functions [if symbol files are available](#windows-symbol-support)
+* Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
+
 ## Dependencies
 
 * [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
@@ -13,8 +17,8 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 * [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
 * [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
 * [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
-* [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard) 
-
+* [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
+* [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard)
 
 ## Supported Platforms
 
@@ -44,7 +48,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
  * [FileMonitor - Linux and macOS (Unix)](Examples/Unix/CoreHook.Unix.FileMonitor/)
  * [FileMonitor - Universal Windows Platform (UWP)](Examples/UWP/CoreHook.UWP.FileMonitor/) 
- * [FileMonitor - Windows Desktop Applications (Win32)](Examples/CoreHook.FileMonitor)
+ * [FileMonitor - Windows Desktop Applications (Win32)](Examples/Win32/CoreHook.FileMonitor)
 
 ## Usage
 
@@ -54,18 +58,21 @@ First, set the environment variables for the `x86` and `x64` applications to the
 
 Using the `.NET Core 2.1` runtime as an example (validate the paths if you have another installation directory or drive):
 
- * Set `CORE_LIBRARIES_32` and `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.0` for `32-bit(x86)` applications.
+ * Set `CORE_LIBRARIES_32` and `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.3` for `32-bit(x86)` applications.
  
- * Set `CORE_LIBRARIES_64` and `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.0` for `64-bit(x64)` applications.
+ * Set `CORE_LIBRARIES_64` and `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.3` for `64-bit(x64)` applications.
 
 
 Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
-Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `CoreRunDLL32.dll (X86, ARM)` and/or `CoreRunDLL64.dll (X64, ARM64)` binaries in the output directory of your program. Then, also place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
+Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, also place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
 
-For `Windows 10 IoT (ARM)`, you will need to open a command prompt `cmd` and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. Make sure to also copy the `CoreRunDLL32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
+### Windows 10 IoT Core (ARM32)
+**There is currently no ARM32 SDK for .NET Core, so you must publish the application and copy it to your device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
+
+For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
 
 ```
 [+]Corehook.FileMonitor.PublishFolder\
@@ -78,39 +85,40 @@ For `Windows 10 IoT (ARM)`, you will need to open a command prompt `cmd` and go 
     [-] CoreHook.FileMonitor.dll
     [-] CoreHook.FileMonitor.exe
     [-] corehook32.dll
-    [-] CoreRunDLL32.dll
+    [-] corerundll32.dll
     ...
 ```
-
 You can then start the `CoreHook.FileMonitor.exe` program on your ARM device.
 
-## Notes on UWP Usage
+### Windows Symbol Support
 
- There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/30170) so we use PInvoke to call `kernel32.dll!CreateNamedPipe` directly.
+CoreHook supports symbol name lookup from PDBs to get function addresses with the use of `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
+
+**Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can find symsrv.dll in your Visual Studio directory or by installing a Windows SDK. You can also download them from [here](https://github.com/DarthTon/Blackbone/tree/master/DIA), but they could be outdated.**
+
+Example locations where you can find `symsrv.dll` are:
+
+* *C:\Program Files (x86)\Microsoft Visual Studio\2017\Product_Version\Common7\IDE* (where Product_Version is Community, Enterprise, etc...)
+* *C:\Program Files (x86)\Windows Kits\10\Debuggers\x86* (For 32-bit applications)
+* *C:\Program Files (x86)\Windows Kits\10\Debuggers\x64* (For 64-bit applications)
 
 
-## Original Licenses
 
-### [EasyHook](https://github.com/EasyHook/EasyHook)
+An example of what you can set the environment variable `_NT_SYMBOL_PATH` to is:
 
 ```
-Copyright (c) 2009 Christoph Husse & Copyright (c) 2012 Justin Stenning
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+srv*C:\SymbolCache*https://msdl.microsoft.com/downloads/symbols
 ```
+
+The `C:\SymbolCache` folder is a local cache directory where symbol files can be stored or downloaded to. When Windows needs to retrieve a PDB for a DLL, it can download them from `https://msdl.microsoft.com/downloads/symbols` and store them in a folder for use by a debugger.
+
+You can test symbol support by running the `DetourInternalFunction{XX}` [tests](test/CoreHook.Tests/LocalHookTests.Windows.cs).
+
+### Notes on Windows UWP Usage
+
+ There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
+
+
+## Licenses
+
+### [EasyHook - MIT](https://github.com/EasyHook/EasyHook/blob/master/LICENSE)

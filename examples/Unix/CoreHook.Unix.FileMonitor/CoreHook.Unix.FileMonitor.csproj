@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
+    <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
+    <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
+  </ItemGroup>
+
+</Project>

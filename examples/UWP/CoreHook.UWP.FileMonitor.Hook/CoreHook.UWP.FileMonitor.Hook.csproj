@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Platforms>AnyCPU;x86</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>    
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CXuesong.JsonRpc.DynamicProxy" Version="0.4.0" />
+    <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
+    <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Shared\CoreHook.UWP.FileMonitor.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
