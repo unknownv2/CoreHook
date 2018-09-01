@@ -7,7 +7,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 **The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**
 
 ## Features
-* Intercept public API functions and internal functions if symbol files are available (PDBs on Windows)
+* Intercept public API functions and internal functions [if symbol files are available](#Windows-Symbol-Support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
 ## Dependencies
@@ -92,7 +92,7 @@ You can then start the `CoreHook.FileMonitor.exe` program on your ARM device.
 
 ### Windows Symbol Support
 
-CoreHook supports symbol lookup for DLLs when calling `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
+CoreHook supports symbol name lookup from PDBs to get function addresses with the use of `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
 
 **Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can find symsrv.dll in your Visual Studio directory or by installing a Windows SDK. You can also download them from [here](https://github.com/DarthTon/Blackbone/tree/master/DIA), but they could be outdated.**
 
