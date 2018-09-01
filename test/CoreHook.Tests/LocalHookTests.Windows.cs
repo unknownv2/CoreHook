@@ -66,31 +66,51 @@ namespace CoreHook.Tests
             Assert.False(_beepHookCalled);
         }
 
-        [DllImport("kernel32.dll", SetLastError = true)]
-        private static extern ushort AddAtomW(string lpString);
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Ansi,
+            SetLastError = true,
+            CallingConvention = CallingConvention.StdCall)]
+        private static extern ushort AddAtomW([MarshalAs(UnmanagedType.LPStr)]string lpString);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+            SetLastError = true,
+            CallingConvention = CallingConvention.StdCall)]
         private static extern uint GetAtomNameW(ushort nAtom, StringBuilder lpBuffer, int nSize);
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+            SetLastError = true,
+            CallingConvention = CallingConvention.StdCall)]
         private static extern ushort DeleteAtom(ushort nAtom);
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        CharSet = CharSet.Unicode,
+        SetLastError = true)]
         private delegate ushort AddAtomWDelegate(string lpString);
-        private delegate ushort InternalAddAtomDelegate(bool local, bool unicode, string atomName, int arg4);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall,
+            CharSet = CharSet.Ansi,
+            SetLastError = true)]
+        private delegate ushort InternalAddAtomDelegate(bool local, bool unicode,
+            [MarshalAs(UnmanagedType.LPStr)]string atomName, int arg4);
 
         private InternalAddAtomDelegate InternalAddAtomFunction;
         private bool _internalAddAtomCalled;
 
-        private ushort InternalAddAtomHook(bool local, bool unicode, string atomName, int arg4)
+        private ushort InternalAddAtomHook(bool local,
+            bool unicode, [MarshalAs(UnmanagedType.LPStr)]string atomName, int arg4)
         {
             _internalAddAtomCalled = true;            
 
             return InternalAddAtomFunction(local, unicode, atomName, arg4);
         }
+        private ushort AddAtomHook(string atomName)
+        {
+            _internalAddAtomCalled = true;
+
+            return AddAtomW(atomName);
+        }
 
         [Fact]
         public void DetourInternalFunction()
         {
-            _internalAddAtomCalled = false;
-
+#if WIN64
             LocalHook hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
                 new InternalAddAtomDelegate(InternalAddAtomHook),
@@ -100,6 +120,7 @@ namespace CoreHook.Tests
             InternalAddAtomFunction = (InternalAddAtomDelegate)
                 Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(InternalAddAtomDelegate));
 
+            _internalAddAtomCalled = false;
             string atomName = "TestLocalAtomName";            
             ushort atomId = AddAtomW(atomName);
 
@@ -115,6 +136,61 @@ namespace CoreHook.Tests
             Assert.Equal(retrievedAtomName, atomName);
 
             Assert.Equal<ushort>(0, DeleteAtom(atomId));
+#endif
+        }
+        private delegate ulong GetCurrentNlsCacheDelegate();
+
+        private GetCurrentNlsCacheDelegate GetCurrentNlsCacheFunction;
+
+        private bool _GetCurrentNlsCacheCalled;
+
+        [DllImport("kernelbase.dll",
+             CharSet = CharSet.Unicode,
+             SetLastError = true,
+             CallingConvention = CallingConvention.StdCall)]
+        private static extern int CompareStringW(uint locale, uint dwCmpFlags,
+            string lpString1, int cchCount1, string lpString2, int cchCount2);
+
+        private const int LOCALE_USER_DEFAULT = 0x400;
+
+        // case sensitive compare
+        private const int NORM_LINGUISTIC_CASING = 0x08000000;
+
+        // The string indicated by lpString1 is greater in lexical value
+        // than the string indicated by lpString2.
+        private const int CSTR_GREATER_THAN = 3;
+
+        private ulong GetCurrentNlsCacheHook()
+        {
+            _GetCurrentNlsCacheCalled = true;
+
+            return GetCurrentNlsCacheFunction();
+        }
+
+        [Fact]
+        public void DetourInternalFunction2()
+        {
+            LocalHook hook = LocalHook.Create(
+                LocalHook.GetProcAddress("kernelbase.dll", "GetCurrentNlsCache"),
+                new GetCurrentNlsCacheDelegate(GetCurrentNlsCacheHook),
+                this);
+            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
+            GetCurrentNlsCacheFunction = (GetCurrentNlsCacheDelegate)
+            Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(GetCurrentNlsCacheDelegate));
+
+            string stringA = "HelloWorld";
+            string stringB = "Hello";
+
+            int comparisonResult = CompareStringW(
+                LOCALE_USER_DEFAULT,
+                NORM_LINGUISTIC_CASING,
+                stringA,
+                stringA.Length,
+                stringB,
+                stringB.Length);
+
+            Assert.Equal(CSTR_GREATER_THAN, comparisonResult);
+            Assert.True(_GetCurrentNlsCacheCalled);
         }
     }
 }
