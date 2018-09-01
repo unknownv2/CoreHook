@@ -75,15 +75,17 @@ namespace CoreHook.Tests
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         private static extern uint GetAtomNameW(ushort nAtom, StringBuilder lpBuffer, int nSize);
+
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         private static extern ushort DeleteAtom(ushort nAtom);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
-        CharSet = CharSet.Unicode,
-        SetLastError = true)]
+            CharSet = CharSet.Unicode,
+            SetLastError = true)]
         private delegate ushort AddAtomWDelegate(string lpString);
+
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
@@ -132,9 +134,10 @@ namespace CoreHook.Tests
             uint bufLength = GetAtomNameW(atomId, atomBuffer, maxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
-            Assert.Equal(retrievedAtomName.Length, atomName.Length);
-            Assert.Equal(retrievedAtomName, atomName);
             Assert.Equal((uint)atomName.Length, bufLength);
+            Assert.Equal(retrievedAtomName.Length, atomName.Length);
+
+            Assert.Equal(retrievedAtomName, atomName);
 
             Assert.Equal<ushort>(0, DeleteAtom(atomId));
 #endif
@@ -171,6 +174,8 @@ namespace CoreHook.Tests
         [Fact]
         public void DetourInternalFunction2()
         {
+            _GetCurrentNlsCacheCalled = false;
+
             LocalHook hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernelbase.dll", "GetCurrentNlsCache"),
                 new GetCurrentNlsCacheDelegate(GetCurrentNlsCacheHook),
