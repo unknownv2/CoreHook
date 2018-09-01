@@ -134,6 +134,7 @@ namespace CoreHook.Tests
 
             Assert.Equal(retrievedAtomName.Length, atomName.Length);
             Assert.Equal(retrievedAtomName, atomName);
+            Assert.Equal((uint)atomName.Length, bufLength);
 
             Assert.Equal<ushort>(0, DeleteAtom(atomId));
 #endif
