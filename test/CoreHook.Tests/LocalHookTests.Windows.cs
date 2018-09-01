@@ -66,10 +66,10 @@ namespace CoreHook.Tests
             Assert.False(_beepHookCalled);
         }
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi,
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
-        private static extern ushort AddAtomW([MarshalAs(UnmanagedType.LPStr)]string lpString);
+        private static extern ushort AddAtomW(string lpString);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
@@ -85,16 +85,16 @@ namespace CoreHook.Tests
         SetLastError = true)]
         private delegate ushort AddAtomWDelegate(string lpString);
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
-            CharSet = CharSet.Ansi,
+            CharSet = CharSet.Unicode,
             SetLastError = true)]
         private delegate ushort InternalAddAtomDelegate(bool local, bool unicode,
-            [MarshalAs(UnmanagedType.LPStr)]string atomName, int arg4);
+            string atomName, int arg4);
 
         private InternalAddAtomDelegate InternalAddAtomFunction;
         private bool _internalAddAtomCalled;
 
         private ushort InternalAddAtomHook(bool local,
-            bool unicode, [MarshalAs(UnmanagedType.LPStr)]string atomName, int arg4)
+            bool unicode, string atomName, int arg4)
         {
             _internalAddAtomCalled = true;            
 
