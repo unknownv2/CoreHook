@@ -65,14 +65,14 @@ Using the `.NET Core 2.1` runtime as an example (validate the paths if you have 
 
 Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
-Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `CoreRunDLL32.dll (X86, ARM)` and/or `CoreRunDLL64.dll (X64, ARM64)` binaries in the output directory of your program. Then, also place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
+Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, also place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
 
 ### Windows 10 IoT Core (ARM32)
 **There is currently no ARM32 SDK for .NET Core, so you must publish the application and copy it to your device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
 
-For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. Make sure to also copy the `CoreRunDLL32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
+For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
 
 ```
 [+]Corehook.FileMonitor.PublishFolder\
@@ -85,7 +85,7 @@ For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go t
     [-] CoreHook.FileMonitor.dll
     [-] CoreHook.FileMonitor.exe
     [-] corehook32.dll
-    [-] CoreRunDLL32.dll
+    [-] corerundll32.dll
     ...
 ```
 You can then start the `CoreHook.FileMonitor.exe` program on your ARM device.
