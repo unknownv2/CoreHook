@@ -31,10 +31,10 @@ namespace CoreHook.Unmanaged
 
         internal static byte[] StructToByteArray(object obj)
         {
-            var len = Marshal.SizeOf(obj);
+            int len = Marshal.SizeOf(obj);
             var arr = new byte[len];
 
-            var ptr = Marshal.AllocHGlobal(len);
+            IntPtr ptr = Marshal.AllocHGlobal(len);
 
             Marshal.StructureToPtr(obj, ptr, false);
             Marshal.Copy(ptr, arr, 0, len);
