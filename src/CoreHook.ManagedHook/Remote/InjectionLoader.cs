@@ -8,21 +8,6 @@ namespace CoreHook.ManagedHook.Remote
 {
     public class InjectionHelper
     {
-        private class InjectionLoadException : Exception
-        {
-            public InjectionLoadException(int pid)
-            : base($"Injection into process {pid} failed.")
-            {
-            }
-        }
-        private class UnknownMessageException : Exception
-        {
-            public UnknownMessageException(string message)
-            : base($"Unknown message type {message}.")
-            {
-            }
-        }
-
         private class InjectionWait
         {
             public Mutex ThreadLock = new Mutex(false);

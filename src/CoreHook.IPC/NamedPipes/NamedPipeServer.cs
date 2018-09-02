@@ -1,4 +1,5 @@
-﻿using System;
+﻿// From https://github.com/Microsoft/VFSForGit/tree/master/GVFS/GVFS.Common/NamedPipes
+using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;

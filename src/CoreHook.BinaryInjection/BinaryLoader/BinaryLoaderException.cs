@@ -6,7 +6,7 @@ namespace CoreHook.BinaryInjection
 {
     internal class BinaryLoaderException : Exception
     {
-        public BinaryLoaderException(string error)
+        internal BinaryLoaderException(string error)
                     : base(error)
         {
         }

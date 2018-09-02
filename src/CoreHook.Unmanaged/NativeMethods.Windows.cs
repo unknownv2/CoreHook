@@ -6,10 +6,10 @@ namespace CoreHook.Unmanaged
 {
     public static class NativeMethods
     {
-        public const UInt32 INFINITE = 0xFFFFFFFF;
-        public const UInt32 WAIT_ABANDONED = 0x00000080;
-        public const UInt32 WAIT_OBJECT_0 = 0x00000000;
-        public const UInt32 WAIT_TIMEOUT = 0x00000102;
+        public const uint INFINITE = 0xFFFFFFFF;
+        public const uint WAIT_ABANDONED = 0x00000080;
+        public const uint WAIT_OBJECT_0 = 0x00000000;
+        public const uint WAIT_TIMEOUT = 0x00000102;
 
         internal static IntPtr InvalidHandleValue = new IntPtr(-1);
 
@@ -31,10 +31,10 @@ namespace CoreHook.Unmanaged
 
         internal static byte[] StructToByteArray(object obj)
         {
-            var len = Marshal.SizeOf(obj);
+            int len = Marshal.SizeOf(obj);
             var arr = new byte[len];
 
-            var ptr = Marshal.AllocHGlobal(len);
+            IntPtr ptr = Marshal.AllocHGlobal(len);
 
             Marshal.StructureToPtr(obj, ptr, false);
             Marshal.Copy(ptr, arr, 0, len);
@@ -426,20 +426,20 @@ namespace CoreHook.Unmanaged
         [StructLayout(LayoutKind.Sequential)]
         public class StartupInfo
         {
-            public Int32 cb = 0;
+            public int cb = 0;
             public IntPtr lpReserved = IntPtr.Zero;
             public IntPtr lpDesktop = IntPtr.Zero; // MUST be Zero
             public IntPtr lpTitle = IntPtr.Zero;
-            public Int32 dwX = 0;
-            public Int32 dwY = 0;
-            public Int32 dwXSize = 0;
-            public Int32 dwYSize = 0;
-            public Int32 dwXCountChars = 0;
-            public Int32 dwYCountChars = 0;
-            public Int32 dwFillAttribute = 0;
-            public Int32 dwFlags = 0;
-            public Int16 wShowWindow = 0;
-            public Int16 cbReserved2 = 0;
+            public int dwX = 0;
+            public int dwY = 0;
+            public int dwXSize = 0;
+            public int dwYSize = 0;
+            public int dwXCountChars = 0;
+            public int dwYCountChars = 0;
+            public int dwFillAttribute = 0;
+            public int dwFlags = 0;
+            public short wShowWindow = 0;
+            public short cbReserved2 = 0;
             public IntPtr lpReserved2 = IntPtr.Zero;
             public IntPtr hStdInput = IntPtr.Zero;
             public IntPtr hStdOutput = IntPtr.Zero;
@@ -455,8 +455,8 @@ namespace CoreHook.Unmanaged
         {
             public IntPtr hProcess;
             public IntPtr hThread;
-            public Int32 dwProcessId;
-            public Int32 dwThreadId;
+            public int dwProcessId;
+            public int dwThreadId;
         }
     }
 }

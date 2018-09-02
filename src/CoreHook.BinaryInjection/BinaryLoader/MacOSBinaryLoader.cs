@@ -14,7 +14,7 @@ namespace CoreHook.BinaryInjection
 
         //private BinaryLoaderArgs _binaryLoaderArgs;
 
-        private IMemoryManager _memoryManager;
+        private readonly IMemoryManager _memoryManager;
         private string _coreRunLib;
 
         public MacOSBinaryLoader(IMemoryManager memoryManager)

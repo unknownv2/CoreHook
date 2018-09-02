@@ -1,4 +1,5 @@
-﻿using System;
+﻿// From https://github.com/Microsoft/VFSForGit/tree/master/GVFS/GVFS.Common/NamedPipes
+using System;
 using System.IO;
 
 namespace CoreHook.IPC.NamedPipes

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using CoreHook.Unmanaged;
 using System.IO;
-using System.Threading;
+using CoreHook.Unmanaged;
 
 namespace CoreHook.BinaryInjection
 {
     public class BinaryLoader : IBinaryLoader
     {
-        private IMemoryManager _memoryManager;
+        private readonly IMemoryManager _memoryManager;
 
         public BinaryLoader(IMemoryManager memoryManager)
         {
@@ -18,7 +16,14 @@ namespace CoreHook.BinaryInjection
             _memoryManager.FreeMemory += FreeMemory;
         }
         // Inject an assembly into a process
-        private string LoadAssemblyFunc = "LoadAssembly";
+        private const string LoadAssemblyFunc = "LoadAssembly";
+
+        /// <summary>
+        /// The name of a function that executes a single function inside a .NET library loaded in a process,
+        /// referenced by class name and function name.
+        /// </summary>
+        private const string ExecAssemblyFunc = "ExecuteAssemblyFunction";
+
         private void ExecuteAssemblyWithArgs(Process process, string module, WindowsBinaryLoaderArgs args)
         {
             _memoryManager.Add(
@@ -28,13 +33,18 @@ namespace CoreHook.BinaryInjection
             );
         }
 
-        // Execute a function inside a library using the class name and function name
-        private string ExecAssemblyFunc = "ExecuteAssemblyFunction";
-        private void LoadAssemblyWithArgs(Process process, string module, FunctionCallArgs args)
+        /// <summary>
+        ///  Execute a function in a process in a new thread with a <see cref="FunctionCallArgs" /> argument
+        /// </summary>
+        /// <param name="process">The process the thread will be created and executed in.</param>
+        /// <param name="moduleName">The module name of the binary containing the function to execute.</param>
+        /// <param name="functionName">The name of the function to be executed.</param>
+        /// <param name="args">The class which will be serialized and passed to the function being executed.</param>
+        private void ExecuteAssemblyFunctionWithArgs(Process process, string moduleName, string functionName, FunctionCallArgs args)
         {
             _memoryManager.Add(
                 process,
-                process.Execute(module, ExecAssemblyFunc, Binary.StructToByteArray(args), false),
+                process.Execute(moduleName, functionName, Binary.StructToByteArray(args), false),
                 false
             );
         }
@@ -46,16 +56,16 @@ namespace CoreHook.BinaryInjection
 
         public void CallFunctionWithArgs(Process process, string module, string function, byte[] arguments)
         {
-            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
+            ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, arguments));
         }
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs rfArgs)
         {
             ExecuteWithArgs(process, module, blArgs);
-            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, rfArgs));
+            ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, rfArgs));
         }
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
-            LoadAssemblyWithArgs(process, module, new FunctionCallArgs(function, arguments));
+            ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, arguments));
         }
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {

@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 
 namespace CoreHook.BinaryInjection
 {
-    public class MemoryOperationException : Exception
-    {
-        public MemoryOperationException(string operation)
-                    : base($"Memory operation '{operation}' failed.")
-        {
-        }
-    }
-
     public class MemoryManager : IMemoryManager
     {
         private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
 
         public Func<Process, IntPtr, uint, bool> FreeMemory { get; set; }
+
+        public MemoryManager()
+        {
+
+        }
 
         public IntPtr Add(Process process, IntPtr address, bool isFree, uint size = 0)
         {

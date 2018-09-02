@@ -67,7 +67,7 @@ namespace CoreHook.CoreLoad
                     }
                     else
                     {
-                        throw new InvalidCastException($"Deserialized data was not of type{nameof(ManagedRemoteInfo)}");
+                        throw new InvalidCastException($"Deserialized data was not of type {nameof(ManagedRemoteInfo)}");
                     }                    
                 }
             }
