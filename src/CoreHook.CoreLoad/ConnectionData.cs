@@ -18,14 +18,14 @@ namespace CoreHook.CoreLoad
         /// <summary>
         /// Gets the state of the current <see cref="HostConnectionData"/>.
         /// </summary>
-        public ConnectionState State { get; private set; }
+        internal ConnectionState State { get; private set; }
 
         /// <summary>
         /// Gets the unmanaged data containing the pointer to the memory block containing <see cref="RemoteInfo"/>;
         /// </summary>
-        public RemoteEntryInfo UnmanagedInfo { get; private set; }
+        internal RemoteEntryInfo UnmanagedInfo { get; private set; }
 
-        public ManagedRemoteInfo RemoteInfo { get; private set; }
+        internal ManagedRemoteInfo RemoteInfo { get; private set; }
 
         private ConnectionData()
         {
@@ -54,15 +54,26 @@ namespace CoreHook.CoreLoad
                     BinaryFormatter format = new BinaryFormatter();
                     // Workaround for deserialization when not using GAC registration
                     format.Binder = new AllowAllAssemblyVersionsDeserializationBinder();
+
                     Marshal.Copy(data.UnmanagedInfo.UserData, passThruBytes, 0, data.UnmanagedInfo.UserDataSize);
+
                     passThruStream.Write(passThruBytes, 0, passThruBytes.Length);
+
                     passThruStream.Position = 0;
-                    data.RemoteInfo = (ManagedRemoteInfo)format.Deserialize(passThruStream);
+                    object remoteInfo = format.Deserialize(passThruStream);
+                    if(remoteInfo != null && remoteInfo is ManagedRemoteInfo)
+                    {
+                        data.RemoteInfo = (ManagedRemoteInfo)remoteInfo;
+                    }
+                    else
+                    {
+                        throw new InvalidCastException($"Deserialized data was not of type{nameof(ManagedRemoteInfo)}");
+                    }                    
                 }
             }
-            catch (Exception ExtInfo)
+            catch (Exception exception)
             {
-                Debug.WriteLine(ExtInfo.ToString());
+                Debug.WriteLine(exception.ToString());
             }
             return data;
         }
