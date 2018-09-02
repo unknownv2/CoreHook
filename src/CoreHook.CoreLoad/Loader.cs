@@ -29,7 +29,6 @@ namespace CoreHook.CoreLoad
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
 
-  
         public Loader()
         {
 
@@ -44,25 +43,37 @@ namespace CoreHook.CoreLoad
         {
             if (paramPtr == null)
             {
-                return 0;
+                throw new ArgumentNullException("Remote arguments parameter was null");
             }
-            var ptr = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
 
-            var connection = ConnectionData.LoadData(ptr);
+            try
+            {
+                IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
 
-            var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+                if (remoteParams == IntPtr.Zero)
+                {
+                    throw new ArgumentOutOfRangeException("Remote arguments address was zero");
+                }
 
-            // Prepare parameter array.
-            var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
+                var connection = ConnectionData.LoadData(remoteParams);
 
-            // The next type cast is not redundant because the object needs to be an explicit IContext
-            // when passed as a parameter to the IEntryPoint constructor and Run() methods.
-            paramArray[0] = connection.UnmanagedInfo;
-            for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
-                paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+                var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
 
-            LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
+                // Prepare parameter array.
+                var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
 
+                // The next type cast is not redundant because the object needs to be an explicit IContext
+                // when passed as a parameter to the IEntryPoint constructor and Run() methods.
+                paramArray[0] = connection.UnmanagedInfo;
+                for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
+                    paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+
+                LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
+            }
+            catch (Exception exception)
+            {
+                Debug.WriteLine(exception.ToString());
+            }
             return 0;
         }
 
