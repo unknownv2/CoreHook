@@ -121,4 +121,4 @@ You can test symbol support by running the `DetourInternalFunction{XX}` [tests](
 
 ## Licenses
 
-### [EasyHook - MIT](https://github.com/EasyHook/EasyHook/blob/master/LICENSE)
+[EasyHook - MIT](https://github.com/EasyHook/EasyHook/blob/master/LICENSE)
