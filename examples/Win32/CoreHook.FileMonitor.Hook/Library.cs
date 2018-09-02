@@ -19,11 +19,11 @@ namespace CoreHook.FileMonitor.Hook
 
         private LocalHook CreateFileHook;
 
-        public Library(object InContext, string arg1)
+        public Library(object context, string arg1)
         {
         }
 
-        public void Run(object InContext, string pipeName)
+        public void Run(object context, string pipeName)
         {
             try
             {
@@ -127,10 +127,11 @@ namespace CoreHook.FileMonitor.Hook
 
         private void CreateHooks()
         {
-            ClientWriteLine("Adding hook to kernel32.dll!CreateFileW");
+            string[] functionName = new string[] { "kernel32.dll", "CreateFileW" };
+            ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
             CreateFileHook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
+                LocalHook.GetProcAddress(functionName[0], functionName[1]),
                 new DCreateFile(CreateFile_Hooked),
                 this);
 

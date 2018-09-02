@@ -15,11 +15,16 @@ namespace CoreHook.UWP.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
-        public Library(object InContext, string arg1)
+        Queue<string> Queue = new Queue<string>();
+
+        LocalHook CreateFileHook;
+
+        public Library(object context, string arg1)
         {
+
         }
 
-        public void Run(object InContext, string pipeName)
+        public void Run(object context, string pipeName)
         {
             try
             {
@@ -53,18 +58,15 @@ namespace CoreHook.UWP.FileMonitor.Hook
             // Wait for the client to exit.
             clientTask.GetAwaiter().GetResult();
         }
-        Queue<string> Queue = new Queue<string>();
-
-        LocalHook CreateFileHook;
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
         delegate IntPtr DCreateFile2(
-            string InFileName,
-            uint InDesiredAccess,
-            uint InShareMode,
-            uint InCreationDisposition,
+            string fileName,
+            uint desiredAccess,
+            uint shareMode,
+            uint creationDisposition,
             IntPtr pCreateExParams);
 
         [DllImport("kernelbase.dll",
@@ -72,21 +74,21 @@ namespace CoreHook.UWP.FileMonitor.Hook
         SetLastError = true,
         CallingConvention = CallingConvention.StdCall)]
         static extern IntPtr CreateFile2(
-            string InFileName,
-            uint InDesiredAccess,
-            uint InShareMode,
-            uint InCreationDisposition,
+            string fileName,
+            uint desiredAccess,
+            uint shareMode,
+            uint creationDisposition,
             IntPtr pCreateExParams);
 
         // this is where we are intercepting all file accesses!
         private static IntPtr CreateFile2_Hooked(
-           string InFileName,
-           uint InDesiredAccess,
-           uint InShareMode,
-           uint InCreationDisposition,
+           string fileName,
+           uint desiredAccess,
+           uint shareMode,
+           uint creationDisposition,
            IntPtr pCreateExParams)
         { 
-            ClientWriteLine(string.Format("Creating file: '{0}'...", InFileName));
+            ClientWriteLine($"Creating file: '{fileName}'...");
 
             try
             {
@@ -95,7 +97,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
                 {
                     lock (This.Queue)
                     {
-                        This.Queue.Enqueue(InFileName);
+                        This.Queue.Enqueue(fileName);
                     }
                 }
             }
@@ -106,10 +108,10 @@ namespace CoreHook.UWP.FileMonitor.Hook
 
             // call original API...
             return CreateFile2(
-                InFileName,
-                InDesiredAccess,
-                InShareMode,
-                InCreationDisposition,
+                fileName,
+                desiredAccess,
+                shareMode,
+                creationDisposition,
                 pCreateExParams);
         }
 
