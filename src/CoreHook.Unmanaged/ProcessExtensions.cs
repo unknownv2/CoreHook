@@ -10,8 +10,6 @@ namespace CoreHook.Unmanaged
 {
     public static class ProcessExtensions
     {
-        private static readonly Dictionary<string, IntPtr> CachedWow64Addresses = new Dictionary<string, IntPtr>();
-
         private static IntPtr GetHandle(int processId, NativeMethods.ProcessAccessFlags accessFlags)
         {
             var handle = NativeMethods.OpenProcess(accessFlags, false, processId);
@@ -155,79 +153,7 @@ namespace CoreHook.Unmanaged
                 }
             }
         }
-        /// <summary>
-        /// Execute an exported function inside the specified module with custom arguments
-        /// </summary>
-        /// <param name="process">A handle to the main process with the target module loaded.</param>
-        /// <param name="module">The name of the module containing the desired function.</param>
-        /// <param name="function">The name of the exported function we will call.</param>
-        /// <param name="args">Serialized arguments for passing to the module function.</param>
-        public static void ExecuteByModule(this Process process, string module, string function, byte[] args)
-        {
-            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
-                NativeMethods.ProcessAccessFlags.CreateThread |
-                NativeMethods.ProcessAccessFlags.QueryInformation |
-                NativeMethods.ProcessAccessFlags.VirtualMemoryOperation |
-                NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
-                NativeMethods.ProcessAccessFlags.VirtualMemoryWrite)))
-            {
 
-                // Allocate space in the remote process for the DLL path. 
-                IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
-                    hProcess.Handle,
-                    IntPtr.Zero,
-                    (uint)args.Length,
-                    NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
-                    NativeMethods.MemoryProtection.ReadWrite);
-
-                if (remoteAllocAddr == IntPtr.Zero)
-                {
-                    throw new Win32Exception("Failed to allocate memory in remote process.");
-                }
-
-                try
-                {
-                    UIntPtr bytesWritten;
-
-                    // Write the DLL path to the allocated memory.
-                    bool result = NativeMethods.WriteProcessMemory(
-                        hProcess.Handle,
-                        remoteAllocAddr,
-                        args,
-                        (uint)args.Length,
-                        out bytesWritten);
-
-                    if (!result || bytesWritten.ToUInt32() != args.Length)
-                    {
-                        throw new Win32Exception("Failed to allocate memory in remote process.");
-                    }
-
-                    //var addr = process.GetAbsoluteFunctionAddress(module, function);
-                    // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    IntPtr hThread = NativeMethods.CreateRemoteThread(
-                        hProcess.Handle,
-                        IntPtr.Zero,
-                        0,
-                        process.GetAbsoluteFunctionAddress(module, function),
-                        remoteAllocAddr,
-                        0,
-                        IntPtr.Zero);
-
-                    if (hThread == IntPtr.Zero)
-                    {
-                        throw new Win32Exception("Failed to create thread in remote process.");
-                    }
-
-                    NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
-
-                    NativeMethods.CloseHandle(hThread);
-                }
-                finally
-                {
-                    NativeMethods.VirtualFreeEx(hProcess.Handle, remoteAllocAddr, 0, NativeMethods.FreeType.Release);
-                }
-            }
-        }
         /// <summary>
         /// Execute an exported function inside the specified module with custom arguments
         /// </summary>
@@ -410,19 +336,6 @@ namespace CoreHook.Unmanaged
             }
         }
 
-        public static IntPtr GetAbsoluteFunctionAddress(this Process process, string moduleBaseName, string functionName)
-        {
-            IntPtr hProcess = GetReadHandle(process.Id);
-
-            IntPtr hModule = GetModuleHandleByBaseName(hProcess, moduleBaseName);
-
-            if (hModule == IntPtr.Zero)
-            {
-                throw new ModuleNotFoundException("Module not found in process.");
-            }
-
-            return GetAbsoluteFunctionAddress(hProcess, hModule, functionName);
-        }
         public static IntPtr GetAbsoluteFunctionAddressEx(this Process process, string moduleFileName, string functionName)
         {
             IntPtr hProcess = GetReadHandle(process.Id);
@@ -435,13 +348,6 @@ namespace CoreHook.Unmanaged
             }
 
             return GetAbsoluteFunctionAddress(hProcess, hModule, functionName);
-        }
-        public static IntPtr GetAbsoluteFunctionAddress(this Process process, IntPtr hModule, string functionName)
-        {
-            using (var handle = SafeHandle.Wrap(GetReadHandle(process.Id)))
-            {
-                return GetAbsoluteFunctionAddress(handle.Handle, hModule, functionName);
-            }
         }
 
         private static IntPtr GetAbsoluteFunctionAddress(IntPtr hProcess, IntPtr hModule, string functionName)
@@ -529,7 +435,6 @@ namespace CoreHook.Unmanaged
                         io.BaseStream.Position += 110;
                         break;
 
-                    // What the hell is it then?
                     default:
                         throw new BadImageFormatException("Unknown optional header magic in PE header.");
                 }
@@ -555,8 +460,6 @@ namespace CoreHook.Unmanaged
                 // Skip flags, timestamp, version, and name of DLL RVA.
                 ms.Position = 16;
 
-                // Usually always 1.
-                // ReSharper disable once UnusedVariable
                 var ordinalBase = io.ReadInt32();
 
                 var addressTableEntryCount = io.ReadUInt32();
@@ -671,7 +574,6 @@ namespace CoreHook.Unmanaged
                 int x;
                 var success = false;
 
-                // Try 50 times because it can fail during normal operation.
                 for (x = 0; x < 50 && !success; x++)
                 {
                     success = NativeMethods.EnumProcessModulesEx(
