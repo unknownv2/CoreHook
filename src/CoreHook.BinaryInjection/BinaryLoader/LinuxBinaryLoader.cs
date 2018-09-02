@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using CoreHook.BinaryInjection.Host;
 using CoreHook.Unmanaged;
-using System.Threading;
 
 namespace CoreHook.BinaryInjection
 {
@@ -33,7 +33,7 @@ namespace CoreHook.BinaryInjection
 
         private IntPtr _mailboxPtr { get { return new IntPtr(_mailboxAddress); } }
 
-        private IMemoryManager _memoryManager;
+        private readonly IMemoryManager _memoryManager;
 
         public LinuxBinaryLoader(IMemoryManager memoryManager)
         {
