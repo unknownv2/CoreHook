@@ -173,7 +173,7 @@ namespace CoreHook.Unmanaged
             {
 
                 // Allocate space in the remote process for the DLL path. 
-                var remoteAllocAddr = NativeMethods.VirtualAllocEx(
+                IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess.Handle,
                     IntPtr.Zero,
                     (uint)args.Length,
@@ -190,7 +190,7 @@ namespace CoreHook.Unmanaged
                     UIntPtr bytesWritten;
 
                     // Write the DLL path to the allocated memory.
-                    var result = NativeMethods.WriteProcessMemory(
+                    bool result = NativeMethods.WriteProcessMemory(
                         hProcess.Handle,
                         remoteAllocAddr,
                         args,
@@ -204,7 +204,7 @@ namespace CoreHook.Unmanaged
 
                     //var addr = process.GetAbsoluteFunctionAddress(module, function);
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    var hThread = NativeMethods.CreateRemoteThread(
+                    IntPtr hThread = NativeMethods.CreateRemoteThread(
                         hProcess.Handle,
                         IntPtr.Zero,
                         0,
@@ -247,7 +247,7 @@ namespace CoreHook.Unmanaged
             {
 
                 // Allocate space in the remote process for the DLL path. 
-                var remoteAllocAddr = NativeMethods.VirtualAllocEx(
+                IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess.Handle,
                     IntPtr.Zero,
                     (uint)args.Length,
@@ -264,7 +264,7 @@ namespace CoreHook.Unmanaged
                     UIntPtr bytesWritten;
 
                     // Write the DLL path to the allocated memory.
-                    var result = NativeMethods.WriteProcessMemory(
+                    bool result = NativeMethods.WriteProcessMemory(
                         hProcess.Handle,
                         remoteAllocAddr,
                         args,
@@ -278,7 +278,7 @@ namespace CoreHook.Unmanaged
 
                     //var addr = process.GetAbsoluteFunctionAddress(module, function);
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    var hThread = NativeMethods.CreateRemoteThread(
+                    IntPtr hThread = NativeMethods.CreateRemoteThread(
                         hProcess.Handle,
                         IntPtr.Zero,
                         0,
@@ -321,7 +321,7 @@ namespace CoreHook.Unmanaged
                 NativeMethods.ProcessAccessFlags.VirtualMemoryWrite)))
             {
                 // Allocate space in the remote process for the DLL path. 
-                var remoteAllocAddr = NativeMethods.VirtualAllocEx(
+                IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess.Handle,
                     IntPtr.Zero,
                     size,
@@ -345,12 +345,12 @@ namespace CoreHook.Unmanaged
                   NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryWrite)))
             {
-                var dataLen = size > 0 ? size : (uint)data.Length;
-                var remoteAllocAddr = MemAllocate(process, dataLen);
+                uint dataLen = size > 0 ? size : (uint)data.Length;
+                IntPtr remoteAllocAddr = MemAllocate(process, dataLen);
                 UIntPtr bytesWritten;
 
                 // Write the DLL path to the allocated memory.
-                var result = NativeMethods.WriteProcessMemory(
+                bool result = NativeMethods.WriteProcessMemory(
                     hProcess.Handle,
                     remoteAllocAddr,
                     data,
@@ -386,7 +386,7 @@ namespace CoreHook.Unmanaged
                 return false;
             }
 
-            var handle = NativeMethods.OpenProcess(
+            IntPtr handle = NativeMethods.OpenProcess(
                 NativeMethods.ProcessAccessFlags.QueryInformation,
                 false,
                 process.Id
@@ -410,30 +410,11 @@ namespace CoreHook.Unmanaged
             }
         }
 
-        public static ExportedFunction[] GetExportedFunctions(this Process process, string moduleBaseName)
-        {
-            var hProcess = GetReadHandle(process.Id);
-
-            var hModule = GetModuleHandleByBaseName(process, moduleBaseName);
-
-            if (hModule == IntPtr.Zero)
-            {
-                throw new Win32Exception("Module not found in process.");
-            }
-
-            return GetExportedFunctions(hProcess, hModule);
-        }
-
-        public static ExportedFunction[] GetExportedFunctions(this Process process, IntPtr hModule)
-        {
-            return GetExportedFunctions(GetReadHandle(process.Id), hModule);
-        }
-
         public static IntPtr GetAbsoluteFunctionAddress(this Process process, string moduleBaseName, string functionName)
         {
-            var hProcess = GetReadHandle(process.Id);
+            IntPtr hProcess = GetReadHandle(process.Id);
 
-            var hModule = GetModuleHandleByBaseName(hProcess, moduleBaseName);
+            IntPtr hModule = GetModuleHandleByBaseName(hProcess, moduleBaseName);
 
             if (hModule == IntPtr.Zero)
             {
@@ -444,9 +425,9 @@ namespace CoreHook.Unmanaged
         }
         public static IntPtr GetAbsoluteFunctionAddressEx(this Process process, string moduleFileName, string functionName)
         {
-            var hProcess = GetReadHandle(process.Id);
+            IntPtr hProcess = GetReadHandle(process.Id);
 
-            var hModule = GetModuleHandleByFileName(hProcess, moduleFileName);
+            IntPtr hModule = GetModuleHandleByFileName(hProcess, moduleFileName);
 
             if (hModule == IntPtr.Zero)
             {
@@ -467,7 +448,7 @@ namespace CoreHook.Unmanaged
         {
             var moduleInfo = GetModuleInfo(hProcess, hModule);
 
-            var exportDir = GetDataDirectory(ReadPage(hProcess, moduleInfo.BaseAddress), 0);
+            DataDirectory exportDir = GetDataDirectory(ReadPage(hProcess, moduleInfo.BaseAddress), 0);
 
             var buffer = new byte[exportDir.Size];
 
@@ -484,36 +465,6 @@ namespace CoreHook.Unmanaged
             }
 
             return new IntPtr(moduleInfo.BaseAddress.ToInt64() + GetFunctionAddress(buffer, exportDir.Rva, functionName).ToInt64());
-        }
-
-        private static ExportedFunction[] GetExportedFunctions(IntPtr hProcess, IntPtr hModule)
-        {
-            try
-            {
-                var moduleInfo = GetModuleInfo(hProcess, hModule);
-
-                var exportDir = GetDataDirectory(ReadPage(hProcess, moduleInfo.BaseAddress), 0);
-
-                var buffer = new byte[exportDir.Size];
-
-                IntPtr bytesRead;
-
-                if (!NativeMethods.ReadProcessMemory(
-                    hProcess,
-                    moduleInfo.BaseAddress + (int)exportDir.Rva,
-                    buffer,
-                    buffer.Length,
-                    out bytesRead) || bytesRead != (IntPtr)buffer.Length)
-                {
-                    throw new Win32Exception("Failed to read export table from memory of module.");
-                }
-
-                return ParseExportTable(buffer, moduleInfo.BaseAddress.ToInt64());
-            }
-            finally
-            {
-                NativeMethods.CloseHandle(hProcess);
-            }
         }
 
         private static NativeMethods.MODULEINFO GetModuleInfo(IntPtr hProcess, IntPtr hModule)
@@ -595,65 +546,6 @@ namespace CoreHook.Unmanaged
             }
         }
 
-        private static ExportedFunction[] ParseExportTable(byte[] exportTable, long imageBase)
-        {
-            var ms = new MemoryStream(exportTable);
-            var io = new BinaryReader(ms);
-
-            // Skip flags, timestamp, version, and name of DLL RVA.
-            ms.Position = 16;
-
-            // Usually always 1.
-            // ReSharper disable once UnusedVariable
-            var ordinalBase = io.ReadInt32();
-
-            var addressTableEntryCount = io.ReadUInt32();
-            var namePointerTableEntryCount = io.ReadUInt32();
-            var exportAddressTableRva = io.ReadUInt32() - imageBase;
-            var exportNamePointerTableRva = io.ReadUInt32() - imageBase;
-            var ordinalTableRva = io.ReadUInt32() - imageBase;
-
-            var exports = new List<ExportedFunction>((int)namePointerTableEntryCount);
-
-            ms.Position = exportNamePointerTableRva;
-
-            int x;
-
-            // TODO: If performance is bad, change this to a binary search.
-            for (x = 0; x < namePointerTableEntryCount; x++)
-            {
-                ms.Position = exportNamePointerTableRva + (x*4);
-
-                var nameRva = io.ReadUInt32();
-
-                if (nameRva == 0)
-                {
-                    continue;
-                }
-
-                ms.Position = nameRva - imageBase;
-
-                var funcName = ReadNullTerminatedAsciiString(io);
-
-                ms.Position = ordinalTableRva + (x * 2);
-                var ordinal = io.ReadUInt16(); // + ordinalBase;
-
-                if (ordinal >= addressTableEntryCount)
-                {
-                    io.Close();
-                    throw new Win32Exception("Corrupted export table in module.");
-                }
-
-                ms.Position = exportAddressTableRva + (ordinal * 4); // (ordinal - ordinalBase)
-
-                exports.Add(new ExportedFunction(funcName, (IntPtr) io.ReadUInt32()));
-            }
-
-            io.Close();
-
-            return exports.ToArray();
-        }
-
         private static IntPtr GetFunctionAddress(byte[] exportTable, uint exportTableRva, string functionName)
         {
             var ms = new MemoryStream(exportTable);
@@ -725,50 +617,11 @@ namespace CoreHook.Unmanaged
             return sb.ToString();
         }
 
-        /*const int PeHeaderRva = 64;
-        const int CoffHeaderRva = PeHeaderRva + 4;
-        const int OptionalHeaderRva = CoffHeaderRva + 20;
-
-        [StructLayout(LayoutKind.Explicit)]
-        private struct ExportTablePeImage
-        {
-            [FieldOffset(PeHeaderRva)]
-            public uint PeMagic;
-
-            [FieldOffset(OptionalHeaderRva)]
-            public ushort OptHeaderMagic;
-
-            [FieldOffset(OptionalHeaderRva + 92)]
-            public uint NumberOfRvasAndSizes32;
-
-            [FieldOffset(OptionalHeaderRva + 108)]
-            public uint NumberOfRvasAndSizes64;
-
-            [FieldOffset(OptionalHeaderRva + 96)]
-            public uint ExportTableDirectoryRva32;
-
-            [FieldOffset(OptionalHeaderRva + 100)]
-            public uint ExportTableDirectorySize32;
-
-            [FieldOffset(OptionalHeaderRva + 112)]
-            public uint ExportTableDirectoryRva64;
-
-            [FieldOffset(OptionalHeaderRva + 116)]
-            public uint ExportTableDirectorySize64;
-        }*/
-
-        public static IntPtr GetModuleHandleByBaseName(this Process process, string moduleName)
-        {
-            using (var handle = SafeHandle.Wrap(GetReadHandle(process.Id)))
-            {
-                return GetModuleHandleByBaseName(handle.Handle, moduleName);
-            }
-        }
         public static IntPtr GetModuleHandleByBaseName(IntPtr hProcess, string moduleName)
         {
-            var handles = GetAllModuleHandles(hProcess);
+            IntPtr[] handles = GetAllModuleHandles(hProcess);
 
-            foreach (var moduleHandle in handles)
+            foreach (IntPtr moduleHandle in handles)
             {
                 var sb = new StringBuilder(256);
 
@@ -783,18 +636,12 @@ namespace CoreHook.Unmanaged
 
             return IntPtr.Zero;
         }
-        public static IntPtr GetModuleHandleByFileName(this Process process, string moduleFileName)
-        {
-            using (var handle = SafeHandle.Wrap(GetReadHandle(process.Id)))
-            {
-                return GetModuleHandleByFileName(handle.Handle, moduleFileName);
-            }
-        }
+ 
         public static IntPtr GetModuleHandleByFileName(IntPtr hProcess, string moduleName)
         {
-            var handles = GetAllModuleHandles(hProcess);
+            IntPtr[] handles = GetAllModuleHandles(hProcess);
 
-            foreach (var moduleHandle in handles)
+            foreach (IntPtr moduleHandle in handles)
             {
                 var sb = new StringBuilder(256);
 
@@ -809,19 +656,6 @@ namespace CoreHook.Unmanaged
             }
 
             return IntPtr.Zero;
-        }
-        public static IntPtr[] GetAllModuleHandles(this Process process)
-        {
-            var hProcess = GetReadHandle(process.Id);
-
-            try
-            {
-                return GetAllModuleHandles(hProcess);
-            }
-            finally
-            {
-                NativeMethods.CloseHandle(hProcess);
-            }
         }
 
         private static IntPtr[] GetAllModuleHandles(IntPtr hProcess)
