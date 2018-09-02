@@ -7,7 +7,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 **The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**
 
 ## Features
-* Intercept public API functions and internal functions [if symbol files are available](#windows-symbol-support)
+* Intercept public API functions and internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
 ## Dependencies
@@ -63,9 +63,9 @@ Using the `.NET Core 2.1` runtime as an example (validate the paths if you have 
  * Set `CORE_LIBRARIES_64` and `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.3` for `64-bit(x64)` applications.
 
 
-Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
+Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
-Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, also place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
+Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
 
