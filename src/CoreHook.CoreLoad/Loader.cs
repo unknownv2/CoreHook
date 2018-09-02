@@ -122,6 +122,54 @@ namespace CoreHook.CoreLoad
             }
         }
 
+        private static Type FindEntryPoint(Assembly assembly)
+        {
+            var exportedTypes = assembly.GetExportedTypes();
+            foreach (TypeInfo type in exportedTypes)
+            {
+                if (type.GetInterface(EntryPointInterface) != null)
+                {
+                    return type;
+                }
+            }
+            return null;
+        }
+
+        private static MethodInfo FindMatchingMethod(Type objectType, string methodName, object[] paramArray)
+        {
+            var methods = objectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
+            foreach (var method in methods)
+            {
+                if (method.Name == methodName
+                    && (paramArray != null ? MethodMatchesParameters(method, paramArray) : true))
+                    return method;
+            }
+            return null;
+        }
+
+        private static bool MethodMatchesParameters(MethodBase method, object[] paramArray)
+        {
+            var parameters = method.GetParameters();
+            if (parameters.Length != paramArray.Length) return false;
+            for (int i = 0; i < paramArray.Length; i++)
+            {
+                if (!parameters[i].ParameterType.IsInstanceOfType(paramArray[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        private static object InitializeInstance(Type objectType, object[] parameters)
+        {
+            var constructors = objectType.GetConstructors();
+            foreach (var constructor in constructors)
+            {
+                if (MethodMatchesParameters(constructor, parameters))
+                    return constructor.Invoke(parameters);
+            }
+            return null;
+        }
+
         private static bool SendInjectionComplete(string pipeName, int pid)
         {
             using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
@@ -136,51 +184,6 @@ namespace CoreHook.CoreLoad
                 }
             }
             return false;
-        }
-
-        private static Type FindEntryPoint(Assembly assembly)
-        {
-            var exportedTypes = assembly.GetExportedTypes();
-            foreach (TypeInfo type in exportedTypes)
-            {
-                if (type.GetInterface(EntryPointInterface) != null)
-                {
-                    return type;
-                }
-            }
-            return null;
-        }
-        private static MethodInfo FindMatchingMethod(Type objectType, string methodName, object[] paramArray)
-        {
-            var methods = objectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
-            foreach (var method in methods)
-            {
-                if (method.Name == methodName
-                    && (paramArray != null ? MethodMatchesParameters(method, paramArray) : true))
-                    return method;
-            }
-            return null;
-        }
-        private static bool MethodMatchesParameters(MethodBase method, object[] paramArray)
-        {
-            var parameters = method.GetParameters();
-            if (parameters.Length != paramArray.Length) return false;
-            for (int i = 0; i < paramArray.Length; i++)
-            {
-                if (!parameters[i].ParameterType.IsInstanceOfType(paramArray[i]))
-                    return false;
-            }
-            return true;
-        }
-        private static object InitializeInstance(Type objectType, object[] parameters)
-        {
-            var constructors = objectType.GetConstructors();
-            foreach (var constructor in constructors)
-            {
-                if (MethodMatchesParameters(constructor, parameters))
-                    return constructor.Invoke(parameters);
-            }
-            return null;
         }
     }
 }
