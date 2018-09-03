@@ -95,6 +95,8 @@ namespace CoreHook.ManagedHook.Remote
                     pipePlatform,
                     dependencies,
                     passThruArgs);
+
+                ProcessExtensions.BringToFront(System.Diagnostics.Process.GetProcessById(outProcessId));
             }
             else
             {
@@ -136,14 +138,14 @@ namespace CoreHook.ManagedHook.Remote
             int wakeUpTID,
             string lbraryPath_x86,
             string libraryPath_x64,
-            bool InCanBypassWOW64,
+            bool canBypassWOW64,
             string coreRunDll,
             string coreLoadDll,
             string coreClrPath,
             string coreLibrariesPath,
             IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
-            params object[] InPassThruArgs)
+            params object[] passThruArgs)
         {
             var passThru = new MemoryStream();
             InjectionHelper.BeginInjection(targetPID);
@@ -156,9 +158,9 @@ namespace CoreHook.ManagedHook.Remote
 
                     var format = new BinaryFormatter();
                     var args = new List<object>();
-                    if (InPassThruArgs != null)
+                    if (passThruArgs != null)
                     {
-                        foreach (var arg in InPassThruArgs)
+                        foreach (var arg in passThruArgs)
                         {
                             using (var ms = new MemoryStream())
                             {
@@ -247,7 +249,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new FileNotFoundException(string.Format("The given assembly could not be found. {0}", remoteInfo.UserLibrary), remoteInfo.UserLibrary);
+                throw new FileNotFoundException($"The given assembly could not be found: '{ remoteInfo.UserLibrary}'", remoteInfo.UserLibrary);
             }
 
             remoteInfo.ChannelName = InjectionPipe;
