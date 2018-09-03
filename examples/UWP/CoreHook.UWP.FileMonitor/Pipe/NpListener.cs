@@ -1,8 +1,6 @@
-﻿using System;
-using System.Diagnostics;
+﻿// From https://github.com/tylerjensen/ServiceWire/tree/master/src/ServiceWire/NamedPipes
+using System;
 using System.IO.Pipes;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service.Pipe;

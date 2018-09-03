@@ -1,4 +1,5 @@
-﻿using System;
+﻿// From https://github.com/tylerjensen/ServiceWire/tree/master/src/ServiceWire/NamedPipes
+using System;
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;

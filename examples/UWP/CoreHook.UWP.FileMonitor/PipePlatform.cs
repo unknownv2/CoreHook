@@ -58,6 +58,5 @@ namespace CoreHook.UWP.FileMonitor
             // https://github.com/PowerShell/PowerShell/blob/master/src/System.Management.Automation/engine/remoting/common/RemoteSessionNamedPipe.cs#L124-L256
             return NamedPipeNative.CreateNamedPipe(".", "pipe", pipeName, CreateUWPPipeSecurity());
         }
-
     }
 }
