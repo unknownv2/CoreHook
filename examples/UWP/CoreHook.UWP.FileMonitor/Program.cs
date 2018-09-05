@@ -132,7 +132,16 @@ namespace CoreHook.UWP.FileMonitor
 
             string coreLibrariesPath = GetCoreLibrariesPath();
             string coreRootPath = GetCoreRootPath();
-
+            if (string.IsNullOrEmpty(coreLibrariesPath))
+            {
+                Console.WriteLine("CORE_LIBRARIES path was not set!");
+                return;
+            }
+            if (string.IsNullOrEmpty(coreRootPath))
+            {
+                Console.WriteLine("CORE_ROOT path was not set!");
+                return;
+            }
             // path to CoreRunDLL.dll
             string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
@@ -143,6 +152,10 @@ namespace CoreHook.UWP.FileMonitor
                 {
                     Console.WriteLine("Cannot find CoreRun dll");
                     return;
+                }
+                else
+                {
+                    GrantAllAppPkgsAccessToFile(coreRunDll);
                 }
             }
             // path to CoreHook.CoreLoad.dll
