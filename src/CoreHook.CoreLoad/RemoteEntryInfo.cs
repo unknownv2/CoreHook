@@ -6,7 +6,7 @@ namespace CoreHook.CoreLoad
     [StructLayout(LayoutKind.Sequential)]
     class RemoteEntryInfo
     {
-        public int m_HostPID;
+        private int _hostPID;
         public IntPtr UserData;
         public int UserDataSize;
 
@@ -14,7 +14,7 @@ namespace CoreHook.CoreLoad
         {
             get
             {
-                return m_HostPID;
+                return _hostPID;
             }
         }
     }
