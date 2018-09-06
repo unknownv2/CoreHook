@@ -39,40 +39,50 @@ namespace CoreHook.CoreLoad
             return 0;
         }
 
+        private const string CoreLoadPipeName = "coreload";
         public static int Load(string paramPtr)
         {
-            if (paramPtr == null)
+            using (var pipeClient = new NamedPipeClient(CoreLoadPipeName))
             {
-                throw new ArgumentNullException("Remote arguments parameter was null");
-            }
-
-            try
-            {
-                IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
-
-                if (remoteParams == IntPtr.Zero)
+                if (pipeClient.Connect())
                 {
-                    throw new ArgumentOutOfRangeException("Remote arguments address was zero");
+                    if (paramPtr == null)
+                    {
+                        pipeClient.SendRequest("Remote arguments parameter was null");
+                        throw new ArgumentNullException("Remote arguments parameter was null");
+                    }
+
+                    try
+                    {
+
+                        IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
+
+                        if (remoteParams == IntPtr.Zero)
+                        {
+                            pipeClient.SendRequest("Remote arguments address was zero");
+                            throw new ArgumentOutOfRangeException("Remote arguments address was zero");
+                        }
+
+                        var connection = ConnectionData.LoadData(remoteParams);
+
+                        var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+
+                        // Prepare parameter array.
+                        var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
+
+                        // The next type cast is not redundant because the object needs to be an explicit IContext
+                        // when passed as a parameter to the IEntryPoint constructor and Run() methods.
+                        paramArray[0] = connection.UnmanagedInfo;
+                        for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
+                            paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+
+                        LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
+                    }
+                    catch (Exception exception)
+                    {
+                        pipeClient.SendRequest(exception.ToString());
+                    }
                 }
-
-                var connection = ConnectionData.LoadData(remoteParams);
-
-                var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
-
-                // Prepare parameter array.
-                var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
-
-                // The next type cast is not redundant because the object needs to be an explicit IContext
-                // when passed as a parameter to the IEntryPoint constructor and Run() methods.
-                paramArray[0] = connection.UnmanagedInfo;
-                for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
-                    paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
-
-                LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
-            }
-            catch (Exception exception)
-            {
-                Debug.WriteLine(exception.ToString());
             }
             return 0;
         }
@@ -172,7 +182,7 @@ namespace CoreHook.CoreLoad
 
         private static bool SendInjectionComplete(string pipeName, int pid)
         {
-            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
+            using (var pipeClient = new NamedPipeClient(pipeName))
             {
                 if (pipeClient.Connect())
                 {
