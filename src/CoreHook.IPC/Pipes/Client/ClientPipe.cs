@@ -9,7 +9,7 @@ namespace CoreHook.IPC.Pipes.Client
     {
         private const string _serverName = ".";
 
-        private string _pipeName;
+        private readonly string _pipeName;
 
         private NamedPipeClientStream _pipe;
 

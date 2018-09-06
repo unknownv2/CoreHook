@@ -7,9 +7,9 @@ namespace CoreHook.IPC.Pipes.Server
 {
     public class ServerPipe
     {
-        private string _pipeName;
+        private readonly string _pipeName;
 
-        private int _numOfThreads;
+        private readonly int _numOfThreads;
 
         private NamedPipeServerStream _pipe;
 

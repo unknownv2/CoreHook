@@ -48,7 +48,7 @@ namespace CoreHook.ManagedHook.Remote
             string coreLoadDll,
             string coreClrPath,
             string coreLibrariesPath,
-            string InCommandLine,
+            string commandLine,
             uint processCreationFlags,
             string lbraryPath_x86,
             string libraryPath_x64,
@@ -62,7 +62,7 @@ namespace CoreHook.ManagedHook.Remote
             var pi = new NativeMethods.ProcessInformation();
 
             if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(exePath,
-                InCommandLine,
+                commandLine,
                 IntPtr.Zero,
                 IntPtr.Zero,
                 false,
@@ -95,6 +95,8 @@ namespace CoreHook.ManagedHook.Remote
                     pipePlatform,
                     dependencies,
                     passThruArgs);
+
+                ProcessExtensions.BringToFront(System.Diagnostics.Process.GetProcessById(outProcessId));
             }
             else
             {
@@ -112,7 +114,7 @@ namespace CoreHook.ManagedHook.Remote
             string libraryPath_x64,
             IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
-            params object[] InPassThruArgs)
+            params object[] passThruArgs)
         {
             InjectEx(
                 ProcessHelper.GetCurrentProcessId(),
@@ -127,7 +129,7 @@ namespace CoreHook.ManagedHook.Remote
                 coreLibrariesPath,
                 pipePlatform,
                 dependencies,
-                InPassThruArgs);
+                passThruArgs);
         }
 
         public static void InjectEx(
@@ -136,14 +138,14 @@ namespace CoreHook.ManagedHook.Remote
             int wakeUpTID,
             string lbraryPath_x86,
             string libraryPath_x64,
-            bool InCanBypassWOW64,
+            bool canBypassWOW64,
             string coreRunDll,
             string coreLoadDll,
             string coreClrPath,
             string coreLibrariesPath,
             IPipePlatform pipePlatform,
             IEnumerable<string> dependencies,
-            params object[] InPassThruArgs)
+            params object[] passThruArgs)
         {
             var passThru = new MemoryStream();
             InjectionHelper.BeginInjection(targetPID);
@@ -156,9 +158,9 @@ namespace CoreHook.ManagedHook.Remote
 
                     var format = new BinaryFormatter();
                     var args = new List<object>();
-                    if (InPassThruArgs != null)
+                    if (passThruArgs != null)
                     {
-                        foreach (var arg in InPassThruArgs)
+                        foreach (var arg in passThruArgs)
                         {
                             using (var ms = new MemoryStream())
                             {
@@ -225,20 +227,28 @@ namespace CoreHook.ManagedHook.Remote
             MemoryStream argsStream)
         {
             if (string.IsNullOrEmpty(libraryX86) && string.IsNullOrEmpty(libraryX64))
+            {
                 throw new ArgumentException("At least one library for x86 or x64 must be provided");
+            }
 
             // ensure full path information in case of file names...
             if ((libraryX86 != null) && File.Exists(libraryX86))
+            {
                 libraryX86 = Path.GetFullPath(libraryX86);
+            }
 
             if ((libraryX64 != null) && File.Exists(libraryX64))
+            {
                 libraryX64 = Path.GetFullPath(libraryX64);
+            }
 
             // validate assembly type
             remoteInfo.UserLibrary = libraryX86;
 
             if (ProcessHelper.Is64Bit)
+            {
                 remoteInfo.UserLibrary = libraryX64;
+            }
 
             if (File.Exists(remoteInfo.UserLibrary))
             {
@@ -247,7 +257,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new FileNotFoundException(string.Format("The given assembly could not be found. {0}", remoteInfo.UserLibrary), remoteInfo.UserLibrary);
+                throw new FileNotFoundException($"The given assembly could not be found: '{remoteInfo.UserLibrary}'", remoteInfo.UserLibrary);
             }
 
             remoteInfo.ChannelName = InjectionPipe;
