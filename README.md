@@ -17,8 +17,8 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 * [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
 * [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
 * [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
-* [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
 * [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard)
+* [Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json)
 
 ## Supported Platforms
 
