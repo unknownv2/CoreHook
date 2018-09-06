@@ -18,6 +18,8 @@ namespace CoreHook.UWP.FileMonitor.Pipe
         #region Pipe constants
 
         // Pipe open mode
+        internal const uint PIPE_ACCESS_INBOUND = 0x00000001;
+        internal const uint PIPE_ACCESS_OUTBOUND = 0x00000002;
         internal const uint PIPE_ACCESS_DUPLEX = 0x00000003;
 
         // Pipe modes
@@ -133,8 +135,8 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             }
 
             if (pipeHandle.IsInvalid)
-            {
-                throw new InvalidOperationException();
+            {                
+                throw new InvalidOperationException();                
             }
             // Create the .Net NamedPipeServerStream wrapper.
             try
