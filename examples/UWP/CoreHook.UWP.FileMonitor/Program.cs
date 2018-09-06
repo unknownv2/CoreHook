@@ -120,6 +120,7 @@ namespace CoreHook.UWP.FileMonitor
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
+        private static IPC.NamedPipes.NamedPipeServer UWPHookServer = Logger.CreateStringServer("UWP_Hook", pipePlatform);
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
             if (!File.Exists(coreHookDll))
@@ -166,18 +167,27 @@ namespace CoreHook.UWP.FileMonitor
                 Console.WriteLine("Cannot find CoreLoad dll");
                 return;
             }
-
-            ManagedHook.Remote.RemoteHooking.Inject(
-                procId,
-                coreRunDll,
-                coreLoadDll,
-                coreRootPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                injectionLibrary,
-                injectionLibrary,
-                pipePlatform,
-                new [] { coreHookDll },
-                CoreHookPipeName);
+            
+            using (var pipeServerSyeLog = Logger.CreateServer("syelog", pipePlatform))
+            {
+                using (var pipeServerCoreLoad = Logger.CreateStringServer("coreload", pipePlatform))
+                {
+                    
+                    
+                        ManagedHook.Remote.RemoteHooking.Inject(
+                            procId,
+                            coreRunDll,
+                            coreLoadDll,
+                            coreRootPath, // path to coreclr, clrjit
+                            coreLibrariesPath, // path to .net core shared libs
+                            injectionLibrary,
+                            injectionLibrary,
+                            pipePlatform,
+                            new[] { coreHookDll },
+                            CoreHookPipeName);
+                    
+                }
+            }
         }
 
         private static void StartListener()

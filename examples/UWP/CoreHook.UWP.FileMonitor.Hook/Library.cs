@@ -10,6 +10,7 @@ using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
 using CoreHook.IPC.Pipes.Client;
+using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.UWP.FileMonitor.Hook
 {
@@ -18,7 +19,9 @@ namespace CoreHook.UWP.FileMonitor.Hook
         Queue<string> Queue = new Queue<string>();
 
         LocalHook CreateFileHook;
+        private const string UWPHookPipeFileName = "UWP_Hook";
 
+        private static NamedPipeClient _client;
         public Library(object context, string arg1)
         {
 
@@ -28,6 +31,13 @@ namespace CoreHook.UWP.FileMonitor.Hook
         {
             try
             {
+                var pipeClient = new NamedPipeClient(UWPHookPipeFileName);
+                
+                if (pipeClient.Connect())
+                {
+                    _client = pipeClient;
+                }
+                
                 StartClient(pipeName);
             }
             catch (Exception ex)
@@ -46,6 +56,10 @@ namespace CoreHook.UWP.FileMonitor.Hook
 
         private static void ClientWriteLine(object msg)
         {
+            if(_client != null)
+            {
+                _client.SendRequest(msg.ToString());
+            }
             Debug.WriteLine(msg);
         }
 
