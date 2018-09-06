@@ -176,6 +176,7 @@ namespace CoreHook.Tests
             uint bufLength = GetAtomNameW(atomId, atomBuffer, maxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
+            Assert.NotEqual<uint>(0, bufLength);
             Assert.Equal((uint)atomName.Length, bufLength);
             Assert.Equal(retrievedAtomName.Length, atomName.Length);
 
