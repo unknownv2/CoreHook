@@ -168,7 +168,7 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
             
-            using (var pipeServerSyeLog = Logger.CreateServer("syelog", pipePlatform))
+            using (var pipeServerSyeLog = Logger.CreateServer("corerundll", pipePlatform))
             {
                 using (var pipeServerCoreLoad = Logger.CreateStringServer("coreload", pipePlatform))
                 {
