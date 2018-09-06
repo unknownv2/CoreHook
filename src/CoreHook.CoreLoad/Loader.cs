@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Diagnostics;
@@ -42,18 +42,23 @@ namespace CoreHook.CoreLoad
         private const string CoreLoadPipeName = "coreload";
         public static int Load(string paramPtr)
         {
-            using (var pipeClient = new NamedPipeClient(CoreLoadPipeName))
+            try
             {
-                if (pipeClient.Connect())
+                Log("Starting pipe client...");
+                using (var pipeClient = new NamedPipeClient(CoreLoadPipeName))
                 {
-                    if (paramPtr == null)
+                    Log("Attempting to connect to the server pipe");
+                    if (pipeClient.Connect())
                     {
-                        pipeClient.SendRequest("Remote arguments parameter was null");
-                        throw new ArgumentNullException("Remote arguments parameter was null");
-                    }
+                        Log("Connected to the server pipe", pipeClient);
 
-                    try
-                    {
+                        if (paramPtr == null)
+                        {
+                            pipeClient.SendRequest("Remote arguments parameter was null");
+                            throw new ArgumentNullException("Remote arguments parameter was null");
+                        }
+
+                        Log("Parsing remote params", pipeClient);
 
                         IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
 
@@ -62,10 +67,14 @@ namespace CoreHook.CoreLoad
                             pipeClient.SendRequest("Remote arguments address was zero");
                             throw new ArgumentOutOfRangeException("Remote arguments address was zero");
                         }
+                        Log("Loading structure from remote params", pipeClient);
 
                         var connection = ConnectionData.LoadData(remoteParams);
+                        Log($"Creating Resolver class from user library {connection.RemoteInfo.UserLibrary}", pipeClient);
 
                         var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+
+                        Log($"Creating remote parameter array", pipeClient);
 
                         // Prepare parameter array.
                         var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
@@ -75,18 +84,29 @@ namespace CoreHook.CoreLoad
                         paramArray[0] = connection.UnmanagedInfo;
                         for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
                             paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+                        Log($"Loading user library {connection.RemoteInfo.UserLibrary}", pipeClient);
 
                         LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
                     }
-                    catch (Exception exception)
-                    {
-                        pipeClient.SendRequest(exception.ToString());
-                    }
                 }
             }
+            catch (Exception exception)
+            {
+                Log(exception.ToString());
+            }
+            
             return 0;
         }
 
+        private static void Log(string message, NamedPipeClient client = null)
+        {
+            if(client != null)
+            {
+                client.SendRequest(message);
+            }
+            Debug.WriteLine(message);
+        }
+  
         private static bool IsUwp()
         {
             int length = 1024;
