@@ -13,8 +13,10 @@ namespace CoreHook.IPC.NamedPipes
         private bool isStopping;
         private string pipeName;
         private Action<Connection> handleConnection;
+
         private IPipePlatform platform;
         private NamedPipeServerStream listeningPipe;
+        private Func<StreamReader, string> readRequest;
 
         private NamedPipeServer(string pipeName, IPipePlatform platform, Action<Connection> handleConnection)
         {
@@ -23,8 +25,35 @@ namespace CoreHook.IPC.NamedPipes
             this.handleConnection = handleConnection;
             this.isStopping = false;
         }
-
+        private NamedPipeServer(string pipeName, IPipePlatform platform, Action<Connection> handleConnection, Func<StreamReader, string> readRequest)
+        {
+            this.pipeName = pipeName;
+            this.platform = platform;
+            this.handleConnection = handleConnection;
+            this.isStopping = false;
+            this.readRequest = readRequest;
+        }
         public static NamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, Connection> handleRequest)
+        {
+            if (pipeName.Length > MaxPipeNameLength)
+            {
+                throw new PipeNameLengthException(string.Format("The pipe name ({0}) exceeds the max length allowed({1})", pipeName, MaxPipeNameLength));
+            }
+            NamedPipeServer pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
+            pipeServer.OpenListeningPipe();
+            return pipeServer;
+        }
+        public static NamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, Connection> handleRequest, Func<StreamReader, string> readRequest)
+        {
+            if (pipeName.Length > MaxPipeNameLength)
+            {
+                throw new PipeNameLengthException(string.Format("The pipe name ({0}) exceeds the max length allowed({1})", pipeName, MaxPipeNameLength));
+            }
+            NamedPipeServer pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest), readRequest);
+            pipeServer.OpenListeningPipe();
+            return pipeServer;
+        }
+        public static NamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
@@ -37,14 +66,13 @@ namespace CoreHook.IPC.NamedPipes
 
         public void Dispose()
         {
-            this.isStopping = true;
-            NamedPipeServerStream pipe = Interlocked.Exchange(ref this.listeningPipe, null);
+            isStopping = true;
+            NamedPipeServerStream pipe = Interlocked.Exchange(ref listeningPipe, null);
             if (pipe != null)
             {
                 pipe.Dispose();
             }
         }
-
         private static void HandleConnection(Connection connection, Action<string, Connection> handleRequest)
         {
             while (connection.IsConnected)
@@ -59,6 +87,20 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
+        private static void HandleConnection(IConnection connection, Action<string> handleRequest)
+        {
+            while (connection.IsConnected)
+            {
+                string request = connection.ReadRequest();
+                if (request == null ||
+                    !connection.IsConnected)
+                {
+                    break;
+                }
+                handleRequest(request);
+            }
+        }
+
         private void OpenListeningPipe()
         {
             try
@@ -68,7 +110,14 @@ namespace CoreHook.IPC.NamedPipes
                     throw new InvalidOperationException("There is already a pipe listening for a connection");
                 }
                 listeningPipe = platform.CreatePipeByName(pipeName);
-                listeningPipe.BeginWaitForConnection(OnNewConnection, listeningPipe);
+                if (listeningPipe != null)
+                {
+                    listeningPipe.BeginWaitForConnection(OnNewConnection, listeningPipe);
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                LogMessage("Pipe handle already openened");
             }
             catch (Exception e)
             {
@@ -123,7 +172,7 @@ namespace CoreHook.IPC.NamedPipes
                     {
                         try
                         {
-                            handleConnection(new Connection(pipe, () => this.isStopping));
+                            handleConnection(new Connection(pipe, () => this.isStopping, this.readRequest));
                         }
                         catch (Exception e)
                         {
@@ -140,16 +189,27 @@ namespace CoreHook.IPC.NamedPipes
 
         private void LogError(string message, Exception e)
         {
-            Console.WriteLine(message);
+            LogMessage(message);
             Console.WriteLine(e);
         }
+        private void LogMessage(string message)
+        {
 
-        public class Connection
+        }
+
+        public interface IConnection
+        {
+            bool IsConnected { get; }
+            string ReadRequest();
+        }
+
+        public class Connection : IConnection
         {
             private NamedPipeServerStream serverStream;
             private StreamReader reader;
             private StreamWriter writer;
             private Func<bool> isStopping;
+            private Func<StreamReader, string> readRequest;
 
             public Connection(NamedPipeServerStream serverStream, Func<bool> isStopping)
             {
@@ -158,10 +218,30 @@ namespace CoreHook.IPC.NamedPipes
                 reader = new StreamReader(this.serverStream);
                 writer = new StreamWriter(this.serverStream);
             }
+            public Connection(NamedPipeServerStream serverStream, Func<bool> isStopping, Func<StreamReader, string> readRequest)
+            {
+                this.serverStream = serverStream;
+                this.isStopping = isStopping;
+                reader = new StreamReader(this.serverStream);
+                writer = new StreamWriter(this.serverStream);
+                this.readRequest = readRequest;
+            }
             public bool IsConnected
             {
-                get { return !isStopping() && serverStream.IsConnected; }
+                get {
+                    //return !isStopping() && serverStream.IsConnected;
+                    if (isStopping())
+                    {
+                        Console.WriteLine("Server is stopping");
+                    }
+                    if (!serverStream.IsConnected)
+                    {
+                        Console.WriteLine("Server stream is not connected");
+                    }
+                    return !isStopping() && serverStream.IsConnected;
+                }
             }
+
             public NamedPipeMessages.Message ReadMessage()
             {
                 return NamedPipeMessages.Message.FromString(ReadRequest());
@@ -170,13 +250,21 @@ namespace CoreHook.IPC.NamedPipes
             {
                 try
                 {
-                    return reader.ReadLine();
+                    if (readRequest != null) {
+                        var msg = readRequest(this.reader);
+                        return msg;
+                    }
+                    else {
+                        string msg = reader.ReadLine();
+                        return msg;
+                    }
                 }
                 catch (IOException)
                 {
                     return null;
                 }
             }
+
             public bool TrySendResponse(string message)
             {
                 try

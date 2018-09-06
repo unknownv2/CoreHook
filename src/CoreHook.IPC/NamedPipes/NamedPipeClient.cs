@@ -13,29 +13,30 @@ namespace CoreHook.IPC.NamedPipes
         private StreamReader reader;
         private StreamWriter writer;
         private const string serverName = ".";
+
         public NamedPipeClient(string pipeName)
         {
             this.pipeName = pipeName;
         }
         public bool Connect(int timeoutMilliseconds = 3000)
         {
-            if (this.clientStream != null)
+            if (clientStream != null)
             {
                 throw new InvalidOperationException();
             }
-            if (this.pipeName == null)
+            if (pipeName == null)
             {
                 throw new InvalidOperationException("Client pipe name was not set");
             }
             try
             {
-                this.clientStream = new NamedPipeClientStream(
+                clientStream = new NamedPipeClientStream(
                     serverName,
-                    this.pipeName,
+                    pipeName,
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous,
                     TokenImpersonationLevel.Impersonation);
-                    this.clientStream.Connect(timeoutMilliseconds);
+                    clientStream.Connect(timeoutMilliseconds);
             }
             catch (TimeoutException)
             {
@@ -45,8 +46,8 @@ namespace CoreHook.IPC.NamedPipes
             {
                 return false;
             }
-            this.reader = new StreamReader(this.clientStream);
-            this.writer = new StreamWriter(this.clientStream);
+            reader = new StreamReader(clientStream);
+            writer = new StreamWriter(clientStream);
             return true;
         }
         public bool TrySendRequest(NamedPipeMessages.Message message)
@@ -63,14 +64,27 @@ namespace CoreHook.IPC.NamedPipes
         }
         public void SendRequest(NamedPipeMessages.Message message)
         {
-            this.SendRequest(message.ToString());
+            SendRequest(message.ToString());
         }
         public void SendRequest(string message)
         {
-            this.ValidateConnection();
+            ValidateConnection();
             try
             {
                 this.writer.WriteLine(message);
+                this.writer.Flush();
+            }
+            catch (IOException e)
+            {
+                throw new BrokenPipeException("Unable to send: " + message, e);
+            }
+        }
+        public void SendRequest(byte[] message)
+        {
+            ValidateConnection();
+            try
+            {
+                this.writer.Write(message);
                 this.writer.Flush();
             }
             catch (IOException e)
@@ -82,7 +96,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             try
             {
-                string response = this.reader.ReadLine();
+                string response = reader.ReadLine();
                 if (response == null)
                 {
                     throw new BrokenPipeException("Unable to read from pipe", null);
@@ -96,13 +110,13 @@ namespace CoreHook.IPC.NamedPipes
         }
         public NamedPipeMessages.Message ReadResponse()
         {
-            return NamedPipeMessages.Message.FromString(this.ReadRawResponse());
+            return NamedPipeMessages.Message.FromString(ReadRawResponse());
         }
         public bool TryReadResponse(out NamedPipeMessages.Message message)
         {
             try
             {
-                message = NamedPipeMessages.Message.FromString(this.ReadRawResponse());
+                message = NamedPipeMessages.Message.FromString(ReadRawResponse());
                 return true;
             }
             catch (BrokenPipeException)
@@ -124,7 +138,7 @@ namespace CoreHook.IPC.NamedPipes
         }
         private void ValidateConnection()
         {
-            if (this.clientStream == null)
+            if (clientStream == null)
             {
                 throw new InvalidOperationException("There is no connection");
             }
