@@ -46,9 +46,9 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 ## Examples
 
- * [FileMonitor - Linux and macOS (Unix)](Examples/Unix/CoreHook.Unix.FileMonitor/)
- * [FileMonitor - Universal Windows Platform (UWP)](Examples/UWP/CoreHook.UWP.FileMonitor/) 
- * [FileMonitor - Windows Desktop Applications (Win32)](Examples/Win32/CoreHook.FileMonitor)
+ * [FileMonitor - Linux and macOS (Unix)](examples/Unix/CoreHook.Unix.FileMonitor/)
+ * [FileMonitor - Universal Windows Platform (UWP)](examples/UWP/CoreHook.UWP.FileMonitor/) 
+ * [FileMonitor - Windows Desktop Applications (Win32)](examples/Win32/CoreHook.FileMonitor)
 
 ## Usage
 
