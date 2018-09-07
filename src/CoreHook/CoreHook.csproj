@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetDir)$(TargetFileName) $(OutDir)..\x86\$(TargetFileName)&#xD;&#xA;copy $(TargetDir)$(TargetName).deps.json $(OutDir)..\x86\$(TargetName).deps.json&#xD;&#xA;copy $(TargetDir)$(TargetName).pdb $(OutDir)..\x86\$(TargetName).pdb" />
+    <Exec Command="copy &quot;$(TargetDir)$(TargetFileName)&quot; &quot;$(OutDir)..\x86\$(TargetFileName)&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).deps.json&quot; &quot;$(OutDir)..\x86\$(TargetName).deps.json&quot;&#xD;&#xA;copy &quot;$(TargetDir)$(TargetName).pdb&quot; &quot;$(OutDir)..\x86\$(TargetName).pdb&quot;" />
   </Target>
 
 </Project>
