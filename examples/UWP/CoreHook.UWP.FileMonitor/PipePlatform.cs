@@ -41,12 +41,11 @@ namespace CoreHook.UWP.FileMonitor
                     new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), access, AccessControlType.Allow)
             );
 
-            // Allow everybody. This may or may not be changed later.
+            // Allow everybody. 
             pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), access, AccessControlType.Allow));
 
             // Allow remote connections.
             pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.RemoteLogonIdSid, null), access, AccessControlType.Allow));
-
 
             // Allow all app packages to connect.
             pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), access, AccessControlType.Allow));
