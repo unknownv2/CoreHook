@@ -6,6 +6,13 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 **The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**
 
+## Build status
+
+| Build server | Platform    | Build status                             |
+| ------------ | ----------- | ---------------------------------------- |
+| AppVeyor     | Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook) |
+
+
 ## Features
 * Intercept public API functions and internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
