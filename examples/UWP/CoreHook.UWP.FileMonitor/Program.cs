@@ -171,7 +171,7 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            ManagedHook.Remote.RemoteHooking.Inject(
+            RemoteHooking.Inject(
                 procId,
                 coreRunDll,
                 coreLoadDll,

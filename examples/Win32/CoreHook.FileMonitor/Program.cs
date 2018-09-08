@@ -105,18 +105,22 @@ namespace CoreHook.FileMonitor
         private static string GetCoreLibrariesPath()
         {
             return !ProcessHelper.IsArchitectureArm() ?
-             Environment.Is64BitProcess ?
-             Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
-             Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
+             (
+                 Environment.Is64BitProcess ?
+                 Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
+                 Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
+             )
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
         private static string GetCoreRootPath()
         {
             return !ProcessHelper.IsArchitectureArm() ?
-             Environment.Is64BitProcess ?
-             Environment.GetEnvironmentVariable("CORE_ROOT_64") :
-             Environment.GetEnvironmentVariable("CORE_ROOT_32")
+             (
+                Environment.Is64BitProcess ?
+                Environment.GetEnvironmentVariable("CORE_ROOT_64") :
+                Environment.GetEnvironmentVariable("CORE_ROOT_32")
+             )
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
         
