@@ -75,11 +75,7 @@ namespace CoreHook.FileMonitor
 
             string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "netstandard2.0", "CoreHook.FileMonitor.Hook.dll");
-            if (!File.Exists(injectionLibrary))
-            {
-                Console.WriteLine("Cannot find FileMonitor injection dll");
-                return;
-            }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {                
                 string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
@@ -145,6 +141,7 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("CORE_ROOT path was not set!");
                 return false;
             }
+
             // path to CoreRunDLL.dll
             coreRunPath = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
@@ -166,15 +163,29 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find CoreLoad dll");
                 return false;
             }
+
             return true;
+        }
+        /// <summary>
+        /// Check if a file path is valid, otherwise throw an exception
+        /// </summary>
+        /// <param name="filePath">Path to a file or directory to validate</param>
+        private static void ValidateFilePath(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                throw new ArgumentNullException($"Invalid file path {filePath}");
+            }
+            if (!File.Exists(filePath))
+            {
+                throw new ArgumentNullException($"File path {filePath} does not exist");
+            }
         }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
-            if (!File.Exists(coreHookDll))
-            {
-                Console.WriteLine("Cannot find corehook dll");
-                return;
-            }
+            ValidateFilePath(exePath);
+            ValidateFilePath(injectionLibrary);
+            ValidateFilePath(coreHookDll);
 
             string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
             if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
@@ -195,14 +206,13 @@ namespace CoreHook.FileMonitor
                     null,
                     CoreHookPipeName);
             }
+                   
         }
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
-            if (!File.Exists(coreHookDll))
-            {
-                Console.WriteLine("Cannot find corehook dll");
-                return;
-            }
+            ValidateFilePath(injectionLibrary);
+            ValidateFilePath(coreHookDll);
+
             string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
             if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
@@ -217,7 +227,7 @@ namespace CoreHook.FileMonitor
                 new PipePlatform(),
                 new[] { coreHookDll },
                 CoreHookPipeName);
-            }
+            }        
         }
 
         private static void StartListener()
