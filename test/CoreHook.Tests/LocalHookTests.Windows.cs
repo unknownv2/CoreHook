@@ -183,8 +183,8 @@ namespace CoreHook.Tests
             Assert.Equal(retrievedAtomName, atomName);
 
             Assert.Equal<ushort>(0, DeleteAtom(atomId));
-#endif
         }
+#endif
         private delegate ulong GetCurrentNlsCacheDelegate();
 
         private GetCurrentNlsCacheDelegate GetCurrentNlsCacheFunction;
