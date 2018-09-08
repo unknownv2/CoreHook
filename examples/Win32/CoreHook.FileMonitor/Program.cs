@@ -124,7 +124,50 @@ namespace CoreHook.FileMonitor
              Environment.GetEnvironmentVariable("CORE_ROOT_32")
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
+        
+        private static bool GetCoreLoadPaths(out string coreRunPath, out string coreLibsPath, out string coreRootPath, out string coreLoadPath)
+        {
+            coreRunPath = string.Empty;
+            coreLoadPath = string.Empty;
 
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            coreLibsPath = GetCoreLibrariesPath();
+            coreRootPath = GetCoreRootPath();
+
+            if (string.IsNullOrEmpty(coreLibsPath))
+            {
+                Console.WriteLine("CORE_LIBRARIES path was not set!");
+                return false;
+            }
+            if (string.IsNullOrEmpty(coreRootPath))
+            {
+                Console.WriteLine("CORE_ROOT path was not set!");
+                return false;
+            }
+            // path to CoreRunDLL.dll
+            coreRunPath = Path.Combine(currentDir,
+                Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
+            if (!File.Exists(coreRunPath))
+            {
+                coreRunPath = Environment.GetEnvironmentVariable("CORERUNDLL");
+                if (!File.Exists(coreRunPath))
+                {
+                    Console.WriteLine("Cannot find CoreRun dll");
+                    return false;
+                }
+            }
+
+            // path to CoreHook.CoreLoad.dll
+            coreLoadPath = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+
+            if (!File.Exists(coreLoadPath))
+            {
+                Console.WriteLine("Cannot find CoreLoad dll");
+                return false;
+            }
+            return true;
+        }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
             if (!File.Exists(coreHookDll))
@@ -132,58 +175,26 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find corehook dll");
                 return;
             }
-            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string coreLibrariesPath = GetCoreLibrariesPath();
-            string coreRootPath = GetCoreRootPath();
-            if (string.IsNullOrEmpty(coreLibrariesPath))
+            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
+            if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
-                Console.WriteLine("CORE_LIBRARIES path was not set!");
-                return;
+                RemoteHooking.CreateAndInject(
+                    exePath,
+                    coreHookDll,
+                    coreRunDll,
+                    coreLoadDll,
+                    coreRootPath, // path to coreclr, clrjit
+                    coreLibrariesPath, // path to .net core shared libs
+                    null,
+                    0,
+                    injectionLibrary,
+                    injectionLibrary,
+                    out _,
+                    new PipePlatform(),
+                    null,
+                    CoreHookPipeName);
             }
-            if (string.IsNullOrEmpty(coreRootPath))
-            {
-                Console.WriteLine("CORE_ROOT path was not set!");
-                return;
-            }
-            // path to CoreRunDLL.dll
-            string coreRunDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
-            if (!File.Exists(coreRunDll))
-            {
-                coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
-                if (!File.Exists(coreRunDll))
-                {
-                    Console.WriteLine("Cannot find CoreRun dll");
-                    return;
-                }
-            }
-
-            // path to CoreHook.CoreLoad.dll
-            string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
-
-            if (!File.Exists(coreLoadDll))
-            {
-                Console.WriteLine("Cannot find CoreLoad dll");
-                return;
-            }
-
-
-            RemoteHooking.CreateAndInject(
-                exePath,
-                coreHookDll,
-                coreRunDll,
-                coreLoadDll,
-                coreRootPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                null,
-                0,
-                injectionLibrary,
-                injectionLibrary,
-                out _,
-                new PipePlatform(),
-                null,
-                CoreHookPipeName);
         }
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
@@ -192,45 +203,10 @@ namespace CoreHook.FileMonitor
                 Console.WriteLine("Cannot find corehook dll");
                 return;
             }
-            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            // info on these environment variables: 
-            // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            string coreLibrariesPath = GetCoreLibrariesPath();
-            string coreRootPath = GetCoreRootPath();
-            if (string.IsNullOrEmpty(coreLibrariesPath))
+            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
+            if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
-                Console.WriteLine("CORE_LIBRARIES path was not set!");
-                return;
-            }
-            if (string.IsNullOrEmpty(coreRootPath))
-            {
-                Console.WriteLine("CORE_ROOT path was not set!");
-                return;
-            }
-            // path to CoreRunDLL.dll
-            string coreRunDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
-            if (!File.Exists(coreRunDll))
-            {
-                coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
-                if (!File.Exists(coreRunDll))
-                {
-                    Console.WriteLine("Cannot find CoreRun dll");
-                    return;
-                }
-            }
-
-            // path to CoreHook.CoreLoad.dll
-            string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
-
-            if (!File.Exists(coreLoadDll))
-            {
-                Console.WriteLine("Cannot find CoreLoad dll");
-                return;
-            }
-            
-            RemoteHooking.Inject(
+                RemoteHooking.Inject(
                 procId,
                 coreRunDll,
                 coreLoadDll,
@@ -239,8 +215,9 @@ namespace CoreHook.FileMonitor
                 injectionLibrary,
                 injectionLibrary,
                 new PipePlatform(),
-                new []{ coreHookDll },
+                new[] { coreHookDll },
                 CoreHookPipeName);
+            }
         }
 
         private static void StartListener()
