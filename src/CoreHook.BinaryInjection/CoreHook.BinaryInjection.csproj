@@ -13,6 +13,11 @@
     <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>    
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj" />
   </ItemGroup>

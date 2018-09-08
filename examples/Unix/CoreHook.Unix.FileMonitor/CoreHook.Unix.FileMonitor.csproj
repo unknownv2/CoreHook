@@ -10,6 +10,11 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
     <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
