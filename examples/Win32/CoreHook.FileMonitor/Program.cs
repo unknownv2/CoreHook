@@ -26,18 +26,32 @@ namespace CoreHook.FileMonitor
         private const string CoreHookPipeName = "CoreHook";
         private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
 
+        /// <summary>
+        /// Parse a file path and remove quotes from path name if it is enclosed
+        /// </summary>
+        /// <param name="filePath">A  path to a file or directory.</param>
+        /// <returns></returns>
+        private static string GetFilePath(string filePath)
+        {
+            if(filePath == null)
+            {
+                throw new ArgumentNullException("Invalid file path name");
+            }
+
+            return filePath.Replace("\"", "");
+        }
         static void Main(string[] args)
         {
             int targetPID = 0;
             string targetProgam = string.Empty;
             // Load the parameter
-            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
+            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(GetFilePath(args[0])))
             {
                 if (targetPID > 0)
                 {
                     break;
                 }
-                if (args.Length != 1 || !File.Exists(args[0]))
+                if (args.Length != 1 || !File.Exists(GetFilePath(args[0])))
                 {
                     Console.WriteLine();
                     Console.WriteLine("Usage: FileMonitor %PID%");
@@ -54,7 +68,7 @@ namespace CoreHook.FileMonitor
                 }
                 else
                 {
-                    targetProgam = args[0];
+                    targetProgam = GetFilePath(args[0]);
                     break;
                 }
             }
@@ -122,7 +136,16 @@ namespace CoreHook.FileMonitor
 
             string coreLibrariesPath = GetCoreLibrariesPath();
             string coreRootPath = GetCoreRootPath();
-
+            if (string.IsNullOrEmpty(coreLibrariesPath))
+            {
+                Console.WriteLine("CORE_LIBRARIES path was not set!");
+                return;
+            }
+            if (string.IsNullOrEmpty(coreRootPath))
+            {
+                Console.WriteLine("CORE_ROOT path was not set!");
+                return;
+            }
             // path to CoreRunDLL.dll
             string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
@@ -175,7 +198,16 @@ namespace CoreHook.FileMonitor
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
             string coreLibrariesPath = GetCoreLibrariesPath();
             string coreRootPath = GetCoreRootPath();
-
+            if (string.IsNullOrEmpty(coreLibrariesPath))
+            {
+                Console.WriteLine("CORE_LIBRARIES path was not set!");
+                return;
+            }
+            if (string.IsNullOrEmpty(coreRootPath))
+            {
+                Console.WriteLine("CORE_ROOT path was not set!");
+                return;
+            }
             // path to CoreRunDLL.dll
             string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
