@@ -1,15 +1,15 @@
 ﻿using System;
-using JsonRpc.Standard.Contracts;
-using JsonRpc.Standard.Server;
-using JsonRpc.Streams;
+using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Pipe;
 using CoreHook.FileMonitor.Service;
 using CoreHook.ManagedHook.Remote;
-using System.IO;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.FileMonitor.Service.Pipe;
-using System.Runtime.InteropServices;
+using JsonRpc.Standard.Contracts;
+using JsonRpc.Standard.Server;
+using JsonRpc.Streams;
 
 namespace CoreHook.FileMonitor
 {
@@ -40,8 +40,14 @@ namespace CoreHook.FileMonitor
 
             return filePath.Replace("\"", "");
         }
+
         static void Main(string[] args)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new UnsupportedPlatformException("Win32 example");
+            }
+
             int targetPID = 0;
             string targetProgam = string.Empty;
             // Load the parameter
@@ -75,28 +81,21 @@ namespace CoreHook.FileMonitor
 
             string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "netstandard2.0", "CoreHook.FileMonitor.Hook.dll");
+            
+            string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {                
-                string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                    Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
-                // start process and begin dll loading
-                if (!string.IsNullOrEmpty(targetProgam))
-                {
-                    CreateAndInjectDll(targetProgam, injectionLibrary, coreHookDll);
-                }
-                else
-                {
-                    // inject FileMonitor dll into process
-                    InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
-                }
+            // start process and begin dll loading
+            if (!string.IsNullOrEmpty(targetProgam))
+            {
+                CreateAndInjectDll(targetProgam, injectionLibrary, coreHookDll);
             }
             else
             {
-                throw new Exception("Unsupported platform detected");
+                // inject FileMonitor dll into process
+                InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
             }
-
+            
             // start RPC server
             StartListener();
         }
@@ -142,7 +141,7 @@ namespace CoreHook.FileMonitor
                 return false;
             }
 
-            // path to CoreRunDLL.dll
+            // path to corerundll
             coreRunPath = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))

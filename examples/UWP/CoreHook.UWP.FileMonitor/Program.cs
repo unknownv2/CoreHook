@@ -1,20 +1,18 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.Threading;
 using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using CoreHook.FileMonitor.Service;
+using CoreHook.FileMonitor.Service.Pipe;
+using CoreHook.ManagedHook.Remote;
+using CoreHook.UWP.FileMonitor.Pipe;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
-using CoreHook.UWP.FileMonitor.Pipe;
-using CoreHook.FileMonitor.Service;
-using System.Reflection;
-using CoreHook.FileMonitor.Service.Pipe;
 
 namespace CoreHook.UWP.FileMonitor
 {
@@ -30,6 +28,7 @@ namespace CoreHook.UWP.FileMonitor
 
         private const string CoreHookPipeName = "CoreHook";
         private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
+
         private static bool IsArchitectureArm()
         {
             var arch = RuntimeInformation.ProcessArchitecture;
@@ -38,6 +37,11 @@ namespace CoreHook.UWP.FileMonitor
 
         static void Main(string[] args)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                throw new UnsupportedPlatformException("UWP example");
+            }
+
             int targetPID = 0;
             string targetApp = string.Empty;
 
