@@ -44,7 +44,7 @@ namespace CoreHook.ManagedHook.Remote
         }
 
 
-        private static SortedList<int, InjectionWait> InjectionList = new SortedList<Int32, InjectionWait>();
+        private static SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
         public static void BeginInjection(int InTargetPID)
         {
             InjectionWait WaitInfo;
