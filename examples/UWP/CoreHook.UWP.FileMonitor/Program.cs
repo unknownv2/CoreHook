@@ -89,7 +89,7 @@ namespace CoreHook.UWP.FileMonitor
                 Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
             GrantAllAppPkgsAccessToDir(currentDir);
-            GrantAllAppPkgsAccessToDir(Path.Combine(currentDir, "netstandard2.0"));
+            GrantAllAppPkgsAccessToDir(Path.GetDirectoryName(injectionLibrary));
 
             // start process and begin dll loading
             if (!string.IsNullOrEmpty(targetApp))
