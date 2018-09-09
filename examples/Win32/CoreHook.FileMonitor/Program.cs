@@ -80,7 +80,7 @@ namespace CoreHook.FileMonitor
             }
 
             string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "netstandard2.0", "CoreHook.FileMonitor.Hook.dll");
+                "Hook", "CoreHook.FileMonitor.Hook.dll");
             
             string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
