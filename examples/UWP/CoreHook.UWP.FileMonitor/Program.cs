@@ -77,7 +77,7 @@ namespace CoreHook.UWP.FileMonitor
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string injectionLibrary = Path.Combine(currentDir,
-                "netstandard2.0", "CoreHook.UWP.FileMonitor.Hook.dll");
+                "Hook", "CoreHook.UWP.FileMonitor.Hook.dll");
 
             if (!File.Exists(injectionLibrary))
             {

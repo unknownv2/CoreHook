@@ -78,11 +78,17 @@ You can then start the program you built above.
 ### Windows 10 IoT Core (ARM32)
 **There is currently no ARM32 SDK for .NET Core, so you must publish the application and copy it to your device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
 
-For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go to the `CoreHook.FileMonitor` directory and run `dotnet publish -r win-arm`. Then go to the `CoreHook.FileMonitor.Hook` directory and run `dotnet publish -r win-arm` again. Inside the `Build` folder, you will find a `win-arm\publish` folder containing `CoreHook.FileMonitor.exe`. Copy the contents of the `publish` folder to your device and then copy the contents of the `win-arm\publish` folder containing `CoreHook.FileMonitor.Hook.dll` inside a folder named `netstandard2.0` in the same directory the original `CoreHook.FileMonitor.exe` is copied to. Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
+For `Windows 10 IoT Core`, you can publish the application by running the `publish.ps1` [PowerShell script](#publishing-script).
+
+```
+.\publish -example win32 -runtime win-arm
+```
+
+Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
 
 ```
 [+]Corehook.FileMonitor.PublishFolder\
-    [+]netstandard2.0\
+    [+]Hook\
         ...
         [-] CoreHook.FileMonitor.Hook.deps.json
         [-] CoreHook.FileMonitor.Hook.dll
@@ -94,20 +100,44 @@ For `Windows 10 IoT Core`, you will need to open a command prompt `cmd` and go t
     [-] corerundll32.dll
     ...
 ```
-You can then start the `CoreHook.FileMonitor.exe` program on your ARM device.
+
+
+You can then copy the folder to your device and start the `CoreHook.FileMonitor.exe` program.
+
+## Publishing Script
+
+The PowerShell script `publish.ps1` allows you to publish the [examples](/examples) as self-contained executables. The default configuration is `Release` and the output will be in the `Publish` directory, created in the same location as the publishing script.
+
+```
+.\publish -example [unix|uwp|win32] -runtime [Runtime IDentifier] -configuration [Debug|Release]
+```
+
+**You can find a list of Runtime IDentifiers [here](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog)**.
+
+For example, the command
+
+```
+.\publish -example win32 -runtime win10-arm
+```
+
+will create a folder called `Publish/win32/win10-arm/` containing the `CoreHook.FileMonitor` example.
+
+```
+.\publish -example uwp -runtime win10-arm64
+```
+will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.UWP.FileMonitor` example.
+
 
 ### Windows Symbol Support
 
 CoreHook supports symbol name lookup from PDBs to get function addresses with the use of `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
 
-**Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can find symsrv.dll in your Visual Studio directory or by installing a Windows SDK. You can also download them from [here](https://github.com/DarthTon/Blackbone/tree/master/DIA), but they could be outdated.**
+**Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can get `symsrv.dll` by installing the [***Debugging Tools for Windows***, which you can find here](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/).
 
-Example locations where you can find `symsrv.dll` are:
+. Example locations where you can find `symsrv.dll` are:
 
-* *C:\Program Files (x86)\Microsoft Visual Studio\2017\Product_Version\Common7\IDE* (where Product_Version is Community, Enterprise, etc...)
 * *C:\Program Files (x86)\Windows Kits\10\Debuggers\x86* (For 32-bit applications)
 * *C:\Program Files (x86)\Windows Kits\10\Debuggers\x64* (For 64-bit applications)
-
 
 
 An example of what you can set the environment variable `_NT_SYMBOL_PATH` to is:
