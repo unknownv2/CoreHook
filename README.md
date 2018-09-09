@@ -104,7 +104,7 @@ Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the di
 
 You can then copy the folder to your device and start the `CoreHook.FileMonitor.exe` program.
 
-## Publishing Script
+### Publishing Script
 
 The PowerShell script `publish.ps1` allows you to publish the [examples](/examples) as self-contained executables. The default configuration is `Release` and the output will be in the `Publish` directory, created in the same location as the publishing script.
 
