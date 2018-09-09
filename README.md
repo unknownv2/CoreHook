@@ -4,13 +4,11 @@ A library to intercept function calls in applications and extend their functiona
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook).
 
-**The library is still in development and a lot might be broken. Pull requests/contributions are all welcome!**
-
 ## Build status
 
-| Build server | Platform    | Build status                             |
-| ------------ | ----------- | ---------------------------------------- |
-| AppVeyor     | Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook) |
+| Build server | Platform           | Build status                             |
+| ------------ | ------------------ | ---------------------------------------- |
+| AppVeyor     | Linux, Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook) |
 
 
 ## Features
@@ -126,6 +124,9 @@ You can test symbol support by running the `DetourInternalFunction{XX}` [tests](
 
  There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
 
+## Contributing
+
+Any contributions are all welcome! If you find any problems or want to add features, don't hesitate to open a new issue or create a pull request.
 
 ## Licenses
 
