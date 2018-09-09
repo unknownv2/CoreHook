@@ -24,6 +24,13 @@
     <WarningsAsErrors />    
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />    
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CXuesong.JsonRpc.DynamicProxy" Version="0.4.0" />
     <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />

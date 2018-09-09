@@ -17,4 +17,8 @@
     <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
+  </PropertyGroup>
+
 </Project>

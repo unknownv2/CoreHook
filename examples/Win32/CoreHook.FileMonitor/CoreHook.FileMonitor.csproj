@@ -29,6 +29,13 @@
     <WarningsAsErrors />    
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Prefer32Bit>true</Prefer32Bit>
+    <PlatformTarget>x86</PlatformTarget>    
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
     <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
