@@ -27,7 +27,6 @@ if (!$OutputDir) {
     $OutputDir = [io.path]::combine($OutputDir, 'Publish')
 }
 
-
 if ($example -eq 'win32') {
     $ExampleName = 'CoreHook.FileMonitor' 
 }
@@ -46,8 +45,6 @@ $ExampleOutputDir = [io.path]::combine($OutputDir, $example, $runtime)
 
 $ExampleHookDir = $ExampleDir + '.' + $ExampleHookName 
 $ExampleHookOutputDir = [io.path]::combine($OutputDir, $example, $runtime, $ExampleHookName)
-
-write-host -ForegroundColor DarkGray ">>> $ExampleDir $example $ExampleOutputDir $runtime $Configuration $ExampleHookOutputDir"
 
 function exec([string]$_cmd) {
     write-host -ForegroundColor DarkGray ">>> $_cmd $args"
