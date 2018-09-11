@@ -15,6 +15,14 @@ namespace CoreHook.UWP.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
+        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
+        {
+            // Use camelcase for RPC method names.
+            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
+            // Use camelcase for the property names in parameter value objects
+            ParameterValueConverter = new CamelCaseJsonValueConverter()
+        };
+
         Queue<string> Queue = new Queue<string>();
 
         LocalHook CreateFileHook;
@@ -35,14 +43,6 @@ namespace CoreHook.UWP.FileMonitor.Hook
                 ClientWriteLine(ex.ToString());
             }
         }
-
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
-        {
-            // Use camelcase for RPC method names.
-            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
-            ParameterValueConverter = new CamelCaseJsonValueConverter()
-        };
 
         private static void ClientWriteLine(object msg)
         {
@@ -158,16 +158,15 @@ namespace CoreHook.UWP.FileMonitor.Hook
 
                         if (Queue.Count > 0)
                         {
-                            string[] Package = null;
+                            string[] package = null;
 
                             lock (Queue)
                             {
-                                Package = Queue.ToArray();
+                                package = Queue.ToArray();
 
                                 Queue.Clear();
-
                             }
-                            await proxy.OnCreateFile(Package);
+                            await proxy.OnCreateFile(package);
                         }
                     }
                 }

@@ -10,7 +10,6 @@ using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
 using CoreHook.IPC.Pipes.Client;
-using CoreHook;
 
 namespace CoreHook.Unix.FileMonitor.Hook
 {
@@ -28,11 +27,11 @@ namespace CoreHook.Unix.FileMonitor.Hook
 
         LocalHook OpenHook;
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        [UnmanagedFunctionPointer(
+            CallingConvention.StdCall,
             CharSet = CharSet.Ansi,
             SetLastError = true)]
-        delegate int DOpen(
-            string pathname, int flags, int mode);
+        delegate int DOpen(string pathname, int flags, int mode);
 
         public Library(object InContext, string arg1)
         {
@@ -66,10 +65,10 @@ namespace CoreHook.Unix.FileMonitor.Hook
 
         private void CreateHooks()
         {
-            ClientWriteLine("Adding hook to 'open' function");
-
             ImportUtils.ILibLoader dllLoadUtils = null;
             IntPtr dllHandle = IntPtr.Zero;
+
+            ClientWriteLine("Adding hook to 'open' function");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -82,7 +81,7 @@ namespace CoreHook.Unix.FileMonitor.Hook
                 dllHandle = dllLoadUtils.LoadLibrary("/usr/lib/libc.dylib");
             }
 
-            var functionHandle = dllLoadUtils.GetProcAddress(dllHandle, "open");
+            IntPtr functionHandle = dllLoadUtils.GetProcAddress(dllHandle, "open");
 
             Console.WriteLine($"'open' function is at {functionHandle.ToInt64().ToString("X")}");
 
@@ -102,12 +101,14 @@ namespace CoreHook.Unix.FileMonitor.Hook
         static int open_hook(string pathname, int flags, int mode)
         {
             Console.WriteLine($"Opening {pathname}...");
+
             Library This = (Library)HookRuntimeInfo.Callback;
 
             lock (This.Queue)
             {
                 This.Queue.Enqueue(pathname);
             }
+
             return open(pathname, flags, mode);
         }
 
@@ -130,6 +131,7 @@ namespace CoreHook.Unix.FileMonitor.Hook
                 var proxy = builder.CreateProxy<CoreHook.FileMonitor.Shared.IFileMonitor>(client);
 
                 CreateHooks();
+
                 try
                 {
                     while (true)
@@ -138,16 +140,15 @@ namespace CoreHook.Unix.FileMonitor.Hook
 
                         if (Queue.Count > 0)
                         {
-                            string[] Package = null;
+                            string[] package = null;
 
                             lock (Queue)
                             {
-                                Package = Queue.ToArray();
+                                package = Queue.ToArray();
 
                                 Queue.Clear();
-
                             }
-                            await proxy.OnCreateFile(Package);
+                            await proxy.OnCreateFile(package);
                         }
                     }
                 }

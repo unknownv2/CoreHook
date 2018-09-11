@@ -15,6 +15,14 @@ namespace CoreHook.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
+        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
+        {
+            // Use camelcase for RPC method names.
+            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
+            // Use camelcase for the property names in parameter value objects
+            ParameterValueConverter = new CamelCaseJsonValueConverter()
+        };
+
         private Queue<string> Queue = new Queue<string>();
 
         private LocalHook CreateFileHook;
@@ -35,14 +43,6 @@ namespace CoreHook.FileMonitor.Hook
             }
         }
 
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
-        {
-            // Use camelcase for RPC method names.
-            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
-            ParameterValueConverter = new CamelCaseJsonValueConverter()
-        };
-
         private static void ClientWriteLine(object msg)
         {
             Console.WriteLine(msg);
@@ -58,8 +58,8 @@ namespace CoreHook.FileMonitor.Hook
             clientTask.GetAwaiter().GetResult();
         }
 
-
-        [UnmanagedFunctionPointer(CallingConvention.StdCall,
+        [UnmanagedFunctionPointer(
+            CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
         delegate IntPtr DCreateFile(
@@ -72,9 +72,9 @@ namespace CoreHook.FileMonitor.Hook
             IntPtr templateFile);
 
         [DllImport("kernel32.dll",
+            CallingConvention = CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
-            SetLastError = true,
-            CallingConvention = CallingConvention.StdCall)]
+            SetLastError = true)]
         static extern IntPtr CreateFile(
             string fileName,
             uint desiredAccess,
@@ -128,6 +128,7 @@ namespace CoreHook.FileMonitor.Hook
         private void CreateHooks()
         {
             string[] functionName = new string[] { "kernel32.dll", "CreateFileW" };
+
             ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
             CreateFileHook = LocalHook.Create(
@@ -149,7 +150,6 @@ namespace CoreHook.FileMonitor.Hook
             using (clientHandler.Attach(reader, writer))
             {
                 var client = new JsonRpcClient(clientHandler);
-
                 var builder = new JsonRpcProxyBuilder
                 {
                     ContractResolver = myContractResolver
@@ -167,16 +167,15 @@ namespace CoreHook.FileMonitor.Hook
 
                         if (Queue.Count > 0)
                         {
-                            string[] Package = null;
+                            string[] package = null;
 
                             lock (Queue)
                             {
-                                Package = Queue.ToArray();
+                                package = Queue.ToArray();
 
                                 Queue.Clear();
-
                             }
-                            await proxy.OnCreateFile(Package);
+                            await proxy.OnCreateFile(package);
                         }
                     }
                 }
