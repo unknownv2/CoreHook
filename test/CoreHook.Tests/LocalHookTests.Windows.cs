@@ -122,7 +122,6 @@ namespace CoreHook.Tests
                         Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(InternalAddAtomDelegate));
 
             _internalAddAtomCalled = false;
-            _AddAtomCalled = false;
 
             string atomName = "TestLocalAtomName";            
             ushort atomId = AddAtomW(atomName);
