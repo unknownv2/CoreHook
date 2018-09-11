@@ -134,7 +134,7 @@ CoreHook supports symbol name lookup from PDBs to get function addresses with th
 
 **Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can get `symsrv.dll` by installing the [***Debugging Tools for Windows***, which you can find here](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/).
 
-. Example locations where you can find `symsrv.dll` are:
+Example locations where you can find `symsrv.dll` are:
 
 * *C:\Program Files (x86)\Windows Kits\10\Debuggers\x86* (For 32-bit applications)
 * *C:\Program Files (x86)\Windows Kits\10\Debuggers\x64* (For 64-bit applications)
