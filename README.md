@@ -132,7 +132,7 @@ will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.
 
 CoreHook supports symbol name lookup from PDBs to get function addresses with the use of `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
 
-**Important: To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can get `symsrv.dll` by installing the [***Debugging Tools for Windows***, which you can find here](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/).
+**Important:** To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can get `symsrv.dll` by installing the [***Debugging Tools for Windows***](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/).
 
 Example locations where you can find `symsrv.dll` are:
 
