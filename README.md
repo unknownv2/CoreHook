@@ -84,10 +84,10 @@ For `Windows 10 IoT Core`, you can publish the application by running the `publi
 .\publish -example win32 -runtime win-arm
 ```
 
-Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the structure should look like this:
+Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the application directory structure should look like this:
 
 ```
-[+]Corehook.FileMonitor.PublishFolder\
+[+]Publish\win32\win-arm\
     [+]Hook\
         ...
         [-] CoreHook.FileMonitor.Hook.deps.json
@@ -132,9 +132,9 @@ will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.
 
 CoreHook supports symbol name lookup from PDBs to get function addresses with the use of `LocalHook.GetProcAddress`. For symbol lookup to work, you must either place the PDB file in the directory of the target program you are hooking or set the environment variable `_NT_SYMBOL_PATH` to a symbol server. [You can read more about Windows symbol support from the Microsoft documentation here.](https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/debugging-with-symbols#using-the-microsoft-symbol-server)
 
-**Important:** To use the symbol server lookup, you need to have the `symsrv.dll` file in the same directory as `dbghelp.dll` (which provides the symbol lookup APIs). You can add these files to the directory of your target program or add them to your path. You can get `symsrv.dll` by installing the [***Debugging Tools for Windows***](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/).
+**Important:** To use the complete symbol lookup, you need to have both `dbghelp.dll` (provides the symbol lookup APIs) and `symsrv.dll` (provides the symbol server lookup) and in your [DLL search path](https://docs.microsoft.com/en-us/windows/desktop/dlls/dynamic-link-library-search-order). You can add these files to the directory of your target program or add them to your path. You can get both DLLs by installing the [***Debugging Tools for Windows***](https://docs.microsoft.com/en-us/windows-hardware/drivers/debugger/).
 
-Example locations where you can find `symsrv.dll` are:
+Example locations where you can find `symsrv.dll` and `dbghelp.dll` are:
 
 * *C:\Program Files (x86)\Windows Kits\10\Debuggers\x86* (For 32-bit applications)
 * *C:\Program Files (x86)\Windows Kits\10\Debuggers\x64* (For 64-bit applications)
