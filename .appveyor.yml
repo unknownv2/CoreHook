@@ -12,3 +12,6 @@ branches:
   only:
     - master
     - appveyor
+skip_commits:
+  files:
+    - '**/*.md'
