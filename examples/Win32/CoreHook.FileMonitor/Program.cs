@@ -2,7 +2,6 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using CoreHook.FileMonitor.Pipe;
 using CoreHook.FileMonitor.Service;
 using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
@@ -220,16 +219,16 @@ namespace CoreHook.FileMonitor
             if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
                 RemoteHooking.Inject(
-                procId,
-                coreRunDll,
-                coreLoadDll,
-                coreRootPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                injectionLibrary,
-                injectionLibrary,
-                new PipePlatform(),
-                new[] { coreHookDll },
-                CoreHookPipeName);
+                    procId,
+                    coreRunDll,
+                    coreLoadDll,
+                    coreRootPath, // path to coreclr, clrjit
+                    coreLibrariesPath, // path to .net core shared libs
+                    injectionLibrary,
+                    injectionLibrary,
+                    new PipePlatform(),
+                    new[] { coreHookDll },
+                    CoreHookPipeName);
             }        
         }
 

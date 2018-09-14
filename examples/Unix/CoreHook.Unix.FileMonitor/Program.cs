@@ -1,14 +1,13 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using CoreHook.FileMonitor.Service;
+using CoreHook.FileMonitor.Service.Pipe;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
-using System.Reflection;
-using CoreHook.Unix.FileMonitor.Pipe;
-using CoreHook.FileMonitor.Service;
-using System.IO;
-using System.Diagnostics;
-using CoreHook.FileMonitor.Service.Pipe;
-using System.Runtime.InteropServices;
 
 namespace CoreHook.Unix.FileMonitor
 {
@@ -165,7 +164,7 @@ namespace CoreHook.Unix.FileMonitor
         }
         private static void StartListener()
         {
-            var listener = new NpListener(CoreHookPipeName);
+            var listener = new NpListener(CoreHookPipeName, new PipePlatform());
             listener.RequestRetrieved += ClientConnectionMade;
             listener.Start();
 

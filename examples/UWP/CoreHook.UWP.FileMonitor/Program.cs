@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.ManagedHook.Remote;
-using CoreHook.UWP.FileMonitor.Pipe;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
