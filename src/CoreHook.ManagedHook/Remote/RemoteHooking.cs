@@ -95,8 +95,6 @@ namespace CoreHook.ManagedHook.Remote
                     pipePlatform,
                     dependencies,
                     passThruArgs);
-
-                ProcessExtensions.BringToFront(System.Diagnostics.Process.GetProcessById(outProcessId));
             }
             else
             {
