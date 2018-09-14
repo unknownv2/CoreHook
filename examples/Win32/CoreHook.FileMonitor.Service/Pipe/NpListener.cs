@@ -1,14 +1,12 @@
-﻿// From https://github.com/tylerjensen/ServiceWire/tree/master/src/ServiceWire/NamedPipes
-using System;
+﻿using System;
 using System.IO.Pipes;
 using System.Threading;
 using System.Threading.Tasks;
-using CoreHook.FileMonitor.Service.Pipe;
 using CoreHook.FileMonitor.Service.Log;
 using CoreHook.FileMonitor.Service.Stats;
 using CoreHook.IPC.Platform;
 
-namespace CoreHook.UWP.FileMonitor.Pipe
+namespace CoreHook.FileMonitor.Service.Pipe
 {
     public class NpListener
     {
@@ -45,7 +43,7 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             _pipePlatform = pipePlatform;
         }
 
-        internal NamedPipeServerStream CreatePipe(string pipeName)
+        private NamedPipeServerStream CreatePipe(string pipeName)
         {
             return _pipePlatform.CreatePipeByName(pipeName);
         }
@@ -114,7 +112,6 @@ namespace CoreHook.UWP.FileMonitor.Pipe
                 pipeStream.Dispose();
             }
         }
-
 
         public void ProcessNextClient()
         {

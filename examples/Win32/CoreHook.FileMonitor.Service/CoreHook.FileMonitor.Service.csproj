@@ -29,4 +29,8 @@
     <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+  </ItemGroup>
+
 </Project>
