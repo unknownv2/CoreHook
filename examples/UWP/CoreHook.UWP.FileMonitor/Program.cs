@@ -26,7 +26,7 @@ namespace CoreHook.UWP.FileMonitor
         };
 
         private const string CoreHookPipeName = "CoreHook";
-        private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
+        private static IPC.Platform.IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static bool IsArchitectureArm()
         {
@@ -90,16 +90,16 @@ namespace CoreHook.UWP.FileMonitor
             GrantAllAppPkgsAccessToDir(currentDir);
             GrantAllAppPkgsAccessToDir(Path.GetDirectoryName(injectionLibrary));
 
-            // start process and begin dll loading
+            // Start the target process and begin dll loading
             if (!string.IsNullOrEmpty(targetApp))
             {
                 targetPID = LaunchAppxPackageForPid(targetApp);
             }
 
-            // inject FileMon dll into process
+            // Inject the FileMonitor.Hook dll into the process
             InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
 
-            // start RPC server
+            // Start the RPC server for handling requests from the hooked app
             StartListener();
         }
 
