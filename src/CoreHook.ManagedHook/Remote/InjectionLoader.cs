@@ -78,7 +78,7 @@ namespace CoreHook.ManagedHook.Remote
                 InjectionList.Remove(InTargetPID);
             }
         }
-        public static void WaitForInjection(int InTargetPID)
+        public static void WaitForInjection(int InTargetPID, int timeout = 20000)
         {
             InjectionWait waitInfo;
 
@@ -87,7 +87,7 @@ namespace CoreHook.ManagedHook.Remote
                 waitInfo = InjectionList[InTargetPID];
             }
 
-            if (!waitInfo.Completion.WaitOne(20000, false))
+            if (!waitInfo.Completion.WaitOne(timeout, false))
             {
                 throw new TimeoutException("Unable to wait for injection completion.");
             }
