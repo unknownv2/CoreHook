@@ -5,7 +5,7 @@ using Xunit;
 
 namespace CoreHook.Tests
 {
-    public class NamedPipeTests
+    public class RemoteHookingTest
     {
     }
 }

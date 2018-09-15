@@ -10,7 +10,7 @@ using CoreHook.ManagedHook.Remote;
 
 namespace CoreHook.Tests
 {
-    public class InjectionHelperTests
+    public class InjectionHelperTest
     {
         private const string InjectionHelperPipeName = "InjectionHelperPipeTest";
 
@@ -22,7 +22,7 @@ namespace CoreHook.Tests
             bool injectionComplete = false;
 
             InjectionHelper.BeginInjection(TargetProcessId);
-            using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatform()))
+            using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
             {
                 try
                 {
@@ -56,22 +56,6 @@ namespace CoreHook.Tests
                 }
             }
             return false;
-        }
-    }
-
-    public class PipePlatform : IPipePlatform
-    {
-        public NamedPipeServerStream CreatePipeByName(string pipeName)
-        {
-            return new NamedPipeServerStream(
-             pipeName,
-             PipeDirection.InOut,
-             NamedPipeServerStream.MaxAllowedServerInstances,
-             PipeTransmissionMode.Byte,
-             PipeOptions.Asynchronous,
-             65536,
-             65536
-             );
         }
     }
 }
