@@ -43,21 +43,29 @@ namespace CoreHook.CoreLoad
         {
             if (paramPtr == null)
             {
+                Log("Invalid remote params");
+
                 throw new ArgumentNullException("Remote arguments parameter was null");
             }
 
             try
             {
+                Log($"Parsing params ptr {paramPtr}");
+
                 IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
+                Log($"Parsing remote params {remoteParams.ToInt32().ToString("X")}");
 
                 if (remoteParams == IntPtr.Zero)
                 {
                     throw new ArgumentOutOfRangeException("Remote arguments address was zero");
                 }
+                Log("Loading structure from remote params");
 
                 var connection = ConnectionData.LoadData(remoteParams);
+                Log($"Creating Resolver class from user library {connection.RemoteInfo.UserLibrary}");
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+                Log($"Creating remote parameter array");
 
                 // Prepare parameter array.
                 var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
@@ -67,14 +75,20 @@ namespace CoreHook.CoreLoad
                 paramArray[0] = connection.UnmanagedInfo;
                 for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
                     paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+                Log($"Loading user library {connection.RemoteInfo.UserLibrary}");
 
                 LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
             }
             catch (Exception exception)
             {
-                Debug.WriteLine(exception.ToString());
+                Console.WriteLine(exception.ToString());
             }
             return 0;
+        }
+
+        private static void Log(string message)
+        {
+            Console.WriteLine(message);
         }
 
         private static bool IsUwp()

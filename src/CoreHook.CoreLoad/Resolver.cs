@@ -15,11 +15,14 @@ namespace CoreHook.CoreLoad
         private readonly ICompilationAssemblyResolver assemblyResolver;
         private readonly DependencyContext dependencyContext;
         private readonly AssemblyLoadContext loadContext;
+        private const string CoreHookModuleName = "CoreHook";
 
         public Resolver(string path)
         {
             try
             {
+                Log($"App base is {Path.GetDirectoryName(path)}");
+
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
                 dependencyContext = DependencyContext.Load(Assembly);
@@ -44,7 +47,7 @@ namespace CoreHook.CoreLoad
 
         private void Log(string message)
         {
-            Debug.WriteLine(message);
+            Console.WriteLine(message);
         }
 
         public Assembly Assembly { get; }
@@ -58,10 +61,13 @@ namespace CoreHook.CoreLoad
         {
             bool NamesMatchOrContain(RuntimeLibrary runtime)
             {
-                return string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase)
-                    || runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-     
+                bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
+                // if not matched by exact name or not the main defalt corehook module (which should be matched exactly)
+                if (!matched && !runtime.Name.Contains(CoreHookModuleName)){
+                    return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
+                };
+                return matched;
+            }     
 
             Log($"OnResolving: {name}");
 
