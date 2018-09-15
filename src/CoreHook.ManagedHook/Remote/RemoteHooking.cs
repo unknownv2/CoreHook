@@ -95,8 +95,6 @@ namespace CoreHook.ManagedHook.Remote
                     pipePlatform,
                     dependencies,
                     passThruArgs);
-
-                ProcessExtensions.BringToFront(System.Diagnostics.Process.GetProcessById(outProcessId));
             }
             else
             {
@@ -177,7 +175,9 @@ namespace CoreHook.ManagedHook.Remote
                         ref libraryPath_x64,
                         passThru);
 
-                    // Start library injection
+                    // Inject the corerundll into the process, start the CoreCLR runtime
+                    // and use the CoreLoad dll to resolve the dependencies of the hooking library
+                    // and then call the IEntryPoint.Run method located in the hooking library
                     try
                     {
                         var proc = ProcessHelper.GetProcessById(targetPID);

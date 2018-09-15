@@ -3,9 +3,8 @@ using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using CoreHook.IPC.Platform;
-using CoreHook.UWP.FileMonitor.Pipe;
 
-namespace CoreHook.UWP.FileMonitor
+namespace CoreHook.UWP.FileMonitor.Pipe
 {
     /// <summary>
     /// Using code from here as an example:

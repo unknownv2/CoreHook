@@ -4,7 +4,7 @@ using Xunit;
 
 namespace CoreHook.Tests
 {
-    public class LocalHookTests
+    public class LocalHookTest
     {
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
