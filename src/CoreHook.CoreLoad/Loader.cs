@@ -71,9 +71,14 @@ namespace CoreHook.CoreLoad
             }
             catch (Exception exception)
             {
-                Console.WriteLine(exception.ToString());
+                Log(exception.ToString());
             }
             return 0;
+        }
+
+        private static void Log(string message)
+        {
+            Debug.WriteLine(message);
         }
 
         private static bool IsUwp()
