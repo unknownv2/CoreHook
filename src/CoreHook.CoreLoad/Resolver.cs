@@ -24,7 +24,7 @@ namespace CoreHook.CoreLoad
         {
             try
             {
-                Log($"Image base is {Path.GetDirectoryName(path)}");
+                Log($"Image base path is {Path.GetDirectoryName(path)}");
 
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
@@ -48,22 +48,12 @@ namespace CoreHook.CoreLoad
             }
         }
 
-        private void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        public void Dispose()
-        {
-            loadContext.Resolving -= OnResolving;
-        }
-
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
             bool NamesMatchOrContain(RuntimeLibrary runtime)
             {
                 bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
-                // if not matched by exact name or not the main defalt corehook module (which should be matched exactly)
+                // if not matched by exact name or not a default corehook module (which should be matched exactly)
                 if (!matched && !runtime.Name.Contains(CoreHookModuleName)){
                     return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
                 };
@@ -107,6 +97,16 @@ namespace CoreHook.CoreLoad
                 Log($"OnResolving error: {ex.ToString()}");
             }
             return null;
+        }
+
+        public void Dispose()
+        {
+            loadContext.Resolving -= OnResolving;
+        }
+
+        private void Log(string message)
+        {
+            Debug.WriteLine(message);
         }
     }
 }
