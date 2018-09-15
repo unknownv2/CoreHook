@@ -16,10 +16,16 @@ namespace CoreHook.CoreLoad
         private readonly DependencyContext dependencyContext;
         private readonly AssemblyLoadContext loadContext;
 
+        private const string CoreHookModuleName = "CoreHook";
+
+        public Assembly Assembly { get; }
+
         public Resolver(string path)
         {
             try
             {
+                Log($"Image base path is {Path.GetDirectoryName(path)}");
+
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
                 dependencyContext = DependencyContext.Load(Assembly);
@@ -42,26 +48,17 @@ namespace CoreHook.CoreLoad
             }
         }
 
-        private void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        public Assembly Assembly { get; }
-
-        public void Dispose()
-        {
-            loadContext.Resolving -= OnResolving;
-        }
-
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
         {
             bool NamesMatchOrContain(RuntimeLibrary runtime)
             {
-                return string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase)
-                    || runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
-            }
-     
+                bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
+                // if not matched by exact name or not a default corehook module (which should be matched exactly)
+                if (!matched && !runtime.Name.Contains(CoreHookModuleName)){
+                    return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
+                };
+                return matched;
+            }     
 
             Log($"OnResolving: {name}");
 
@@ -100,6 +97,16 @@ namespace CoreHook.CoreLoad
                 Log($"OnResolving error: {ex.ToString()}");
             }
             return null;
+        }
+
+        public void Dispose()
+        {
+            loadContext.Resolving -= OnResolving;
+        }
+
+        private void Log(string message)
+        {
+            Debug.WriteLine(message);
         }
     }
 }

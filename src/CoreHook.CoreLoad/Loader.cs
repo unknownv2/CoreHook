@@ -54,7 +54,6 @@ namespace CoreHook.CoreLoad
                 {
                     throw new ArgumentOutOfRangeException("Remote arguments address was zero");
                 }
-
                 var connection = ConnectionData.LoadData(remoteParams);
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
@@ -72,9 +71,14 @@ namespace CoreHook.CoreLoad
             }
             catch (Exception exception)
             {
-                Debug.WriteLine(exception.ToString());
+                Log(exception.ToString());
             }
             return 0;
+        }
+
+        private static void Log(string message)
+        {
+            Debug.WriteLine(message);
         }
 
         private static bool IsUwp()
