@@ -1,75 +1,11 @@
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 using Xunit;
 
-namespace CoreHook.Tests
+namespace CoreHook.Tests.Windows
 {
-    public class LocalHookTest
+    public class SymbolsTest
     {
-        [DllImport("kernel32.dll", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool Beep(uint dwFreq, uint dwDuration);
-
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private delegate bool BeepDelegate(uint dwFreq, uint dwDuration);
-
-        private bool _beepHookCalled;
-
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private bool BeepHook(uint dwFreq, uint dwDuration)
-        {
-            _beepHookCalled = true;
-
-            Beep(dwFreq, dwDuration);
-
-            return false;
-        }
-
-        [Fact]
-        public void DetourIsInstalled()
-        {
-            _beepHookCalled = false;
-
-            LocalHook hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
-                new BeepDelegate(BeepHook),
-                this);
-
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
-
-            Assert.False(Beep(100, 100));
-
-            Assert.True(_beepHookCalled);
-
-            hook.Dispose();
-        }
-        [Fact]
-        public void DetourIsBypassedByOriginalFunction()
-        {
-            _beepHookCalled = false;
-
-            LocalHook hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
-                new BeepDelegate(BeepHook),
-                this);
-
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
-
-            Assert.False(Beep(100, 100));
-
-            Assert.True(_beepHookCalled);
-
-            _beepHookCalled = false;
-
-            BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
-
-            Assert.True(beep(100, 100));
-
-            Assert.False(_beepHookCalled);
-
-            hook.Dispose();
-        }
-
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
@@ -103,7 +39,7 @@ namespace CoreHook.Tests
         private ushort InternalAddAtomHook(bool local,
             bool unicode, string atomName, int arg4)
         {
-            _internalAddAtomCalled = true;            
+            _internalAddAtomCalled = true;
 
             return InternalAddAtomFunction(local, unicode, atomName, arg4);
         }
@@ -127,7 +63,7 @@ namespace CoreHook.Tests
 
             _internalAddAtomCalled = false;
 
-            string atomName = "TestLocalAtomName";            
+            string atomName = "TestLocalAtomName";
             ushort atomId = AddAtomW(atomName);
 
             Assert.NotEqual(0, atomId);
