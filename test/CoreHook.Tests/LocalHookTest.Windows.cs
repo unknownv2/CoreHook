@@ -40,6 +40,8 @@ namespace CoreHook.Tests
             Assert.False(Beep(100, 100));
 
             Assert.True(_beepHookCalled);
+
+            hook.Dispose();
         }
         [Fact]
         public void DetourIsBypassedByOriginalFunction()
@@ -64,6 +66,8 @@ namespace CoreHook.Tests
             Assert.True(beep(100, 100));
 
             Assert.False(_beepHookCalled);
+
+            hook.Dispose();
         }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
@@ -140,6 +144,8 @@ namespace CoreHook.Tests
             Assert.Equal(retrievedAtomName, atomName);
 
             Assert.Equal<ushort>(0, DeleteAtom(atomId));
+
+            hook.Dispose();
         }
 
         [Fact]
@@ -182,6 +188,9 @@ namespace CoreHook.Tests
             Assert.Equal(retrievedAtomName, atomName);
 
             Assert.Equal<ushort>(0, DeleteAtom(atomId));
+
+            hookAPI.Dispose();
+            hookInternal.Dispose();
         }
 #endif
         private delegate ulong GetCurrentNlsCacheDelegate();
@@ -239,6 +248,8 @@ namespace CoreHook.Tests
 
             Assert.Equal(CSTR_GREATER_THAN, comparisonResult);
             Assert.True(_GetCurrentNlsCacheCalled);
+
+            hook.Dispose();
         }
     }
 }
