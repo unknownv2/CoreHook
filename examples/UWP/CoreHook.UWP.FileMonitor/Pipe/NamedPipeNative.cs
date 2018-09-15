@@ -72,6 +72,10 @@ namespace CoreHook.UWP.FileMonitor.Pipe
            uint nDefaultTimeOut,
            SECURITY_ATTRIBUTES securityAttributes);
 
+        [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto, BestFitMapping = false)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool WaitNamedPipe(string name, int timeout);
+
         internal static SECURITY_ATTRIBUTES GetSecurityAttributes(GCHandle securityDescriptorPinnedHandle, bool inheritHandle = false)
         {
             SECURITY_ATTRIBUTES securityAttributes = new NamedPipeNative.SECURITY_ATTRIBUTES();
@@ -80,6 +84,8 @@ namespace CoreHook.UWP.FileMonitor.Pipe
             securityAttributes.LPSecurityDescriptor = securityDescriptorPinnedHandle.AddrOfPinnedObject();
             return securityAttributes;
         }
+
+        internal const int ERROR_FILE_NOT_FOUND = 0x2;
 
         /// <summary>
         /// Helper method to create a PowerShell transport named pipe via native API, along
@@ -113,6 +119,15 @@ namespace CoreHook.UWP.FileMonitor.Pipe
 
                 securityDescHandle = GCHandle.Alloc(securityDescBuffer, GCHandleType.Pinned);
                 securityAttributes = NamedPipeNative.GetSecurityAttributes(securityDescHandle.Value);
+            }
+   
+            if (!NamedPipeNative.WaitNamedPipe(fullPipeName, System.Threading.Timeout.Infinite))
+            {
+                int errorCode = Marshal.GetLastWin32Error();
+                if(errorCode != ERROR_FILE_NOT_FOUND)
+                {
+                    throw new InvalidOperationException();
+                }
             }
 
             // Create named pipe.

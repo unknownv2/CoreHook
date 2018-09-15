@@ -118,7 +118,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 if (!isStopping)
                 {
-                    OpenListeningPipe();
+                    new Thread(() => OpenListeningPipe()).Start();
                     if (!connectionBroken)
                     {
                         try
