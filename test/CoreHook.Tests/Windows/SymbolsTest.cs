@@ -6,6 +6,7 @@ namespace CoreHook.Tests.Windows
 {
     public class SymbolsTest
     {
+#if WIN64
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
@@ -49,7 +50,7 @@ namespace CoreHook.Tests.Windows
 
             return AddAtomW(atomName);
         }
-#if WIN64
+
         [Fact]
         public void DetourInternalFunction()
         {
