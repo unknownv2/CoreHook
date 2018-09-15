@@ -15,13 +15,16 @@ namespace CoreHook.CoreLoad
         private readonly ICompilationAssemblyResolver assemblyResolver;
         private readonly DependencyContext dependencyContext;
         private readonly AssemblyLoadContext loadContext;
+
         private const string CoreHookModuleName = "CoreHook";
+
+        public Assembly Assembly { get; }
 
         public Resolver(string path)
         {
             try
             {
-                Log($"App base is {Path.GetDirectoryName(path)}");
+                Log($"Image base is {Path.GetDirectoryName(path)}");
 
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
@@ -47,10 +50,8 @@ namespace CoreHook.CoreLoad
 
         private void Log(string message)
         {
-            Console.WriteLine(message);
+            Debug.WriteLine(message);
         }
-
-        public Assembly Assembly { get; }
 
         public void Dispose()
         {
