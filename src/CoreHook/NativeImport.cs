@@ -7,11 +7,6 @@ namespace CoreHook
     {
         private const string DllName = "corehook32";
 
-        static NativeAPI_x86()
-        {
-
-        }
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern string RtlGetLastErrorStringCopy();
 
@@ -249,11 +244,6 @@ namespace CoreHook
     {
         private const string DllName = "corehook64";
 
-        static NativeAPI_x64()
-        {
-
-        }
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern string RtlGetLastErrorStringCopy();
 
@@ -479,7 +469,6 @@ namespace CoreHook
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
-
     
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
         public static extern IntPtr DetourFindFunction(
@@ -539,9 +528,10 @@ namespace CoreHook
             var arch = RuntimeInformation.ProcessArchitecture;
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
+
         private static string ComposeString()
         {
-            return string.Format("{0} (Code: {1})", RtlGetLastErrorString(), RtlGetLastError());
+            return $"{RtlGetLastErrorString()} (Code: {RtlGetLastError()})";
         }
 
         internal static void Force(int InErrorCode)
@@ -617,15 +607,27 @@ namespace CoreHook
 
         public static void LhUninstallHook(IntPtr RefHandle)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhUninstallHook(RefHandle));
-            else Force(NativeAPI_x86.LhUninstallHook(RefHandle));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhUninstallHook(RefHandle));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhUninstallHook(RefHandle));
+            }
         }
 
 
         public static void LhWaitForPendingRemovals()
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhWaitForPendingRemovals());
-            else Force(NativeAPI_x86.LhWaitForPendingRemovals());
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhWaitForPendingRemovals());
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhWaitForPendingRemovals());
+            }
         }
 
         public static void LhIsThreadIntercepted(
@@ -633,8 +635,14 @@ namespace CoreHook
                     int InThreadID,
                     out bool OutResult)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
-            else Force(NativeAPI_x86.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+            }
         }
 
         public static void LhSetInclusiveACL(
@@ -642,8 +650,14 @@ namespace CoreHook
                     int InThreadCount,
                     IntPtr InHandle)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
-            else Force(NativeAPI_x86.LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            }
         }
 
         public static void LhSetExclusiveACL(
@@ -651,73 +665,139 @@ namespace CoreHook
                     int InThreadCount,
                     IntPtr InHandle)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
-            else Force(NativeAPI_x86.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            }
         }
 
         public static void LhSetGlobalInclusiveACL(
                     int[] InThreadIdList,
                     int InThreadCount)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
-            else Force(NativeAPI_x86.LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
+            }
         }
 
         public static void LhSetGlobalExclusiveACL(
                     int[] InThreadIdList,
                     int InThreadCount)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
-            else Force(NativeAPI_x86.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+            }
         }
 
 
         public static void LhBarrierGetCallingModule(out IntPtr OutValue)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetCallingModule(out OutValue));
-            else Force(NativeAPI_x86.LhBarrierGetCallingModule(out OutValue));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierGetCallingModule(out OutValue));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierGetCallingModule(out OutValue));
+            }
         }
 
         public static void LhBarrierGetCallback(out IntPtr OutValue)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetCallback(out OutValue));
-            else Force(NativeAPI_x86.LhBarrierGetCallback(out OutValue));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierGetCallback(out OutValue));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierGetCallback(out OutValue));
+            }
         }
 
         public static void LhBarrierGetReturnAddress(out IntPtr OutValue)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetReturnAddress(out OutValue));
-            else Force(NativeAPI_x86.LhBarrierGetReturnAddress(out OutValue));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierGetReturnAddress(out OutValue));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierGetReturnAddress(out OutValue));
+            }
         }
 
         public static void LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetAddressOfReturnAddress(out OutValue));
-            else Force(NativeAPI_x86.LhBarrierGetAddressOfReturnAddress(out OutValue));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierGetAddressOfReturnAddress(out OutValue));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierGetAddressOfReturnAddress(out OutValue));
+            }
         }
 
         public static void LhBarrierBeginStackTrace(out IntPtr OutBackup)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierBeginStackTrace(out OutBackup));
-            else Force(NativeAPI_x86.LhBarrierBeginStackTrace(out OutBackup));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierBeginStackTrace(out OutBackup));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierBeginStackTrace(out OutBackup));
+            }
         }
 
         public static void LhBarrierCallStackTrace(IntPtr OutBackup, long maxCount, out long outMaxCount)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
-            else Force(NativeAPI_x86.LhBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
+            }
 
         }
         public static void LhBarrierEndStackTrace(IntPtr OutBackup)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhBarrierEndStackTrace(OutBackup));
-            else Force(NativeAPI_x86.LhBarrierEndStackTrace(OutBackup));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhBarrierEndStackTrace(OutBackup));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhBarrierEndStackTrace(OutBackup));
+            }
         }
 
         public static void LhGetHookBypassAddress(IntPtr handle, out IntPtr address)
         {
-            if (Is64Bit) Force(NativeAPI_x64.LhGetHookBypassAddress(handle, out address));
-            else Force(NativeAPI_x86.LhGetHookBypassAddress(handle, out address));
+            if (Is64Bit)
+            {
+                Force(NativeAPI_x64.LhGetHookBypassAddress(handle, out address));
+            }
+            else
+            {
+                Force(NativeAPI_x86.LhGetHookBypassAddress(handle, out address));
+            }
 
         }
         private static T DoSomething<T>(Func<T> actionWithResult)
@@ -924,141 +1004,6 @@ namespace CoreHook
                 return (NativeAPI_x86.DetourFindFunction(lpModule,
                     lpFunction));
             }
-        }
-        public static void DbgAttachDebugger()
-        {
-            if (Is64Bit)
-            {
-                Force(NativeAPI_x64.DbgAttachDebugger());
-            }
-            else Force(NativeAPI_x86.DbgAttachDebugger());
-        }
-
-        public static void DbgGetThreadIdByHandle(
-            IntPtr InThreadHandle,
-            out int OutThreadId)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.DbgGetThreadIdByHandle(InThreadHandle, out OutThreadId));
-            else Force(NativeAPI_x86.DbgGetThreadIdByHandle(InThreadHandle, out OutThreadId));
-        }
-
-        public static void DbgGetProcessIdByHandle(
-            IntPtr InProcessHandle,
-            out int OutProcessId)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.DbgGetProcessIdByHandle(InProcessHandle, out OutProcessId));
-            else Force(NativeAPI_x86.DbgGetProcessIdByHandle(InProcessHandle, out OutProcessId));
-        }
-
-        public static void DbgHandleToObjectName(
-            IntPtr InNamedHandle,
-            IntPtr OutNameBuffer,
-            int InBufferSize,
-            out int OutRequiredSize)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.DbgHandleToObjectName(InNamedHandle, OutNameBuffer, InBufferSize, out OutRequiredSize));
-            else Force(NativeAPI_x86.DbgHandleToObjectName(InNamedHandle, OutNameBuffer, InBufferSize, out OutRequiredSize));
-        }
-
-        public static int EASYHOOK_INJECT_DEFAULT = 0x00000000;
-        public static int EASYHOOK_INJECT_MANAGED = 0x00000001;
-
-        public static int RhInjectLibraryEx(
-            int InTargetPID,
-            int InWakeUpTID,
-            int InInjectionOptions,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
-            IntPtr InPassThruBuffer,
-            int InPassThruSize)
-        {
-            if (Is64Bit) return NativeAPI_x64.RhInjectLibrary(InTargetPID, InWakeUpTID, InInjectionOptions,
-                InLibraryPath_x86, InLibraryPath_x64, InPassThruBuffer, InPassThruSize);
-            else return NativeAPI_x86.RhInjectLibrary(InTargetPID, InWakeUpTID, InInjectionOptions,
-                InLibraryPath_x86, InLibraryPath_x64, InPassThruBuffer, InPassThruSize);
-        }
-
-        public static void RhInjectLibrary(
-            int InTargetPID,
-            int InWakeUpTID,
-            int InInjectionOptions,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
-            IntPtr InPassThruBuffer,
-            int InPassThruSize)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RhInjectLibrary(InTargetPID, InWakeUpTID, InInjectionOptions,
-                InLibraryPath_x86, InLibraryPath_x64, InPassThruBuffer, InPassThruSize));
-            else Force(NativeAPI_x86.RhInjectLibrary(InTargetPID, InWakeUpTID, InInjectionOptions,
-                InLibraryPath_x86, InLibraryPath_x64, InPassThruBuffer, InPassThruSize));
-        }
-
-        public static void RtlCreateSuspendedProcess(
-           string InEXEPath,
-           string InCommandLine,
-            int InProcessCreationFlags,
-           out int OutProcessId,
-           out int OutThreadId)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RtlCreateSuspendedProcess(InEXEPath, InCommandLine, InProcessCreationFlags,
-                out OutProcessId, out OutThreadId));
-            else Force(NativeAPI_x86.RtlCreateSuspendedProcess(InEXEPath, InCommandLine, InProcessCreationFlags,
-                out OutProcessId, out OutThreadId));
-        }
-
-        public static void RhIsX64Process(
-            int InProcessId,
-            out bool OutResult)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RhIsX64Process(InProcessId, out OutResult));
-            else Force(NativeAPI_x86.RhIsX64Process(InProcessId, out OutResult));
-        }
-
-        public static bool RhIsAdministrator()
-        {
-            if (Is64Bit) return NativeAPI_x64.RhIsAdministrator();
-            else return NativeAPI_x86.RhIsAdministrator();
-        }
-
-        public static void RhGetProcessToken(int InProcessId, out IntPtr OutToken)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RhGetProcessToken(InProcessId, out OutToken));
-            else Force(NativeAPI_x86.RhGetProcessToken(InProcessId, out OutToken));
-        }
-
-        public static void RhWakeUpProcess()
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RhWakeUpProcess());
-            else Force(NativeAPI_x86.RhWakeUpProcess());
-        }
-
-        public static void RtlInstallService(
-            string InServiceName,
-            string InExePath,
-            string InChannelName)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RtlInstallService(InServiceName, InExePath, InChannelName));
-            else Force(NativeAPI_x86.RtlInstallService(InServiceName, InExePath, InChannelName));
-        }
-
-        public static void RhInstallDriver(
-           string InDriverPath,
-           string InDriverName)
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RhInstallDriver(InDriverPath, InDriverName));
-            else Force(NativeAPI_x86.RhInstallDriver(InDriverPath, InDriverName));
-        }
-
-        public static void RhInstallSupportDriver()
-        {
-            if (Is64Bit) Force(NativeAPI_x64.RhInstallSupportDriver());
-            else Force(NativeAPI_x86.RhInstallSupportDriver());
-        }
-
-        public static bool RhIsX64System()
-        {
-            if (Is64Bit) return NativeAPI_x64.RhIsX64System();
-            else return NativeAPI_x86.RhIsX64System();
         }
     }
 }
