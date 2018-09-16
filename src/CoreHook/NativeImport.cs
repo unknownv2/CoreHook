@@ -800,10 +800,7 @@ namespace CoreHook
             }
 
         }
-        private static T DoSomething<T>(Func<T> actionWithResult)
-        {
-            return actionWithResult();
-        }
+
         public static bool DetourCreateProcessWithDllExA(
             string lpApplicationName,
             string lpCommandLine,
@@ -820,7 +817,8 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllExA(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllExA(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -835,7 +833,8 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllExA(lpApplicationName,
+                return (NativeAPI_x86.DetourCreateProcessWithDllExA(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -865,7 +864,8 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllExW(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllExW(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -880,7 +880,8 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllExW(lpApplicationName,
+                return (NativeAPI_x86.DetourCreateProcessWithDllExW(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -911,7 +912,8 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllsExA(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllsExA(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -927,7 +929,8 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllsExA(lpApplicationName,
+                return (NativeAPI_x86.DetourCreateProcessWithDllsExA(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -959,7 +962,8 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllsExW(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllsExW(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -975,7 +979,8 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllsExW(lpApplicationName,
+                return (NativeAPI_x86.DetourCreateProcessWithDllsExW(
+                        lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
