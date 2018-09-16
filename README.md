@@ -6,9 +6,10 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 ## Build status
 
-| Build server | Platform           | Build status                             |
-| ------------ | ------------------ | ---------------------------------------- |
+| Build server | Platform           | Build status                                                                                                                                 |
+| ------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | AppVeyor     | Linux, Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook) |
+| Travis CI    | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                      |
 
 
 ## Features
