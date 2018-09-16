@@ -122,7 +122,15 @@ namespace CoreHook.FileMonitor
              )
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
-        
+
+        /// <summary>
+        /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process
+        /// </summary>
+        /// <param name="coreRunPath">The native module that we call to execute host and execute our hooking dll in the target process</param>
+        /// <param name="coreLibsPath">Path to the CoreCLR dlls that implement the .NET Core runtime</param>
+        /// <param name="coreRootPath">Path to the CoreCLR dlls  that implement the .NET Core runtime</param>
+        /// <param name="coreLoadPath">Initial .NET module that loads and executes our hooking dll, and handles dependency resolution.</param>
+        /// <returns>Returns wether all required paths and modules have been found.</returns>
         private static bool GetCoreLoadPaths(out string coreRunPath, out string coreLibsPath, out string coreRootPath, out string coreLoadPath)
         {
             coreRunPath = string.Empty;
@@ -130,6 +138,7 @@ namespace CoreHook.FileMonitor
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
+            // Paths to the CoreCLR runtime dlls used to host and execute .NET assemblies 
             coreLibsPath = GetCoreLibrariesPath();
             coreRootPath = GetCoreRootPath();
 
@@ -144,7 +153,7 @@ namespace CoreHook.FileMonitor
                 return false;
             }
 
-            // path to corerundll
+            // Module  that initializes the .NET Core runtime and executes .NET assemblies
             coreRunPath = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))
@@ -157,7 +166,8 @@ namespace CoreHook.FileMonitor
                 }
             }
 
-            // path to CoreHook.CoreLoad.dll
+            // Module that loads and executes the IEntryPoint.Run method of our hook dll.
+            // It also resolves any dependencies for the hook dll
             coreLoadPath = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadPath))
