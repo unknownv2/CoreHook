@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Reflection;
-using CoreHook.ImportUtils;
 
 namespace CoreHook
 {
@@ -10,78 +7,32 @@ namespace CoreHook
     {
         private const string DllName = "corehook32";
 
-        internal static ILibLoader libLoader;
-        internal static IntPtr libHandle;
-
-        private static Dictionary<OSPlatform, Tuple<ILibLoader, string>>
-            _hookingLibMaps = new Dictionary<OSPlatform, Tuple<ILibLoader, string>>()
-        {
-            {
-                OSPlatform.Windows, new Tuple<ILibLoader, string>(new LibLoaderWindows(), "corehook32.dll")
-            },
-            {
-                OSPlatform.Linux, new Tuple<ILibLoader, string>(new LibLoaderUnix(), "libcorehook.so")
-            }
-        };
-        static OSPlatform GetOSPlatform()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return OSPlatform.Windows;
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return OSPlatform.Linux;
-            }
-            throw new UnknownPlatformException();
-        }
         static NativeAPI_x86()
         {
-            var map = _hookingLibMaps[GetOSPlatform()];
-            libLoader = map.Item1;
-            libHandle = libLoader.LoadLibrary(map.Item2);
+
         }
-
-
-        public delegate string DRtlGetLastErrorStringCopy();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern string RtlGetLastErrorStringCopy();
 
-        public delegate int RtlGetLastError();
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int RtlGetLastError();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RtlGetLastErrorF();
-
-        public delegate void LhUninstallAllHooks();
+        public static extern void LhUninstallAllHooks();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern void LhUninstallAllHooksF();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhInstallHookF(
+        public static extern int LhInstallHook(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
             IntPtr OutHandle);
 
-        public delegate int LhInstallHook(
-            IntPtr InEntryPoint,
-            IntPtr InHookProc,
-            IntPtr InCallback,
-            IntPtr OutHandle);
-
-        public delegate int LhUninstallHook(IntPtr RefHandle);
-
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhUninstallHook(IntPtr RefHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhUninstallHookF(IntPtr RefHandle);
-
-        public delegate int LhWaitForPendingRemovals();
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhWaitForPendingRemovalsF();
+        public static extern int LhWaitForPendingRemovals();
 
 
         /*
@@ -89,61 +40,35 @@ namespace CoreHook
             hook starts suspended. You will have to set a proper ACL to
             make it active!
         */
-        public delegate int LhSetInclusiveACL(
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
                     int InThreadCount,
                     IntPtr InHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetInclusiveACLF(
+        public static extern int LhSetExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
                     int InThreadCount,
                     IntPtr InHandle);
 
-        public delegate int LhSetExclusiveACL(
-            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-            int InThreadCount,
-            IntPtr InHandle);
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetExclusiveACLF(
+        public static extern int LhSetGlobalInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle);
+                    int InThreadCount);
 
-        public delegate int LhSetGlobalInclusiveACL(
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhSetGlobalExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
                     int InThreadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetGlobalInclusiveACLF(
-                    [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
-
-        public delegate int LhSetGlobalExclusiveACL(
-            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-            int InThreadCount);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetGlobalExclusiveACLF(
-                    [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
-
-        public delegate int LhIsThreadIntercepted(
-            IntPtr InHandle,
-            int InThreadID,
-            out bool OutResult);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhIsThreadInterceptedF(
+        public static extern int LhIsThreadIntercepted(
                     IntPtr InHandle,
                     int InThreadID,
                     out bool OutResult);
@@ -154,42 +79,28 @@ namespace CoreHook
             They will all fail with STATUS_NOT_SUPPORTED if called outside a
             valid hook handler...
         */
-        public delegate int LhBarrierGetCallback(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetCallbackF(out IntPtr OutValue);
-
-        public delegate int LhBarrierGetReturnAddress(out IntPtr OutValue);
-
+        public static extern int LhBarrierGetCallback(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetReturnAddressF(out IntPtr OutValue);
-
-
-        public delegate int LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
+        public static extern int LhBarrierGetReturnAddress(out IntPtr OutValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetAddressOfReturnAddressF(out IntPtr OutValue);
-
-        public delegate int LhBarrierBeginStackTrace(out IntPtr OutBackup);
-
+        public static extern int LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierBeginStackTraceF(out IntPtr OutBackup);
-
-        public delegate int LhBarrierEndStackTrace(IntPtr OutBackup);
-
+        public static extern int LhBarrierBeginStackTrace(out IntPtr OutBackup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierEndStackTraceF(IntPtr OutBackup);
-
-        public delegate int LhBarrierGetCallingModule(out IntPtr OutValue);
-
+        public static extern int LhBarrierEndStackTrace(IntPtr OutBackup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetCallingModuleF(out IntPtr OutValue);
+        public static extern int LhBarrierGetCallingModule(out IntPtr OutValue);
 
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhBarrierCallStackTrace(IntPtr OutValue, long maxCount, out long outMaxCount);
         /*
             Debug helper API.
         */
@@ -267,9 +178,7 @@ namespace CoreHook
         public static extern bool RhIsX64System();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int LhGetHookBypassAddressF(IntPtr handle, out IntPtr address);
-
-        public delegate int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
+        public static extern int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern bool DetourCreateProcessWithDllExW(string lpApplicationName,
@@ -340,146 +249,67 @@ namespace CoreHook
     {
         private const string DllName = "corehook64";
 
-        internal static ILibLoader libLoader;
-        internal static IntPtr libHandle;
-
-        private static Dictionary<OSPlatform, Tuple<ILibLoader, string>>
-            _hookingLibMaps = new Dictionary<OSPlatform, Tuple<ILibLoader, string>>()
-        {
-            {
-                OSPlatform.Windows, new Tuple<ILibLoader, string>(new LibLoaderWindows(), "corehook64.dll")
-            },
-            {
-                OSPlatform.Linux, new Tuple<ILibLoader, string>(new LibLoaderUnix(), "libcorehook.so")
-            },
-            {
-                OSPlatform.OSX, new Tuple<ILibLoader, string>(new LibLoaderMacOS(), "libcorehook.dylib")
-            }
-        };
-        static OSPlatform GetOSPlatform()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return OSPlatform.Windows;
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return OSPlatform.Linux;
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return OSPlatform.OSX;
-            }
-            throw new UnknownPlatformException();
-        }
         static NativeAPI_x64()
         {
-            var map = _hookingLibMaps[GetOSPlatform()];
-            libLoader = map.Item1;
-            libHandle = libLoader.LoadLibrary(map.Item2);
-        }
 
-        public delegate string DRtlGetLastErrorStringCopy();
+        }
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern string RtlGetLastErrorStringCopy();
 
-        public delegate int RtlGetLastError();
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int RtlGetLastError();
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RtlGetLastErrorF();
-
-        public delegate void LhUninstallAllHooks();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern void LhUninstallAllHooksF();
+        public static extern void LhUninstallAllHooks();
         
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhInstallHookF(
+        public static extern int LhInstallHook(
             IntPtr InEntryPoint,
             IntPtr InHookProc,
             IntPtr InCallback,
             IntPtr OutHandle);
 
-        public delegate int LhInstallHook(
-            IntPtr InEntryPoint,
-            IntPtr InHookProc,
-            IntPtr InCallback,
-            IntPtr OutHandle);
-
-        public delegate int LhUninstallHook(IntPtr RefHandle);
-
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhUninstallHook(IntPtr RefHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhUninstallHookF(IntPtr RefHandle);
-
-        public delegate int LhWaitForPendingRemovals();
-
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhWaitForPendingRemovalsF();
-
-
+        public static extern int LhWaitForPendingRemovals();
+        
         /*
             Setup the ACLs after hook installation. Please note that every
             hook starts suspended. You will have to set a proper ACL to
             make it active!
         */
-        public delegate int LhSetInclusiveACL(
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
                     int InThreadCount,
                     IntPtr InHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetInclusiveACLF(
+        public static extern int LhSetExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
                     int InThreadCount,
                     IntPtr InHandle);
 
-        public delegate int LhSetExclusiveACL(
-            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-            int InThreadCount,
-            IntPtr InHandle);
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetExclusiveACLF(
+        public static extern int LhSetGlobalInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle);
+                    int InThreadCount);
 
-        public delegate int LhSetGlobalInclusiveACL(
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhSetGlobalExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
                     int[] InThreadIdList,
                     int InThreadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetGlobalInclusiveACLF(
-                    [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
-
-        public delegate int LhSetGlobalExclusiveACL(
-            [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-            int InThreadCount);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhSetGlobalExclusiveACLF(
-                    [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
-
-        public delegate int LhIsThreadIntercepted(
-            IntPtr InHandle,
-            int InThreadID,
-            out bool OutResult);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhIsThreadInterceptedF(
+        public static extern int LhIsThreadIntercepted(
                     IntPtr InHandle,
                     int InThreadID,
                     out bool OutResult);
@@ -490,41 +320,28 @@ namespace CoreHook
             They will all fail with STATUS_NOT_SUPPORTED if called outside a
             valid hook handler...
         */
-        public delegate int LhBarrierGetCallback(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetCallbackF(out IntPtr OutValue);
-
-        public delegate int LhBarrierGetReturnAddress(out IntPtr OutValue);
+        public static extern int LhBarrierGetCallback(out IntPtr OutValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetReturnAddressF(out IntPtr OutValue);
-
-
-        public delegate int LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
-
+        public static extern int LhBarrierGetReturnAddress(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetAddressOfReturnAddressF(out IntPtr OutValue);
-
-        public delegate int LhBarrierBeginStackTrace(out IntPtr OutBackup);
-
+        public static extern int LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierBeginStackTraceF(out IntPtr OutBackup);
-
-        public delegate int LhBarrierEndStackTrace(IntPtr OutBackup);
-
+        public static extern int LhBarrierCallStackTrace(IntPtr OutValue, long maxCount, out long outMaxCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierEndStackTraceF(IntPtr OutBackup);
-
-        public delegate int LhBarrierGetCallingModule(out IntPtr OutValue);
-
+        public static extern int LhBarrierBeginStackTrace(out IntPtr OutBackup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int LhBarrierGetCallingModuleF(out IntPtr OutValue);
+        public static extern int LhBarrierEndStackTrace(IntPtr OutBackup);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
+        public static extern int LhBarrierGetCallingModule(out IntPtr OutValue);
 
         /*
             Debug helper API.
@@ -603,12 +420,10 @@ namespace CoreHook
         public static extern bool RhIsX64System();
         
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int LhGetHookBypassAddressF(IntPtr handle, out IntPtr address);
-
-        public delegate int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
+        public static extern int LhGetHookBypassAddress(IntPtr handle, out IntPtr address);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern bool DetourCreateProcessWithDllExWF(string lpApplicationName,
+        public static extern bool DetourCreateProcessWithDllExW(string lpApplicationName,
             string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -620,37 +435,9 @@ namespace CoreHook
             IntPtr lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessW);
-
-        public delegate bool DetourCreateProcessWithDllExW(
-                        string lpApplicationName,
-                        string lpCommandLine,
-                        IntPtr lpProcessAttributes,
-                        IntPtr lpThreadAttributes,
-                        bool bInheritHandles,
-                        uint dwCreationFlags,
-                        IntPtr lpEnvironment,
-                        string lpCurrentDirectory,
-                        IntPtr lpStartupInfo,
-                        IntPtr lpProcessInformation,
-                        string lpDllName,
-                        IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern bool DetourCreateProcessWithDllExAF(string lpApplicationName,
-            string lpCommandLine,
-            IntPtr lpProcessAttributes,
-            IntPtr lpThreadAttributes,
-            bool bInheritHandles,
-            uint dwCreationFlags,
-            IntPtr lpEnvironment,
-            string lpCurrentDirectory,
-            IntPtr lpStartupInfo,
-            IntPtr lpProcessInformation,
-            string lpDllName,
-            IntPtr pfCreateProcessW);
-
-        public delegate bool DetourCreateProcessWithDllExA(
-            string lpApplicationName,
+        public static extern bool DetourCreateProcessWithDllExA(string lpApplicationName,
             string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -664,7 +451,7 @@ namespace CoreHook
             IntPtr pfCreateProcessW);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern bool DetourCreateProcessWithDllsExWF(string lpApplicationName,
+        public static extern bool DetourCreateProcessWithDllsExW(string lpApplicationName,
               string lpCommandLine,
               IntPtr lpProcessAttributes,
               IntPtr lpThreadAttributes,
@@ -678,23 +465,8 @@ namespace CoreHook
               IntPtr rlpDlls,
               IntPtr pfCreateProcessW);
 
-        public delegate bool DetourCreateProcessWithDllsExW(
-                        string lpApplicationName,
-                        string lpCommandLine,
-                        IntPtr lpProcessAttributes,
-                        IntPtr lpThreadAttributes,
-                        bool bInheritHandles,
-                        uint dwCreationFlags,
-                        IntPtr lpEnvironment,
-                        string lpCurrentDirectory,
-                        IntPtr lpStartupInfo,
-                        IntPtr lpProcessInformation,
-                        uint nDlls,
-                        IntPtr rlpDlls,
-                        IntPtr pfCreateProcessW);
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
-        public static extern bool DetourCreateProcessWithDllsExAF(string lpApplicationName,
+        public static extern bool DetourCreateProcessWithDllsExA(string lpApplicationName,
             string lpCommandLine,
             IntPtr lpProcessAttributes,
             IntPtr lpThreadAttributes,
@@ -708,22 +480,9 @@ namespace CoreHook
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
 
-        public delegate bool DetourCreateProcessWithDllsExA(
-            string lpApplicationName,
-            string lpCommandLine,
-            IntPtr lpProcessAttributes,
-            IntPtr lpThreadAttributes,
-            bool bInheritHandles,
-            uint dwCreationFlags,
-            IntPtr lpEnvironment,
-            string lpCurrentDirectory,
-            IntPtr lpStartupInfo,
-            IntPtr lpProcessInformation,
-            uint nDlls,
-            IntPtr rlpDlls,
-            IntPtr pfCreateProcessW);
-
-        public delegate IntPtr DetourFindFunction(
+    
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Ansi)]
+        public static extern IntPtr DetourFindFunction(
             string lpModule,
             string lpFunction);
     }
@@ -775,25 +534,6 @@ namespace CoreHook
         public const int STATUS_WOW_ASSERTION = unchecked((int)0xC0009898L);
         public const int STATUS_ACCESS_DENIED = unchecked((int)0xC0000022L);
 
-        private static T LoadFunction<T>(string functionName, ILibLoader loader, IntPtr handle) where T : class
-        {
-            IntPtr address = loader.GetProcAddress(handle, functionName);
-            Delegate function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
-            return function as T;
-        }
-        private static T GetNativeFunctionDelegate<T>(string functionName ) where T : class
-        {
-            IntPtr address =
-                (Is64Bit ? NativeAPI_x64.libLoader : NativeAPI_x86.libLoader)
-                .GetProcAddress(
-                    Is64Bit ? NativeAPI_x64.libHandle : NativeAPI_x86.libHandle, 
-                    functionName
-                );
-
-            Delegate function = Marshal.GetDelegateForFunctionPointer(address, typeof(T));
-            return function as T;
-        }
-
         private static bool IsArchitectureArm()
         {
             var arch = RuntimeInformation.ProcessArchitecture;
@@ -831,19 +571,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var RtlGetLastError = LoadFunction<NativeAPI_x64.RtlGetLastError>(
-                    "RtlGetLastError",
-                    NativeAPI_x64.libLoader,
-                    NativeAPI_x64.libHandle);
-                return RtlGetLastError();
+                return NativeAPI_x64.RtlGetLastError();
             }
             else
             {
-                var RtlGetLastError = LoadFunction<NativeAPI_x86.RtlGetLastError>(
-                    "RtlGetLastError",
-                    NativeAPI_x86.libLoader,
-                    NativeAPI_x86.libHandle);
-                return RtlGetLastError();
+                return NativeAPI_x86.RtlGetLastError();
             }
         }
 
@@ -851,40 +583,19 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var RtlGetLastErrorStringCopy = LoadFunction<NativeAPI_x64.DRtlGetLastErrorStringCopy>(
-                    "RtlGetLastErrorStringCopy",
-                    NativeAPI_x64.libLoader,
-                    NativeAPI_x64.libHandle);
-                return RtlGetLastErrorStringCopy();
+                return NativeAPI_x64.RtlGetLastErrorStringCopy();
             }
             else
             {
-                var RtlGetLastErrorStringCopy = LoadFunction<NativeAPI_x86.DRtlGetLastErrorStringCopy>(
-                         "RtlGetLastErrorStringCopy",
-                         NativeAPI_x86.libLoader,
-                         NativeAPI_x86.libHandle);
-                return RtlGetLastErrorStringCopy();
+                return NativeAPI_x86.RtlGetLastErrorStringCopy();
             }
         }
 
+
         public static void LhUninstallAllHooks()
         {
-            if (Is64Bit)
-            {
-                var LhUninstallAllHooks = LoadFunction<NativeAPI_x64.LhUninstallAllHooks>(
-                    "LhUninstallAllHooks",
-                    NativeAPI_x64.libLoader,
-                    NativeAPI_x64.libHandle);
-                LhUninstallAllHooks();
-            }
-            else
-            {
-                var LhUninstallAllHooks = LoadFunction<NativeAPI_x86.LhUninstallAllHooks>(
-                      "LhUninstallAllHooks",
-                      NativeAPI_x86.libLoader,
-                      NativeAPI_x86.libHandle);
-                LhUninstallAllHooks();
-            }
+            if (Is64Bit) NativeAPI_x64.LhUninstallAllHooks();
+            else NativeAPI_x86.LhUninstallAllHooks();
         }
 
         public static void LhInstallHook(
@@ -895,60 +606,26 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var LhInstallHook = LoadFunction<NativeAPI_x64.LhInstallHook>(
-                    "LhInstallHook",
-                    NativeAPI_x64.libLoader,
-                    NativeAPI_x64.libHandle);
-                Force(LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+                Force(NativeAPI_x64.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
             }
             else
             {
-                var LhInstallHook = LoadFunction<NativeAPI_x86.LhInstallHook>(
-                    "LhInstallHook",
-                    NativeAPI_x86.libLoader,
-                    NativeAPI_x86.libHandle);
-                Force(LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+
+                Force(NativeAPI_x86.LhInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
             }          
         }
 
         public static void LhUninstallHook(IntPtr RefHandle)
         {
-            if (Is64Bit)
-            {
-                var LhUninstallHook = LoadFunction<NativeAPI_x64.LhUninstallHook>(
-                     "LhUninstallHook",
-                     NativeAPI_x64.libLoader,
-                     NativeAPI_x64.libHandle);
-                Force(LhUninstallHook(RefHandle));
-            }
-            else
-            {
-                var LhUninstallHook = LoadFunction<NativeAPI_x86.LhUninstallHook>(
-                       "LhUninstallHook",
-                       NativeAPI_x86.libLoader,
-                       NativeAPI_x86.libHandle);
-                Force(LhUninstallHook(RefHandle));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhUninstallHook(RefHandle));
+            else Force(NativeAPI_x86.LhUninstallHook(RefHandle));
         }
+
 
         public static void LhWaitForPendingRemovals()
         {
-            if (Is64Bit)
-            {
-                var LhWaitForPendingRemovals = LoadFunction<NativeAPI_x64.LhWaitForPendingRemovals>(
-                      "LhWaitForPendingRemovals",
-                      NativeAPI_x64.libLoader,
-                      NativeAPI_x64.libHandle);
-                Force(LhWaitForPendingRemovals());
-            }
-            else
-            {
-                var LhWaitForPendingRemovals = LoadFunction<NativeAPI_x86.LhWaitForPendingRemovals>(
-                      "LhWaitForPendingRemovals",
-                      NativeAPI_x86.libLoader,
-                      NativeAPI_x86.libHandle);
-                Force(LhWaitForPendingRemovals());
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhWaitForPendingRemovals());
+            else Force(NativeAPI_x86.LhWaitForPendingRemovals());
         }
 
         public static void LhIsThreadIntercepted(
@@ -956,22 +633,8 @@ namespace CoreHook
                     int InThreadID,
                     out bool OutResult)
         {
-            if (Is64Bit)
-            {
-                var LhIsThreadIntercepted = LoadFunction<NativeAPI_x64.LhIsThreadIntercepted>(
-                     "LhIsThreadIntercepted",
-                     NativeAPI_x64.libLoader,
-                     NativeAPI_x64.libHandle);
-                Force(LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
-            }
-            else
-            {
-                var LhIsThreadIntercepted = LoadFunction<NativeAPI_x86.LhIsThreadIntercepted>(
-                     "LhIsThreadIntercepted",
-                     NativeAPI_x86.libLoader,
-                     NativeAPI_x86.libHandle);
-                Force(LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+            else Force(NativeAPI_x86.LhIsThreadIntercepted(InHandle, InThreadID, out OutResult));
         }
 
         public static void LhSetInclusiveACL(
@@ -979,22 +642,8 @@ namespace CoreHook
                     int InThreadCount,
                     IntPtr InHandle)
         {
-            if (Is64Bit)
-            {
-                var LhSetInclusiveACL = LoadFunction<NativeAPI_x64.LhSetInclusiveACL>(
-                     "LhSetInclusiveACL",
-                     NativeAPI_x64.libLoader,
-                     NativeAPI_x64.libHandle);
-                Force(LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
-            }
-            else
-            {
-                var LhSetInclusiveACL = LoadFunction<NativeAPI_x86.LhSetInclusiveACL>(
-                     "LhSetInclusiveACL",
-                     NativeAPI_x86.libLoader,
-                     NativeAPI_x86.libHandle);
-                Force(LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            else Force(NativeAPI_x86.LhSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
         }
 
         public static void LhSetExclusiveACL(
@@ -1002,199 +651,73 @@ namespace CoreHook
                     int InThreadCount,
                     IntPtr InHandle)
         {
-            if (Is64Bit)
-            {
-                var LhSetExclusiveACL = LoadFunction<NativeAPI_x64.LhSetExclusiveACL>(
-                                "LhSetExclusiveACL",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
-            }
-            else
-            {
-                var LhSetExclusiveACL = LoadFunction<NativeAPI_x86.LhSetExclusiveACL>(
-                                "LhSetExclusiveACL",
-                                NativeAPI_x86.libLoader,
-                                NativeAPI_x86.libHandle);
-                Force(LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+            else Force(NativeAPI_x86.LhSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
         }
 
         public static void LhSetGlobalInclusiveACL(
                     int[] InThreadIdList,
                     int InThreadCount)
         {
-            if (Is64Bit)
-            {
-                var LhSetGlobalInclusiveACL = LoadFunction<NativeAPI_x64.LhSetGlobalInclusiveACL>(
-                                "LhSetGlobalInclusiveACL",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
-            }
-            else
-            {
-                var LhSetGlobalInclusiveACL = LoadFunction<NativeAPI_x86.LhSetGlobalInclusiveACL>(
-                                "LhSetGlobalInclusiveACL",
-                                NativeAPI_x86.libLoader,
-                                NativeAPI_x86.libHandle);
-                Force(LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
+            else Force(NativeAPI_x86.LhSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
         }
 
         public static void LhSetGlobalExclusiveACL(
                     int[] InThreadIdList,
                     int InThreadCount)
         {
-            if (Is64Bit)
-            {
-                var LhSetGlobalExclusiveACL = LoadFunction<NativeAPI_x64.LhSetGlobalExclusiveACL>(
-                                "LhSetGlobalExclusiveACL",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
-            }
-            else
-            {
-                var LhSetGlobalExclusiveACL = LoadFunction<NativeAPI_x86.LhSetGlobalExclusiveACL>(
-                                  "LhSetGlobalExclusiveACL",
-                                  NativeAPI_x86.libLoader,
-                                  NativeAPI_x86.libHandle);
-                Force(LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+            else Force(NativeAPI_x86.LhSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
         }
+
 
         public static void LhBarrierGetCallingModule(out IntPtr OutValue)
         {
-            if (Is64Bit)
-            {
-                var LhBarrierGetCallingModule = LoadFunction<NativeAPI_x64.LhBarrierGetCallingModule>(
-                                "LhBarrierGetCallingModule",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhBarrierGetCallingModule(out OutValue));
-            }
-            else
-            {
-                var LhBarrierGetCallingModule = LoadFunction<NativeAPI_x86.LhBarrierGetCallingModule>(
-                                             "LhBarrierGetCallingModule",
-                                             NativeAPI_x86.libLoader,
-                                             NativeAPI_x86.libHandle);
-                Force(LhBarrierGetCallingModule(out OutValue));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetCallingModule(out OutValue));
+            else Force(NativeAPI_x86.LhBarrierGetCallingModule(out OutValue));
         }
 
-        public static int LhBarrierGetCallback(out IntPtr OutValue)
+        public static void LhBarrierGetCallback(out IntPtr OutValue)
         {
-            if (Is64Bit)
-            {
-                var LhBarrierGetCallback = LoadFunction<NativeAPI_x64.LhBarrierGetCallback>(
-                                "LhBarrierGetCallback",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                return LhBarrierGetCallback(out OutValue);
-            }
-            else
-            {
-                var LhBarrierGetCallback = LoadFunction<NativeAPI_x86.LhBarrierGetCallback>(
-                                "LhBarrierGetCallback",
-                                NativeAPI_x86.libLoader,
-                                NativeAPI_x86.libHandle);
-                return LhBarrierGetCallback(out OutValue);
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetCallback(out OutValue));
+            else Force(NativeAPI_x86.LhBarrierGetCallback(out OutValue));
         }
 
         public static void LhBarrierGetReturnAddress(out IntPtr OutValue)
         {
-            if (Is64Bit)
-            {
-                var LhBarrierGetReturnAddress = LoadFunction<NativeAPI_x64.LhBarrierGetReturnAddress>(
-                                "LhBarrierGetReturnAddress",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhBarrierGetReturnAddress(out OutValue));
-            }
-            else
-            {
-                var LhBarrierGetReturnAddress = LoadFunction<NativeAPI_x86.LhBarrierGetReturnAddress>(
-                                "LhBarrierGetReturnAddress",
-                                NativeAPI_x86.libLoader,
-                                NativeAPI_x86.libHandle);
-                Force(LhBarrierGetReturnAddress(out OutValue));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetReturnAddress(out OutValue));
+            else Force(NativeAPI_x86.LhBarrierGetReturnAddress(out OutValue));
         }
 
         public static void LhBarrierGetAddressOfReturnAddress(out IntPtr OutValue)
         {
-            if (Is64Bit)
-            {
-                var LhBarrierGetAddressOfReturnAddress = LoadFunction<NativeAPI_x64.LhBarrierGetAddressOfReturnAddress>(
-                                "LhBarrierGetAddressOfReturnAddress",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhBarrierGetAddressOfReturnAddress(out OutValue));
-            }
-            else
-            {
-                var LhBarrierGetAddressOfReturnAddress = LoadFunction<NativeAPI_x86.LhBarrierGetAddressOfReturnAddress>(
-                                "LhBarrierGetAddressOfReturnAddress",
-                                NativeAPI_x86.libLoader,
-                                NativeAPI_x86.libHandle);
-                Force(LhBarrierGetAddressOfReturnAddress(out OutValue));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierGetAddressOfReturnAddress(out OutValue));
+            else Force(NativeAPI_x86.LhBarrierGetAddressOfReturnAddress(out OutValue));
         }
 
         public static void LhBarrierBeginStackTrace(out IntPtr OutBackup)
         {
-            if (Is64Bit)
-            {
-                var LhBarrierBeginStackTrace = LoadFunction<NativeAPI_x64.LhBarrierBeginStackTrace>(
-                                "LhBarrierBeginStackTrace",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                Force(LhBarrierBeginStackTrace(out OutBackup));
-            }
-            else
-            {
-                var LhBarrierBeginStackTrace = LoadFunction<NativeAPI_x86.LhBarrierBeginStackTrace>(
-                                       "LhBarrierBeginStackTrace",
-                                       NativeAPI_x86.libLoader,
-                                       NativeAPI_x86.libHandle);
-                Force(LhBarrierBeginStackTrace(out OutBackup));
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierBeginStackTrace(out OutBackup));
+            else Force(NativeAPI_x86.LhBarrierBeginStackTrace(out OutBackup));
         }
 
+        public static void LhBarrierCallStackTrace(IntPtr OutBackup, long maxCount, out long outMaxCount)
+        {
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
+            else Force(NativeAPI_x86.LhBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
 
-        public delegate int DLhBarrierEndStackTrace(IntPtr OutBackup);
-
-
+        }
         public static void LhBarrierEndStackTrace(IntPtr OutBackup)
         {
-            DLhBarrierEndStackTrace LhBarrierEndStackTraceFunc =
-                GetNativeFunctionDelegate<DLhBarrierEndStackTrace>("LhBarrierEndStackTrace");
-
-            Force(LhBarrierEndStackTraceFunc(OutBackup));
+            if (Is64Bit) Force(NativeAPI_x64.LhBarrierEndStackTrace(OutBackup));
+            else Force(NativeAPI_x86.LhBarrierEndStackTrace(OutBackup));
         }
 
         public static void LhGetHookBypassAddress(IntPtr handle, out IntPtr address)
         {
-            if (Is64Bit)
-            {   
-                var LhGetHookBypassAddress = LoadFunction<NativeAPI_x64.LhGetHookBypassAddress> (
-                                     "LhGetHookBypassAddress",
-                                     NativeAPI_x64.libLoader,
-                                     NativeAPI_x64.libHandle);
-                Force(LhGetHookBypassAddress(handle, out address));
-            }
-            else
-            {
-                var LhGetHookBypassAddress = LoadFunction<NativeAPI_x86.LhGetHookBypassAddress>(
-                                     "LhGetHookBypassAddress",
-                                     NativeAPI_x86.libLoader,
-                                     NativeAPI_x86.libHandle);
-                Force(LhGetHookBypassAddress(handle, out address));
-    
-            }
+            if (Is64Bit) Force(NativeAPI_x64.LhGetHookBypassAddress(handle, out address));
+            else Force(NativeAPI_x86.LhGetHookBypassAddress(handle, out address));
 
         }
         private static T DoSomething<T>(Func<T> actionWithResult)
@@ -1217,11 +740,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var DetourCreateProcessWithDllExA = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllExA>(
-                                "DetourCreateProcessWithDllExA",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                return (DetourCreateProcessWithDllExA(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllExA(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -1266,11 +785,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var DetourCreateProcessWithDllExW = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllExW>(
-                                "DetourCreateProcessWithDllExW",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                return (DetourCreateProcessWithDllExW(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllExW(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -1316,11 +831,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var DetourCreateProcessWithDllsExA = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllsExA>(
-                                "DetourCreateProcessWithDllsExA",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                return (DetourCreateProcessWithDllsExA(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllsExA(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -1368,11 +879,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var DetourCreateProcessWithDllsExW = LoadFunction<NativeAPI_x64.DetourCreateProcessWithDllsExW>(
-                                "DetourCreateProcessWithDllsExW",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                return (DetourCreateProcessWithDllsExW(lpApplicationName,
+                return (NativeAPI_x64.DetourCreateProcessWithDllsExW(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -1409,11 +916,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                var DetourFindFunction = LoadFunction<NativeAPI_x64.DetourFindFunction>(
-                                "DetourFindFunction",
-                                NativeAPI_x64.libLoader,
-                                NativeAPI_x64.libHandle);
-                return (DetourFindFunction(lpModule,
+                return (NativeAPI_x64.DetourFindFunction(lpModule,
                     lpFunction));
             }
             else
