@@ -49,7 +49,8 @@ namespace CoreHook.FileMonitor
 
             int targetPID = 0;
             string targetProgam = string.Empty;
-            // Load the parameter
+
+            // Get the process to hook by file path for launching or process id for attaching
             while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(GetFilePath(args[0])))
             {
                 if (targetPID > 0)
