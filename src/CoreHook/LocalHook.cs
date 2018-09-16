@@ -58,9 +58,9 @@ namespace CoreHook
             m_IsExclusive = false;
 
             if (m_Handle == IntPtr.Zero)
-                NativeAPI.LhSetGlobalInclusiveACL(m_ACL, m_ACL.Length);
+                NativeAPI.DetourSetGlobalInclusiveACL(m_ACL, m_ACL.Length);
             else
-                NativeAPI.LhSetInclusiveACL(m_ACL, m_ACL.Length, m_Handle);
+                NativeAPI.DetourSetInclusiveACL(m_ACL, m_ACL.Length, m_Handle);
         }
 
         /// <summary>
@@ -87,9 +87,9 @@ namespace CoreHook
             m_IsExclusive = true;
 
             if (m_Handle == IntPtr.Zero)
-                NativeAPI.LhSetGlobalExclusiveACL(m_ACL, m_ACL.Length);
+                NativeAPI.DetourSetGlobalExclusiveACL(m_ACL, m_ACL.Length);
             else
-                NativeAPI.LhSetExclusiveACL(m_ACL, m_ACL.Length, m_Handle);
+                NativeAPI.DetourSetExclusiveACL(m_ACL, m_ACL.Length, m_Handle);
         }
 
         /// <summary>
@@ -139,13 +139,15 @@ namespace CoreHook
             {
                 IntPtr Callback;
 
-                return NativeAPI.LhBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
-                /*
                 if (NativeAPI.Is64Bit)
-                    return NativeAPI_x64.LhBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                {
+                    return NativeAPI_x64.DetourBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                }
                 else
-                    return NativeAPI_x86.LhBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
-                */
+                {
+                    return NativeAPI_x86.DetourBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                }
+                
             }
         }
 
@@ -173,7 +175,7 @@ namespace CoreHook
             {
                 IntPtr Callback;
 
-                NativeAPI.LhBarrierGetCallback(out Callback);
+                NativeAPI.DetourBarrierGetCallback(out Callback);
 
                 if (Callback == IntPtr.Zero)
                     return null;
@@ -273,7 +275,7 @@ namespace CoreHook
             {
                 IntPtr Backup;
 
-                NativeAPI.LhBarrierBeginStackTrace(out Backup);
+                NativeAPI.DetourBarrierBeginStackTrace(out Backup);
 
                 try
                 {
@@ -281,7 +283,7 @@ namespace CoreHook
                 }
                 finally
                 {
-                    NativeAPI.LhBarrierEndStackTrace(Backup);
+                    NativeAPI.DetourBarrierEndStackTrace(Backup);
                 }
             }
         }
@@ -297,7 +299,7 @@ namespace CoreHook
             {
                 IntPtr RetAddr;
 
-                NativeAPI.LhBarrierGetReturnAddress(out RetAddr);
+                NativeAPI.DetourBarrierGetReturnAddress(out RetAddr);
 
                 return RetAddr;
             }
@@ -313,7 +315,7 @@ namespace CoreHook
             {
                 IntPtr AddrOfRetAddr;
 
-                NativeAPI.LhBarrierGetAddressOfReturnAddress(out AddrOfRetAddr);
+                NativeAPI.DetourBarrierGetAddressOfReturnAddress(out AddrOfRetAddr);
 
                 return AddrOfRetAddr;
             }
@@ -377,7 +379,7 @@ namespace CoreHook
 
                 IntPtr Backup;
 
-                NativeAPI.LhBarrierBeginStackTrace(out Backup);
+                NativeAPI.DetourBarrierBeginStackTrace(out Backup);
 
                 try
                 {
@@ -398,7 +400,7 @@ namespace CoreHook
                 }
                 finally
                 {
-                    NativeAPI.LhBarrierEndStackTrace(Backup);
+                    NativeAPI.DetourBarrierEndStackTrace(Backup);
                 }
             }
         }
@@ -415,7 +417,7 @@ namespace CoreHook
             {
                 IntPtr Backup;
 
-                NativeAPI.LhBarrierBeginStackTrace(out Backup);
+                NativeAPI.DetourBarrierBeginStackTrace(out Backup);
 
                 try
                 {
@@ -431,7 +433,7 @@ namespace CoreHook
                 }
                 finally
                 {
-                    NativeAPI.LhBarrierEndStackTrace(Backup);
+                    NativeAPI.DetourBarrierEndStackTrace(Backup);
                 }
             }
         }
@@ -498,7 +500,7 @@ namespace CoreHook
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
 
                 IntPtr address = IntPtr.Zero;
-                NativeAPI.LhGetHookBypassAddress(m_Handle, out address);
+                NativeAPI.DetourGetHookBypassAddress(m_Handle, out address);
                 return address;
             }
         }
@@ -565,7 +567,7 @@ namespace CoreHook
             if (IntPtr.Zero == m_Handle)
                 throw new ObjectDisposedException(typeof(LocalHook).FullName);
 
-            NativeAPI.LhIsThreadIntercepted(m_Handle, InThreadID, out Result);
+            NativeAPI.DetourIsThreadIntercepted(m_Handle, InThreadID, out Result);
 
             return Result;
         }
@@ -594,7 +596,7 @@ namespace CoreHook
                 if (IntPtr.Zero == m_Handle)
                     return;
 
-                NativeAPI.LhUninstallHook(m_Handle);
+                NativeAPI.DetourUninstallHook(m_Handle);
 
                 Marshal.FreeCoTaskMem(m_Handle);
 
@@ -669,7 +671,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.LhInstallHook(
+                NativeAPI.DetourInstallHook(
                     InTargetProc,
                     Marshal.GetFunctionPointerForDelegate(Result.m_HookProc),
                     GCHandle.ToIntPtr(Result.m_SelfHandle),
@@ -692,7 +694,7 @@ namespace CoreHook
 
         /// <summary>
         /// Installs an unmanaged hook. After this you'll have to activate it by setting a proper <see cref="ThreadACL"/>.
-        /// <see cref="HookRuntimeInfo"/> WON'T be supported! Refer to the native "LhBarrierXxx" APIs to
+        /// <see cref="HookRuntimeInfo"/> WON'T be supported! Refer to the native "DetourBarrierXxx" APIs to
         /// access unmanaged hook runtime information.
         /// </summary>
         /// <remarks>
@@ -718,7 +720,7 @@ namespace CoreHook
         /// <param name="InTargetProc">A target entry point that should be hooked.</param>
         /// <param name="InNewProc">A handler with the same signature as the original entry point
         /// that will be invoked for every call that has passed the Thread Deadlock Barrier and various integrity checks.</param>
-        /// <param name="InCallback">An uninterpreted callback that will later be available through <c>LhBarrierGetCallback()</c>.</param>
+        /// <param name="InCallback">An uninterpreted callback that will later be available through <c>DetourBarrierGetCallback()</c>.</param>
         /// <returns>
         /// A handle to the newly created hook.
         /// </returns>
@@ -752,7 +754,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.LhInstallHook(
+                NativeAPI.DetourInstallHook(
                     InTargetProc,
                     InNewProc,
                     InCallback,
@@ -847,14 +849,14 @@ namespace CoreHook
         /// <summary>
         /// Processes any pending hook removals. Warning! This method can be quite slow (1 second) under certain circumstances.
         /// </summary>
-        /// <see cref="NativeAPI.LhWaitForPendingRemovals()"/>
+        /// <see cref="NativeAPI.DetourWaitForPendingRemovals()"/>
         public static void Release()
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
 
-            NativeAPI.LhWaitForPendingRemovals();
+            NativeAPI.DetourWaitForPendingRemovals();
         }
     }
 }

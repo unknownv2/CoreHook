@@ -13,7 +13,8 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 
 ## Features
-* Intercept public API functions and internal functions by address or [name if symbol files are available](#windows-symbol-support)
+* Intercept public API functions
+* Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
 ## Dependencies
