@@ -37,6 +37,9 @@ namespace CoreHook.Tests.Windows
         private bool _internalAddAtomCalled;
         private bool _AddAtomCalled;
 
+        // Windows max file system path string size
+        private const int MaxPathLength = 260;
+
         private ushort InternalAddAtomHook(bool local,
             bool unicode, string atomName, int arg4)
         {
@@ -70,9 +73,8 @@ namespace CoreHook.Tests.Windows
             Assert.NotEqual(0, atomId);
             Assert.True(_internalAddAtomCalled);
 
-            int maxPathLength = 260;
-            StringBuilder atomBuffer = new StringBuilder(maxPathLength);
-            uint bufLength = GetAtomNameW(atomId, atomBuffer, maxPathLength);
+            StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
+            uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
             Assert.Equal((uint)atomName.Length, bufLength);
@@ -113,9 +115,8 @@ namespace CoreHook.Tests.Windows
             Assert.True(_internalAddAtomCalled);
             Assert.True(_AddAtomCalled);
 
-            int maxPathLength = 260;
-            StringBuilder atomBuffer = new StringBuilder(maxPathLength);
-            uint bufLength = GetAtomNameW(atomId, atomBuffer, maxPathLength);
+            StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
+            uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
             Assert.NotEqual<uint>(0, bufLength);
