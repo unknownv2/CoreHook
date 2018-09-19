@@ -34,9 +34,9 @@ namespace CoreHook.BinaryInjection
 
         private static Encoding Encoding = Encoding.Unicode;
         private const int PathLength = 260;
+
         public static WindowsBinaryLoaderArgs Create(BinaryLoaderArgs args)
         {
-            var encoding = Encoding.Unicode;
             return new WindowsBinaryLoaderArgs()
             {
                 Verbose = args.Verbose,
