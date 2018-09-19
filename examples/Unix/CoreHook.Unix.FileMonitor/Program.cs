@@ -21,17 +21,24 @@ namespace CoreHook.Unix.FileMonitor
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        const string CoreHookPipeName = "CoreHook";
-        static bool IsArchitectureArm()
+        private const string CoreHookPipeName = "CoreHook";
+
+        private static bool IsArchitectureArm()
         {
             var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                throw new ManagedHook.Remote.UnsupportedPlatformException("Unix example");
+            }
+
             int TargetPID = 0;
             string targetProgam = string.Empty;
-            IsArchitectureArm();
+
             // Load the parameter
             while ((args.Length != 1) || !int.TryParse(args[0], out TargetPID) || !File.Exists(args[0]))
             {
@@ -63,6 +70,7 @@ namespace CoreHook.Unix.FileMonitor
 
             string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "Hook", "CoreHook.Unix.FileMonitor.Hook.dll");
+
             if (!File.Exists(injectionLibrary))
             {
                 Console.WriteLine("Cannot find FileMonitor injection dll");
@@ -80,11 +88,14 @@ namespace CoreHook.Unix.FileMonitor
             // start RPC server
             StartListener();
         }
+
+        private const string CoreLibrariesPathOSX = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.0";
+
         static void MacOSInjectDllIntoTarget(int procId, string injectionLibrary)
         {
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var coreLibrariesPath = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.0";
+            var coreLibrariesPath = CoreLibrariesPathOSX;
 
             // path to CoreHook.CoreLoad.dll
             var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
@@ -113,6 +124,9 @@ namespace CoreHook.Unix.FileMonitor
                 null,
                 CoreHookPipeName);
         }
+
+        private const string CoreLibrariesPathLinux = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
+
         static void LinuxInjectDllIntoTarget(int procId, string injectionLibrary)
         {
             // info on these environment variables: 
@@ -121,7 +135,7 @@ namespace CoreHook.Unix.FileMonitor
             //var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var coreLibrariesPath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
+            var coreLibrariesPath = CoreLibrariesPathLinux;
 
             // path to CoreHook.CoreLoad.dll
             var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
