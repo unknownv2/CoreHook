@@ -2,9 +2,9 @@
 
 namespace CoreHook.ManagedHook.Remote
 {
-    public class ProcessStartException : Exception
+    internal class ProcessStartException : Exception
     {
-        public ProcessStartException(string processName)
+        internal ProcessStartException(string processName)
                     : base($"Failed to start process {processName}.")
         {
         }

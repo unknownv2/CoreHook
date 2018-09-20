@@ -26,9 +26,7 @@ namespace CoreHook.Tests
             {
                 try
                 {
-                    new Thread(delegate () {
-                        SendInjectionComplete(InjectionHelperPipeName, TargetProcessId);
-                    }).Start();
+                    new Thread(() => SendInjectionComplete(InjectionHelperPipeName, TargetProcessId)).Start();
 
                     InjectionHelper.WaitForInjection(TargetProcessId);
                 }
