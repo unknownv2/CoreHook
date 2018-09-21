@@ -25,7 +25,7 @@ namespace CoreHook.UWP.FileMonitor
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        private const string CoreHookPipeName = "CoreHook";
+        private const string CoreHookPipeName = "UWPCoreHook";
         private static IPC.Platform.IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static bool IsArchitectureArm()
@@ -34,7 +34,7 @@ namespace CoreHook.UWP.FileMonitor
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -59,7 +59,10 @@ namespace CoreHook.UWP.FileMonitor
                     Console.WriteLine();
                     Console.Write("Please enter a process Id or the App Id to launch: ");
 
-                    args = new string[] { Console.ReadLine() };
+                    args = new string[] 
+                    {
+                        Console.ReadLine()
+                    };
 
                     if (string.IsNullOrEmpty(args[0]))
                     {

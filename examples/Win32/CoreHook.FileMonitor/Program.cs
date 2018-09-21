@@ -40,7 +40,7 @@ namespace CoreHook.FileMonitor
             return filePath.Replace("\"", "");
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -65,7 +65,10 @@ namespace CoreHook.FileMonitor
                     Console.WriteLine();
                     Console.Write("Please enter a process Id or path to executable: ");
 
-                    args = new string[] { Console.ReadLine() };
+                    args = new string[]
+                    {
+                        Console.ReadLine()
+                    };
 
                     if (string.IsNullOrEmpty(args[0]))
                     {
@@ -191,7 +194,7 @@ namespace CoreHook.FileMonitor
             }
             if (!File.Exists(filePath))
             {
-                throw new ArgumentNullException($"File path {filePath} does not exist");
+                throw new ArgumentException($"File path {filePath} does not exist");
             }
         }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
