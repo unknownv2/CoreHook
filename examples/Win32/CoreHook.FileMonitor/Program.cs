@@ -234,14 +234,19 @@ namespace CoreHook.FileMonitor
             {
                 RemoteHooking.Inject(
                     procId,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreRootPath, // path to coreclr, clrjit
-                    coreLibrariesPath, // path to .net core shared libs
-                    injectionLibrary,
-                    injectionLibrary,
+                    new RemoteHookingConfig()
+                    {
+                        HostLibrary = coreRunDll,
+                        CoreCLRPath = coreRootPath,
+                        CoreCLRLibrariesPath = coreLibrariesPath,
+                        CLRBootstrapLibrary = coreLoadDll,
+                        DetourLibrary = coreHookDll,
+                        PayloadLibrary = injectionLibrary,
+                        VerboseLog = false,
+                        WaitForDebugger = false,
+                        StartAssembly = false
+                    },
                     new PipePlatform(),
-                    new[] { coreHookDll },
                     CoreHookPipeName);
             }        
         }
