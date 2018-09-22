@@ -12,7 +12,6 @@ namespace CoreHook.Tests
     internal static class Resources
     {
         private const string TestModuleDir = "Test";
-
         private static Process _testProcess;
 
         internal static Process TestProcess
@@ -37,8 +36,16 @@ namespace CoreHook.Tests
                 return _testProcess;
             }            
         }
+
+        internal static void EndTestProcess()
+        {
+            _testProcess?.Kill();
+            _testProcess = null;
+        }
+
         private const string TargetAppName = "CoreHook.Tests.TargetApp.dll";
         private static Process _targetApp;
+
         internal static Process TargetProcess
         {
             get
@@ -59,10 +66,11 @@ namespace CoreHook.Tests
                 return _targetApp;
             }
         }
-        internal static void EndTestProcess()
+
+        internal static void EndTargetAppProcess()
         {
-            _testProcess?.Kill();
-            _testProcess = null;
+            _targetApp?.Kill();
+            _targetApp = null;
         }
 
         internal static void SendToProcess(Process target, string message)
