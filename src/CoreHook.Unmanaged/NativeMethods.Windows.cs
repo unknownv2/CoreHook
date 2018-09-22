@@ -29,20 +29,6 @@ namespace CoreHook.Unmanaged
             [In] IntPtr processHandle,
             [Out, MarshalAs(UnmanagedType.Bool)] out bool wow64Process);
 
-        internal static byte[] StructToByteArray(object obj)
-        {
-            int len = Marshal.SizeOf(obj);
-            var arr = new byte[len];
-
-            IntPtr ptr = Marshal.AllocHGlobal(len);
-
-            Marshal.StructureToPtr(obj, ptr, false);
-            Marshal.Copy(ptr, arr, 0, len);
-            Marshal.FreeHGlobal(ptr);
-
-            return arr;
-        }
-
         [DllImport("user32.dll")]
         internal static extern IntPtr GetForegroundWindow();
 
