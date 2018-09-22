@@ -26,6 +26,9 @@ namespace CoreHook.UWP.FileMonitor
         };
 
         private const string CoreHookPipeName = "UWPCoreHook";
+        private const string HookLibraryDirName = "Hook";
+        private const string HookLibraryName = "CoreHook.UWP.FileMonitor.Hook.dll";
+
         private static IPC.Platform.IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static bool IsArchitectureArm()
@@ -79,7 +82,7 @@ namespace CoreHook.UWP.FileMonitor
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string injectionLibrary = Path.Combine(currentDir,
-                "Hook", "CoreHook.UWP.FileMonitor.Hook.dll");
+                HookLibraryDirName, HookLibraryName);
 
             if (!File.Exists(injectionLibrary))
             {
@@ -148,7 +151,7 @@ namespace CoreHook.UWP.FileMonitor
                 Console.WriteLine("CORE_ROOT path was not set!");
                 return;
             }
-            // path to CoreRunDLL.dll
+      
             string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunDll))
@@ -164,7 +167,7 @@ namespace CoreHook.UWP.FileMonitor
                     GrantAllAppPkgsAccessToFile(coreRunDll);
                 }
             }
-            // path to CoreHook.CoreLoad.dll
+         
             string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
@@ -303,9 +306,7 @@ namespace CoreHook.UWP.FileMonitor
 
                 var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"),
                                FileSystemRights.ReadAndExecute, AccessControlType.Allow);
-                //, InheritanceFlags.ContainerInherit,
-                  //             PropagationFlags.InheritOnly, AccessControlType.Allow);
-
+  
                 acl.SetAccessRule(rule);
 
                 dirInfo.SetAccessControl(acl);
