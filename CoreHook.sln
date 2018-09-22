@@ -61,6 +61,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hook", "hook", "{BFEBEA69-1
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleHook1", "test\hook\CoreHook.Tests.SimpleHook1\CoreHook.Tests.SimpleHook1.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "target", "target", "{E601DB0A-91DB-45DD-928B-B9CF3BD65026}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreHook.Tests.TargetApp", "test\target\CoreHook.Tests.TargetApp\CoreHook.Tests.TargetApp.csproj", "{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -209,6 +213,14 @@ Global
 		{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}.Release|x86.ActiveCfg = Release|Any CPU
 		{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}.Release|x86.Build.0 = Release|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Debug|x86.Build.0 = Debug|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -236,6 +248,8 @@ Global
 		{AAAC3722-8911-4F80-8232-840D81F8C938} = {651578A4-4B76-4A11-897F-45A3D5714574}
 		{BFEBEA69-1024-42F8-A2D5-B1B43E6CE719} = {651578A4-4B76-4A11-897F-45A3D5714574}
 		{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A} = {BFEBEA69-1024-42F8-A2D5-B1B43E6CE719}
+		{E601DB0A-91DB-45DD-928B-B9CF3BD65026} = {651578A4-4B76-4A11-897F-45A3D5714574}
+		{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12} = {E601DB0A-91DB-45DD-928B-B9CF3BD65026}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7F1E6A8F-CBCB-4F01-B2C4-446C6F3AD674}
