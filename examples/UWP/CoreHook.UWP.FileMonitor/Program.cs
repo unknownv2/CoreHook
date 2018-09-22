@@ -25,7 +25,10 @@ namespace CoreHook.UWP.FileMonitor
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        private const string CoreHookPipeName = "CoreHook";
+        private const string CoreHookPipeName = "UWPCoreHook";
+        private const string HookLibraryDirName = "Hook";
+        private const string HookLibraryName = "CoreHook.UWP.FileMonitor.Hook.dll";
+
         private static IPC.Platform.IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static bool IsArchitectureArm()
@@ -34,7 +37,7 @@ namespace CoreHook.UWP.FileMonitor
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -59,7 +62,10 @@ namespace CoreHook.UWP.FileMonitor
                     Console.WriteLine();
                     Console.Write("Please enter a process Id or the App Id to launch: ");
 
-                    args = new string[] { Console.ReadLine() };
+                    args = new string[] 
+                    {
+                        Console.ReadLine()
+                    };
 
                     if (string.IsNullOrEmpty(args[0]))
                     {
@@ -76,7 +82,7 @@ namespace CoreHook.UWP.FileMonitor
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             string injectionLibrary = Path.Combine(currentDir,
-                "Hook", "CoreHook.UWP.FileMonitor.Hook.dll");
+                HookLibraryDirName, HookLibraryName);
 
             if (!File.Exists(injectionLibrary))
             {
@@ -145,7 +151,7 @@ namespace CoreHook.UWP.FileMonitor
                 Console.WriteLine("CORE_ROOT path was not set!");
                 return;
             }
-            // path to CoreRunDLL.dll
+      
             string coreRunDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunDll))
@@ -153,7 +159,7 @@ namespace CoreHook.UWP.FileMonitor
                 coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
                 if (!File.Exists(coreRunDll))
                 {
-                    Console.WriteLine("Cannot find CoreRun dll");
+                    Console.WriteLine("Cannot find corerun dll");
                     return;
                 }
                 else
@@ -161,7 +167,7 @@ namespace CoreHook.UWP.FileMonitor
                     GrantAllAppPkgsAccessToFile(coreRunDll);
                 }
             }
-            // path to CoreHook.CoreLoad.dll
+         
             string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
@@ -169,17 +175,21 @@ namespace CoreHook.UWP.FileMonitor
                 Console.WriteLine("Cannot find CoreLoad dll");
                 return;
             }
-
             RemoteHooking.Inject(
                 procId,
-                coreRunDll,
-                coreLoadDll,
-                coreRootPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                injectionLibrary,
-                injectionLibrary,
+                new RemoteHookingConfig()
+                {
+                    HostLibrary = coreRunDll,
+                    CoreCLRPath = coreRootPath,
+                    CoreCLRLibrariesPath = coreLibrariesPath,
+                    CLRBootstrapLibrary = coreLoadDll,
+                    DetourLibrary = coreHookDll,
+                    PayloadLibrary = injectionLibrary,
+                    VerboseLog = false,
+                    WaitForDebugger = false,
+                    StartAssembly = false
+                },
                 pipePlatform,
-                new [] { coreHookDll },
                 CoreHookPipeName);
         }
 
@@ -212,6 +222,7 @@ namespace CoreHook.UWP.FileMonitor
                 session.CancellationToken.WaitHandle.WaitOne();
             }
         }
+
         private static IJsonRpcServiceHost BuildServiceHost()
         {
             var builder = new JsonRpcServiceHostBuilder
@@ -231,37 +242,85 @@ namespace CoreHook.UWP.FileMonitor
             return builder.Build();
         }
 
-        private static void GrantAllAppPkgsAccessToDir(string directory)
+        private static void GrantAllAppPkgsAccessToDir(string directoryPath)
         {
-            if (!Directory.Exists(directory))
+            if (!Directory.Exists(directoryPath))
             {
                 return;
             }
 
-            GrantAllAppPkgsAccessToFile(directory);
-            foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
+            GrantAllAppPkgsAccessToFolder(directoryPath);
+            foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
             {
-                GrantAllAppPkgsAccessToFile(file);
+                GrantFolderRecursive(filePath, directoryPath);
+                GrantAllAppPkgsAccessToFile(filePath);
             }
         }
+
+        private static void GrantAllAppPkgsAccessToSymCacheDir(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                return;
+            }
+
+            GrantAllAppPkgsAccessToFolder(directoryPath);
+            foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
+                    .Where(name => name.EndsWith(".pdb")))
+            {
+                GrantFolderRecursive(filePath, directoryPath);
+                GrantAllAppPkgsAccessToFile(filePath);
+            }
+        }
+
+        private static void GrantFolderRecursive(string fileName, string rootDir)
+        {
+            while((fileName = Path.GetDirectoryName(fileName)) != rootDir)
+            {
+                GrantAllAppPkgsAccessToFolder(fileName);
+            }
+        }
+
         private static void GrantAllAppPkgsAccessToFile(string fileName)
         {
             try
             {
-                var fInfo = new FileInfo(fileName);
-                FileSecurity acl = fInfo.GetAccessControl();
+                var fileInfo = new FileInfo(fileName);
+                FileSecurity acl = fileInfo.GetAccessControl();
 
-                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.ReadAndExecute, AccessControlType.Allow);
+                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), 
+                    FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);
 
-                fInfo.SetAccessControl(acl);
+                fileInfo.SetAccessControl(acl);
             }
             catch
             {
                 return;
             }
         }
+
+        private static void GrantAllAppPkgsAccessToFolder(string folderPath)
+        {
+            try
+            {
+                var dirInfo = new DirectoryInfo(folderPath);
+                DirectorySecurity acl = dirInfo.GetAccessControl(AccessControlSections.Access);
+
+                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"),
+                               FileSystemRights.ReadAndExecute, AccessControlType.Allow);
+  
+                acl.SetAccessRule(rule);
+
+                dirInfo.SetAccessControl(acl);
+            }
+            catch
+            {
+                return;
+            }
+        }
+
         private static int LaunchAppxPackageForPid(string appName)
         {
             var appActiveManager = new ApplicationActivationManager();

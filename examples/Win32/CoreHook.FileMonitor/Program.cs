@@ -40,7 +40,7 @@ namespace CoreHook.FileMonitor
             return filePath.Replace("\"", "");
         }
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -65,7 +65,10 @@ namespace CoreHook.FileMonitor
                     Console.WriteLine();
                     Console.Write("Please enter a process Id or path to executable: ");
 
-                    args = new string[] { Console.ReadLine() };
+                    args = new string[]
+                    {
+                        Console.ReadLine()
+                    };
 
                     if (string.IsNullOrEmpty(args[0]))
                     {
@@ -162,7 +165,7 @@ namespace CoreHook.FileMonitor
                 coreRunPath = Environment.GetEnvironmentVariable("CORERUNDLL");
                 if (!File.Exists(coreRunPath))
                 {
-                    Console.WriteLine("Cannot find CoreRun dll");
+                    Console.WriteLine("Cannot find corerun dll");
                     return false;
                 }
             }
@@ -191,7 +194,7 @@ namespace CoreHook.FileMonitor
             }
             if (!File.Exists(filePath))
             {
-                throw new ArgumentNullException($"File path {filePath} does not exist");
+                throw new FileNotFoundException($"File path {filePath} does not exist");
             }
         }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
@@ -231,14 +234,19 @@ namespace CoreHook.FileMonitor
             {
                 RemoteHooking.Inject(
                     procId,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreRootPath, // path to coreclr, clrjit
-                    coreLibrariesPath, // path to .net core shared libs
-                    injectionLibrary,
-                    injectionLibrary,
+                    new RemoteHookingConfig()
+                    {
+                        HostLibrary = coreRunDll,
+                        CoreCLRPath = coreRootPath,
+                        CoreCLRLibrariesPath = coreLibrariesPath,
+                        CLRBootstrapLibrary = coreLoadDll,
+                        DetourLibrary = coreHookDll,
+                        PayloadLibrary = injectionLibrary,
+                        VerboseLog = false,
+                        WaitForDebugger = false,
+                        StartAssembly = false
+                    },
                     new PipePlatform(),
-                    new[] { coreHookDll },
                     CoreHookPipeName);
             }        
         }

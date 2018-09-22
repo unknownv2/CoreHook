@@ -65,7 +65,9 @@ namespace CoreHook.CoreLoad
                 // when passed as a parameter to the IEntryPoint constructor and Run() methods.
                 paramArray[0] = connection.UnmanagedInfo;
                 for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
+                {
                     paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+                }
 
                 LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
             }
@@ -75,24 +77,6 @@ namespace CoreHook.CoreLoad
             }
             return 0;
         }
-
-        private static void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
-        private static bool IsUwp()
-        {
-            int length = 1024;
-            StringBuilder sb = new StringBuilder(length);
-            int result = GetCurrentPackageFullName(ref length, sb);
-            if (result != APPMODEL_ERROR_NO_PACKAGE)
-            {
-                return true;
-            }
-            return false;
-        }
-
         private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
         {
             Type entryPoint = FindEntryPoint(assembly);
@@ -189,5 +173,23 @@ namespace CoreHook.CoreLoad
             }
             return false;
         }
+
+        private static void Log(string message)
+        {
+            Debug.WriteLine(message);
+        }
+
+        private static bool IsUwp()
+        {
+            int length = 1024;
+            StringBuilder sb = new StringBuilder(length);
+            int result = GetCurrentPackageFullName(ref length, sb);
+            if (result != APPMODEL_ERROR_NO_PACKAGE)
+            {
+                return true;
+            }
+            return false;
+        }
+
     }
 }

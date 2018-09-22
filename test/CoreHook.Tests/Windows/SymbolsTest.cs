@@ -37,6 +37,9 @@ namespace CoreHook.Tests.Windows
         private bool _internalAddAtomCalled;
         private bool _AddAtomCalled;
 
+        // Windows max file system path string size
+        private const int MaxPathLength = 260;
+
         private ushort InternalAddAtomHook(bool local,
             bool unicode, string atomName, int arg4)
         {
@@ -54,35 +57,36 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourInternalFunction()
         {
-            LocalHook hook = LocalHook.Create(
+            using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
                 new InternalAddAtomDelegate(InternalAddAtomHook),
-                this);
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
-            InternalAddAtomFunction = (InternalAddAtomDelegate)
-                        Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(InternalAddAtomDelegate));
+                this))
+            {
+                InternalAddAtomFunction = (InternalAddAtomDelegate)
+                            Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress,
+                            typeof(InternalAddAtomDelegate));
 
-            _internalAddAtomCalled = false;
+                hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-            string atomName = "TestLocalAtomName";
-            ushort atomId = AddAtomW(atomName);
+                _internalAddAtomCalled = false;
 
-            Assert.NotEqual(0, atomId);
-            Assert.True(_internalAddAtomCalled);
+                string atomName = "TestLocalAtomName";
+                ushort atomId = AddAtomW(atomName);
 
-            int maxPathLength = 260;
-            StringBuilder atomBuffer = new StringBuilder(maxPathLength);
-            uint bufLength = GetAtomNameW(atomId, atomBuffer, maxPathLength);
-            string retrievedAtomName = atomBuffer.ToString();
+                Assert.NotEqual(0, atomId);
+                Assert.True(_internalAddAtomCalled);
 
-            Assert.Equal((uint)atomName.Length, bufLength);
-            Assert.Equal(retrievedAtomName.Length, atomName.Length);
+                StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
+                uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+                string retrievedAtomName = atomBuffer.ToString();
 
-            Assert.Equal(retrievedAtomName, atomName);
+                Assert.Equal((uint)atomName.Length, bufLength);
+                Assert.Equal(retrievedAtomName.Length, atomName.Length);
 
-            Assert.Equal<ushort>(0, DeleteAtom(atomId));
+                Assert.Equal(retrievedAtomName, atomName);
 
-            hook.Dispose();
+                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+            }
         }
 
         [Fact]
@@ -101,7 +105,8 @@ namespace CoreHook.Tests.Windows
             hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
             InternalAddAtomFunction = (InternalAddAtomDelegate)
-                Marshal.GetDelegateForFunctionPointer(hookInternal.HookBypassAddress, typeof(InternalAddAtomDelegate));
+                Marshal.GetDelegateForFunctionPointer(hookInternal.HookBypassAddress, 
+                typeof(InternalAddAtomDelegate));
 
             _internalAddAtomCalled = false;
             _AddAtomCalled = false;
@@ -113,9 +118,8 @@ namespace CoreHook.Tests.Windows
             Assert.True(_internalAddAtomCalled);
             Assert.True(_AddAtomCalled);
 
-            int maxPathLength = 260;
-            StringBuilder atomBuffer = new StringBuilder(maxPathLength);
-            uint bufLength = GetAtomNameW(atomId, atomBuffer, maxPathLength);
+            StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
+            uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
             Assert.NotEqual<uint>(0, bufLength);
@@ -164,29 +168,30 @@ namespace CoreHook.Tests.Windows
         {
             _GetCurrentNlsCacheCalled = false;
 
-            LocalHook hook = LocalHook.Create(
+            using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernelbase.dll", "GetCurrentNlsCache"),
                 new GetCurrentNlsCacheDelegate(GetCurrentNlsCacheHook),
-                this);
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
-            GetCurrentNlsCacheFunction = (GetCurrentNlsCacheDelegate)
-                Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(GetCurrentNlsCacheDelegate));
+                this))
+            {
+                hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                GetCurrentNlsCacheFunction = (GetCurrentNlsCacheDelegate)
+                    Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress,
+                    typeof(GetCurrentNlsCacheDelegate));
 
-            string stringA = "HelloWorld";
-            string stringB = "Hello";
+                string stringA = "HelloWorld";
+                string stringB = "Hello";
 
-            int comparisonResult = CompareStringW(
-                LOCALE_USER_DEFAULT,
-                NORM_LINGUISTIC_CASING,
-                stringA,
-                stringA.Length,
-                stringB,
-                stringB.Length);
+                int comparisonResult = CompareStringW(
+                    LOCALE_USER_DEFAULT,
+                    NORM_LINGUISTIC_CASING,
+                    stringA,
+                    stringA.Length,
+                    stringB,
+                    stringB.Length);
 
-            Assert.Equal(CSTR_GREATER_THAN, comparisonResult);
-            Assert.True(_GetCurrentNlsCacheCalled);
-
-            hook.Dispose();
+                Assert.Equal(CSTR_GREATER_THAN, comparisonResult);
+                Assert.True(_GetCurrentNlsCacheCalled);
+            }
         }
     }
 }

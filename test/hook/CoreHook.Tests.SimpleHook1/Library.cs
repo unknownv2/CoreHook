@@ -4,7 +4,6 @@ namespace CoreHook.Tests.SimpleHook1
 {
     public class Library : IEntryPoint
     {
-
         public Library(object context, string arg1)
         {
 

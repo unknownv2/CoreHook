@@ -119,59 +119,6 @@ namespace CoreHook
             int InBufferSize,
             out int OutRequiredSize);
 
-
-        /*
-            Injection support API.
-        */
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RhInjectLibrary(
-            int InTargetPID,
-            int InWakeUpTID,
-            int InInjectionOptions,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
-            IntPtr InPassThruBuffer,
-            int InPassThruSize);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhIsX64Process(
-            int InProcessId,
-            out bool OutResult);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool RhIsAdministrator();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhGetProcessToken(int InProcessId, out IntPtr OutToken);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RtlInstallService(
-            string InServiceName,
-            string InExePath,
-            string InChannelName);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhWakeUpProcess();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RtlCreateSuspendedProcess(
-           string InEXEPath,
-           string InCommandLine,
-            int InProcessCreationFlags,
-           out int OutProcessId,
-           out int OutThreadId);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RhInstallDriver(
-           string InDriverPath,
-           string InDriverName);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhInstallSupportDriver();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool RhIsX64System();
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int DetourGetHookBypassAddress(IntPtr handle, out IntPtr address);
 
@@ -356,58 +303,6 @@ namespace CoreHook
             int InBufferSize,
             out int OutRequiredSize);
 
-
-        /*
-            Injection support API.
-        */
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RhInjectLibrary(
-            int InTargetPID,
-            int InWakeUpTID,
-            int InInjectionOptions,
-            string InLibraryPath_x86,
-            string InLibraryPath_x64,
-            IntPtr InPassThruBuffer,
-            int InPassThruSize);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhIsX64Process(
-            int InProcessId,
-            out bool OutResult);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool RhIsAdministrator();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhGetProcessToken(int InProcessId, out IntPtr OutToken);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RtlInstallService(
-            string InServiceName,
-            string InExePath,
-            string InChannelName);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RtlCreateSuspendedProcess(
-           string InEXEPath,
-           string InCommandLine,
-            int InProcessCreationFlags,
-           out int OutProcessId,
-           out int OutThreadId);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhWakeUpProcess();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
-        public static extern int RhInstallDriver(
-           string InDriverPath,
-           string InDriverName);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int RhInstallSupportDriver();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool RhIsX64System();
         
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int DetourGetHookBypassAddress(IntPtr handle, out IntPtr address);

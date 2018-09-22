@@ -77,6 +77,5 @@ namespace CoreHook.CoreLoad
             }
             return data;
         }
-
     }
 }
