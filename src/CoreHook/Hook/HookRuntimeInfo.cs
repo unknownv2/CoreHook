@@ -71,7 +71,9 @@ namespace CoreHook
                 NativeAPI.DetourBarrierGetCallback(out Callback);
 
                 if (Callback == IntPtr.Zero)
+                {
                     return null;
+                }
 
                 return (LocalHook)GCHandle.FromIntPtr(Callback).Target;
             }

@@ -76,16 +76,24 @@ namespace CoreHook
         public void SetExclusiveACL(int[] InACL)
         {
             if (InACL == null)
+            {
                 m_ACL = new int[0];
+            }
             else
+            {
                 m_ACL = (int[])InACL.Clone();
+            }
 
             m_IsExclusive = true;
 
             if (m_Handle == IntPtr.Zero)
+            {
                 NativeAPI.DetourSetGlobalExclusiveACL(m_ACL, m_ACL.Length);
+            }
             else
+            {
                 NativeAPI.DetourSetExclusiveACL(m_ACL, m_ACL.Length, m_Handle);
+            }
         }
 
         /// <summary>
@@ -103,10 +111,13 @@ namespace CoreHook
         internal HookAccessControl(IntPtr InHandle)
         {
             if (InHandle == IntPtr.Zero)
+            {
                 m_IsExclusive = true;
+            }
             else
+            {
                 m_IsExclusive = false;
-
+            }
             m_Handle = InHandle;
         }
     }
