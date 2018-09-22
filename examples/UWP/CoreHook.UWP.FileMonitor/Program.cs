@@ -215,6 +215,7 @@ namespace CoreHook.UWP.FileMonitor
                 session.CancellationToken.WaitHandle.WaitOne();
             }
         }
+
         private static IJsonRpcServiceHost BuildServiceHost()
         {
             var builder = new JsonRpcServiceHostBuilder
@@ -234,37 +235,87 @@ namespace CoreHook.UWP.FileMonitor
             return builder.Build();
         }
 
-        private static void GrantAllAppPkgsAccessToDir(string directory)
+        private static void GrantAllAppPkgsAccessToDir(string directoryPath)
         {
-            if (!Directory.Exists(directory))
+            if (!Directory.Exists(directoryPath))
             {
                 return;
             }
 
-            GrantAllAppPkgsAccessToFile(directory);
-            foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories)
+            GrantAllAppPkgsAccessToFolder(directoryPath);
+            foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
             {
-                GrantAllAppPkgsAccessToFile(file);
+                GrantFolderRecursive(filePath, directoryPath);
+                GrantAllAppPkgsAccessToFile(filePath);
             }
         }
+
+        private static void GrantAllAppPkgsAccessToSymCacheDir(string directoryPath)
+        {
+            if (!Directory.Exists(directoryPath))
+            {
+                return;
+            }
+
+            GrantAllAppPkgsAccessToFolder(directoryPath);
+            foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
+                    .Where(name => name.EndsWith(".pdb")))
+            {
+                GrantFolderRecursive(filePath, directoryPath);
+                GrantAllAppPkgsAccessToFile(filePath);
+            }
+        }
+
+        private static void GrantFolderRecursive(string fileName, string rootDir)
+        {
+            while((fileName = Path.GetDirectoryName(fileName)) != rootDir)
+            {
+                GrantAllAppPkgsAccessToFolder(fileName);
+            }
+        }
+
         private static void GrantAllAppPkgsAccessToFile(string fileName)
         {
             try
             {
-                var fInfo = new FileInfo(fileName);
-                FileSecurity acl = fInfo.GetAccessControl();
+                var fileInfo = new FileInfo(fileName);
+                FileSecurity acl = fileInfo.GetAccessControl();
 
-                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), FileSystemRights.ReadAndExecute, AccessControlType.Allow);
+                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), 
+                    FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);
 
-                fInfo.SetAccessControl(acl);
+                fileInfo.SetAccessControl(acl);
             }
             catch
             {
                 return;
             }
         }
+
+        private static void GrantAllAppPkgsAccessToFolder(string folderPath)
+        {
+            try
+            {
+                var dirInfo = new DirectoryInfo(folderPath);
+                DirectorySecurity acl = dirInfo.GetAccessControl(AccessControlSections.Access);
+
+                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"),
+                               FileSystemRights.ReadAndExecute, AccessControlType.Allow);
+                //, InheritanceFlags.ContainerInherit,
+                  //             PropagationFlags.InheritOnly, AccessControlType.Allow);
+
+                acl.SetAccessRule(rule);
+
+                dirInfo.SetAccessControl(acl);
+            }
+            catch
+            {
+                return;
+            }
+        }
+
         private static int LaunchAppxPackageForPid(string appName)
         {
             var appActiveManager = new ApplicationActivationManager();
