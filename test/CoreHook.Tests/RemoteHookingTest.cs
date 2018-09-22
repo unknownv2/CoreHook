@@ -19,13 +19,13 @@ namespace CoreHook.Tests
             const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
             const string TestMessage = "Berner";
 
-            InjectDllIntoTarget(Resources.TargetProcess,
+            InjectDllIntoTarget(Resources.TestProcess,
                Resources.GetTestDllPath(
                TestHookLibrary
                ),
                TestMessage);
 
-            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TargetProcess));
+            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TestProcess));
 
             Resources.EndTestProcess();
         }

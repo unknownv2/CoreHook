@@ -20,14 +20,19 @@ namespace CoreHook.Tests
             get
             {
                 if(_testProcess == null)
-                {
-                    _testProcess = Process.Start(
-                        Path.Combine(
+                {          
+                    _testProcess = new Process();
+
+                    _testProcess.StartInfo.FileName = Path.Combine(
                             Environment.ExpandEnvironmentVariables("%Windir%"),
                             "System32",
                             "notepad.exe"
-                            )
-                        );
+                            );
+
+                    _testProcess.StartInfo.UseShellExecute = false;
+                    _testProcess.StartInfo.RedirectStandardInput = true;
+                    _testProcess.StartInfo.RedirectStandardOutput = true;
+                    _testProcess.Start();
                 }
                 return _testProcess;
             }            
