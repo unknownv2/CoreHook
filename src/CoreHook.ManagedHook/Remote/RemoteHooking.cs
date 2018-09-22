@@ -15,6 +15,7 @@ namespace CoreHook.ManagedHook.Remote
     public class RemoteHooking
     {
         private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
+        //private const string CoreHookLoaderMethodName = "CoreHook.Tests.TargetApp.Program.Load";
 
         private const string InjectionPipe = "CoreHookInjection";
 
@@ -40,7 +41,12 @@ namespace CoreHook.ManagedHook.Remote
                 throw new UnsupportedPlatformException("Binary injection");
             }
         }
-  
+        public static void CreateAndInject(
+            RemoteHookingConfig config
+            )
+        {
+            
+        }
         public static void CreateAndInject(
             string exePath,
             string coreHookDll,
@@ -101,7 +107,19 @@ namespace CoreHook.ManagedHook.Remote
                 throw new ProcessStartException(exePath);
             }
         }
-
+        public static void Inject(
+            int InTargetPID,
+            RemoteHookingConfig config,
+            IPipePlatform pipePlatform,
+            params object[] passThruArgs)
+        {
+            InjectEx(
+                ProcessHelper.GetCurrentProcessId(),
+                InTargetPID,
+                config,
+                pipePlatform,
+                passThruArgs);
+        }
         public static void Inject(
             int InTargetPID,
             string coreRunDll,
@@ -128,6 +146,89 @@ namespace CoreHook.ManagedHook.Remote
                 pipePlatform,
                 dependencies,
                 passThruArgs);
+        }
+
+        public static void InjectEx(
+            int hostPID,
+            int targetPID,
+            RemoteHookingConfig config,
+            IPipePlatform pipePlatform,
+            params object[] passThruArgs)
+        {
+            var passThru = new MemoryStream();
+            InjectionHelper.BeginInjection(targetPID);
+            using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
+            {
+                try
+                {
+                    var remoteInfo = new ManagedRemoteInfo();
+                    remoteInfo.HostPID = hostPID;
+
+                    var format = new BinaryFormatter();
+                    var args = new List<object>();
+                    if (passThruArgs != null)
+                    {
+                        foreach (var arg in passThruArgs)
+                        {
+                            using (var ms = new MemoryStream())
+                            {
+                                format.Serialize(ms, arg);
+                                args.Add(ms.ToArray());
+                            }
+                        }
+                    }
+                    remoteInfo.UserParams = args.ToArray();
+
+                    var libraryPath = config.PayloadLibrary;
+                    GCHandle hPassThru = PrepareInjection(
+                        remoteInfo,
+                        ref libraryPath,
+                        ref libraryPath,
+                        passThru);
+
+                    // Inject the corerundll into the process, start the CoreCLR runtime
+                    // and use the CoreLoad dll to resolve the dependencies of the hooking library
+                    // and then call the IEntryPoint.Run method located in the hooking library
+                    try
+                    {
+                        var proc = ProcessHelper.GetProcessById(targetPID);
+                        var length = (uint)passThru.Length;
+
+                        using (var binaryLoader = GetBinaryLoader())
+                        {
+                            binaryLoader.Load(proc, config.HostLibrary, new[] { config.DetourLibrary });
+
+                            binaryLoader.CallFunctionWithRemoteArgs(proc,
+                                config.HostLibrary,
+                                CoreHookLoaderMethodName,
+                                new BinaryLoaderArgs()
+                                {
+                                    Verbose = config.VerboseLog,
+                                    WaitForDebugger = config.WaitForDebugger,
+                                    StartAssembly = config.StartAssembly,
+                                    PayloadFileName = config.CLRBootstrapLibrary,
+                                    CoreRootPath = config.CoreCLRPath,
+                                    CoreLibrariesPath = config.CoreCLRLibrariesPath
+                                },
+                                new RemoteFunctionArgs()
+                                {
+                                    UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
+                                    UserDataSize = length
+                                });
+
+                            InjectionHelper.WaitForInjection(targetPID);
+                        }
+                    }
+                    finally
+                    {
+                        hPassThru.Free();
+                    }
+                }
+                finally
+                {
+                    InjectionHelper.EndInjection(targetPID);
+                }
+            }
         }
 
         public static void InjectEx(
