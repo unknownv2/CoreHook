@@ -29,18 +29,18 @@ namespace CoreHook.Tests.Windows
         {
             _beepHookCalled = false;
 
-            LocalHook hook = LocalHook.Create(
+            using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
-                this);
+                this))
+            {
+                hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                Assert.False(Beep(100, 100));
 
-            Assert.False(Beep(100, 100));
+                Assert.True(_beepHookCalled);
 
-            Assert.True(_beepHookCalled);
-
-            hook.Dispose();
+            }
         }
 
         [Fact]
@@ -48,20 +48,19 @@ namespace CoreHook.Tests.Windows
         {
             _beepHookCalled = false;
 
-            LocalHook hook = LocalHook.Create(
+            using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
-                this);
+                this))
+            {
+                hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
 
-            BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
+                Assert.True(beep(100, 100));
 
-            Assert.True(beep(100, 100));
-
-            Assert.False(_beepHookCalled);
-
-            hook.Dispose();
+                Assert.False(_beepHookCalled);
+            }
         }
 
         [Fact]
@@ -69,26 +68,25 @@ namespace CoreHook.Tests.Windows
         {
             _beepHookCalled = false;
 
-            LocalHook hook = LocalHook.Create(
+            using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
-                this);
+                this))
+            {
+                hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-            hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                Assert.False(Beep(100, 100));
 
-            Assert.False(Beep(100, 100));
+                Assert.True(_beepHookCalled);
 
-            Assert.True(_beepHookCalled);
+                _beepHookCalled = false;
 
-            _beepHookCalled = false;
+                BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
 
-            BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
+                Assert.True(beep(100, 100));
 
-            Assert.True(beep(100, 100));
-
-            Assert.False(_beepHookCalled);
-
-            hook.Dispose();
+                Assert.False(_beepHookCalled);
+            }
         }
     }
 }
