@@ -15,8 +15,6 @@ namespace CoreHook.ManagedHook.Remote
     public class RemoteHooking
     {
         private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
-        //private const string CoreHookLoaderMethodName = "CoreHook.Tests.TargetApp.Program.Load";
-
         private const string InjectionPipe = "CoreHookInjection";
 
         private static IBinaryLoader GetBinaryLoader()
