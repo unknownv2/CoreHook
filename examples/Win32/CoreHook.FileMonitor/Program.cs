@@ -165,7 +165,7 @@ namespace CoreHook.FileMonitor
                 coreRunPath = Environment.GetEnvironmentVariable("CORERUNDLL");
                 if (!File.Exists(coreRunPath))
                 {
-                    Console.WriteLine("Cannot find CoreRun dll");
+                    Console.WriteLine("Cannot find corerun dll");
                     return false;
                 }
             }
@@ -194,7 +194,7 @@ namespace CoreHook.FileMonitor
             }
             if (!File.Exists(filePath))
             {
-                throw new ArgumentException($"File path {filePath} does not exist");
+                throw new FileNotFoundException($"File path {filePath} does not exist");
             }
         }
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)

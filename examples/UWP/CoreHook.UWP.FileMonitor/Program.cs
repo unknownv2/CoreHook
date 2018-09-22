@@ -156,7 +156,7 @@ namespace CoreHook.UWP.FileMonitor
                 coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
                 if (!File.Exists(coreRunDll))
                 {
-                    Console.WriteLine("Cannot find CoreRun dll");
+                    Console.WriteLine("Cannot find corerun dll");
                     return;
                 }
                 else
