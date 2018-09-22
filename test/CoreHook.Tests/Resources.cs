@@ -54,7 +54,7 @@ namespace CoreHook.Tests
                 {
                     _targetApp = new Process();
 
-                    _targetApp.StartInfo.FileName = "dotnet.exe";
+                    _targetApp.StartInfo.FileName = "dotnet";
                     _targetApp.StartInfo.Arguments = $"{Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Test", TargetAppName)}";
 
                     _targetApp.StartInfo.UseShellExecute = false;

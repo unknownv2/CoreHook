@@ -30,6 +30,23 @@ namespace CoreHook.Tests
             Resources.EndTestProcess();
         }
 
+        //[Fact]
+        private void TestTargetAppRemoteInject()
+        {
+            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestMessage = "Berner";
+
+            InjectDllIntoTarget(Resources.TargetProcess,
+               Resources.GetTestDllPath(
+               TestHookLibrary
+               ),
+               TestMessage);
+
+            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TargetProcess));
+
+            Resources.EndTargetAppProcess();
+        }
+
         private void InjectDllIntoTarget(Process target, string injectionLibrary, string message)
         {
             string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll, coreHookDll;
@@ -39,14 +56,19 @@ namespace CoreHook.Tests
             {
                 RemoteHooking.Inject(
                     target.Id,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreRootPath,
-                    coreLibrariesPath, 
-                    injectionLibrary,
-                    injectionLibrary,
+                    new RemoteHookingConfig()
+                    {
+                        HostLibrary = coreRunDll,
+                        CoreCLRPath = coreRootPath,
+                        CoreCLRLibrariesPath = coreLibrariesPath,
+                        CLRBootstrapLibrary = coreLoadDll,
+                        DetourLibrary = coreHookDll,
+                        PayloadLibrary = injectionLibrary,
+                        VerboseLog = false,
+                        WaitForDebugger = false,
+                        StartAssembly = false
+                    },
                     new PipePlatformBase(),
-                    new[] { coreHookDll },
                     message);
             }
         }
