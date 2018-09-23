@@ -19,6 +19,7 @@ namespace CoreHook.ManagedHook.Remote
                 assemblyName: "CoreHook.CoreLoad",
                 typeName: "Loader",
                 methodName: "Load");
+
         private static string CoreHookLoaderMethodName = CoreHookLoaderDel.ToString();
 
         private const string InjectionPipe = "CoreHookInjection";
@@ -93,14 +94,14 @@ namespace CoreHook.ManagedHook.Remote
 
         public static void Inject(
             int targetPID,
-            RemoteHookingConfig config,
+            RemoteHookingConfig remoteHook,
             IPipePlatform pipePlatform,
             params object[] passThruArgs)
         {
             InjectEx(
                 ProcessHelper.GetCurrentProcessId(),
                 targetPID,
-                config,
+                remoteHook,
                 pipePlatform,
                 passThruArgs);
         }
@@ -166,96 +167,6 @@ namespace CoreHook.ManagedHook.Remote
                                     PayloadFileName = config.CLRBootstrapLibrary,
                                     CoreRootPath = config.CoreCLRPath,
                                     CoreLibrariesPath = config.CoreCLRLibrariesPath
-                                },
-                                new RemoteFunctionArgs()
-                                {
-                                    UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
-                                    UserDataSize = length
-                                });
-
-                            InjectionHelper.WaitForInjection(targetPID);
-                        }
-                    }
-                    finally
-                    {
-                        hPassThru.Free();
-                    }
-                }
-                finally
-                {
-                    InjectionHelper.EndInjection(targetPID);
-                }
-            }
-        }
-
-        public static void InjectEx(
-            int hostPID,
-            int targetPID,
-            int wakeUpTID,
-            string lbraryPath_x86,
-            string libraryPath_x64,
-            bool canBypassWOW64,
-            string coreRunDll,
-            string coreLoadDll,
-            string coreClrPath,
-            string coreLibrariesPath,
-            IPipePlatform pipePlatform,
-            IEnumerable<string> dependencies,
-            params object[] passThruArgs)
-        {
-            var passThru = new MemoryStream();
-            InjectionHelper.BeginInjection(targetPID);
-            using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
-            {
-                try
-                {
-                    var remoteInfo = new ManagedRemoteInfo();
-                    remoteInfo.HostPID = hostPID;
-
-                    var format = new BinaryFormatter();
-                    var args = new List<object>();
-                    if (passThruArgs != null)
-                    {
-                        foreach (var arg in passThruArgs)
-                        {
-                            using (var ms = new MemoryStream())
-                            {
-                                format.Serialize(ms, arg);
-                                args.Add(ms.ToArray());
-                            }
-                        }
-                    }
-                    remoteInfo.UserParams = args.ToArray();
-
-                    GCHandle hPassThru = PrepareInjection(
-                        remoteInfo,
-                        ref lbraryPath_x86,
-                        ref libraryPath_x64,
-                        passThru);
-
-                    // Inject the corerundll into the process, start the CoreCLR runtime
-                    // and use the CoreLoad dll to resolve the dependencies of the hooking library
-                    // and then call the IEntryPoint.Run method located in the hooking library
-                    try
-                    {
-                        var proc = ProcessHelper.GetProcessById(targetPID);
-                        var length = (uint)passThru.Length;
-
-                        using (var binaryLoader = GetBinaryLoader())
-                        {              
-                            binaryLoader.Load(proc, coreRunDll, dependencies);
-
-                            binaryLoader.CallFunctionWithRemoteArgs(proc,
-                                coreRunDll,
-                                CoreHookLoaderMethodName,
-                                new BinaryLoaderArgs()
-                                {
-                                    Verbose = true,
-                                    WaitForDebugger = false,
-                                    StartAssembly = false,
-                                    PayloadFileName = coreLoadDll,
-                                    CoreRootPath = coreClrPath,
-                                    CoreLibrariesPath = coreLibrariesPath
                                 },
                                 new RemoteFunctionArgs()
                                 {
