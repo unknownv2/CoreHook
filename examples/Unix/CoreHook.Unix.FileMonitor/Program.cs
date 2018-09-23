@@ -115,14 +115,19 @@ namespace CoreHook.Unix.FileMonitor
 
             RemoteHooking.Inject(
                 procId,
-                coreRunLib,
-                coreLoadDll,
-                coreLibrariesPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                injectionLibrary,
-                injectionLibrary,
+                new RemoteHookingConfig()
+                {
+                    HostLibrary = coreRunLib,
+                    CoreCLRPath = coreLibrariesPath,
+                    CoreCLRLibrariesPath = coreLibrariesPath,
+                    CLRBootstrapLibrary = coreLoadDll,
+                    DetourLibrary = string.Empty,
+                    PayloadLibrary = injectionLibrary,
+                    VerboseLog = false,
+                    WaitForDebugger = false,
+                    StartAssembly = false
+                },
                 new PipePlatform(),
-                null,
                 CoreHookPipeName);
         }
 
