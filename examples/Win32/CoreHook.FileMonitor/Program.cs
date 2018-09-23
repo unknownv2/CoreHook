@@ -207,22 +207,28 @@ namespace CoreHook.FileMonitor
             if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
                 RemoteHooking.CreateAndInject(
-                    exePath,
-                    coreHookDll,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreRootPath, // path to coreclr, clrjit
-                    coreLibrariesPath, // path to .net core shared libs
-                    null,
-                    0,
-                    injectionLibrary,
-                    injectionLibrary,
-                    out _,
-                    new PipePlatform(),
-                    null,
-                    CoreHookPipeName);
+                     new ProcessCreationConfig()
+                     {
+                         ExecutablePath = exePath,
+                         CommandLine = null,
+                         ProcessCreationFlags = 0x00000000
+                     },
+                     new RemoteHookingConfig()
+                     {
+                         HostLibrary = coreRunDll,
+                         CoreCLRPath = coreRootPath,
+                         CoreCLRLibrariesPath = coreLibrariesPath,
+                         CLRBootstrapLibrary = coreLoadDll,
+                         DetourLibrary = coreHookDll,
+                         PayloadLibrary = injectionLibrary,
+                         VerboseLog = false,
+                         WaitForDebugger = false,
+                         StartAssembly = false
+                     },
+                     new PipePlatform(),
+                     out _,
+                     CoreHookPipeName);
             }
-                   
         }
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
