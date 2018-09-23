@@ -14,7 +14,13 @@ namespace CoreHook.ManagedHook.Remote
 {
     public class RemoteHooking
     {
-        private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
+        private static AssemblyDelegate CoreHookLoaderDel =
+                new AssemblyDelegate(
+                assemblyName: "CoreHook.CoreLoad",
+                typeName: "Loader",
+                methodName: "Load");
+        private static string CoreHookLoaderMethodName = CoreHookLoaderDel.ToString();
+
         private const string InjectionPipe = "CoreHookInjection";
 
         private static IBinaryLoader GetBinaryLoader()
@@ -39,110 +45,103 @@ namespace CoreHook.ManagedHook.Remote
                 throw new UnsupportedPlatformException("Binary injection");
             }
         }
+        [DllImport("USER32.DLL", CharSet = CharSet.Unicode)]
+        public static extern IntPtr FindWindow(String lpClassName, String lpWindowName);
+
+        [DllImport("USER32.DLL")]
+        public static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        public static void bringToFront(string title)
+        {
+            // Get a handle to the Calculator application.
+            IntPtr handle = FindWindow(null, title);
+
+            // Verify that Calculator is a running process.
+            if (handle == IntPtr.Zero)
+            {
+                return;
+            }
+
+            // Make Calculator the foreground application
+            SetForegroundWindow(handle);
+        }
+        public static void BringProcessToFront(System.Diagnostics.Process process)
+        {
+            IntPtr handle = process.MainWindowHandle;
+            if (IsIconic(handle))
+            {
+                ShowWindow(handle, SW_RESTORE);
+            }
+
+            SetForegroundWindow(handle);
+        }
+
+        const int SW_RESTORE = 9;
+
+
+        [System.Runtime.InteropServices.DllImport("User32.dll")]
+        private static extern bool ShowWindow(IntPtr handle, int nCmdShow);
+        [System.Runtime.InteropServices.DllImport("User32.dll")]
+        private static extern bool IsIconic(IntPtr handle);
         public static void CreateAndInject(
-            RemoteHookingConfig config
+            ProcessCreationConfig process,
+            RemoteHookingConfig remoteHook,
+            IPipePlatform pipePlatform,
+            out int outProcessId,
+            params object[] passThruArgs
             )
         {
-            
-        }
-        public static void CreateAndInject(
-            string exePath,
-            string coreHookDll,
-            string coreRunDll,
-            string coreLoadDll,
-            string coreClrPath,
-            string coreLibrariesPath,
-            string commandLine,
-            uint processCreationFlags,
-            string lbraryPath_x86,
-            string libraryPath_x64,
-            out int outProcessId,
-            IPipePlatform pipePlatform,
-            IEnumerable<string> dependencies,
-            params object[] passThruArgs)
-        {
             outProcessId = -1;
+
             var si = new NativeMethods.StartupInfo();
             var pi = new NativeMethods.ProcessInformation();
 
-            if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(exePath,
-                commandLine,
-                IntPtr.Zero,
-                IntPtr.Zero,
-                false,
-                processCreationFlags |
-                (uint)
-                (
-                NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
-                ),
-                IntPtr.Zero,
-                null,
-                ref si,
-                out pi,
-                coreHookDll,
-                IntPtr.Zero
-                ))
+            si.wShowWindow = 1;
+
+            if (Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(
+                    process.ExecutablePath,
+                    process.CommandLine,
+                    IntPtr.Zero,
+                    IntPtr.Zero,
+                    false,
+                    process.ProcessCreationFlags |
+                    (uint)
+                    (
+                    NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
+                    ),
+                    IntPtr.Zero,
+                    null,
+                    ref si,
+                    out pi,
+                    remoteHook.DetourLibrary,
+                    IntPtr.Zero
+                    ))
             {
                 outProcessId = pi.dwProcessId;
 
                 InjectEx(
                     ProcessHelper.GetCurrentProcessId(),
                     pi.dwProcessId,
-                    pi.dwThreadId,
-                    lbraryPath_x86,
-                    libraryPath_x64,
-                    true,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreClrPath,
-                    coreLibrariesPath,
+                    remoteHook,
                     pipePlatform,
-                    dependencies,
                     passThruArgs);
-            }
-            else
-            {
-                throw new ProcessStartException(exePath);
+
+
+                BringProcessToFront(System.Diagnostics.Process.GetProcessById(outProcessId));
             }
         }
+
         public static void Inject(
-            int InTargetPID,
+            int targetPID,
             RemoteHookingConfig config,
             IPipePlatform pipePlatform,
             params object[] passThruArgs)
         {
             InjectEx(
                 ProcessHelper.GetCurrentProcessId(),
-                InTargetPID,
+                targetPID,
                 config,
                 pipePlatform,
-                passThruArgs);
-        }
-        public static void Inject(
-            int InTargetPID,
-            string coreRunDll,
-            string coreLoadDll,
-            string coreClrPath,
-            string coreLibrariesPath,
-            string lbraryPath_x86,
-            string libraryPath_x64,
-            IPipePlatform pipePlatform,
-            IEnumerable<string> dependencies,
-            params object[] passThruArgs)
-        {
-            InjectEx(
-                ProcessHelper.GetCurrentProcessId(),
-                InTargetPID,
-                0,
-                lbraryPath_x86,
-                libraryPath_x64,
-                true,
-                coreRunDll,
-                coreLoadDll,
-                coreClrPath,
-                coreLibrariesPath,
-                pipePlatform,
-                dependencies,
                 passThruArgs);
         }
 
