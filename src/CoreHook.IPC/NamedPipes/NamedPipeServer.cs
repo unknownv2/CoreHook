@@ -6,7 +6,7 @@ using CoreHook.IPC.Platform;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public class NamedPipeServer : IDisposable
+    public class NamedPipeServer : INamedPipeServer
     {
         private const int MaxPipeNameLength = 250;
         private bool isStopping;

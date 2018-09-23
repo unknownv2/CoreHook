@@ -5,7 +5,7 @@ using System.Security.Principal;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public class NamedPipeClient : IDisposable
+    public class NamedPipeClient : INamedPipeClient
     {
         private string pipeName;
         private NamedPipeClientStream clientStream;
