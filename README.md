@@ -50,8 +50,6 @@ CoreHook supports application function call interception on various architecture
 * [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
 * [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
 * [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
-* [Json.NET](https://github.com/JamesNK/Newtonsoft.Json)
-* [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard)
 
 ## Examples
 
