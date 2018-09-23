@@ -1,6 +1,6 @@
 # CoreHook
 
-A library to intercept function calls in applications and extend their functionality with managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime inside applications on various architectures running [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x), [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x), and [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x).
+A library that simplifies intercepting application function calls using managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime.
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook).
 
@@ -13,22 +13,13 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 
 ## Features
-* Intercept public API functions
+* Intercept public API functions such as [kernel32.dll!CreateFile](https://docs.microsoft.com/en-us/windows/desktop/api/fileapi/nf-fileapi-createfilew) on Windows or [libc!open](http://man7.org/linux/man-pages/man2/open.2.html) on Unix
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
-## Dependencies
-
-* [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
-* [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking)
-* [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
-* [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
-* [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
-* [Json.NET](https://github.com/JamesNK/Newtonsoft.Json)
-* [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard)
-
-
 ## Supported Platforms
+
+CoreHook supports application function call interception on various architectures running [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x), [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x), and [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x).
 
 | Architecture  | Operating System      | Working    |
 | ------------- |:---------------------:|:----------:|
@@ -51,6 +42,16 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 | Windows Server 2008 | x86, x64              |
 | Windows Server 2012 | x86, x64              |
 | Windows Server 2016 | x86, x64              |
+
+## Dependencies
+
+* [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
+* [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking)
+* [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
+* [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
+* [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
+* [Json.NET](https://github.com/JamesNK/Newtonsoft.Json)
+* [JsonRpc (For Examples Only)](https://github.com/CXuesong/JsonRpc.Standard)
 
 ## Examples
 
