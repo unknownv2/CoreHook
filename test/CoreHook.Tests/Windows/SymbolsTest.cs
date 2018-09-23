@@ -24,6 +24,11 @@ namespace CoreHook.Tests.Windows
             CallingConvention = CallingConvention.StdCall)]
         private static extern ushort DeleteAtom(ushort nAtom);
 
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+            SetLastError = true,
+            CallingConvention = CallingConvention.StdCall)]
+        private static extern ushort FindAtomW(ushort nAtom);
+
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
@@ -35,8 +40,17 @@ namespace CoreHook.Tests.Windows
         private delegate ushort InternalAddAtomDelegate(bool local, bool unicode,
             string atomName, int arg4);
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall,
+            CharSet = CharSet.Unicode,
+            SetLastError = true)]
+        private delegate ushort InternalFindAtom(bool local, bool unicode,
+            string atomName);
+
         private InternalAddAtomDelegate InternalAddAtomFunction;
+        private InternalFindAtom InternalFindAtomFunction;
+
         private bool _internalAddAtomCalled;
+        private bool _internalFindAtomCalled;
         private bool _AddAtomCalled;
 
         // Windows max file system path string size
@@ -102,51 +116,48 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourAPIAndInternalFunction()
         {
-            // Create the internal function detour
             var internalAddAtomFuncAddress = LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom");
 
-            LocalHook hookInternal = LocalHook.Create(
-                internalAddAtomFuncAddress,
-                new InternalAddAtomDelegate(InternalAddAtomHook),
-                this);
-
-            hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
-            InternalAddAtomFunction = (InternalAddAtomDelegate)
-                    Marshal.GetDelegateForFunctionPointer(internalAddAtomFuncAddress,
-                    typeof(InternalAddAtomDelegate));
-
+            // Create the internal function detour
+            using (var hookInternal = LocalHook.Create(
+                 internalAddAtomFuncAddress,
+                 new InternalAddAtomDelegate(InternalAddAtomHook),
+                 this))
             // Create the public API detour 
-            LocalHook hookAPI = LocalHook.Create(
+            using (var hookAPI = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
                 new AddAtomWDelegate(AddAtomHook),
-                this);
+                this))
+            {
 
-            hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                InternalAddAtomFunction = (InternalAddAtomDelegate)
+                        Marshal.GetDelegateForFunctionPointer(internalAddAtomFuncAddress,
+                        typeof(InternalAddAtomDelegate));
+                hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-            _internalAddAtomCalled = false;
-            _AddAtomCalled = false;
+                _internalAddAtomCalled = false;
+                _AddAtomCalled = false;
 
-            string atomName = "TestLocalAtomName";
-            ushort atomId = AddAtomW(atomName);
+                string atomName = "TestLocalAtomName";
+                ushort atomId = AddAtomW(atomName);
 
-            Assert.NotEqual(0, atomId);
-            Assert.True(_internalAddAtomCalled);
-            Assert.True(_AddAtomCalled);
+                Assert.NotEqual(0, atomId);
+                Assert.True(_internalAddAtomCalled);
+                Assert.True(_AddAtomCalled);
 
-            StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-            uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
-            string retrievedAtomName = atomBuffer.ToString();
+                StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
+                uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+                string retrievedAtomName = atomBuffer.ToString();
 
-            Assert.NotEqual<uint>(0, bufLength);
-            Assert.Equal((uint)atomName.Length, bufLength);
-            Assert.Equal(retrievedAtomName.Length, atomName.Length);
+                Assert.NotEqual<uint>(0, bufLength);
+                Assert.Equal((uint)atomName.Length, bufLength);
+                Assert.Equal(retrievedAtomName.Length, atomName.Length);
 
-            Assert.Equal(retrievedAtomName, atomName);
+                Assert.Equal(retrievedAtomName, atomName);
 
-            Assert.Equal<ushort>(0, DeleteAtom(atomId));
-
-            hookAPI.Dispose();
-            hookInternal.Dispose();
+                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+            }
         }
 
         [Fact]
