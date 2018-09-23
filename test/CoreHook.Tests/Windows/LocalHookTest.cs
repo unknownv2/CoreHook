@@ -29,13 +29,13 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourIsInstalled()
         {
-            _beepHookCalled = false;
-
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
+                _beepHookCalled = false;
+
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 Assert.False(Beep(100, 100));
@@ -47,13 +47,13 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourIsBypassedByOriginalFunction()
         {
-            _beepHookCalled = false;
-
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
+                _beepHookCalled = false;
+
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
@@ -67,13 +67,13 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourCanBeBypassedAfterDetourCall()
         {
-            _beepHookCalled = false;
-
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
+                _beepHookCalled = false;
+
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 Assert.False(Beep(100, 100));
