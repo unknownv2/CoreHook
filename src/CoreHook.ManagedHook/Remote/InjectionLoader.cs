@@ -67,7 +67,9 @@ namespace CoreHook.ManagedHook.Remote
             lock (InjectionList)
             {
                 if (!InjectionList.ContainsKey(InTargetPID))
+                {
                     InjectionList.Add(InTargetPID, WaitInfo);
+                }
             }
         }
 
