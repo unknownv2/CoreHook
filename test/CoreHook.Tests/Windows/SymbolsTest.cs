@@ -5,6 +5,7 @@ using Xunit;
 
 namespace CoreHook.Tests.Windows
 {
+    [Collection("Sequential")]
     public class SymbolsTest
     {
 #if WIN64

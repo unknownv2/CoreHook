@@ -1,8 +1,10 @@
+using System;
 using System.Runtime.InteropServices;
 using Xunit;
 
 namespace CoreHook.Tests.Windows
 {
+    [Collection("Sequential")]
     public class LocalHookTest
     {
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -39,7 +41,6 @@ namespace CoreHook.Tests.Windows
                 Assert.False(Beep(100, 100));
 
                 Assert.True(_beepHookCalled);
-
             }
         }
 
@@ -86,6 +87,30 @@ namespace CoreHook.Tests.Windows
                 Assert.True(beep(100, 100));
 
                 Assert.False(_beepHookCalled);
+            }
+        }
+
+        [Fact]
+        public void TestInvalidDetourDelegate()
+        {
+            Assert.Throws<ArgumentNullException>(() => LocalHook.Create(
+                LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
+                null,
+                this));
+        }
+
+        [Fact]
+        public void TestInvalidDetourCallback()
+        {
+            using (var hook = LocalHook.Create(
+                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
+                new BeepDelegate(BeepHook),
+                null))
+            {    
+                Assert.Null(hook.Callback);
+                Assert.NotNull(hook.ThreadACL);
+                Assert.NotNull(hook.HookBypassAddress);
+                Assert.NotEqual(IntPtr.Zero, hook.HookBypassAddress);
             }
         }
     }
