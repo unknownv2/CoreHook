@@ -1,5 +1,4 @@
-﻿// From https://github.com/Microsoft/VFSForGit/tree/master/GVFS/GVFS.Common/NamedPipes
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
@@ -28,7 +27,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
-                throw new PipeNameLengthException(string.Format("The pipe name ({0}) exceeds the max length allowed({1})", pipeName, MaxPipeNameLength));
+                throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
             }
             NamedPipeServer pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
             pipeServer.OpenListeningPipe();
@@ -158,14 +157,17 @@ namespace CoreHook.IPC.NamedPipes
                 reader = new StreamReader(this.serverStream);
                 writer = new StreamWriter(this.serverStream);
             }
+
             public bool IsConnected
             {
                 get { return !isStopping() && serverStream.IsConnected; }
             }
+
             public NamedPipeMessages.Message ReadMessage()
             {
                 return NamedPipeMessages.Message.FromString(ReadRequest());
             }
+
             public string ReadRequest()
             {
                 try
@@ -177,6 +179,7 @@ namespace CoreHook.IPC.NamedPipes
                     return null;
                 }
             }
+
             public bool TrySendResponse(string message)
             {
                 try
@@ -190,6 +193,7 @@ namespace CoreHook.IPC.NamedPipes
                     return false;
                 }
             }
+
             public bool TrySendResponse(NamedPipeMessages.Message message)
             {
                 return TrySendResponse(message.ToString());

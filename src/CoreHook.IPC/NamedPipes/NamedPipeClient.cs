@@ -1,5 +1,4 @@
-﻿// From https://github.com/Microsoft/VFSForGit/tree/master/GVFS/GVFS.Common/NamedPipes
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
@@ -13,10 +12,12 @@ namespace CoreHook.IPC.NamedPipes
         private StreamReader reader;
         private StreamWriter writer;
         private const string serverName = ".";
+
         public NamedPipeClient(string pipeName)
         {
             this.pipeName = pipeName;
         }
+
         public bool Connect(int timeoutMilliseconds = 3000)
         {
             if (this.clientStream != null)
@@ -49,6 +50,7 @@ namespace CoreHook.IPC.NamedPipes
             this.writer = new StreamWriter(this.clientStream);
             return true;
         }
+
         public bool TrySendRequest(NamedPipeMessages.Message message)
         {
             try
@@ -61,10 +63,12 @@ namespace CoreHook.IPC.NamedPipes
             }
             return false;
         }
+
         public void SendRequest(NamedPipeMessages.Message message)
         {
             this.SendRequest(message.ToString());
         }
+
         public void SendRequest(string message)
         {
             this.ValidateConnection();
@@ -78,6 +82,7 @@ namespace CoreHook.IPC.NamedPipes
                 throw new BrokenPipeException("Unable to send: " + message, e);
             }
         }
+
         public string ReadRawResponse()
         {
             try
@@ -94,10 +99,12 @@ namespace CoreHook.IPC.NamedPipes
                 throw new BrokenPipeException("Unable to read from pipe", e);
             }
         }
+
         public NamedPipeMessages.Message ReadResponse()
         {
             return NamedPipeMessages.Message.FromString(this.ReadRawResponse());
         }
+
         public bool TryReadResponse(out NamedPipeMessages.Message message)
         {
             try
@@ -111,6 +118,7 @@ namespace CoreHook.IPC.NamedPipes
                 return false;
             }
         }
+
         public void Dispose()
         {
             this.ValidateConnection();
@@ -122,6 +130,7 @@ namespace CoreHook.IPC.NamedPipes
             this.reader = null;
             this.writer = null;
         }
+
         private void ValidateConnection()
         {
             if (this.clientStream == null)

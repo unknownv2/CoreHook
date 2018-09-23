@@ -23,6 +23,9 @@ namespace CoreHook.FileMonitor
         };
 
         private const string CoreHookPipeName = "CoreHook";
+        private const string HookLibraryDirName = "Hook";
+        private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
+
         private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
 
         /// <summary>
@@ -82,10 +85,11 @@ namespace CoreHook.FileMonitor
                 }
             }
 
-            string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Hook", "CoreHook.FileMonitor.Hook.dll");
-            
-            string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
+
+            string coreHookDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
             // start process and begin dll loading
@@ -207,22 +211,28 @@ namespace CoreHook.FileMonitor
             if (GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
                 RemoteHooking.CreateAndInject(
-                    exePath,
-                    coreHookDll,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreRootPath, // path to coreclr, clrjit
-                    coreLibrariesPath, // path to .net core shared libs
-                    null,
-                    0,
-                    injectionLibrary,
-                    injectionLibrary,
-                    out _,
-                    new PipePlatform(),
-                    null,
-                    CoreHookPipeName);
+                     new ProcessCreationConfig()
+                     {
+                         ExecutablePath = exePath,
+                         CommandLine = null,
+                         ProcessCreationFlags = 0x00
+                     },
+                     new RemoteHookingConfig()
+                     {
+                         HostLibrary = coreRunDll,
+                         CoreCLRPath = coreRootPath,
+                         CoreCLRLibrariesPath = coreLibrariesPath,
+                         CLRBootstrapLibrary = coreLoadDll,
+                         DetourLibrary = coreHookDll,
+                         PayloadLibrary = injectionLibrary,
+                         VerboseLog = false,
+                         WaitForDebugger = false,
+                         StartAssembly = false
+                     },
+                     new PipePlatform(),
+                     out _,
+                     CoreHookPipeName);
             }
-                   
         }
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {

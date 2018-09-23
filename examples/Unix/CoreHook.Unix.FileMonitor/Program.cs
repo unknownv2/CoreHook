@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.FileMonitor.Service.Pipe;
+using CoreHook.ManagedHook.Remote;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
@@ -112,16 +113,21 @@ namespace CoreHook.Unix.FileMonitor
                 return;
             }
 
-            ManagedHook.Remote.RemoteHooking.Inject(
+            RemoteHooking.Inject(
                 procId,
-                coreRunLib,
-                coreLoadDll,
-                coreLibrariesPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                injectionLibrary,
-                injectionLibrary,
+                new RemoteHookingConfig()
+                {
+                    HostLibrary = coreRunLib,
+                    CoreCLRPath = coreLibrariesPath,
+                    CoreCLRLibrariesPath = coreLibrariesPath,
+                    CLRBootstrapLibrary = coreLoadDll,
+                    DetourLibrary = string.Empty,
+                    PayloadLibrary = injectionLibrary,
+                    VerboseLog = false,
+                    WaitForDebugger = false,
+                    StartAssembly = false
+                },
                 new PipePlatform(),
-                null,
                 CoreHookPipeName);
         }
 
@@ -152,16 +158,21 @@ namespace CoreHook.Unix.FileMonitor
                 return;
             }
 
-            ManagedHook.Remote.RemoteHooking.Inject(
+            RemoteHooking.Inject(
                 procId,
-                coreRunLib,
-                coreLoadDll,
-                coreLibrariesPath, // path to coreclr, clrjit
-                coreLibrariesPath, // path to .net core shared libs
-                injectionLibrary,
-                injectionLibrary,
+                new RemoteHookingConfig()
+                {
+                    HostLibrary = coreRunLib,
+                    CoreCLRPath = coreLibrariesPath,
+                    CoreCLRLibrariesPath = coreLibrariesPath,
+                    CLRBootstrapLibrary = coreLoadDll,
+                    DetourLibrary = string.Empty,
+                    PayloadLibrary = injectionLibrary,
+                    VerboseLog = false,
+                    WaitForDebugger = false,
+                    StartAssembly = false
+                },
                 new PipePlatform(),
-                null,
                 CoreHookPipeName);
         }
         private static Process[] GetProcessListByName(string processName)

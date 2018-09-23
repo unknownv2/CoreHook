@@ -81,8 +81,7 @@ namespace CoreHook.UWP.FileMonitor
 
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string injectionLibrary = Path.Combine(currentDir,
-                HookLibraryDirName, HookLibraryName);
+            string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
             if (!File.Exists(injectionLibrary))
             {
@@ -90,7 +89,7 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            string coreHookDll = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+            string coreHookDll = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
 
             GrantAllAppPkgsAccessToDir(currentDir);

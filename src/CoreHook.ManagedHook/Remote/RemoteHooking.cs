@@ -14,7 +14,14 @@ namespace CoreHook.ManagedHook.Remote
 {
     public class RemoteHooking
     {
-        private const string CoreHookLoaderMethodName = "CoreHook.CoreLoad.Loader.Load";
+        private static AssemblyDelegate CoreHookLoaderDel =
+                new AssemblyDelegate(
+                assemblyName: "CoreHook.CoreLoad",
+                typeName: "Loader",
+                methodName: "Load");
+
+        private static string CoreHookLoaderMethodName = CoreHookLoaderDel.ToString();
+
         private const string InjectionPipe = "CoreHookInjection";
 
         private static IBinaryLoader GetBinaryLoader()
@@ -39,110 +46,63 @@ namespace CoreHook.ManagedHook.Remote
                 throw new UnsupportedPlatformException("Binary injection");
             }
         }
+
         public static void CreateAndInject(
-            RemoteHookingConfig config
+            ProcessCreationConfig process,
+            RemoteHookingConfig remoteHook,
+            IPipePlatform pipePlatform,
+            out int outProcessId,
+            params object[] passThruArgs
             )
         {
-            
-        }
-        public static void CreateAndInject(
-            string exePath,
-            string coreHookDll,
-            string coreRunDll,
-            string coreLoadDll,
-            string coreClrPath,
-            string coreLibrariesPath,
-            string commandLine,
-            uint processCreationFlags,
-            string lbraryPath_x86,
-            string libraryPath_x64,
-            out int outProcessId,
-            IPipePlatform pipePlatform,
-            IEnumerable<string> dependencies,
-            params object[] passThruArgs)
-        {
             outProcessId = -1;
+
             var si = new NativeMethods.StartupInfo();
             var pi = new NativeMethods.ProcessInformation();
 
-            if(Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(exePath,
-                commandLine,
-                IntPtr.Zero,
-                IntPtr.Zero,
-                false,
-                processCreationFlags |
-                (uint)
-                (
-                NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
-                ),
-                IntPtr.Zero,
-                null,
-                ref si,
-                out pi,
-                coreHookDll,
-                IntPtr.Zero
-                ))
+            si.wShowWindow = 1;
+
+            if (Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(
+                    process.ExecutablePath,
+                    process.CommandLine,
+                    IntPtr.Zero,
+                    IntPtr.Zero,
+                    false,
+                    process.ProcessCreationFlags |
+                    (uint)
+                    (
+                    NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
+                    ),
+                    IntPtr.Zero,
+                    null,
+                    ref si,
+                    out pi,
+                    remoteHook.DetourLibrary,
+                    IntPtr.Zero
+                    ))
             {
                 outProcessId = pi.dwProcessId;
 
                 InjectEx(
                     ProcessHelper.GetCurrentProcessId(),
                     pi.dwProcessId,
-                    pi.dwThreadId,
-                    lbraryPath_x86,
-                    libraryPath_x64,
-                    true,
-                    coreRunDll,
-                    coreLoadDll,
-                    coreClrPath,
-                    coreLibrariesPath,
+                    remoteHook,
                     pipePlatform,
-                    dependencies,
                     passThruArgs);
             }
-            else
-            {
-                throw new ProcessStartException(exePath);
-            }
         }
+
         public static void Inject(
-            int InTargetPID,
-            RemoteHookingConfig config,
+            int targetPID,
+            RemoteHookingConfig remoteHook,
             IPipePlatform pipePlatform,
             params object[] passThruArgs)
         {
             InjectEx(
                 ProcessHelper.GetCurrentProcessId(),
-                InTargetPID,
-                config,
+                targetPID,
+                remoteHook,
                 pipePlatform,
-                passThruArgs);
-        }
-        public static void Inject(
-            int InTargetPID,
-            string coreRunDll,
-            string coreLoadDll,
-            string coreClrPath,
-            string coreLibrariesPath,
-            string lbraryPath_x86,
-            string libraryPath_x64,
-            IPipePlatform pipePlatform,
-            IEnumerable<string> dependencies,
-            params object[] passThruArgs)
-        {
-            InjectEx(
-                ProcessHelper.GetCurrentProcessId(),
-                InTargetPID,
-                0,
-                lbraryPath_x86,
-                libraryPath_x64,
-                true,
-                coreRunDll,
-                coreLoadDll,
-                coreClrPath,
-                coreLibrariesPath,
-                pipePlatform,
-                dependencies,
                 passThruArgs);
         }
 
@@ -207,96 +167,6 @@ namespace CoreHook.ManagedHook.Remote
                                     PayloadFileName = config.CLRBootstrapLibrary,
                                     CoreRootPath = config.CoreCLRPath,
                                     CoreLibrariesPath = config.CoreCLRLibrariesPath
-                                },
-                                new RemoteFunctionArgs()
-                                {
-                                    UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
-                                    UserDataSize = length
-                                });
-
-                            InjectionHelper.WaitForInjection(targetPID);
-                        }
-                    }
-                    finally
-                    {
-                        hPassThru.Free();
-                    }
-                }
-                finally
-                {
-                    InjectionHelper.EndInjection(targetPID);
-                }
-            }
-        }
-
-        public static void InjectEx(
-            int hostPID,
-            int targetPID,
-            int wakeUpTID,
-            string lbraryPath_x86,
-            string libraryPath_x64,
-            bool canBypassWOW64,
-            string coreRunDll,
-            string coreLoadDll,
-            string coreClrPath,
-            string coreLibrariesPath,
-            IPipePlatform pipePlatform,
-            IEnumerable<string> dependencies,
-            params object[] passThruArgs)
-        {
-            var passThru = new MemoryStream();
-            InjectionHelper.BeginInjection(targetPID);
-            using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
-            {
-                try
-                {
-                    var remoteInfo = new ManagedRemoteInfo();
-                    remoteInfo.HostPID = hostPID;
-
-                    var format = new BinaryFormatter();
-                    var args = new List<object>();
-                    if (passThruArgs != null)
-                    {
-                        foreach (var arg in passThruArgs)
-                        {
-                            using (var ms = new MemoryStream())
-                            {
-                                format.Serialize(ms, arg);
-                                args.Add(ms.ToArray());
-                            }
-                        }
-                    }
-                    remoteInfo.UserParams = args.ToArray();
-
-                    GCHandle hPassThru = PrepareInjection(
-                        remoteInfo,
-                        ref lbraryPath_x86,
-                        ref libraryPath_x64,
-                        passThru);
-
-                    // Inject the corerundll into the process, start the CoreCLR runtime
-                    // and use the CoreLoad dll to resolve the dependencies of the hooking library
-                    // and then call the IEntryPoint.Run method located in the hooking library
-                    try
-                    {
-                        var proc = ProcessHelper.GetProcessById(targetPID);
-                        var length = (uint)passThru.Length;
-
-                        using (var binaryLoader = GetBinaryLoader())
-                        {              
-                            binaryLoader.Load(proc, coreRunDll, dependencies);
-
-                            binaryLoader.CallFunctionWithRemoteArgs(proc,
-                                coreRunDll,
-                                CoreHookLoaderMethodName,
-                                new BinaryLoaderArgs()
-                                {
-                                    Verbose = true,
-                                    WaitForDebugger = false,
-                                    StartAssembly = false,
-                                    PayloadFileName = coreLoadDll,
-                                    CoreRootPath = coreClrPath,
-                                    CoreLibrariesPath = coreLibrariesPath
                                 },
                                 new RemoteFunctionArgs()
                                 {

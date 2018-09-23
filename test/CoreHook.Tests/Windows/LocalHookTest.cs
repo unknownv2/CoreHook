@@ -1,8 +1,10 @@
+using System;
 using System.Runtime.InteropServices;
 using Xunit;
 
 namespace CoreHook.Tests.Windows
 {
+    [Collection("Sequential")]
     public class LocalHookTest
     {
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -27,32 +29,31 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourIsInstalled()
         {
-            _beepHookCalled = false;
-
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
+                _beepHookCalled = false;
+
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 Assert.False(Beep(100, 100));
 
                 Assert.True(_beepHookCalled);
-
             }
         }
 
         [Fact]
         public void DetourIsBypassedByOriginalFunction()
         {
-            _beepHookCalled = false;
-
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
+                _beepHookCalled = false;
+
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
@@ -66,13 +67,13 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourCanBeBypassedAfterDetourCall()
         {
-            _beepHookCalled = false;
-
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
+                _beepHookCalled = false;
+
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 Assert.False(Beep(100, 100));
@@ -86,6 +87,30 @@ namespace CoreHook.Tests.Windows
                 Assert.True(beep(100, 100));
 
                 Assert.False(_beepHookCalled);
+            }
+        }
+
+        [Fact]
+        public void TestInvalidDetourDelegate()
+        {
+            Assert.Throws<ArgumentNullException>(() => LocalHook.Create(
+                LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
+                null,
+                this));
+        }
+
+        [Fact]
+        public void TestInvalidDetourCallback()
+        {
+            using (var hook = LocalHook.Create(
+                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
+                new BeepDelegate(BeepHook),
+                null))
+            {    
+                Assert.Null(hook.Callback);
+                Assert.NotNull(hook.ThreadACL);
+                Assert.NotNull(hook.HookBypassAddress);
+                Assert.NotEqual(IntPtr.Zero, hook.HookBypassAddress);
             }
         }
     }
