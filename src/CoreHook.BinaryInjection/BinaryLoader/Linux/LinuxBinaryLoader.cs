@@ -319,12 +319,15 @@ namespace CoreHook.BinaryInjection
             {
                 foreach (var binary in dependencies)
                 {
-                    var libName = Path.Combine(dir, binary);
-                    if (!File.Exists(libName))
+                    if (string.IsNullOrEmpty(binary))
                     {
-                        throw new FileNotFoundException("Binary file not found.", binary);
+                        var libName = Path.Combine(dir, binary);
+                        if (!File.Exists(libName))
+                        {
+                            throw new FileNotFoundException("Binary file not found.", binary);
+                        }
+                        InjectLibrary(injHandle, libName);
                     }
-                    InjectLibrary(injHandle, libName);
                 }
             }
 

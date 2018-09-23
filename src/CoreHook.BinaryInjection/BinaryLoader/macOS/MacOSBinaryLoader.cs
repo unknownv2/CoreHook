@@ -50,12 +50,15 @@ namespace CoreHook.BinaryInjection
             {
                 foreach (var binary in dependencies)
                 {
-                    var fname = Path.Combine(dir, binary);
-                    if (!File.Exists(fname))
+                    if (string.IsNullOrEmpty(binary))
                     {
-                        throw new FileNotFoundException("Binary file not found.", binary);
+                        var fname = Path.Combine(dir, binary);
+                        if (!File.Exists(fname))
+                        {
+                            throw new FileNotFoundException("Binary file not found.", binary);
+                        }
+                        Unmanaged.MacOS.Process.injectByPid(targetProcess.Id, fname);
                     }
-                    Unmanaged.MacOS.Process.injectByPid(targetProcess.Id, fname);
                 }
             }
 
