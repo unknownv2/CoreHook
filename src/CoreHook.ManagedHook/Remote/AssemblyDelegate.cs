@@ -16,6 +16,7 @@ namespace CoreHook.ManagedHook.Remote
             _typeName = typeName;
             _methodName = methodName;
         }
+
         public override string ToString()
         {
             return $"{_assemblyName}.{_typeName}.{_methodName}";

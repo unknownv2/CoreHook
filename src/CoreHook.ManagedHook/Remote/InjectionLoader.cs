@@ -45,6 +45,7 @@ namespace CoreHook.ManagedHook.Remote
 
 
         private static SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
+
         public static void BeginInjection(int InTargetPID)
         {
             InjectionWait WaitInfo;
@@ -69,6 +70,7 @@ namespace CoreHook.ManagedHook.Remote
                     InjectionList.Add(InTargetPID, WaitInfo);
             }
         }
+
         public static void EndInjection(int InTargetPID)
         {
             lock (InjectionList)
@@ -78,6 +80,7 @@ namespace CoreHook.ManagedHook.Remote
                 InjectionList.Remove(InTargetPID);
             }
         }
+
         public static void WaitForInjection(int InTargetPID, int timeout = 20000)
         {
             InjectionWait waitInfo;

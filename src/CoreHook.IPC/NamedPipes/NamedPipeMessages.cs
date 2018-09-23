@@ -1,5 +1,4 @@
-﻿// From https://github.com/Microsoft/VFSForGit/tree/master/GVFS/GVFS.Common/NamedPipes
-using System;
+﻿using System;
 using Newtonsoft.Json;
 
 namespace CoreHook.IPC.NamedPipes
@@ -66,6 +65,7 @@ namespace CoreHook.IPC.NamedPipes
                 return result;
             }
         }
+
         public class InjectionCompleteNotification
         {
             public const string InjectionComplete = "InjectionComplete";
@@ -86,6 +86,7 @@ namespace CoreHook.IPC.NamedPipes
                 return new Message(InjectionComplete, RequestData.ToMessage());
             }
         }
+
         public class InjectionCompleteMessage
         {
             public InjectionCompleteMessage(int pid, bool didComplete)
