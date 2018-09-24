@@ -15,7 +15,7 @@ namespace CoreHook.IPC.NamedPipes
         private IPipePlatform platform;
         private NamedPipeServerStream listeningPipe;
 
-        private NamedPipeServer(string pipeName, IPipePlatform platform, Action<Connection> handleConnection)
+        private NamedPipeServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
         {
             this.pipeName = pipeName;
             this.platform = platform;
@@ -23,7 +23,7 @@ namespace CoreHook.IPC.NamedPipes
             this.isStopping = false;
         }
 
-        public static NamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, Connection> handleRequest)
+        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, IConnection> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
@@ -44,7 +44,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        private static void HandleConnection(Connection connection, Action<string, Connection> handleRequest)
+        private static void HandleConnection(IConnection connection, Action<string, IConnection> handleRequest)
         {
             while (connection.IsConnected)
             {
@@ -143,7 +143,7 @@ namespace CoreHook.IPC.NamedPipes
             Console.WriteLine(e);
         }
 
-        public class Connection
+        public class Connection : IConnection
         {
             private NamedPipeServerStream serverStream;
             private StreamReader reader;

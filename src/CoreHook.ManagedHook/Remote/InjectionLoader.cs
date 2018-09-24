@@ -15,12 +15,12 @@ namespace CoreHook.ManagedHook.Remote
             public Exception Error = null;
         }
 
-        public static NamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
+        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleRequest);
         }
 
-        private static void HandleRequest(string request, NamedPipeServer.Connection connection)
+        private static void HandleRequest(string request, IPC.IConnection connection)
         {
             var message = NamedPipeMessages.Message.FromString(request);
 
