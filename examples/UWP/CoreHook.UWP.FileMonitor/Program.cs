@@ -181,8 +181,6 @@ namespace CoreHook.UWP.FileMonitor
                 CoreHookPipeName);
         }
 
-        private static FileMonitorSessionFeature session = new FileMonitorSessionFeature();
-
         private static void StartListener()
         {
             var session = new FileMonitorSessionFeature();
