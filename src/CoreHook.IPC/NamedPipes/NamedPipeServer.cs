@@ -29,7 +29,7 @@ namespace CoreHook.IPC.NamedPipes
             {
                 throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
             }
-            NamedPipeServer pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
+            var pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
             pipeServer.OpenListeningPipe();
             return pipeServer;
         }
@@ -144,22 +144,24 @@ namespace CoreHook.IPC.NamedPipes
 
         public class Connection : IConnection
         {
-            private NamedPipeServerStream serverStream;
-            private StreamReader reader;
-            private StreamWriter writer;
-            private Func<bool> isStopping;
+            public NamedPipeServerStream ServerStream { get; }
+
+            private readonly StreamReader _reader;
+            private readonly StreamWriter _writer;
+            private readonly Func<bool> _isStopping;
 
             public Connection(NamedPipeServerStream serverStream, Func<bool> isStopping)
             {
-                this.serverStream = serverStream;
-                this.isStopping = isStopping;
-                reader = new StreamReader(this.serverStream);
-                writer = new StreamWriter(this.serverStream);
+                ServerStream = serverStream;
+
+                _isStopping = isStopping;
+                _reader = new StreamReader(ServerStream);
+                _writer = new StreamWriter(ServerStream);
             }
 
             public bool IsConnected
             {
-                get { return !isStopping() && serverStream.IsConnected; }
+                get { return !_isStopping() && ServerStream.IsConnected; }
             }
 
             public NamedPipeMessages.Message ReadMessage()
@@ -171,7 +173,7 @@ namespace CoreHook.IPC.NamedPipes
             {
                 try
                 {
-                    return reader.ReadLine();
+                    return _reader.ReadLine();
                 }
                 catch (IOException)
                 {
@@ -183,8 +185,9 @@ namespace CoreHook.IPC.NamedPipes
             {
                 try
                 {
-                    writer.WriteLine(message);
-                    writer.Flush();
+                    _writer.WriteLine(message);
+                    _writer.Flush();
+
                     return true;
                 }
                 catch (IOException)
