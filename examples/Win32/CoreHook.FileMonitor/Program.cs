@@ -259,8 +259,10 @@ namespace CoreHook.FileMonitor
                     },
                     new PipePlatform(),
                     CoreHookPipeName);
-            }        
+            }
         }
+
+        private static FileMonitorSessionFeature session = new FileMonitorSessionFeature();
 
         private static void StartListener()
         {
@@ -268,6 +270,8 @@ namespace CoreHook.FileMonitor
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
+
+            session.StopServer();
         }
 
         public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
@@ -285,7 +289,6 @@ namespace CoreHook.FileMonitor
 
             var serverHandler = new StreamRpcServerHandler(host);
 
-            var session = new FileMonitorSessionFeature();
             serverHandler.DefaultFeatures.Set(session);
 
             using (var reader = new ByLineTextMessageReader(pipeServer))

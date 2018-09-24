@@ -6,8 +6,10 @@ using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service;
-using CoreHook.FileMonitor.Service.Pipe;
+using CoreHook.IPC.NamedPipes;
+using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
@@ -192,25 +194,33 @@ namespace CoreHook.UWP.FileMonitor
                 CoreHookPipeName);
         }
 
+        private static FileMonitorSessionFeature session = new FileMonitorSessionFeature();
+
         private static void StartListener()
         {
-            var listener = new NpListener(CoreHookPipeName, pipePlatform);
-            listener.RequestRetrieved += ClientConnectionMade;
-            listener.Start();
+            Task.Factory.StartNew(() => CreateServer(CoreHookPipeName, pipePlatform), TaskCreationOptions.LongRunning);
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
+
+            session.StopServer();
         }
 
-        private static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
+        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
-            var pipeServer = args.PipeStream;
+            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleConnection);
+        }
+
+        private static void HandleConnection(IPC.IConnection connection)
+        {
+            Console.WriteLine($"Connection received from pipe {CoreHookPipeName}");
+
+            var pipeServer = connection.ServerStream;
 
             IJsonRpcServiceHost host = BuildServiceHost();
 
             var serverHandler = new StreamRpcServerHandler(host);
-
-            var session = new FileMonitorSessionFeature();
+            
             serverHandler.DefaultFeatures.Set(session);
 
             using (var reader = new ByLineTextMessageReader(pipeServer))
@@ -265,6 +275,7 @@ namespace CoreHook.UWP.FileMonitor
             }
 
             GrantAllAppPkgsAccessToFolder(directoryPath);
+
             foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".pdb")))
             {
@@ -289,7 +300,7 @@ namespace CoreHook.UWP.FileMonitor
                 FileSecurity acl = fileInfo.GetAccessControl();
 
                 var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), 
-                    FileSystemRights.ReadAndExecute, AccessControlType.Allow);
+                               FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);
 
                 fileInfo.SetAccessControl(acl);
@@ -325,10 +336,17 @@ namespace CoreHook.UWP.FileMonitor
             var appActiveManager = new ApplicationActivationManager();
             uint pid;
 
-            // PackageFamilyName + {Applications.Application.Id}, inside AppxManifest.xml
-            appActiveManager.ActivateApplication(appName, null, ActivateOptions.None, out pid);
+            try
+            {
+                // PackageFamilyName + {Applications.Application.Id}, inside AppxManifest.xml
+                appActiveManager.ActivateApplication(appName, null, ActivateOptions.None, out pid);
 
-            return (int)pid;
+                return (int)pid;
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }
