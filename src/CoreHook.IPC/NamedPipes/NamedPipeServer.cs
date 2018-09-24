@@ -34,6 +34,17 @@ namespace CoreHook.IPC.NamedPipes
             return pipeServer;
         }
 
+        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
+        {
+            if (pipeName.Length > MaxPipeNameLength)
+            {
+                throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
+            }
+            var pipeServer = new NamedPipeServer(pipeName, platform, connection => handleConnection(connection));
+            pipeServer.OpenListeningPipe();
+            return pipeServer;
+        }
+
         public void Dispose()
         {
             isStopping = true;

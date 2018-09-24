@@ -43,7 +43,6 @@ namespace CoreHook.ManagedHook.Remote
             }
         }
 
-
         private static SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
 
         public static void BeginInjection(int InTargetPID)
@@ -101,9 +100,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw waitInfo.Error;
         }
 
-        public static void InjectionException(
-            int clientPID,
-            Exception e)
+        public static void InjectionException(int clientPID, Exception e)
         {
             InjectionWait waitInfo;
 

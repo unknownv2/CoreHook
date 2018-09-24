@@ -3,9 +3,10 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
+using CoreHook.IPC.NamedPipes;
+using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.FileMonitor.Service.Pipe;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
@@ -26,7 +27,7 @@ namespace CoreHook.FileMonitor
         private const string HookLibraryDirName = "Hook";
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
 
-        private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
+        private static IPipePlatform pipePlatform = new PipePlatform();
 
         /// <summary>
         /// Parse a file path and remove quotes from path name if it is enclosed
@@ -263,17 +264,22 @@ namespace CoreHook.FileMonitor
 
         private static void StartListener()
         {
-            var listener = new NpListener(CoreHookPipeName, pipePlatform);
-            listener.RequestRetrieved += ClientConnectionMade;
-            listener.Start();
+            CreateServer(CoreHookPipeName, pipePlatform);
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
         }
 
-        private static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
+        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
-            var pipeServer = args.PipeStream;
+            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleConnection);
+        }
+
+        private static void HandleConnection(IPC.IConnection connection)
+        {
+            Console.WriteLine($"Connection received from pipe {CoreHookPipeName}");
+
+            var pipeServer = connection.ServerStream;
 
             IJsonRpcServiceHost host = BuildServiceHost();
 
@@ -290,6 +296,7 @@ namespace CoreHook.FileMonitor
                 session.CancellationToken.WaitHandle.WaitOne();
             }
         }
+  
         private static IJsonRpcServiceHost BuildServiceHost()
         {
             var builder = new JsonRpcServiceHostBuilder
