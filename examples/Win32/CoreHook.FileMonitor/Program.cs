@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
@@ -269,7 +270,7 @@ namespace CoreHook.FileMonitor
 
         private static void StartListener()
         {
-            CreateServer(CoreHookPipeName, pipePlatform);
+            Task.Factory.StartNew(() => CreateServer(CoreHookPipeName, pipePlatform), TaskCreationOptions.LongRunning);
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
