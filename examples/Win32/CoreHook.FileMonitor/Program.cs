@@ -187,6 +187,7 @@ namespace CoreHook.FileMonitor
 
             return true;
         }
+
         /// <summary>
         /// Check if a file path is valid, otherwise throw an exception
         /// </summary>
@@ -202,6 +203,7 @@ namespace CoreHook.FileMonitor
                 throw new FileNotFoundException($"File path {filePath} does not exist");
             }
         }
+
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
             ValidateFilePath(exePath);
@@ -235,6 +237,7 @@ namespace CoreHook.FileMonitor
                      CoreHookPipeName);
             }
         }
+
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
             ValidateFilePath(injectionLibrary);
@@ -274,7 +277,7 @@ namespace CoreHook.FileMonitor
             session.StopServer();
         }
 
-        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
+        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleConnection);
         }

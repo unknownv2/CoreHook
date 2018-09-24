@@ -31,7 +31,7 @@ namespace CoreHook.UWP.FileMonitor
         private const string HookLibraryDirName = "Hook";
         private const string HookLibraryName = "CoreHook.UWP.FileMonitor.Hook.dll";
 
-        private static IPC.Platform.IPipePlatform pipePlatform = new Pipe.PipePlatform();
+        private static IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static bool IsArchitectureArm()
         {
@@ -206,7 +206,7 @@ namespace CoreHook.UWP.FileMonitor
             session.StopServer();
         }
 
-        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
+        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleConnection);
         }
