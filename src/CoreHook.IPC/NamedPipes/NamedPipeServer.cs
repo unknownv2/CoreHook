@@ -36,8 +36,8 @@ namespace CoreHook.IPC.NamedPipes
 
         public void Dispose()
         {
-            this.isStopping = true;
-            NamedPipeServerStream pipe = Interlocked.Exchange(ref this.listeningPipe, null);
+            isStopping = true;
+            NamedPipeServerStream pipe = Interlocked.Exchange(ref listeningPipe, null);
             if (pipe != null)
             {
                 pipe.Dispose();
@@ -49,8 +49,7 @@ namespace CoreHook.IPC.NamedPipes
             while (connection.IsConnected)
             {
                 string request = connection.ReadRequest();
-                if (request == null ||
-                    !connection.IsConnected)
+                if (request == null || !connection.IsConnected)
                 {
                     break;
                 }
@@ -77,7 +76,7 @@ namespace CoreHook.IPC.NamedPipes
 
         private void OnNewConnection(IAsyncResult ar)
         {
-            this.OnNewConnection(ar, createNewThreadIfSynchronous: true);
+            OnNewConnection(ar, createNewThreadIfSynchronous: true);
         }
 
         private void OnNewConnection(IAsyncResult ar, bool createNewThreadIfSynchronous)
@@ -122,7 +121,7 @@ namespace CoreHook.IPC.NamedPipes
                     {
                         try
                         {
-                            handleConnection(new Connection(pipe, () => this.isStopping));
+                            handleConnection(new Connection(pipe, () => isStopping));
                         }
                         catch (Exception e)
                         {

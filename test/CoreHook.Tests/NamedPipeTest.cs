@@ -63,6 +63,34 @@ namespace CoreHook.Tests
         }
 
         [Fact]
+        private void ShouldConnectToServerAndReceiveRandomResponse()
+        {
+            const string namedPipe = "NamedPipeNameTest3";
+            const string testMessage = "TestMessage";
+            bool receivedCorrectMessage = false;
+
+            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+                (string request, IPC.IConnection connection) =>
+                {
+                    if (request == testMessage)
+                    {
+                        receivedCorrectMessage = true;
+                    }
+                    connection.TrySendResponse("RandomResponse");
+                }))
+            {
+                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                {
+                    if (SendPipeMessage(pipeClient, testMessage))
+                    {
+                        Assert.NotEqual(pipeClient.ReadRawResponse(), testMessage);
+                    }
+                }
+            }
+            Assert.True(receivedCorrectMessage);
+        }
+
+        [Fact]
         private void ShouldNotConnectToServer()
         {
             const string clientNamedPipe = "ClientNamedPipeNameTest1";
