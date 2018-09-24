@@ -1,21 +1,24 @@
 # CoreHook
 
-A library that simplifies intercepting application function calls using managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime.
+A library that simplifies intercepting application function calls using managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime. 
 
-Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook).
+Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 
 
 ## Build status
 
-| Build server | Platform           | Build status                                                                                                                                 |
-| ------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| AppVeyor     | Linux, Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook) |
-| Travis CI    | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                      |
+| Build server    | Platform           | Build status                                                                                                                                                                    |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AppVeyor        | Linux, Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook)                                    |
+| Travis CI       | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                                                         |
+| Azure Pipelines | Linux              | [![Build Status](https://unknowndev.visualstudio.com/CoreHook/_apis/build/status/CoreHook/CoreHook)](https://unknowndev.visualstudio.com/CoreHook/_build/latest?definitionId=2) |
 
 
 ## Features
 * Intercept public API functions such as [kernel32.dll!CreateFile](https://docs.microsoft.com/en-us/windows/desktop/api/fileapi/nf-fileapi-createfilew) on Windows or [libc!open](http://man7.org/linux/man-pages/man2/open.2.html) on Unix
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
+
+For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki).
 
 ## Supported Platforms
 
