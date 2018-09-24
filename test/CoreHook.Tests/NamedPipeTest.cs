@@ -63,6 +63,36 @@ namespace CoreHook.Tests
         }
 
         [Fact]
+        private void ShouldConnectToServerAndReceiveMultipleResponses()
+        {
+            const string namedPipe = "NamedPipeNameTest4";
+            const string testMessage1 = "TestMessage1";
+            const string testMessage2 = "TestMessage2";
+            const string testMessage3 = "TestMessage3";
+
+            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+                (string request, IPC.IConnection connection) =>
+                {
+                    connection.TrySendResponse(request);
+                }))
+            {
+                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                {
+                    if (pipeClient.Connect(3000))
+                    {
+                        pipeClient.SendRequest(testMessage1);
+                        pipeClient.SendRequest(testMessage2);
+                        pipeClient.SendRequest(testMessage3);
+
+                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage1);
+                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage2);
+                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage3);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         private void ShouldConnectToServerAndReceiveRandomResponse()
         {
             const string namedPipe = "NamedPipeNameTest3";
@@ -111,7 +141,7 @@ namespace CoreHook.Tests
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
         }
-
+        
         private static bool SendPipeMessage(INamedPipeClient pipeClient, string message)
         {
             if (pipeClient.Connect(3000))
