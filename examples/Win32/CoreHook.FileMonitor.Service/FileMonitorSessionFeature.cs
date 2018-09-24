@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace CoreHook.FileMonitor.Service
 {
-    public class FileMonitorSessionFeature
+    public class FileMonitorSessionFeature : Examples.Common.ISessionFeature
     {
         private readonly CancellationTokenSource cts = new CancellationTokenSource();
 

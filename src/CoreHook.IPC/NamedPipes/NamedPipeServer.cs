@@ -6,7 +6,7 @@ using CoreHook.IPC.Platform;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public class NamedPipeServer : IDisposable
+    public class NamedPipeServer : INamedPipeServer
     {
         private const int MaxPipeNameLength = 250;
         private bool isStopping;
@@ -15,7 +15,7 @@ namespace CoreHook.IPC.NamedPipes
         private IPipePlatform platform;
         private NamedPipeServerStream listeningPipe;
 
-        private NamedPipeServer(string pipeName, IPipePlatform platform, Action<Connection> handleConnection)
+        private NamedPipeServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
         {
             this.pipeName = pipeName;
             this.platform = platform;
@@ -23,34 +23,44 @@ namespace CoreHook.IPC.NamedPipes
             this.isStopping = false;
         }
 
-        public static NamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, Connection> handleRequest)
+        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, IConnection> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
                 throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
             }
-            NamedPipeServer pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
+            var pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
+            pipeServer.OpenListeningPipe();
+            return pipeServer;
+        }
+
+        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
+        {
+            if (pipeName.Length > MaxPipeNameLength)
+            {
+                throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
+            }
+            var pipeServer = new NamedPipeServer(pipeName, platform, connection => handleConnection(connection));
             pipeServer.OpenListeningPipe();
             return pipeServer;
         }
 
         public void Dispose()
         {
-            this.isStopping = true;
-            NamedPipeServerStream pipe = Interlocked.Exchange(ref this.listeningPipe, null);
+            isStopping = true;
+            NamedPipeServerStream pipe = Interlocked.Exchange(ref listeningPipe, null);
             if (pipe != null)
             {
                 pipe.Dispose();
             }
         }
 
-        private static void HandleConnection(Connection connection, Action<string, Connection> handleRequest)
+        private static void HandleConnection(IConnection connection, Action<string, IConnection> handleRequest)
         {
             while (connection.IsConnected)
             {
                 string request = connection.ReadRequest();
-                if (request == null ||
-                    !connection.IsConnected)
+                if (request == null || !connection.IsConnected)
                 {
                     break;
                 }
@@ -77,7 +87,7 @@ namespace CoreHook.IPC.NamedPipes
 
         private void OnNewConnection(IAsyncResult ar)
         {
-            this.OnNewConnection(ar, createNewThreadIfSynchronous: true);
+            OnNewConnection(ar, createNewThreadIfSynchronous: true);
         }
 
         private void OnNewConnection(IAsyncResult ar, bool createNewThreadIfSynchronous)
@@ -122,7 +132,7 @@ namespace CoreHook.IPC.NamedPipes
                     {
                         try
                         {
-                            handleConnection(new Connection(pipe, () => this.isStopping));
+                            handleConnection(new Connection(pipe, () => isStopping));
                         }
                         catch (Exception e)
                         {
@@ -143,24 +153,26 @@ namespace CoreHook.IPC.NamedPipes
             Console.WriteLine(e);
         }
 
-        public class Connection
+        public class Connection : IConnection
         {
-            private NamedPipeServerStream serverStream;
-            private StreamReader reader;
-            private StreamWriter writer;
-            private Func<bool> isStopping;
+            public NamedPipeServerStream ServerStream { get; }
+
+            private readonly StreamReader _reader;
+            private readonly StreamWriter _writer;
+            private readonly Func<bool> _isStopping;
 
             public Connection(NamedPipeServerStream serverStream, Func<bool> isStopping)
             {
-                this.serverStream = serverStream;
-                this.isStopping = isStopping;
-                reader = new StreamReader(this.serverStream);
-                writer = new StreamWriter(this.serverStream);
+                ServerStream = serverStream;
+
+                _isStopping = isStopping;
+                _reader = new StreamReader(ServerStream);
+                _writer = new StreamWriter(ServerStream);
             }
 
             public bool IsConnected
             {
-                get { return !isStopping() && serverStream.IsConnected; }
+                get { return !_isStopping() && ServerStream.IsConnected; }
             }
 
             public NamedPipeMessages.Message ReadMessage()
@@ -172,7 +184,7 @@ namespace CoreHook.IPC.NamedPipes
             {
                 try
                 {
-                    return reader.ReadLine();
+                    return _reader.ReadLine();
                 }
                 catch (IOException)
                 {
@@ -184,8 +196,9 @@ namespace CoreHook.IPC.NamedPipes
             {
                 try
                 {
-                    writer.WriteLine(message);
-                    writer.Flush();
+                    _writer.WriteLine(message);
+                    _writer.Flush();
+
                     return true;
                 }
                 catch (IOException)

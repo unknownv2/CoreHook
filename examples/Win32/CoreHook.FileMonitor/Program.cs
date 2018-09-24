@@ -3,30 +3,19 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
+using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.FileMonitor.Service.Pipe;
-using JsonRpc.Standard.Contracts;
-using JsonRpc.Standard.Server;
-using JsonRpc.Streams;
 
 namespace CoreHook.FileMonitor
 {
     class Program
     {
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
-        {
-            // Use camelcase for RPC method names.
-            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
-            ParameterValueConverter = new CamelCaseJsonValueConverter()
-        };
-
         private const string CoreHookPipeName = "CoreHook";
         private const string HookLibraryDirName = "Hook";
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
 
-        private static IPC.Platform.IPipePlatform pipePlatform = new PipePlatform();
+        private static IPipePlatform pipePlatform = new PipePlatform();
 
         /// <summary>
         /// Parse a file path and remove quotes from path name if it is enclosed
@@ -186,6 +175,7 @@ namespace CoreHook.FileMonitor
 
             return true;
         }
+
         /// <summary>
         /// Check if a file path is valid, otherwise throw an exception
         /// </summary>
@@ -201,6 +191,7 @@ namespace CoreHook.FileMonitor
                 throw new FileNotFoundException($"File path {filePath} does not exist");
             }
         }
+
         private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
         {
             ValidateFilePath(exePath);
@@ -234,6 +225,7 @@ namespace CoreHook.FileMonitor
                      CoreHookPipeName);
             }
         }
+
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
             ValidateFilePath(injectionLibrary);
@@ -258,55 +250,29 @@ namespace CoreHook.FileMonitor
                     },
                     new PipePlatform(),
                     CoreHookPipeName);
-            }        
+            }
         }
 
         private static void StartListener()
         {
-            var listener = new NpListener(CoreHookPipeName, pipePlatform);
-            listener.RequestRetrieved += ClientConnectionMade;
-            listener.Start();
+            var session = new FileMonitorSessionFeature();
+
+            Examples.Common.RpcService.CreateRpcService(
+                  CoreHookPipeName,
+                  pipePlatform,
+                  session,
+                  typeof(FileMonitorService),
+                  async (context, next) =>
+                  {
+                      Console.WriteLine("> {0}", context.Request);
+                      await next();
+                      Console.WriteLine("< {0}", context.Response);
+                  });
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
-        }
 
-        private static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
-        {
-            var pipeServer = args.PipeStream;
-
-            IJsonRpcServiceHost host = BuildServiceHost();
-
-            var serverHandler = new StreamRpcServerHandler(host);
-
-            var session = new FileMonitorSessionFeature();
-            serverHandler.DefaultFeatures.Set(session);
-
-            using (var reader = new ByLineTextMessageReader(pipeServer))
-            using (var writer = new ByLineTextMessageWriter(pipeServer))
-            using (serverHandler.Attach(reader, writer))
-            {
-                // Wait for exit
-                session.CancellationToken.WaitHandle.WaitOne();
-            }
-        }
-        private static IJsonRpcServiceHost BuildServiceHost()
-        {
-            var builder = new JsonRpcServiceHostBuilder
-            {
-                ContractResolver = myContractResolver,
-            };
-
-            // Register FileMonitorService for RPC
-            builder.Register(typeof(FileMonitorService));
-
-            builder.Intercept(async (context, next) =>
-            {
-                Console.WriteLine("> {0}", context.Request);
-                await next();
-                Console.WriteLine("< {0}", context.Response);
-            });
-            return builder.Build();
+            session.StopServer();
         }
     }
 }

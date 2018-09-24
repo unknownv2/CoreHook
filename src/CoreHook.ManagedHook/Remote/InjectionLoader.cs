@@ -15,12 +15,12 @@ namespace CoreHook.ManagedHook.Remote
             public Exception Error = null;
         }
 
-        public static NamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
+        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleRequest);
         }
 
-        private static void HandleRequest(string request, NamedPipeServer.Connection connection)
+        private static void HandleRequest(string request, IPC.IConnection connection)
         {
             var message = NamedPipeMessages.Message.FromString(request);
 
@@ -42,7 +42,6 @@ namespace CoreHook.ManagedHook.Remote
                     throw new UnknownMessageException(message.Header);
             }
         }
-
 
         private static SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
 
@@ -67,7 +66,9 @@ namespace CoreHook.ManagedHook.Remote
             lock (InjectionList)
             {
                 if (!InjectionList.ContainsKey(InTargetPID))
+                {
                     InjectionList.Add(InTargetPID, WaitInfo);
+                }
             }
         }
 
@@ -99,9 +100,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw waitInfo.Error;
         }
 
-        public static void InjectionException(
-            int clientPID,
-            Exception e)
+        public static void InjectionException(int clientPID, Exception e)
         {
             InjectionWait waitInfo;
 

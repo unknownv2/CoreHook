@@ -4,29 +4,20 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
-using CoreHook.FileMonitor.Service.Pipe;
+using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
-using JsonRpc.Standard.Contracts;
-using JsonRpc.Standard.Server;
-using JsonRpc.Streams;
 
 namespace CoreHook.Unix.FileMonitor
 {
     class Program
     {
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
-        {
-            // Use camelcase for RPC method names.
-            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
-            ParameterValueConverter = new CamelCaseJsonValueConverter()
-        };
-
         private const string CoreHookPipeName = "CoreHook";
+
+        private static IPipePlatform pipePlatform = new PipePlatform();
 
         private static bool IsArchitectureArm()
         {
-            var arch = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+            var arch = RuntimeInformation.ProcessArchitecture;
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
         private static void Main(string[] args)
@@ -127,7 +118,7 @@ namespace CoreHook.Unix.FileMonitor
                     WaitForDebugger = false,
                     StartAssembly = false
                 },
-                new PipePlatform(),
+                pipePlatform,
                 CoreHookPipeName);
         }
 
@@ -172,67 +163,44 @@ namespace CoreHook.Unix.FileMonitor
                     WaitForDebugger = false,
                     StartAssembly = false
                 },
-                new PipePlatform(),
+                pipePlatform,
                 CoreHookPipeName);
         }
         private static Process[] GetProcessListByName(string processName)
         {
             return Process.GetProcessesByName(processName);
         }
+
         private static Process GetProcessById(int processId)
         {
             return Process.GetProcessById(processId);
         }
+
         private static Process GetProcessByName(string processName)
         {
             return GetProcessListByName(processName)[0];
         }
+
         private static void StartListener()
         {
-            var listener = new NpListener(CoreHookPipeName, new PipePlatform());
-            listener.RequestRetrieved += ClientConnectionMade;
-            listener.Start();
+            var session = new FileMonitorSessionFeature();
+
+            Examples.Common.RpcService.CreateRpcService(
+                  CoreHookPipeName,
+                  pipePlatform,
+                  session,
+                  typeof(FileMonitorService),
+                  async (context, next) =>
+                  {
+                      Console.WriteLine("> {0}", context.Request);
+                      await next();
+                      Console.WriteLine("< {0}", context.Response);
+                  });
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
-        }
 
-        private static void ClientConnectionMade(object sender, PipeClientConnectionEventArgs args)
-        {
-            var pipeServer = args.PipeStream;
-
-            var host = BuildServiceHost();
-
-            var serverHandler = new StreamRpcServerHandler(host);
-
-            var session = new FileMonitorSessionFeature();
-            serverHandler.DefaultFeatures.Set(session);
-
-            using (var reader = new ByLineTextMessageReader(pipeServer))
-            using (var writer = new ByLineTextMessageWriter(pipeServer))
-            using (serverHandler.Attach(reader, writer))
-            {
-                // Wait for exit
-                session.CancellationToken.WaitHandle.WaitOne();
-            }
-        }
-        private static IJsonRpcServiceHost BuildServiceHost()
-        {
-            var builder = new JsonRpcServiceHostBuilder
-            {
-                ContractResolver = myContractResolver,
-            };
-
-            // Register FileMonitorService for RPC
-            builder.Register(typeof(FileMonitorService));
-
-            builder.Intercept(async (context, next) =>
-            {
-                Console.WriteLine("> {0}", context.Request);
-                await next();
-                Console.WriteLine("< {0}", context.Response);
-            });
-            return builder.Build();
+            session.StopServer();
         }
     }
 }
