@@ -2,27 +2,16 @@
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using CoreHook.FileMonitor.Service;
-using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
-using JsonRpc.Standard.Contracts;
-using JsonRpc.Standard.Server;
-using JsonRpc.Streams;
+using CoreHook.Examples.Common;
 
 namespace CoreHook.FileMonitor
 {
     class Program
     {
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
-        {
-            // Use camelcase for RPC method names.
-            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
-            ParameterValueConverter = new CamelCaseJsonValueConverter()
-        };
 
         private const string CoreHookPipeName = "CoreHook";
         private const string HookLibraryDirName = "Hook";
@@ -266,61 +255,26 @@ namespace CoreHook.FileMonitor
             }
         }
 
-        private static FileMonitorSessionFeature session = new FileMonitorSessionFeature();
-
         private static void StartListener()
         {
-            Task.Factory.StartNew(() => CreateServer(CoreHookPipeName, pipePlatform), TaskCreationOptions.LongRunning);
+            var session = new FileMonitorSessionFeature();
+
+            RpcService.CreateRpcService(
+                  CoreHookPipeName,
+                  pipePlatform,
+                  session,
+                  typeof(FileMonitorService),
+                  async (context, next) =>
+                  {
+                      Console.WriteLine("> {0}", context.Request);
+                      await next();
+                      Console.WriteLine("< {0}", context.Response);
+                  });
 
             Console.WriteLine("Press Enter to quit.");
             Console.ReadLine();
 
             session.StopServer();
-        }
-
-        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
-        {
-            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleConnection);
-        }
-
-        private static void HandleConnection(IPC.IConnection connection)
-        {
-            Console.WriteLine($"Connection received from pipe {CoreHookPipeName}");
-
-            var pipeServer = connection.ServerStream;
-
-            IJsonRpcServiceHost host = BuildServiceHost();
-
-            var serverHandler = new StreamRpcServerHandler(host);
-
-            serverHandler.DefaultFeatures.Set(session);
-
-            using (var reader = new ByLineTextMessageReader(pipeServer))
-            using (var writer = new ByLineTextMessageWriter(pipeServer))
-            using (serverHandler.Attach(reader, writer))
-            {
-                // Wait for exit
-                session.CancellationToken.WaitHandle.WaitOne();
-            }
-        }
-  
-        private static IJsonRpcServiceHost BuildServiceHost()
-        {
-            var builder = new JsonRpcServiceHostBuilder
-            {
-                ContractResolver = myContractResolver,
-            };
-
-            // Register FileMonitorService for RPC
-            builder.Register(typeof(FileMonitorService));
-
-            builder.Intercept(async (context, next) =>
-            {
-                Console.WriteLine("> {0}", context.Request);
-                await next();
-                Console.WriteLine("< {0}", context.Response);
-            });
-            return builder.Build();
         }
     }
 }
