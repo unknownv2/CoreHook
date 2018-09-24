@@ -9,36 +9,77 @@ namespace CoreHook.Tests
 {
     public class NamedPipeTest
     {
-        private const string NamedPipeName = "NamedPipeNameTest";
-
         [Fact]
         private void ShouldConnectToServer()
         {
-            bool receivedMessage = false;
+            const string namedPipe = "NamedPipeNameTest1";
             const string testMessage = "TestMessage";
+            bool receivedMessage = false;
 
-            using (var pipeServer = CreateServer(NamedPipeName, new PipePlatformBase(),
-                (string request, NamedPipeServer.Connection connection) =>
+            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+                (string request, IPC.IConnection connection) =>
                 {
-                    if (request == testMessage)
-                    {
-                        receivedMessage = true;
-                    }
-                    connection.TrySendResponse(request);
+                    receivedMessage = true;
+                    connection.TrySendResponse("RandomResponse");
                 }))
             {
-                using (INamedPipeClient pipeClient = new NamedPipeClient(NamedPipeName))
+                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
                 {
                     if(SendPipeMessage(pipeClient, testMessage))
                     {
-                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage);
+                        pipeClient.ReadRawResponse();
                     }
                 }
             }
             Assert.True(receivedMessage);
         }
 
-        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<string, NamedPipeServer.Connection> handleRequest)
+        [Fact]
+        private void ShouldConnectToServerAndReceiveResponse()
+        {
+            const string namedPipe = "NamedPipeNameTest2";
+            const string testMessage = "TestMessage";
+            bool receivedCorrectMessage = false;
+            
+            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+                (string request, IPC.IConnection connection) =>
+                {
+                    if (request == testMessage)
+                    {
+                        receivedCorrectMessage = true;
+                    }
+                    connection.TrySendResponse(request);
+                }))
+            {
+                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                {
+                    if (SendPipeMessage(pipeClient, testMessage))
+                    {
+                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage);
+                    }
+                }
+            }
+            Assert.True(receivedCorrectMessage);
+        }
+
+        [Fact]
+        private void ShouldNotConnectToServer()
+        {
+            const string clientNamedPipe = "ClientNamedPipeNameTest1";
+            bool connected = false;
+   
+            using (INamedPipeClient pipeClient = new NamedPipeClient(clientNamedPipe))
+            {
+                if(pipeClient.Connect(3000))
+                {
+                    connected = true;
+                }
+            }
+            
+            Assert.False(connected);
+        }
+
+        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<string, IPC.IConnection> handleRequest)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
         }
