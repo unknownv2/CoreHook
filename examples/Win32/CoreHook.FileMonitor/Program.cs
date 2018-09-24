@@ -6,13 +6,11 @@ using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.Examples.Common;
 
 namespace CoreHook.FileMonitor
 {
     class Program
     {
-
         private const string CoreHookPipeName = "CoreHook";
         private const string HookLibraryDirName = "Hook";
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
@@ -259,7 +257,7 @@ namespace CoreHook.FileMonitor
         {
             var session = new FileMonitorSessionFeature();
 
-            RpcService.CreateRpcService(
+            Examples.Common.RpcService.CreateRpcService(
                   CoreHookPipeName,
                   pipePlatform,
                   session,
