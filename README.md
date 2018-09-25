@@ -18,10 +18,6 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
-## Planned Features
-* Scripting API (compile and run scripts in a target process at runtime)
-* Memory Manager (such as reading, writing, and scanning)
-
 For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki).
 
 ## Supported Platforms

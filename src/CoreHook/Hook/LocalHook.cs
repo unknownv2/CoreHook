@@ -425,7 +425,7 @@ namespace CoreHook
             GC.WaitForPendingFinalizers();
             GC.Collect();
 
-            NativeAPI.DetourWaitForPendingRemovals();
+            //NativeAPI.DetourWaitForPendingRemovals();
         }
     }
 }
