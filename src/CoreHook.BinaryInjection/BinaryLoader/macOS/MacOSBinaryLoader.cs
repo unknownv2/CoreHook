@@ -50,7 +50,7 @@ namespace CoreHook.BinaryInjection
             {
                 foreach (var binary in dependencies)
                 {
-                    if (string.IsNullOrEmpty(binary))
+                    if (!string.IsNullOrEmpty(binary))
                     {
                         var fname = Path.Combine(dir, binary);
                         if (!File.Exists(fname))
