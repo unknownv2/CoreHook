@@ -12,6 +12,11 @@ namespace CoreHook.Unix.FileMonitor
     class Program
     {
         private const string CoreHookPipeName = "CoreHook";
+        private const string HookLibraryDirName = "Hook";
+        private const string HookLibraryName = "CoreHook.Unix.FileMonitor.Hook.dll";
+
+        private const string CoreLibrariesPathOSX = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.0";
+        private const string CoreLibrariesPathLinux = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
 
         private static IPipePlatform pipePlatform = new PipePlatform();
 
@@ -20,14 +25,9 @@ namespace CoreHook.Unix.FileMonitor
             var arch = RuntimeInformation.ProcessArchitecture;
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
+
         private static void Main(string[] args)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                && !RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                throw new ManagedHook.Remote.UnsupportedPlatformException("Unix example");
-            }
-
             int TargetPID = 0;
             string targetProgam = string.Empty;
 
@@ -60,14 +60,16 @@ namespace CoreHook.Unix.FileMonitor
                 }
             }
 
-            string injectionLibrary = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                "Hook", "CoreHook.Unix.FileMonitor.Hook.dll");
+            string injectionLibrary = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                HookLibraryDirName, HookLibraryName);
 
             if (!File.Exists(injectionLibrary))
             {
                 Console.WriteLine("Cannot find FileMonitor injection dll");
                 return;
             }
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 LinuxInjectDllIntoTarget(TargetPID, injectionLibrary);
@@ -76,12 +78,14 @@ namespace CoreHook.Unix.FileMonitor
             {
                 MacOSInjectDllIntoTarget(TargetPID, injectionLibrary);
             }
+            else
+            {
+                throw new UnsupportedPlatformException("Unix FileMonitor example");
+            }
 
             // start RPC server
             StartListener();
         }
-
-        private const string CoreLibrariesPathOSX = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.0";
 
         static void MacOSInjectDllIntoTarget(int procId, string injectionLibrary)
         {
@@ -89,7 +93,6 @@ namespace CoreHook.Unix.FileMonitor
 
             var coreLibrariesPath = CoreLibrariesPathOSX;
 
-            // path to CoreHook.CoreLoad.dll
             var coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
 
             if (!File.Exists(coreLoadDll))
@@ -100,7 +103,7 @@ namespace CoreHook.Unix.FileMonitor
             var coreRunLib = Path.Combine(currentDir, "libcorerun.dylib");
             if (!File.Exists(coreRunLib))
             {
-                Console.WriteLine("Cannot find CoreRun library");
+                Console.WriteLine("Cannot find corerun library");
                 return;
             }
 
@@ -112,7 +115,7 @@ namespace CoreHook.Unix.FileMonitor
                     CoreCLRPath = coreLibrariesPath,
                     CoreCLRLibrariesPath = coreLibrariesPath,
                     CLRBootstrapLibrary = coreLoadDll,
-                    DetourLibrary = string.Empty,
+                    DetourLibrary = null,
                     PayloadLibrary = injectionLibrary,
                     VerboseLog = false,
                     WaitForDebugger = false,
@@ -121,8 +124,6 @@ namespace CoreHook.Unix.FileMonitor
                 pipePlatform,
                 CoreHookPipeName);
         }
-
-        private const string CoreLibrariesPathLinux = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
 
         static void LinuxInjectDllIntoTarget(int procId, string injectionLibrary)
         {
