@@ -162,6 +162,14 @@ You can test symbol support by running the [symbols tests](test/CoreHook.Tests/W
 
 Any contributions are all welcome! If you find any problems or want to add features, don't hesitate to open a new issue or create a pull request.
 
+## Thanks
+
+A lot of this project is based on the work of others who were willing to share their knowledge.
+
+* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook) - The original developers of the EasyHook project which this one would not be possible without.
+* [Nate McMaster](https://github.com/natemcmaster) - For the publishing script and other great tools he has created.
+* [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework.
+
 ## Licenses
 
 [EasyHook - MIT](https://github.com/EasyHook/EasyHook/blob/master/LICENSE)
