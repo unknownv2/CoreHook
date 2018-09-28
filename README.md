@@ -166,8 +166,8 @@ Any contributions are all welcome! If you find any problems or want to add featu
 
 A lot of this project is based on the work of others who were willing to share their knowledge.
 
-* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook) - The original developers of the EasyHook project which this one would not be possible without.
-* [Nate McMaster](https://github.com/natemcmaster) - For the publishing script and other great tools he has created.
+* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook) - The original developers of the EasyHook project which this one would not be possible without. A large amount of code in CoreHook is borrowed from their great work, going from C# all the way to assembly code. 
+* [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and other great tools he has created, such as the [.NET Core Plugins](https://github.com/natemcmaster/DotNetCorePlugins).
 * [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework.
 
 ## Licenses
