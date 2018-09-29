@@ -32,7 +32,8 @@ namespace CoreHook.Examples.Common
         public static RpcService CreateRpcService(
             string namedPipeName, 
             IPipePlatform pipePlatform, 
-            ISessionFeature session, Type rpcService,
+            ISessionFeature session,
+            Type rpcService,
             Func<RequestContext, Func<Task>, Task> handler)
         {
             var service = new RpcService(session, rpcService, handler);

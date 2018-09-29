@@ -175,7 +175,7 @@ namespace CoreHook.IPC.NamedPipes
                 get { return !_isStopping() && ServerStream.IsConnected; }
             }
 
-            public NamedPipeMessages.Message ReadMessage()
+            public NamedPipeMessages.IMessage ReadMessage()
             {
                 return NamedPipeMessages.Message.FromString(ReadRequest());
             }
