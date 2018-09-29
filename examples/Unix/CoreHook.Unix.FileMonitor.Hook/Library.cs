@@ -10,6 +10,7 @@ using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
 using CoreHook.IPC.Pipes.Client;
+using CoreHook.Utilities.Import;
 
 namespace CoreHook.Unix.FileMonitor.Hook
 {
@@ -65,19 +66,19 @@ namespace CoreHook.Unix.FileMonitor.Hook
 
         private void CreateHooks()
         {
-            ImportUtils.ILibLoader dllLoadUtils = null;
+            ILibLoader dllLoadUtils = null;
             IntPtr dllHandle = IntPtr.Zero;
 
             ClientWriteLine("Adding hook to 'open' function");
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                dllLoadUtils = new ImportUtils.LibLoaderUnix();
+                dllLoadUtils = new LibLoaderUnix();
                 dllHandle = dllLoadUtils.LoadLibrary("libc.so");
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                dllLoadUtils = new ImportUtils.LibLoaderMacOS();
+                dllLoadUtils = new LibLoaderMacOS();
                 dllHandle = dllLoadUtils.LoadLibrary("/usr/lib/libc.dylib");
             }
 
