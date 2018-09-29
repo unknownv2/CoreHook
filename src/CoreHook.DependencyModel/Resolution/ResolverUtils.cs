@@ -30,11 +30,28 @@ namespace CoreHook.DependencyModel.Resolution
             return false;
         }
 
+
         internal static bool TryResolveAssemblyFile(IFileSystem fileSystem, string basePath, string assemblyPath, out string fullName)
         {
+            // several checks for determining whether a file exists since 
+            // Linux filesystems have case sensitive filepaths
+            // for their Nuget Package paths
             fullName = Path.Combine(basePath, assemblyPath);
             if (fileSystem.File.Exists(fullName))
             {
+                return true;
+            }
+            var fullNameLowercase = fullName.ToLower();
+            if (fileSystem.File.Exists(fullNameLowercase))
+            {
+                fullName = fullNameLowercase;
+                return true;
+            }
+            var dirName = Path.GetDirectoryName(fullNameLowercase);
+
+            if (fileSystem.Directory.Exists(dirName))
+            {
+                fullName = Path.Combine(dirName, Path.GetFileName(fullName));
                 return true;
             }
             return false;
