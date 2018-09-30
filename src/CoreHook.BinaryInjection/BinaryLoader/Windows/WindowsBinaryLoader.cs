@@ -6,7 +6,7 @@ using CoreHook.Unmanaged;
 
 namespace CoreHook.BinaryInjection
 {
-    public class BinaryLoader : IBinaryLoader
+    public class WindowsBinaryLoader : IBinaryLoader
     {
         /// <summary>
         /// The name of the function that starts the CoreCLR in a target process
@@ -23,7 +23,7 @@ namespace CoreHook.BinaryInjection
 
         private readonly IMemoryManager _memoryManager;
 
-        public BinaryLoader(IMemoryManager memoryManager)
+        public WindowsBinaryLoader(IMemoryManager memoryManager)
         {
             _memoryManager = memoryManager;
             _memoryManager.FreeMemory += FreeMemory;
@@ -130,7 +130,7 @@ namespace CoreHook.BinaryInjection
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~BinaryLoader() {
+        // ~WindowsBinaryLoader() {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
         // }
