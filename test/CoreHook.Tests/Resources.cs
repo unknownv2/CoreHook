@@ -133,14 +133,9 @@ namespace CoreHook.Tests
             coreLibsPath = GetCoreLibrariesPath();
             coreRootPath = GetCoreRootPath();
 
-            if (string.IsNullOrEmpty(coreLibsPath))
+            if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibsPath))
             {
-                Console.WriteLine("CORE_LIBRARIES path was not set!");
-                return false;
-            }
-            if (string.IsNullOrEmpty(coreRootPath))
-            {
-                Console.WriteLine("CORE_ROOT path was not set!");
+                Console.WriteLine("CoreCLR root path was not set!");
                 return false;
             }
 

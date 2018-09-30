@@ -139,17 +139,12 @@ namespace CoreHook.FileMonitor
             coreLibsPath = GetCoreLibrariesPath();
             coreRootPath = GetCoreRootPath();
 
-            if (string.IsNullOrEmpty(coreLibsPath))
+            if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibsPath))
             {
-                Console.WriteLine("CORE_LIBRARIES path was not set!");
-                return false;
+                Console.WriteLine("CoreCLR root path was not set!");
+                return false ;
             }
-            if (string.IsNullOrEmpty(coreRootPath))
-            {
-                Console.WriteLine("CORE_ROOT path was not set!");
-                return false;
-            }
-
+      
             // Module  that initializes the .NET Core runtime and executes .NET assemblies
             coreRunPath = Path.Combine(currentDir,
                 Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
