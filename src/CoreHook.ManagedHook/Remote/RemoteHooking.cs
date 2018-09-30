@@ -144,7 +144,7 @@ namespace CoreHook.ManagedHook.Remote
                         ref libraryPath,
                         passThru);
 
-                    // Inject the corerundll into the process, start the CoreCLR runtime
+                    // Inject the corerundll into the process, start the CoreCLR
                     // and use the CoreLoad dll to resolve the dependencies of the hooking library
                     // and then call the IEntryPoint.Run method located in the hooking library
                     try
