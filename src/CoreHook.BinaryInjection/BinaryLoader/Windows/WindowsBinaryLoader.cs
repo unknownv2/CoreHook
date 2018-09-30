@@ -6,16 +6,12 @@ using CoreHook.Unmanaged;
 
 namespace CoreHook.BinaryInjection
 {
-    public class BinaryLoader : IBinaryLoader
+    public class WindowsBinaryLoader : IBinaryLoader
     {
-        private readonly IMemoryManager _memoryManager;
-
-        public BinaryLoader(IMemoryManager memoryManager)
-        {
-            _memoryManager = memoryManager;
-            _memoryManager.FreeMemory += FreeMemory;
-        }
-        // Inject an assembly into a process
+        /// <summary>
+        /// The name of the function that starts the CoreCLR in a target process
+        /// and can also execute a .NET assembly immediately.
+        /// </summary>
         private const string LoadAssemblyFunc = "LoadAssembly";
 
         /// <summary>
@@ -23,6 +19,15 @@ namespace CoreHook.BinaryInjection
         /// referenced by class name and function name.
         /// </summary>
         private const string ExecAssemblyFunc = "ExecuteAssemblyFunction";
+
+
+        private readonly IMemoryManager _memoryManager;
+
+        public WindowsBinaryLoader(IMemoryManager memoryManager)
+        {
+            _memoryManager = memoryManager;
+            _memoryManager.FreeMemory += FreeMemory;
+        }
 
         private void ExecuteAssemblyWithArgs(Process process, string module, WindowsBinaryLoaderArgs args)
         {
@@ -58,15 +63,18 @@ namespace CoreHook.BinaryInjection
         {
             ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, arguments));
         }
+
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs rfArgs)
         {
             ExecuteWithArgs(process, module, blArgs);
             ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, rfArgs));
         }
+
         public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
         {
             ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, arguments));
         }
+
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
         {
             return _memoryManager.Add(
@@ -75,10 +83,12 @@ namespace CoreHook.BinaryInjection
                 false
             );
         }
+
         public static bool FreeMemory(Process proc, IntPtr address, uint length = 0)
         {
             return proc.FreeMemory(address, 0);
         }
+
         public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
         {
             if (dependencies != null)
@@ -93,11 +103,6 @@ namespace CoreHook.BinaryInjection
                     var moduleName = Path.GetFileName(binary);
 
                     targetProcess.LoadLibrary(binary);
-
-                    //if (targetProcess.GetModuleHandleByBaseName(moduleName) == IntPtr.Zero)
-                    //{
-                    //    targetProcess.LoadLibrary(binary);
-                    //  }
                 }
             }
 
@@ -125,7 +130,7 @@ namespace CoreHook.BinaryInjection
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~BinaryLoader() {
+        // ~WindowsBinaryLoader() {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
         // }

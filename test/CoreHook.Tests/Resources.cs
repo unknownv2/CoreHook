@@ -129,7 +129,7 @@ namespace CoreHook.Tests
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            // Paths to the CoreCLR runtime dlls used to host and execute .NET assemblies 
+            // Paths to the CoreCLR dlls used to host and execute .NET assemblies 
             coreLibsPath = GetCoreLibrariesPath();
             coreRootPath = GetCoreRootPath();
 

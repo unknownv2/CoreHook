@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
   </ItemGroup>
 
 </Project>

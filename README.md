@@ -1,5 +1,7 @@
 # CoreHook
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/unknownv2/CoreHook/blob/master/LICENSE)
+
 A library that simplifies intercepting application function calls using managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime. 
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 

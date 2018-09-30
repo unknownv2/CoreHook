@@ -18,13 +18,20 @@ namespace CoreHook.UWP.FileMonitor
         private const string HookLibraryDirName = "Hook";
         private const string HookLibraryName = "CoreHook.UWP.FileMonitor.Hook.dll";
 
-        private static IPipePlatform pipePlatform = new Pipe.PipePlatform();
+        /// <summary>
+        /// Enable verbose logging to the console for the CoreCLR host module corerundll
+        /// </summary>
+        private const bool HostVerboseLog = false;
+        /// <summary>
+        /// Wait for a debugger to attach to the target process before running any .NET assemblies
+        /// </summary>
+        private const bool HostWaitForDebugger = false;
+        /// <summary>
+        /// Immediately start the .NET assembly if we are injecting a .NET Core application
+        /// </summary>
+        private const bool HostStartAssembly = false;
 
-        private static bool IsArchitectureArm()
-        {
-            var arch = RuntimeInformation.ProcessArchitecture;
-            return arch == Architecture.Arm || arch == Architecture.Arm64;
-        }
+        private static IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static void Main(string[] args)
         {
@@ -97,84 +104,31 @@ namespace CoreHook.UWP.FileMonitor
             StartListener();
         }
 
-        // info on these environment variables: 
-        // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-        private static string GetCoreLibrariesPath()
-        {
-            return !IsArchitectureArm() ?
-             Environment.Is64BitProcess ? 
-             Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
-             Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
-             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        }
-
-        private static string GetCoreRootPath()
-        {
-            return !IsArchitectureArm() ?
-             Environment.Is64BitProcess ?
-             Environment.GetEnvironmentVariable("CORE_ROOT_64") :
-             Environment.GetEnvironmentVariable("CORE_ROOT_32")
-             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        }
-
         private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
         {
-            if (!File.Exists(coreHookDll))
+            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
+            if (Examples.Common.Utilities.GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
             {
-                Console.WriteLine("Cannot find corehook dll");
-                return;
-            }
+                // make sure corerundll can be accessed by the UWP application
+                GrantAllAppPkgsAccessToFile(coreRunDll);
 
-            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            string coreRootPath = GetCoreRootPath();
-            string coreLibrariesPath = GetCoreLibrariesPath();
-
-            if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibrariesPath))
-            {
-                Console.WriteLine("CoreCLR root path was not set!");
-                return;
+                RemoteHooking.Inject(
+                    procId,
+                    new RemoteHookingConfig()
+                    {
+                        HostLibrary = coreRunDll,
+                        CoreCLRPath = coreRootPath,
+                        CoreCLRLibrariesPath = coreLibrariesPath,
+                        CLRBootstrapLibrary = coreLoadDll,
+                        DetourLibrary = coreHookDll,
+                        PayloadLibrary = injectionLibrary,
+                        VerboseLog = HostVerboseLog,
+                        WaitForDebugger = HostWaitForDebugger,
+                        StartAssembly = HostStartAssembly
+                    },
+                    pipePlatform,
+                    CoreHookPipeName);
             }
-      
-            string coreRunDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
-            if (!File.Exists(coreRunDll))
-            {
-                coreRunDll = Environment.GetEnvironmentVariable("CORERUNDLL");
-                if (!File.Exists(coreRunDll))
-                {
-                    Console.WriteLine("Cannot find corerun dll");
-                    return;
-                }
-                else
-                {
-                    GrantAllAppPkgsAccessToFile(coreRunDll);
-                }
-            }
-         
-            string coreLoadDll = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
-
-            if (!File.Exists(coreLoadDll))
-            {
-                Console.WriteLine("Cannot find CoreLoad dll");
-                return;
-            }
-            RemoteHooking.Inject(
-                procId,
-                new RemoteHookingConfig()
-                {
-                    HostLibrary = coreRunDll,
-                    CoreCLRPath = coreRootPath,
-                    CoreCLRLibrariesPath = coreLibrariesPath,
-                    CLRBootstrapLibrary = coreLoadDll,
-                    DetourLibrary = coreHookDll,
-                    PayloadLibrary = injectionLibrary,
-                    VerboseLog = false,
-                    WaitForDebugger = false,
-                    StartAssembly = false
-                },
-                pipePlatform,
-                CoreHookPipeName);
         }
 
         private static void StartListener()

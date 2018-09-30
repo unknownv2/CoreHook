@@ -8,7 +8,7 @@ namespace CoreHook.ManagedHook.ProcessUtils
 {
     public static class ProcessHelper
     {
-        public readonly static Boolean Is64Bit = IntPtr.Size == 8;
+        public readonly static bool Is64Bit = IntPtr.Size == 8;
 
         public static Process[] GetProcessListByName(string processName)
         {
@@ -22,7 +22,7 @@ namespace CoreHook.ManagedHook.ProcessUtils
         {
             return GetProcessListByName(processName)[0];
         }
-        public static Int32 GetCurrentProcessId()
+        public static int GetCurrentProcessId()
         {
             return Process.GetCurrentProcess().Id;
         }

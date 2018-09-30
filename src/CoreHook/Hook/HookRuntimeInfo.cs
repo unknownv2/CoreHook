@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
@@ -30,17 +28,16 @@ namespace CoreHook
         {
             get
             {
-                IntPtr Callback;
+                IntPtr callback;
 
                 if (NativeAPI.Is64Bit)
                 {
-                    return NativeAPI_x64.DetourBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                    return NativeAPI_x64.DetourBarrierGetCallback(out callback) == NativeAPI.STATUS_SUCCESS;
                 }
                 else
                 {
-                    return NativeAPI_x86.DetourBarrierGetCallback(out Callback) == NativeAPI.STATUS_SUCCESS;
+                    return NativeAPI_x86.DetourBarrierGetCallback(out callback) == NativeAPI.STATUS_SUCCESS;
                 }
-
             }
         }
 
@@ -66,16 +63,16 @@ namespace CoreHook
         {
             get
             {
-                IntPtr Callback;
+                IntPtr callback;
 
-                NativeAPI.DetourBarrierGetCallback(out Callback);
+                NativeAPI.DetourBarrierGetCallback(out callback);
 
-                if (Callback == IntPtr.Zero)
+                if (callback == IntPtr.Zero)
                 {
                     return null;
                 }
 
-                return (LocalHook)GCHandle.FromIntPtr(Callback).Target;
+                return (LocalHook)GCHandle.FromIntPtr(callback).Target;
             }
         }
 
@@ -87,14 +84,14 @@ namespace CoreHook
         /// </summary>
         public static void UpdateUnmanagedModuleList()
         {
-            List<ProcessModule> ModList = new List<ProcessModule>();
+            var moduleList = new List<ProcessModule>();
 
             foreach (ProcessModule Module in Process.GetCurrentProcess().Modules)
             {
-                ModList.Add(Module);
+                moduleList.Add(Module);
             }
 
-            ModuleArray = ModList.ToArray();
+            ModuleArray = moduleList.ToArray();
 
             LastUpdate = DateTime.Now.Ticks;
         }
@@ -109,17 +106,21 @@ namespace CoreHook
         /// <returns></returns>
         public static ProcessModule PointerToModule(IntPtr InPointer)
         {
-            long Pointer = InPointer.ToInt64();
+            long pointer = InPointer.ToInt64();
 
-            if ((Pointer == 0) || (Pointer == ~0))
+            if ((pointer == 0) || (pointer == ~0))
+            {
                 return null;
+            }
 
-            TRY_AGAIN:
+        TRY_AGAIN:
             for (int i = 0; i < ModuleArray.Length; i++)
             {
-                if ((Pointer >= ModuleArray[i].BaseAddress.ToInt64()) &&
-                    (Pointer <= ModuleArray[i].BaseAddress.ToInt64() + ModuleArray[i].ModuleMemorySize))
+                if ((pointer >= ModuleArray[i].BaseAddress.ToInt64()) &&
+                    (pointer <= ModuleArray[i].BaseAddress.ToInt64() + ModuleArray[i].ModuleMemorySize))
+                {
                     return ModuleArray[i];
+                }
             }
 
             if ((DateTime.Now.Ticks - LastUpdate) > 1000 * 1000 * 10 /* 1000 ms*/)
@@ -168,9 +169,9 @@ namespace CoreHook
         {
             get
             {
-                IntPtr Backup;
+                IntPtr backup;
 
-                NativeAPI.DetourBarrierBeginStackTrace(out Backup);
+                NativeAPI.DetourBarrierBeginStackTrace(out backup);
 
                 try
                 {
@@ -178,7 +179,7 @@ namespace CoreHook
                 }
                 finally
                 {
-                    NativeAPI.DetourBarrierEndStackTrace(Backup);
+                    NativeAPI.DetourBarrierEndStackTrace(backup);
                 }
             }
         }
@@ -192,11 +193,11 @@ namespace CoreHook
         {
             get
             {
-                IntPtr RetAddr;
+                IntPtr returnAddress;
 
-                NativeAPI.DetourBarrierGetReturnAddress(out RetAddr);
+                NativeAPI.DetourBarrierGetReturnAddress(out returnAddress);
 
-                return RetAddr;
+                return returnAddress;
             }
         }
 
@@ -208,11 +209,11 @@ namespace CoreHook
         {
             get
             {
-                IntPtr AddrOfRetAddr;
+                IntPtr addressOfReturnAddress;
 
-                NativeAPI.DetourBarrierGetAddressOfReturnAddress(out AddrOfRetAddr);
+                NativeAPI.DetourBarrierGetAddressOfReturnAddress(out addressOfReturnAddress);
 
-                return AddrOfRetAddr;
+                return addressOfReturnAddress;
             }
         }
 
@@ -225,7 +226,9 @@ namespace CoreHook
             public StackTraceBuffer()
             {
                 if ((Unmanaged = Marshal.AllocCoTaskMem(64 * IntPtr.Size)) == IntPtr.Zero)
+                {
                     throw new OutOfMemoryException();
+                }
 
                 Managed = new IntPtr[64];
                 Modules = new ProcessModule[64];
@@ -239,7 +242,9 @@ namespace CoreHook
             ~StackTraceBuffer()
             {
                 if (Unmanaged != IntPtr.Zero)
+                {
                     Marshal.FreeCoTaskMem(Unmanaged);
+                }
 
                 Unmanaged = IntPtr.Zero;
             }
@@ -265,37 +270,39 @@ namespace CoreHook
                 // not supported on windows 2000
                 if ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor == 0))
                 {
-                    ProcessModule[] Module = new ProcessModule[1];
+                    var  Module = new ProcessModule[1];
 
                     Module[0] = CallingUnmanagedModule;
 
                     return Module;
                 }
 
-                IntPtr Backup;
+                IntPtr backup;
 
-                NativeAPI.DetourBarrierBeginStackTrace(out Backup);
+                NativeAPI.DetourBarrierBeginStackTrace(out backup);
 
                 try
                 {
                     if (StackBuffer == null)
-                        StackBuffer = new StackTraceBuffer();
-
-                    short Count = NativeAPI.RtlCaptureStackBackTrace(0, 32, StackBuffer.Unmanaged, IntPtr.Zero);
-                    ProcessModule[] Result = new ProcessModule[Count];
-
-                    StackBuffer.Synchronize(Count);
-
-                    for (int i = 0; i < Count; i++)
                     {
-                        Result[i] = PointerToModule(StackBuffer.Managed[i]);
+                        StackBuffer = new StackTraceBuffer();
                     }
 
-                    return Result;
+                    short count = NativeAPI.RtlCaptureStackBackTrace(0, 32, StackBuffer.Unmanaged, IntPtr.Zero);
+                    var result = new ProcessModule[count];
+
+                    StackBuffer.Synchronize(count);
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        result[i] = PointerToModule(StackBuffer.Managed[i]);
+                    }
+
+                    return result;
                 }
                 finally
                 {
-                    NativeAPI.DetourBarrierEndStackTrace(Backup);
+                    NativeAPI.DetourBarrierEndStackTrace(backup);
                 }
             }
         }
@@ -310,25 +317,25 @@ namespace CoreHook
         {
             get
             {
-                IntPtr Backup;
+                IntPtr backup;
 
-                NativeAPI.DetourBarrierBeginStackTrace(out Backup);
+                NativeAPI.DetourBarrierBeginStackTrace(out backup);
 
                 try
                 {
-                    StackFrame[] Frames = new StackTrace().GetFrames();
-                    System.Reflection.Module[] Result = new System.Reflection.Module[Frames.Length];
+                    var frames = new StackTrace().GetFrames();
+                    var result = new System.Reflection.Module[frames.Length];
 
-                    for (int i = 0; i < Frames.Length; i++)
+                    for (int i = 0; i < frames.Length; i++)
                     {
-                        Result[i] = Frames[i].GetMethod().Module;
+                        result[i] = frames[i].GetMethod().Module;
                     }
 
-                    return Result;
+                    return result;
                 }
                 finally
                 {
-                    NativeAPI.DetourBarrierEndStackTrace(Backup);
+                    NativeAPI.DetourBarrierEndStackTrace(backup);
                 }
             }
         }
