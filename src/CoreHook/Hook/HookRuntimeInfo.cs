@@ -119,7 +119,9 @@ namespace CoreHook
             {
                 if ((Pointer >= ModuleArray[i].BaseAddress.ToInt64()) &&
                     (Pointer <= ModuleArray[i].BaseAddress.ToInt64() + ModuleArray[i].ModuleMemorySize))
+                {
                     return ModuleArray[i];
+                }
             }
 
             if ((DateTime.Now.Ticks - LastUpdate) > 1000 * 1000 * 10 /* 1000 ms*/)
@@ -239,7 +241,9 @@ namespace CoreHook
             ~StackTraceBuffer()
             {
                 if (Unmanaged != IntPtr.Zero)
+                {
                     Marshal.FreeCoTaskMem(Unmanaged);
+                }
 
                 Unmanaged = IntPtr.Zero;
             }
@@ -279,7 +283,9 @@ namespace CoreHook
                 try
                 {
                     if (StackBuffer == null)
+                    {
                         StackBuffer = new StackTraceBuffer();
+                    }
 
                     short Count = NativeAPI.RtlCaptureStackBackTrace(0, 32, StackBuffer.Unmanaged, IntPtr.Zero);
                     ProcessModule[] Result = new ProcessModule[Count];
