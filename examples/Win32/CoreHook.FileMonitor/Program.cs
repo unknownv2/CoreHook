@@ -107,7 +107,6 @@ namespace CoreHook.FileMonitor
             // start RPC server
             StartListener();
         }
-
  
         /// <summary>
         /// Check if a file path is valid, otherwise throw an exception
@@ -153,7 +152,7 @@ namespace CoreHook.FileMonitor
                          WaitForDebugger = HostWaitForDebugger,
                          StartAssembly = HostStartAssembly
                      },
-                     new PipePlatform(),
+                     pipePlatform,
                      out _,
                      CoreHookPipeName);
             }
@@ -181,7 +180,7 @@ namespace CoreHook.FileMonitor
                         WaitForDebugger = HostWaitForDebugger,
                         StartAssembly = HostStartAssembly
                     },
-                    new PipePlatform(),
+                    pipePlatform,
                     CoreHookPipeName);
             }
         }
