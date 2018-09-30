@@ -17,21 +17,21 @@ namespace CoreHook
     /// </remarks>
     public class HookAccessControl
     {
-        private int[] m_ACL = new int[0];
-        private IntPtr m_Handle;
-        private bool m_IsExclusive;
+        private int[] _ACL = new int[0];
+        private IntPtr _handle;
+        private bool _isExclusive;
 
         /// <summary>
         /// Is this ACL an exclusive one? Refer to <see cref="SetExclusiveACL"/> for more information.
         /// </summary>
-        public bool IsExclusive { get { return m_IsExclusive; } }
+        public bool IsExclusive { get { return _isExclusive; } }
         /// <summary>
         /// Is this ACL an inclusive one? Refer to <see cref="SetInclusiveACL"/> for more information.
         /// </summary>
         public bool IsInclusive { get { return !IsExclusive; } }
 
         /// <summary>
-        /// Sets an inclusive ACL. This means all threads that are enumerated through <paramref name="InACL"/>
+        /// Sets an inclusive ACL. This means all threads that are enumerated through <paramref name="acl"/>
         /// are intercepted while all others are NOT. Of course this will overwrite the existing ACL.
         /// </summary>
         /// <remarks>
@@ -40,27 +40,34 @@ namespace CoreHook
         /// In general inclusive ACLs will restrict exclusive ACLs while local ACLs will overwrite the
         /// global ACL.
         /// </remarks>
-        /// <param name="InACL">Threads to be explicitly included in negotiation.</param>
+        /// <param name="acl">Threads to be explicitly included in negotiation.</param>
         /// <exception cref="ArgumentException">
         /// The limit of 128 access entries is exceeded!
         /// </exception>
-        public void SetInclusiveACL(int[] InACL)
+        public void SetInclusiveACL(int[] acl)
         {
-            if (InACL == null)
-                m_ACL = new int[0];
+            if (acl == null)
+            {
+                _ACL = new int[0];
+            }
             else
-                m_ACL = (int[])InACL.Clone();
+            {
+                _ACL = (int[])acl.Clone();
+            }
+            _isExclusive = false;
 
-            m_IsExclusive = false;
-
-            if (m_Handle == IntPtr.Zero)
-                NativeAPI.DetourSetGlobalInclusiveACL(m_ACL, m_ACL.Length);
+            if (_handle == IntPtr.Zero)
+            {
+                NativeAPI.DetourSetGlobalInclusiveACL(_ACL, _ACL.Length);
+            }
             else
-                NativeAPI.DetourSetInclusiveACL(m_ACL, m_ACL.Length, m_Handle);
+            {
+                NativeAPI.DetourSetInclusiveACL(_ACL, _ACL.Length, _handle);
+            }
         }
 
         /// <summary>
-        /// Sets an exclusive ACL. This means all threads that are enumerated through <paramref name="InACL"/>
+        /// Sets an exclusive ACL. This means all threads that are enumerated through <paramref name="acl"/>
         /// are NOT intercepted while all others are. Of course this will overwrite the existing ACL.
         /// </summary>
         /// <remarks>
@@ -69,30 +76,30 @@ namespace CoreHook
         /// In general inclusive ACLs will restrict exclusive ACLs while local ACLs will overwrite the
         /// global ACL.
         /// </remarks>
-        /// <param name="InACL">Threads to be explicitly included in negotiation.</param>
+        /// <param name="acl">Threads to be explicitly included in negotiation.</param>
         /// <exception cref="ArgumentException">
         /// The limit of 128 access entries is exceeded!
         /// </exception>
-        public void SetExclusiveACL(int[] InACL)
+        public void SetExclusiveACL(int[] acl)
         {
-            if (InACL == null)
+            if (acl == null)
             {
-                m_ACL = new int[0];
+                _ACL = new int[0];
             }
             else
             {
-                m_ACL = (int[])InACL.Clone();
+                _ACL = (int[])acl.Clone();
             }
 
-            m_IsExclusive = true;
+            _isExclusive = true;
 
-            if (m_Handle == IntPtr.Zero)
+            if (_handle == IntPtr.Zero)
             {
-                NativeAPI.DetourSetGlobalExclusiveACL(m_ACL, m_ACL.Length);
+                NativeAPI.DetourSetGlobalExclusiveACL(_ACL, _ACL.Length);
             }
             else
             {
-                NativeAPI.DetourSetExclusiveACL(m_ACL, m_ACL.Length, m_Handle);
+                NativeAPI.DetourSetExclusiveACL(_ACL, _ACL.Length, _handle);
             }
         }
 
@@ -105,20 +112,20 @@ namespace CoreHook
         /// </returns>
         public int[] GetEntries()
         {
-            return (int[])m_ACL.Clone();
+            return (int[])_ACL.Clone();
         }
 
         internal HookAccessControl(IntPtr InHandle)
         {
             if (InHandle == IntPtr.Zero)
             {
-                m_IsExclusive = true;
+                _isExclusive = true;
             }
             else
             {
-                m_IsExclusive = false;
+                _isExclusive = false;
             }
-            m_Handle = InHandle;
+            _handle = InHandle;
         }
     }
 }

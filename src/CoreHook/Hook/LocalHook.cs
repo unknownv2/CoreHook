@@ -14,13 +14,13 @@ namespace CoreHook
     /// </summary>
     public partial class LocalHook : CriticalFinalizerObject, IDisposable
     {
-        private object m_ThreadSafe = new object();
-        private IntPtr m_Handle = IntPtr.Zero;
-        private GCHandle m_SelfHandle;
-        private Delegate m_HookProc;
-        private object m_Callback;
-        private HookAccessControl m_ThreadACL;
-        private static HookAccessControl m_GlobalThreadACL = new HookAccessControl(IntPtr.Zero);
+        private object _threadSafe = new object();
+        private IntPtr _handle = IntPtr.Zero;
+        private GCHandle _selfHandle;
+        private Delegate _hookProc;
+        private object _callback;
+        private HookAccessControl _threadACL;
+        private static HookAccessControl _globalThreadACL = new HookAccessControl(IntPtr.Zero);
 
         /// <summary>
         /// Ensures that each instance is always terminated with <see cref="Dispose"/>.
@@ -35,7 +35,7 @@ namespace CoreHook
         /// <summary>
         /// The callback passed to <see cref="Create"/>.
         /// </summary>
-        public object Callback { get { return m_Callback; } }
+        public object Callback { get { return _callback; } }
 
         /// <summary>
         /// Returns the thread ACL associated with this hook. Refer to <see cref="IsThreadIntercepted"/>
@@ -48,10 +48,10 @@ namespace CoreHook
         {
             get
             {
-                if (IntPtr.Zero == m_Handle)
+                if (IntPtr.Zero == _handle)
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
 
-                return m_ThreadACL;
+                return _threadACL;
             }
         }
 
@@ -65,11 +65,13 @@ namespace CoreHook
         {
             get
             {
-                if (IntPtr.Zero == m_Handle)
+                if (IntPtr.Zero == _handle)
+                {
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
+                }
 
                 IntPtr address = IntPtr.Zero;
-                NativeAPI.DetourGetHookBypassAddress(m_Handle, out address);
+                NativeAPI.DetourGetHookBypassAddress(_handle, out address);
                 return address;
             }
         }
@@ -133,10 +135,12 @@ namespace CoreHook
         {
             bool Result;
 
-            if (IntPtr.Zero == m_Handle)
+            if (IntPtr.Zero == _handle)
+            {
                 throw new ObjectDisposedException(typeof(LocalHook).FullName);
+            }
 
-            NativeAPI.DetourIsThreadIntercepted(m_Handle, InThreadID, out Result);
+            NativeAPI.DetourIsThreadIntercepted(_handle, InThreadID, out Result);
 
             return Result;
         }
@@ -145,7 +149,7 @@ namespace CoreHook
         /// Returns the gloabl thread ACL associated with ALL hooks. Refer to <see cref="IsThreadIntercepted"/>
         /// for more information about access negotiation.
         /// </summary>
-        public static HookAccessControl GlobalThreadACL { get { return m_GlobalThreadACL; } }
+        public static HookAccessControl GlobalThreadACL { get { return _globalThreadACL; } }
 
         /// <summary>
         /// If you want to immediately uninstall a hook, the only way is to dispose it. A disposed
@@ -160,20 +164,22 @@ namespace CoreHook
         /// </remarks>
         public void Dispose()
         {
-            lock (m_ThreadSafe)
+            lock (_threadSafe)
             {
-                if (IntPtr.Zero == m_Handle)
+                if (IntPtr.Zero == _handle)
+                {
                     return;
+                }
 
-                NativeAPI.DetourUninstallHook(m_Handle);
+                NativeAPI.DetourUninstallHook(_handle);
 
-                Marshal.FreeCoTaskMem(m_Handle);
+                Marshal.FreeCoTaskMem(_handle);
 
-                m_Handle = IntPtr.Zero;
-                m_Callback = null;
-                m_HookProc = null;
+                _handle = IntPtr.Zero;
+                _callback = null;
+                _hookProc = null;
 
-                m_SelfHandle.Free();
+                _selfHandle.Free();
             }
         }
 
@@ -231,32 +237,32 @@ namespace CoreHook
         {
             LocalHook Result = new LocalHook();
 
-            Result.m_Callback = InCallback;
-            Result.m_HookProc = InNewProc;
-            Result.m_Handle = Marshal.AllocCoTaskMem(IntPtr.Size);
-            Result.m_SelfHandle = GCHandle.Alloc(Result, GCHandleType.Weak);
+            Result._callback = InCallback;
+            Result._hookProc = InNewProc;
+            Result._handle = Marshal.AllocCoTaskMem(IntPtr.Size);
+            Result._selfHandle = GCHandle.Alloc(Result, GCHandleType.Weak);
 
-            Marshal.WriteIntPtr(Result.m_Handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(Result._handle, IntPtr.Zero);
 
             try
             {
                 NativeAPI.DetourInstallHook(
                     InTargetProc,
-                    Marshal.GetFunctionPointerForDelegate(Result.m_HookProc),
-                    GCHandle.ToIntPtr(Result.m_SelfHandle),
-                    Result.m_Handle);
+                    Marshal.GetFunctionPointerForDelegate(Result._hookProc),
+                    GCHandle.ToIntPtr(Result._selfHandle),
+                    Result._handle);
             }
             catch (Exception e)
             {
-                Marshal.FreeCoTaskMem(Result.m_Handle);
-                Result.m_Handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(Result._handle);
+                Result._handle = IntPtr.Zero;
 
-                Result.m_SelfHandle.Free();
+                Result._selfHandle.Free();
 
                 throw e;
             }
 
-            Result.m_ThreadACL = new HookAccessControl(Result.m_Handle);
+            Result._threadACL = new HookAccessControl(Result._handle);
 
             return Result;
         }
@@ -314,12 +320,11 @@ namespace CoreHook
         {
             LocalHook Result = new LocalHook();
 
-            Result.m_Callback = InCallback;
-            Result.m_Handle = Marshal.AllocCoTaskMem(IntPtr.Size);
-            Result.m_SelfHandle = GCHandle.Alloc(Result, GCHandleType.Weak);
+            Result._callback = InCallback;
+            Result._handle = Marshal.AllocCoTaskMem(IntPtr.Size);
+            Result._selfHandle = GCHandle.Alloc(Result, GCHandleType.Weak);
 
-            // workitem/13695 & workitem/25580
-            Marshal.WriteIntPtr(Result.m_Handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(Result._handle, IntPtr.Zero);
 
             try
             {
@@ -327,19 +332,19 @@ namespace CoreHook
                     InTargetProc,
                     InNewProc,
                     InCallback,
-                    Result.m_Handle);
+                    Result._handle);
             }
             catch (Exception e)
             {
-                Marshal.FreeCoTaskMem(Result.m_Handle);
-                Result.m_Handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(Result._handle);
+                Result._handle = IntPtr.Zero;
 
-                Result.m_SelfHandle.Free();
+                Result._selfHandle.Free();
 
                 throw e;
             }
 
-            Result.m_ThreadACL = new HookAccessControl(Result.m_Handle);
+            Result._threadACL = new HookAccessControl(Result._handle);
 
             return Result;
         }
