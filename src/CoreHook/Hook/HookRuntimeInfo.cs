@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Runtime.ConstrainedExecution;
@@ -40,7 +38,6 @@ namespace CoreHook
                 {
                     return NativeAPI_x86.DetourBarrierGetCallback(out callback) == NativeAPI.STATUS_SUCCESS;
                 }
-
             }
         }
 
@@ -229,7 +226,9 @@ namespace CoreHook
             public StackTraceBuffer()
             {
                 if ((Unmanaged = Marshal.AllocCoTaskMem(64 * IntPtr.Size)) == IntPtr.Zero)
+                {
                     throw new OutOfMemoryException();
+                }
 
                 Managed = new IntPtr[64];
                 Modules = new ProcessModule[64];
@@ -271,7 +270,7 @@ namespace CoreHook
                 // not supported on windows 2000
                 if ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor == 0))
                 {
-                    ProcessModule[] Module = new ProcessModule[1];
+                    var  Module = new ProcessModule[1];
 
                     Module[0] = CallingUnmanagedModule;
 
