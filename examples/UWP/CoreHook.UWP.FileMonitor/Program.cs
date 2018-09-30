@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
-using McMaster.Extensions.CommandLineUtils;
 
 namespace CoreHook.UWP.FileMonitor
 {
@@ -26,35 +25,7 @@ namespace CoreHook.UWP.FileMonitor
             var arch = RuntimeInformation.ProcessArchitecture;
             return arch == Architecture.Arm || arch == Architecture.Arm64;
         }
-        public static int Main2(string[] args)
-        {
-            var app = new CommandLineApplication();
 
-            app.HelpOption();
-            var optionSubject = app.Option("-s|--subject <SUBJECT>", "The subject", CommandOptionType.SingleValue);
-            var optionRepeat = app.Option<int>("-n|--count <N>", "Repeat", CommandOptionType.SingleValue);
-            var optionGrant = app.Option<string>("-g|--grant <directory>", "Grant ALL APPLICATION PACKAGES permissions to directory", CommandOptionType.SingleValue);
-
-            var uwpApp = app.Argument<string>("Target", "AppUserModelID or Process Id");
-            app.OnExecute(() =>
-            {
-                var subject = optionSubject.HasValue()
-                    ? optionSubject.Value()
-                    : "world";
-
-                Console.WriteLine(uwpApp.Value);
-                Console.WriteLine(optionGrant.ParsedValue);
-
-                var count = optionRepeat.HasValue() ? optionRepeat.ParsedValue : 1;
-                for (var i = 0; i < count; i++)
-                {
-                    Console.WriteLine($"Hello {subject}!");
-                }
-                return 0;
-            });
-
-            return app.Execute(args);
-        }
         private static void Main(string[] args)
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -77,9 +48,6 @@ namespace CoreHook.UWP.FileMonitor
                     Console.WriteLine();
                     Console.WriteLine("Usage: FileMonitor %PID%");
                     Console.WriteLine("   or: FileMonitor AppUserModelId");
-                    Console.WriteLine();
-                    Console.WriteLine("   Flags:");
-                    Console.WriteLine("     -g       directory_path       Grant ALL_APPLICATION_PACKAGES permissions to a directory and it's sub-directories");
                     Console.WriteLine();
                     Console.Write("Please enter a process Id or the App Id to launch: ");
 
