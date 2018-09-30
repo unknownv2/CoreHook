@@ -20,11 +20,11 @@ namespace CoreHook.IPC.NamedPipes
 
         public bool Connect(int timeoutMilliseconds = 3000)
         {
-            if (this.clientStream != null)
+            if (clientStream != null)
             {
                 throw new InvalidOperationException();
             }
-            if (this.pipeName == null)
+            if (pipeName == null)
             {
                 throw new InvalidOperationException("Client pipe name was not set");
             }
@@ -55,7 +55,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             try
             {
-                this.SendRequest(message);
+                SendRequest(message);
                 return true;
             }
             catch (BrokenPipeException)
@@ -66,16 +66,17 @@ namespace CoreHook.IPC.NamedPipes
 
         public void SendRequest(NamedPipeMessages.Message message)
         {
-            this.SendRequest(message.ToString());
+            SendRequest(message.ToString());
         }
 
         public void SendRequest(string message)
         {
-            this.ValidateConnection();
+            ValidateConnection();
+
             try
             {
-                this.writer.WriteLine(message);
-                this.writer.Flush();
+                writer.WriteLine(message);
+                writer.Flush();
             }
             catch (IOException e)
             {
@@ -87,7 +88,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             try
             {
-                string response = this.reader.ReadLine();
+                string response = reader.ReadLine();
                 if (response == null)
                 {
                     throw new BrokenPipeException("Unable to read from pipe", null);
@@ -100,16 +101,16 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        public NamedPipeMessages.Message ReadResponse()
+        public NamedPipeMessages.IMessage ReadResponse()
         {
-            return NamedPipeMessages.Message.FromString(this.ReadRawResponse());
+            return NamedPipeMessages.Message.FromString(ReadRawResponse());
         }
 
-        public bool TryReadResponse(out NamedPipeMessages.Message message)
+        public bool TryReadResponse(out NamedPipeMessages.IMessage message)
         {
             try
             {
-                message = NamedPipeMessages.Message.FromString(this.ReadRawResponse());
+                message = NamedPipeMessages.Message.FromString(ReadRawResponse());
                 return true;
             }
             catch (BrokenPipeException)
@@ -121,19 +122,18 @@ namespace CoreHook.IPC.NamedPipes
 
         public void Dispose()
         {
-            this.ValidateConnection();
-            if (this.clientStream != null)
-            {
-                this.clientStream.Dispose();
-                this.clientStream = null;
-            }
-            this.reader = null;
-            this.writer = null;
+            ValidateConnection();
+
+            clientStream?.Dispose();
+            clientStream = null;
+
+            reader = null;
+            writer = null;
         }
 
         private void ValidateConnection()
         {
-            if (this.clientStream == null)
+            if (clientStream == null)
             {
                 throw new InvalidOperationException("There is no connection");
             }

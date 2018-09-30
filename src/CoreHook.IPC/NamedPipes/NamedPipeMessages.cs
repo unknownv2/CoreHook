@@ -27,16 +27,35 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        public class Message
+        public interface IMessage
         {
+            string Header { get; }
+
+            string Body { get; }
+
+            string ToMessage();
+        }
+        public interface ICustomMessage
+        {
+            string ToMessage();
+        }
+        public class Message : IMessage
+        {
+            public string Header { get; }
+            public string Body { get; }
+
+            public Message()
+            {
+
+            }
+
             public Message(string header, string body)
             {
                 Header = header;
                 Body = body;
             }
-            public string Header { get; }
-            public string Body { get; }
-            public static Message FromString(string message)
+
+            public static IMessage FromString(string message)
             {
                 string header = null;
                 string body = null;
@@ -51,6 +70,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 return new Message(header, body);
             }
+
             public override string ToString()
             {
                 string result = string.Empty;
@@ -63,6 +83,10 @@ namespace CoreHook.IPC.NamedPipes
                     result = result + NamedPipeMessages.MessageSeparator + Body;
                 }
                 return result;
+            }
+            public virtual string ToMessage()
+            {
+                return ToString();
             }
         }
 
@@ -87,7 +111,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        public class InjectionCompleteMessage
+        public class InjectionCompleteMessage : ICustomMessage
         {
             public InjectionCompleteMessage(int pid, bool didComplete)
             {
@@ -128,7 +152,7 @@ namespace CoreHook.IPC.NamedPipes
                 return null;
             }
 
-            internal string ToMessage()
+            public string ToMessage()
             {
                 return string.Join(MessageSeparator.ToString(), PID, Completed);
             }

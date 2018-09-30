@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Runtime.InteropServices;
 
-namespace CoreHook.ImportUtils
+namespace CoreHook.Utilities.Import
 {
-    public class LibLoaderMacOS : ILibLoader
+    public class LibLoaderUnix : ILibLoader
     {
         public IntPtr LoadLibrary(string fileName)
         {
@@ -31,16 +33,16 @@ namespace CoreHook.ImportUtils
 
         const int RTLD_NOW = 2;
 
-        [DllImport("libc.dylib")]
-        private static extern IntPtr dlopen(String fileName, int flags);
+        [DllImport("libdl.so")]
+        private static extern IntPtr dlopen(string fileName, int flags);
 
-        [DllImport("libc.dylib")]
-        private static extern IntPtr dlsym(IntPtr handle, String symbol);
+        [DllImport("libdl.so")]
+        private static extern IntPtr dlsym(IntPtr handle, string symbol);
 
-        [DllImport("libc.dylib")]
+        [DllImport("libdl.so")]
         private static extern int dlclose(IntPtr handle);
 
-        [DllImport("libc.dylib")]
+        [DllImport("libdl.so")]
         private static extern IntPtr dlerror();
     }
 }

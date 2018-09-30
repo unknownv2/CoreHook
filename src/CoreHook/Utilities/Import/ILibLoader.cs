@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace CoreHook.ImportUtils
+namespace CoreHook.Utilities.Import
 {
     public interface ILibLoader
     {

@@ -68,9 +68,9 @@ First, set the environment variables for the `x86` and `x64` applications to the
 
 Using the `.NET Core 2.1` runtime as an example (validate the paths if you have another installation directory or drive):
 
- * Set `CORE_LIBRARIES_32` and `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `32-bit(x86)` applications.
+ * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `32-bit` applications.
  
- * Set `CORE_LIBRARIES_64` and `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `64-bit(x64)` applications.
+ * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `64-bit` applications.
 
 
 Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.

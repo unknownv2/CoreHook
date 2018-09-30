@@ -102,7 +102,7 @@ namespace CoreHook.UWP.FileMonitor
         private static string GetCoreLibrariesPath()
         {
             return !IsArchitectureArm() ?
-             Environment.Is64BitProcess? 
+             Environment.Is64BitProcess ? 
              Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
              Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -127,16 +127,12 @@ namespace CoreHook.UWP.FileMonitor
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            string coreLibrariesPath = GetCoreLibrariesPath();
             string coreRootPath = GetCoreRootPath();
-            if (string.IsNullOrEmpty(coreLibrariesPath))
+            string coreLibrariesPath = GetCoreLibrariesPath();
+
+            if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibrariesPath))
             {
-                Console.WriteLine("CORE_LIBRARIES path was not set!");
-                return;
-            }
-            if (string.IsNullOrEmpty(coreRootPath))
-            {
-                Console.WriteLine("CORE_ROOT path was not set!");
+                Console.WriteLine("CoreCLR root path was not set!");
                 return;
             }
       

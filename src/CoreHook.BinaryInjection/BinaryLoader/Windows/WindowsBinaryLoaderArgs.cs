@@ -44,7 +44,7 @@ namespace CoreHook.BinaryInjection
                 StartAssembly = args.StartAssembly,
                 PayloadFileName = BinaryLoaderArgs.GetPathArray(args.PayloadFileName, PathLength, Encoding),
                 CoreRootPath = BinaryLoaderArgs.GetPathArray(args.CoreRootPath, PathLength, Encoding),
-                CoreLibrariesPath = BinaryLoaderArgs.GetPathArray(args.CoreLibrariesPath, PathLength, Encoding)
+                CoreLibrariesPath = BinaryLoaderArgs.GetPathArray(args.CoreLibrariesPath ?? string.Empty, PathLength, Encoding)
              };
         }
     }
