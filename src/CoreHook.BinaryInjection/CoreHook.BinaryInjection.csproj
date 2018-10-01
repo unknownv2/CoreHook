@@ -28,8 +28,4 @@
     <ProjectReference Include="..\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Process\" />
-  </ItemGroup>
-
 </Project>
