@@ -9,6 +9,10 @@
     <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64\Test</OutputPath>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x64\Test</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
   </ItemGroup>
