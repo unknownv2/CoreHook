@@ -20,8 +20,16 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Process\" />
   </ItemGroup>
 
 </Project>
