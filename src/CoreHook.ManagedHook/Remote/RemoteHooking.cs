@@ -55,12 +55,16 @@ namespace CoreHook.ManagedHook.Remote
             params object[] passThruArgs
             )
         {
+            const int STARTF_USESHOWWINDOW = 1;
+            const int SW_HIDE = 0;
+
             outProcessId = -1;
 
             var si = new NativeMethods.StartupInfo();
             var pi = new NativeMethods.ProcessInformation();
 
-            si.wShowWindow = 1;
+            si.wShowWindow = SW_HIDE;
+            si.dwFlags = STARTF_USESHOWWINDOW;
 
             if (Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(
                     process.ExecutablePath,
@@ -82,6 +86,8 @@ namespace CoreHook.ManagedHook.Remote
                     ))
             {
                 outProcessId = pi.dwProcessId;
+
+                System.Diagnostics.Process.GetProcessById(pi.dwProcessId).BringToFront();
 
                 InjectEx(
                     ProcessHelper.GetCurrentProcessId(),
