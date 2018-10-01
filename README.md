@@ -16,7 +16,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 
 ## Features
-* Intercept public API functions such as [kernel32.dll!CreateFile](https://docs.microsoft.com/en-us/windows/desktop/api/fileapi/nf-fileapi-createfilew) on Windows or [libc!open](http://man7.org/linux/man-pages/man2/open.2.html) on Unix
+* Intercept public API functions such as [kernel32.dll!CreateFile](https://docs.microsoft.com/en-us/windows/desktop/api/fileapi/nf-fileapi-createfilew) on Windows or [libc!open](http://man7.org/linux/man-pages/man2/open.2.html) on Unix systems
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
