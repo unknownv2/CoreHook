@@ -7,36 +7,37 @@ namespace CoreHook.IPC.NamedPipes
 {
     public class NamedPipeClient : INamedPipeClient
     {
-        private string pipeName;
-        private NamedPipeClientStream clientStream;
-        private StreamReader reader;
-        private StreamWriter writer;
+        private readonly string _pipeName;
+        private NamedPipeClientStream _clientStream;
+        private StreamReader _reader;
+        private StreamWriter _writer;
+
         private const string serverName = ".";
 
         public NamedPipeClient(string pipeName)
         {
-            this.pipeName = pipeName;
+            _pipeName = pipeName;
         }
 
         public bool Connect(int timeoutMilliseconds = 3000)
         {
-            if (clientStream != null)
+            if (_clientStream != null)
             {
                 throw new InvalidOperationException();
             }
-            if (pipeName == null)
+            if (_pipeName == null)
             {
                 throw new InvalidOperationException("Client pipe name was not set");
             }
             try
             {
-                this.clientStream = new NamedPipeClientStream(
+                _clientStream = new NamedPipeClientStream(
                     serverName,
-                    this.pipeName,
+                    _pipeName,
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous,
                     TokenImpersonationLevel.Impersonation);
-                    this.clientStream.Connect(timeoutMilliseconds);
+                    _clientStream.Connect(timeoutMilliseconds);
             }
             catch (TimeoutException)
             {
@@ -46,8 +47,8 @@ namespace CoreHook.IPC.NamedPipes
             {
                 return false;
             }
-            this.reader = new StreamReader(this.clientStream);
-            this.writer = new StreamWriter(this.clientStream);
+            _reader = new StreamReader(_clientStream);
+            _writer = new StreamWriter(_clientStream);
             return true;
         }
 
@@ -75,8 +76,8 @@ namespace CoreHook.IPC.NamedPipes
 
             try
             {
-                writer.WriteLine(message);
-                writer.Flush();
+                _writer.WriteLine(message);
+                _writer.Flush();
             }
             catch (IOException e)
             {
@@ -88,7 +89,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             try
             {
-                string response = reader.ReadLine();
+                string response = _reader.ReadLine();
                 if (response == null)
                 {
                     throw new BrokenPipeException("Unable to read from pipe", null);
@@ -124,16 +125,16 @@ namespace CoreHook.IPC.NamedPipes
         {
             ValidateConnection();
 
-            clientStream?.Dispose();
-            clientStream = null;
+            _clientStream?.Dispose();
+            _clientStream = null;
 
-            reader = null;
-            writer = null;
+            _reader = null;
+            _writer = null;
         }
 
         private void ValidateConnection()
         {
-            if (clientStream == null)
+            if (_clientStream == null)
             {
                 throw new InvalidOperationException("There is no connection");
             }
