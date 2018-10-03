@@ -43,7 +43,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else
             {
-                throw new UnsupportedPlatformException("Binary injection");
+                throw new PlatformNotSupportedException("Binary injection");
             }
         }
 

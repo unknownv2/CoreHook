@@ -48,7 +48,7 @@ namespace CoreHook.FileMonitor
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                throw new UnsupportedPlatformException("Win32 example");
+                throw new PlatformNotSupportedException("Win32 example");
             }
 
             int targetPID = 0;

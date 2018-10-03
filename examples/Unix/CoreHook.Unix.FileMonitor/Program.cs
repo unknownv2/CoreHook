@@ -80,7 +80,7 @@ namespace CoreHook.Unix.FileMonitor
             }
             else
             {
-                throw new UnsupportedPlatformException("Unix FileMonitor example");
+                throw new PlatformNotSupportedException("Unix example");
             }
 
             // start RPC server

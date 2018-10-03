@@ -51,7 +51,7 @@ namespace CoreHook.ManagedHook.Remote
                     }
                     break;
                 default:
-                    throw new UnknownMessageException(message.Header);
+                    throw new InvalidOperationException($"Message type {message.Header} is not supported");
             }
         }
 
