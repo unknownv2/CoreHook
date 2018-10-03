@@ -61,9 +61,9 @@ namespace CoreHook.CoreLoad
 
                     passThruStream.Position = 0;
                     object remoteInfo = format.Deserialize(passThruStream);
-                    if(remoteInfo != null && remoteInfo is ManagedRemoteInfo)
+                    if(remoteInfo != null && remoteInfo is ManagedRemoteInfo info)
                     {
-                        data.RemoteInfo = (ManagedRemoteInfo)remoteInfo;
+                        data.RemoteInfo = info;
                     }
                     else
                     {
