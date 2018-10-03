@@ -8,6 +8,13 @@ namespace CoreHook.ManagedHook.Remote
 {
     public class InjectionHelper
     {
+        internal class PipeConnectionBrokenException : Exception
+        {
+            internal PipeConnectionBrokenException() : base ($"Pipe connection was broken")
+            {
+
+            }
+        }
         private class InjectionWait
         {
             public Mutex ThreadLock = new Mutex(false);
@@ -22,6 +29,11 @@ namespace CoreHook.ManagedHook.Remote
 
         private static void HandleRequest(string request, IPC.IConnection connection)
         {
+            if(!connection.IsConnected)
+            {
+                throw new PipeConnectionBrokenException();
+            }
+
             var message = NamedPipeMessages.Message.FromString(request);
 
             switch (message.Header)
@@ -45,59 +57,61 @@ namespace CoreHook.ManagedHook.Remote
 
         private static SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
 
-        public static void BeginInjection(int InTargetPID)
-        {
-            InjectionWait WaitInfo;
-
-            lock (InjectionList)
-            {
-                if (!InjectionList.TryGetValue(InTargetPID, out WaitInfo))
-                {
-                    WaitInfo = new InjectionWait();
-
-                    InjectionList.Add(InTargetPID, WaitInfo);
-                }
-            }
-
-            WaitInfo.ThreadLock.WaitOne();
-            WaitInfo.Error = null;
-            WaitInfo.Completion.Reset();
-
-            lock (InjectionList)
-            {
-                if (!InjectionList.ContainsKey(InTargetPID))
-                {
-                    InjectionList.Add(InTargetPID, WaitInfo);
-                }
-            }
-        }
-
-        public static void EndInjection(int InTargetPID)
-        {
-            lock (InjectionList)
-            {
-                InjectionList[InTargetPID].ThreadLock.ReleaseMutex();
-
-                InjectionList.Remove(InTargetPID);
-            }
-        }
-
-        public static void WaitForInjection(int InTargetPID, int timeout = 20000)
+        public static void BeginInjection(int targetPID)
         {
             InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                waitInfo = InjectionList[InTargetPID];
+                if (!InjectionList.TryGetValue(targetPID, out waitInfo))
+                {
+                    waitInfo = new InjectionWait();
+
+                    InjectionList.Add(targetPID, waitInfo);
+                }
             }
 
-            if (!waitInfo.Completion.WaitOne(timeout, false))
+            waitInfo.ThreadLock.WaitOne();
+            waitInfo.Error = null;
+            waitInfo.Completion.Reset();
+
+            lock (InjectionList)
+            {
+                if (!InjectionList.ContainsKey(targetPID))
+                {
+                    InjectionList.Add(targetPID, waitInfo);
+                }
+            }
+        }
+
+        public static void EndInjection(int targetPID)
+        {
+            lock (InjectionList)
+            {
+                InjectionList[targetPID].ThreadLock.ReleaseMutex();
+
+                InjectionList.Remove(targetPID);
+            }
+        }
+
+        public static void WaitForInjection(int targetPID, int timeOutMs = 20000)
+        {
+            InjectionWait waitInfo;
+
+            lock (InjectionList)
+            {
+                waitInfo = InjectionList[targetPID];
+            }
+
+            if (!waitInfo.Completion.WaitOne(timeOutMs, false))
             {
                 throw new TimeoutException("Unable to wait for injection completion.");
             }
 
             if (waitInfo.Error != null)
+            {
                 throw waitInfo.Error;
+            }
         }
 
         public static void InjectionException(int clientPID, Exception e)
