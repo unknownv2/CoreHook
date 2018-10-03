@@ -45,10 +45,7 @@ namespace CoreHook.IPC.Pipes.Client
 
         public void Close()
         {
-            if (_pipe != null)
-            {
-                _pipe.Close();
-            }
+            _pipe?.Close();
         }
     }
 }
