@@ -38,6 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CoreHook.DependencyModel\CoreHook.DependencyModel.csproj" />
     <ProjectReference Include="..\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\CoreHook\CoreHook.csproj" />
   </ItemGroup>
 
 </Project>

@@ -4,18 +4,10 @@ using System.Runtime.InteropServices;
 namespace CoreHook.CoreLoad
 {
     [StructLayout(LayoutKind.Sequential)]
-    class RemoteEntryInfo
+    internal class RemoteEntryInfo : IContext
     {
-        public int m_HostPID;
-        public IntPtr UserData;
-        public int UserDataSize;
-
-        public int HostPID
-        {
-            get
-            {
-                return m_HostPID;
-            }
-        }
+        public int HostPID { get; }
+        public IntPtr UserData { get; }
+        public int UserDataSize { get; }
     }
 }
