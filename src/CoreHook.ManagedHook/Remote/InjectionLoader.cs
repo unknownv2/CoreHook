@@ -47,7 +47,7 @@ namespace CoreHook.ManagedHook.Remote
                     }
                     else
                     {
-                        throw new InjectionLoadException(reqData.PID);
+                        throw new InjectionLoadException($"Injection into process {reqData.PID} failed.");
                     }
                     break;
                 default:
