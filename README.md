@@ -70,12 +70,25 @@ First, set the environment variables for the `x86` and `x64` applications to the
 
 Using the `.NET Core 2.1` runtime as an example (validate the paths if you have another installation directory or drive):
 
- * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `32-bit` applications.
+ * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5` for `32-bit` applications.
  
- * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `64-bit` applications.
+ * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5` for `64-bit` applications.
 
+You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or the next program you open, such as Visual Studio:
 
-Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
+```ps
+setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5"
+setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5"
+```
+
+Or set them for the current command prompt session with:
+
+```ps
+set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5
+set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5
+```
+
+Then open the `CoreHook` solution in `Visual Studio` and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
 Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
@@ -86,7 +99,7 @@ You can then start the program you built above.
 
 For `Windows 10 IoT Core`, you can publish the application by running the `publish.ps1` [PowerShell script](#publishing-script).
 
-```
+```ps
 .\publish -example win32 -runtime win-arm
 ```
 
@@ -114,7 +127,7 @@ You can then copy the folder to your device and start the `CoreHook.FileMonitor.
 
 The PowerShell script `publish.ps1` allows you to publish the [examples](/examples) as self-contained executables. The default configuration is `Release` and the output will be in the `Publish` directory, created in the same location as the publishing script.
 
-```
+```ps
 .\publish -example [unix|uwp|win32] -runtime [Runtime IDentifier] -configuration [Debug|Release]
 ```
 
@@ -122,13 +135,13 @@ The PowerShell script `publish.ps1` allows you to publish the [examples](/exampl
 
 For example, the command
 
-```
+```ps
 .\publish -example win32 -runtime win10-arm
 ```
 
 will create a folder called `Publish/win32/win10-arm/` containing the `CoreHook.FileMonitor` example.
 
-```
+```ps
 .\publish -example uwp -runtime win10-arm64
 ```
 will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.UWP.FileMonitor` example.
