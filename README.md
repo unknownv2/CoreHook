@@ -70,12 +70,22 @@ First, set the environment variables for the `x86` and `x64` applications to the
 
 Using the `.NET Core 2.1` runtime as an example (validate the paths if you have another installation directory or drive):
 
- * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `32-bit` applications.
+ * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5` for `32-bit` applications.
  
- * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.4` for `64-bit` applications.
+ * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5` for `64-bit` applications.
 
+You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or program you open :
+```
+setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5"
+setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5"
+```
+Or set them for the current command prompt session with:
+```
+set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5
+set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5
+```
 
-Then open the `CoreHook` solution `(.sln file)` in Visual Studio and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
+Then open the `CoreHook` solution in `Visual Studio` and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
 
 Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
