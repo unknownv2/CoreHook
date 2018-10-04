@@ -9,18 +9,20 @@ namespace CoreHook.IPC.NamedPipes
     public class NamedPipeServer : INamedPipeServer
     {
         private const int MaxPipeNameLength = 250;
-        private bool isStopping;
-        private string pipeName;
-        private Action<Connection> handleConnection;
-        private IPipePlatform platform;
-        private NamedPipeServerStream listeningPipe;
+
+        private readonly Action<Connection> _handleConnection;
+        private readonly string _pipeName;
+        private readonly IPipePlatform _platform;
+
+        private bool _isStopping;
+        private NamedPipeServerStream _listeningPipe;
 
         private NamedPipeServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
         {
-            this.pipeName = pipeName;
-            this.platform = platform;
-            this.handleConnection = handleConnection;
-            this.isStopping = false;
+            _pipeName = pipeName;
+            _platform = platform;
+            _handleConnection = handleConnection;
+            _isStopping = false;
         }
 
         public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, IConnection> handleRequest)
@@ -47,8 +49,8 @@ namespace CoreHook.IPC.NamedPipes
 
         public void Dispose()
         {
-            isStopping = true;
-            NamedPipeServerStream pipe = Interlocked.Exchange(ref listeningPipe, null);
+            _isStopping = true;
+            NamedPipeServerStream pipe = Interlocked.Exchange(ref _listeningPipe, null);
             if (pipe != null)
             {
                 pipe.Dispose();
@@ -72,12 +74,12 @@ namespace CoreHook.IPC.NamedPipes
         {
             try
             {
-                if (listeningPipe != null)
+                if (_listeningPipe != null)
                 {
                     throw new InvalidOperationException("There is already a pipe listening for a connection");
                 }
-                listeningPipe = platform.CreatePipeByName(pipeName);
-                listeningPipe.BeginWaitForConnection(OnNewConnection, listeningPipe);
+                _listeningPipe = _platform.CreatePipeByName(_pipeName);
+                _listeningPipe.BeginWaitForConnection(OnNewConnection, _listeningPipe);
             }
             catch (Exception e)
             {
@@ -101,7 +103,7 @@ namespace CoreHook.IPC.NamedPipes
                 new Thread(() => OnNewConnection(ar, createNewThreadIfSynchronous: false)).Start();
                 return;
             }
-            listeningPipe = null;
+            _listeningPipe = null;
             bool connectionBroken = false;
             NamedPipeServerStream pipe = (NamedPipeServerStream)ar.AsyncState;
             try
@@ -116,7 +118,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 catch (ObjectDisposedException)
                 {
-                    if (!isStopping)
+                    if (!_isStopping)
                     {
                         throw;
                     }
@@ -125,14 +127,14 @@ namespace CoreHook.IPC.NamedPipes
                 {
                     LogError("OnNewConnection caught unhandled exception", e);
                 }
-                if (!isStopping)
+                if (!_isStopping)
                 {
                     new Thread(() => OpenListeningPipe()).Start();
                     if (!connectionBroken)
                     {
                         try
                         {
-                            handleConnection(new Connection(pipe, () => isStopping));
+                            _handleConnection(new Connection(pipe, () => _isStopping));
                         }
                         catch (Exception e)
                         {

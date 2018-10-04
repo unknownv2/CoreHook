@@ -34,11 +34,11 @@ namespace CoreHook.Unix.FileMonitor.Hook
             SetLastError = true)]
         delegate int DOpen(string pathname, int flags, int mode);
 
-        public Library(object InContext, string arg1)
+        public Library(IContext context, string arg1)
         {
         }
 
-        public void Run(object InContext, string pipeName)
+        public void Run(IContext context, string pipeName)
         {
             try
             {

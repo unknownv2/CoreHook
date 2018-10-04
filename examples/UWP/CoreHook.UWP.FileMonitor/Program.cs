@@ -37,7 +37,7 @@ namespace CoreHook.UWP.FileMonitor
         {
             if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                throw new UnsupportedPlatformException("UWP example");
+                throw new PlatformNotSupportedException("UWP example");
             }
 
             int targetPID = 0;

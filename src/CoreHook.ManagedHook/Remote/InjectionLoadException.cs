@@ -4,9 +4,8 @@ namespace CoreHook.ManagedHook.Remote
 {
     internal class InjectionLoadException : Exception
     {
-        internal InjectionLoadException(int pid)
-            : base($"Injection into process {pid} failed.")
-        {
-        }
+        internal InjectionLoadException() { }
+        internal InjectionLoadException(string message) { }
+        internal InjectionLoadException(string message, Exception innerException) {  }
     }
 }

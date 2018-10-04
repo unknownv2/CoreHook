@@ -27,11 +27,11 @@ namespace CoreHook.FileMonitor.Hook
 
         private LocalHook CreateFileHook;
 
-        public Library(object context, string arg1)
+        public Library(IContext context, string arg1)
         {
         }
 
-        public void Run(object context, string pipeName)
+        public void Run(IContext context, string pipeName)
         {
             try
             {

@@ -22,13 +22,6 @@ namespace CoreHook.CoreLoad
         private const string EntryPointInterface = "CoreHook.IEntryPoint";
         private const string EntryPointMethodName = "Run";
 
-        const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
-
         public Loader()
         {
 
@@ -45,7 +38,6 @@ namespace CoreHook.CoreLoad
             {
                 throw new ArgumentNullException("Remote arguments parameter was null");
             }
-
             try
             {
                 IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
@@ -54,15 +46,13 @@ namespace CoreHook.CoreLoad
                 {
                     throw new ArgumentOutOfRangeException("Remote arguments address was zero");
                 }
+
                 var connection = ConnectionData.LoadData(remoteParams);
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
 
-                // Prepare parameter array.
                 var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
 
-                // The next type cast is not redundant because the object needs to be an explicit IContext
-                // when passed as a parameter to the IEntryPoint constructor and Run() methods.
                 paramArray[0] = connection.UnmanagedInfo;
                 for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
                 {
@@ -77,11 +67,13 @@ namespace CoreHook.CoreLoad
             }
             return 0;
         }
+
         private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
         {
             Type entryPoint = FindEntryPoint(assembly);
-            BinaryFormatter format = new BinaryFormatter();
+            var format = new BinaryFormatter();
             format.Binder = new AllowAllAssemblyVersionsDeserializationBinder(entryPoint.Assembly);
+
             for (int i = 1; i < paramArray.Length; i++)
             {
                 using (var ms = new MemoryStream((byte[])paramArray[i]))
@@ -91,11 +83,18 @@ namespace CoreHook.CoreLoad
             }
 
             MethodInfo runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
+            if(runMethod == null)
+            {
+                throw new MissingMethodException($"Failed to find the function 'Run' in {assembly.FullName}");
+            }
 
             var instance = InitializeInstance(entryPoint, paramArray);
+            if (instance == null)
+            {
+                throw new MissingMethodException($"Failed to find the constructor {entryPoint.Name} in {assembly.FullName}");
+            }
 
             SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id);
-
             try
             {
                 // After this it is safe to enter the Run() method, which will block until assembly unloading...
@@ -106,7 +105,15 @@ namespace CoreHook.CoreLoad
             }
             finally
             {
-                //Release(entryPoint);
+                Release(entryPoint);
+            }
+        }
+
+        private static void Release(Type entryPoint)
+        {
+            if(entryPoint != null)
+            {
+                LocalHook.Release();
             }
         }
 
@@ -153,14 +160,16 @@ namespace CoreHook.CoreLoad
             foreach (var constructor in constructors)
             {
                 if (MethodMatchesParameters(constructor, parameters))
+                {
                     return constructor.Invoke(parameters);
+                }
             }
             return null;
         }
 
         private static bool SendInjectionComplete(string pipeName, int pid)
         {
-            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
+            using (var pipeClient = new NamedPipeClient(pipeName))
             {
                 if (pipeClient.Connect())
                 {
@@ -179,6 +188,13 @@ namespace CoreHook.CoreLoad
             Debug.WriteLine(message);
         }
 
+        const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
+
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+        private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
+
         private static bool IsUwp()
         {
             int length = 1024;
@@ -190,6 +206,5 @@ namespace CoreHook.CoreLoad
             }
             return false;
         }
-
     }
 }
