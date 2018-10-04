@@ -74,13 +74,16 @@ Using the `.NET Core 2.1` runtime as an example (validate the paths if you have 
  
  * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5` for `64-bit` applications.
 
-You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or program you open :
-```
+You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or the next program you open, such as Visual Studio:
+
+```ps
 setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5"
 setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5"
 ```
+
 Or set them for the current command prompt session with:
-```
+
+```ps
 set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5
 set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5
 ```
@@ -96,7 +99,7 @@ You can then start the program you built above.
 
 For `Windows 10 IoT Core`, you can publish the application by running the `publish.ps1` [PowerShell script](#publishing-script).
 
-```
+```ps
 .\publish -example win32 -runtime win-arm
 ```
 
@@ -124,7 +127,7 @@ You can then copy the folder to your device and start the `CoreHook.FileMonitor.
 
 The PowerShell script `publish.ps1` allows you to publish the [examples](/examples) as self-contained executables. The default configuration is `Release` and the output will be in the `Publish` directory, created in the same location as the publishing script.
 
-```
+```ps
 .\publish -example [unix|uwp|win32] -runtime [Runtime IDentifier] -configuration [Debug|Release]
 ```
 
@@ -132,13 +135,13 @@ The PowerShell script `publish.ps1` allows you to publish the [examples](/exampl
 
 For example, the command
 
-```
+```ps
 .\publish -example win32 -runtime win10-arm
 ```
 
 will create a folder called `Publish/win32/win10-arm/` containing the `CoreHook.FileMonitor` example.
 
-```
+```ps
 .\publish -example uwp -runtime win10-arm64
 ```
 will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.UWP.FileMonitor` example.
