@@ -6,6 +6,19 @@ A library that simplifies intercepting application function calls using managed 
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 
 
+## Contents
+
+- [Build Status](#build-status)
+- [Features](#features)
+- [Supported Platforms](#supported-platforms)
+- [Tested Platforms](#tested-platforms)
+- [Dependencies](#dependencies)
+- [Examples](#examples)
+- [Usage](#usage)
+    - [Windows](##windows)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [Licenses](#licenses)
 ## Build status
 
 | Build server    | Platform           | Build status                                                                                                                                                                    |
@@ -94,6 +107,28 @@ Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hoo
 
 You can then start the program you built above.
 
+### Windows 10 UWP
+
+You can get the Application User Model Id (AUMID) required for launching UWP apps for the FileMonitor example with [this script:](
+https://docs.microsoft.com/en-us/windows/configuration/find-the-application-user-model-id-of-an-installed-app)
+```ps
+$installedapps = get-AppxPackage
+
+$aumidList = @()
+foreach ($app in $installedapps)
+{
+    foreach ($id in (Get-AppxPackageManifest $app).package.applications.application.id)
+    {
+        $aumidList += $app.packagefamilyname + "!" + $id
+    }
+}
+
+$aumidList
+```
+ You can print the list using the `$aumidList` variable.
+
+ **Notes:** There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
+
 ### Windows 10 IoT Core (ARM32)
 **There is currently no ARM32 SDK for .NET Core, so you must publish the application and copy it to your device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
 
@@ -169,21 +204,17 @@ The `C:\SymbolCache` folder is a local cache directory where symbol files can be
 
 You can test symbol support by running the [symbols tests](test/CoreHook.Tests/Windows/SymbolsTest.cs).
 
-### Notes on Windows UWP Usage
-
- There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
-
 ## Contributing
 
 Any contributions are all welcome! If you find any problems or want to add features, don't hesitate to open a new issue or create a pull request.
 
-## Thanks
+## Credits
 
 A lot of this project is based on the work of others who were willing to share their knowledge.
 
 * [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook) - The original developers of the EasyHook project which this one would not be possible without. A large amount of code in CoreHook is borrowed from their great work, going from C# all the way to assembly code. 
 * [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and other great tools he has created, such as the [.NET Core Plugins](https://github.com/natemcmaster/DotNetCorePlugins).
-* [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework.
+* [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework. Code from the open-source .NET Core framework was used in this project and is really helpful in the developmnet process. 
 
 ## Licenses
 
