@@ -81,10 +81,13 @@ namespace CoreHook.Unmanaged
                     }
                 }
             }
-
-            var hModule = NativeMethods.GetModuleHandle(module);
-
-            return NativeMethods.GetProcAddress(hModule, function);
+            return process.GetAbsoluteFunctionAddressEx(
+               Path.Combine(
+                   Environment.ExpandEnvironmentVariables("%Windir%"),
+                   "System32",
+                   $"{module}.dll"
+               ),
+               function);
         }
 
         public static void LoadLibrary(this Process process, string modulePath)

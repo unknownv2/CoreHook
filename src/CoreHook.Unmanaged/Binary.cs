@@ -10,7 +10,7 @@ namespace CoreHook.Unmanaged
         public static byte[] StructToByteArray(object obj, int length = -1)
         {
             var len = Marshal.SizeOf(obj);
-            var arr = new byte[length == -1 ? len : length];
+            var arr = new byte[length <= 0 ? len : length];
 
             var ptr = Marshal.AllocHGlobal(len);
 
