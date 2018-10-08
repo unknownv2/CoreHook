@@ -19,7 +19,7 @@ namespace CoreHook.ManagedHook.Remote
         /// </summary>
         public uint ProcessCreationFlags { get; set; }
     }
-    public class RemoteHookingConfig : ICoreHookConfig, ICoreRunConfig, ICoreLoadConfig
+    public class RemoteHookingConfig : ICoreHookConfig, ICoreRunConfig, ICoreRunHostConfig, ICoreRootConfig, ICoreLoadConfig
     {
         /// <summary>
         /// Library that implements function intercept exports for the LocalHook class
@@ -88,12 +88,23 @@ namespace CoreHook.ManagedHook.Remote
         /// such as DetourInstallHook.
         /// </summary>
         string DetourLibrary { get; set; }
-        /// <summary>
-        /// .NET library that is loaded and executed inside the target process
-        /// by the boostrap library after starting the .NET Core runtime.
-        /// </summary>
-        string PayloadLibrary { get; set; }
     }
+    public interface ICoreRunHostConfig
+    {
+        /// <summary>
+        /// Library that initializes the .NET Core runtime (CoreCLR) and allows
+        /// loading and executing .NET Assemblies.
+        /// </summary>
+        string HostLibrary { get; set; }
+    }
+    public class CoreHookNativeConfig : ICoreRunHostConfig, ICoreHookConfig, ICoreRootConfig
+    {
+        public string HostLibrary { get; set; }
+        public string DetourLibrary { get; set; }
+        public string CoreCLRPath { get; set; }
+        public string CoreCLRLibrariesPath { get ; set; }
+    }
+
     public interface ICoreLoadConfig
     {
         /// <summary>
@@ -101,6 +112,15 @@ namespace CoreHook.ManagedHook.Remote
         /// the .NET payload Assembly.
         /// </summary>
         string CLRBootstrapLibrary { get; set; }
+
+        /// <summary>
+        /// .NET library that is loaded and executed inside the target process
+        /// by the boostrap library after starting the .NET Core runtime.
+        /// </summary>
+        string PayloadLibrary { get; set; }
+    }
+    public interface ICoreRootConfig
+    {
         /// <summary>
         /// Directory path which contains the main CoreCLR modules for hosting the runtime
         /// such as CoreCLR and clrjit libraries.
@@ -113,12 +133,7 @@ namespace CoreHook.ManagedHook.Remote
         string CoreCLRLibrariesPath { get; set; }
     }
     public interface ICoreRunConfig
-    {        
-        /// <summary>
-        /// Library that initializes the .NET Core runtime (CoreCLR) and allows
-        /// loading and executing .NET Assemblies.
-        /// </summary>
-        string HostLibrary{ get; set; }
+    {
         /// <summary>
         /// Option to enable the logging module inside the HostLibrary.
         /// </summary>
