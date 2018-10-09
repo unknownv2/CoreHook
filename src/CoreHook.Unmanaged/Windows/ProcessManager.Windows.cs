@@ -11,6 +11,7 @@ namespace CoreHook.Unmanaged.Windows
     public class ProcessManager : IProcessManager
     {
         public Process ProcessHandle { get; private set; }
+
         public ProcessManager()
         {
 

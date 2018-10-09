@@ -44,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\examples\Common\CoreHook.Examples.Common\CoreHook.Examples.Common.csproj" />
     <ProjectReference Include="..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
     <ProjectReference Include="..\..\src\CoreHook\CoreHook.csproj" />

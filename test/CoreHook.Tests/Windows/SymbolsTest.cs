@@ -71,7 +71,7 @@ namespace CoreHook.Tests.Windows
         }
 
         /// <summary>
-        /// Detour an internal function and call the internal function 
+        /// Detour a private function and call the internal function 
         /// using the detour bypass address to skip the detour barrier call
         /// </summary>
         [Fact]
@@ -83,8 +83,9 @@ namespace CoreHook.Tests.Windows
                 this))
             {
                 InternalAddAtomFunction = (InternalAddAtomDelegate)
-                            Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress,
-                            typeof(InternalAddAtomDelegate));
+                            Marshal.GetDelegateForFunctionPointer(
+                                hook.HookBypassAddress,
+                                typeof(InternalAddAtomDelegate));
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
@@ -110,8 +111,8 @@ namespace CoreHook.Tests.Windows
         }
 
         /// <summary>
-        /// Detour an internal function and call the internal function actual address
-        /// when the detour is called to test the internal function barrier
+        /// Detour a private function and call the function's direct address
+        /// when the detour is called without skipping the detour barrier
         /// </summary>
         [Fact]
         public void DetourAPIAndInternalFunction()
@@ -132,8 +133,10 @@ namespace CoreHook.Tests.Windows
 
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
                 InternalAddAtomFunction = (InternalAddAtomDelegate)
-                        Marshal.GetDelegateForFunctionPointer(internalAddAtomFuncAddress,
-                        typeof(InternalAddAtomDelegate));
+                        Marshal.GetDelegateForFunctionPointer(
+                            internalAddAtomFuncAddress,
+                            typeof(InternalAddAtomDelegate));
+
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 _internalAddAtomCalled = false;
@@ -177,8 +180,9 @@ namespace CoreHook.Tests.Windows
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 InternalAddAtomFunction = (InternalAddAtomDelegate)
-                    Marshal.GetDelegateForFunctionPointer(hookInternal.HookBypassAddress,
-                    typeof(InternalAddAtomDelegate));
+                    Marshal.GetDelegateForFunctionPointer(
+                        hookInternal.HookBypassAddress,
+                        typeof(InternalAddAtomDelegate));
 
                 _internalAddAtomCalled = false;
                 _AddAtomCalled = false;
@@ -245,8 +249,9 @@ namespace CoreHook.Tests.Windows
             {
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
                 GetCurrentNlsCacheFunction = (GetCurrentNlsCacheDelegate)
-                    Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress,
-                    typeof(GetCurrentNlsCacheDelegate));
+                    Marshal.GetDelegateForFunctionPointer(
+                        hook.HookBypassAddress,
+                        typeof(GetCurrentNlsCacheDelegate));
 
                 string stringA = "HelloWorld";
                 string stringB = "Hello";

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
-using Xunit;
-using CoreHook.ManagedHook.Remote;
-using CoreHook.ManagedHook.ProcessUtils;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using CoreHook.ManagedHook.Remote;
+using CoreHook.ManagedHook.ProcessUtils;
+using CoreHook.Unmanaged;
+using Xunit;
 
 namespace CoreHook.Tests
 {
@@ -49,7 +50,7 @@ namespace CoreHook.Tests
 
         public static void InjectDllIntoTarget(Process target, string injectionLibrary, string message)
         {
-            if (Resources.GetCoreLoadPaths(
+            if (CoreHook.Examples.Common.Utilities.GetCoreLoadPaths(target.Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath,
                 out string coreRootPath, out string coreLoadDll, out string coreHookDll))
             {
