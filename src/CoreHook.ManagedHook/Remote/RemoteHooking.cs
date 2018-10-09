@@ -213,8 +213,7 @@ namespace CoreHook.ManagedHook.Remote
             {
                 try
                 {
-                    var remoteInfo = new ManagedRemoteInfo();
-                    remoteInfo.HostPID = hostPID;
+                    var remoteInfo = new ManagedRemoteInfo { HostPID = hostPID };
 
                     var format = new BinaryFormatter();
                     var args = new List<object>();
@@ -253,7 +252,7 @@ namespace CoreHook.ManagedHook.Remote
                             binaryLoader.CallFunctionWithRemoteArgs(proc,
                                 config.HostLibrary,
                                 CoreHookLoaderMethodName,
-                                new BinaryLoaderArgs()
+                                new BinaryLoaderArgs
                                 {
                                     Verbose = config.VerboseLog,
                                     WaitForDebugger = config.WaitForDebugger,
@@ -262,7 +261,7 @@ namespace CoreHook.ManagedHook.Remote
                                     CoreRootPath = config.CoreCLRPath,
                                     CoreLibrariesPath = config.CoreCLRLibrariesPath
                                 },
-                                new RemoteFunctionArgs()
+                                new RemoteFunctionArgs
                                 { 
                                     Is64BitProcess = proc.Is64Bit(),
                                     UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
@@ -298,8 +297,7 @@ namespace CoreHook.ManagedHook.Remote
             {
                 try
                 {
-                    var remoteInfo = new ManagedRemoteInfo();
-                    remoteInfo.HostPID = hostPID;
+                    var remoteInfo = new ManagedRemoteInfo { HostPID = hostPID };
 
                     var format = new BinaryFormatter();
                     var args = new List<object>();
@@ -336,11 +334,11 @@ namespace CoreHook.ManagedHook.Remote
                             binaryLoader.Load(process, config.HostLibrary, new[] { config.DetourLibrary });
 
                             binaryLoader.ExecuteRemoteFunction(process,
-                                new RemoteFunctionCall()
+                                new RemoteFunctionCall
                                 {
                                     Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
                                     {
-                                        Arguments = new BinaryLoaderArgs()
+                                        Arguments = new BinaryLoaderArgs
                                         {
                                             Verbose = config.VerboseLog,
                                             WaitForDebugger = config.WaitForDebugger,
@@ -350,16 +348,16 @@ namespace CoreHook.ManagedHook.Remote
                                             CoreLibrariesPath = config.CoreCLRLibrariesPath
                                         }
                                     },
-                                    FunctionName = new FunctionName ()
+                                    FunctionName = new FunctionName
                                     { Module = config.HostLibrary, Function = GetCoreCLRStartFunctionName() },
                                 });
                                 binaryLoader.ExecuteRemoteManagedFunction(process, 
                                 new RemoteManagedFunctionCall()
                                 {
                                     ManagedFunction = CoreHookLoaderDel,
-                                    FunctionName = new FunctionName()
+                                    FunctionName = new FunctionName
                                     { Module = config.HostLibrary, Function = GetCoreCLRExecuteManagedFunctionName() },
-                                    Arguments = new RemoteFunctionArgs()
+                                    Arguments = new RemoteFunctionArgs
                                     {
                                         Is64BitProcess = process.Is64Bit(),
                                         UserData = binaryLoader.CopyMemoryTo(process, passThru.GetBuffer(), length),

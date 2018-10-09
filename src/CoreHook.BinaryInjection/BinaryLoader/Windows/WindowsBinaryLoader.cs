@@ -180,7 +180,7 @@ namespace CoreHook.BinaryInjection
         {
             _memoryManager = memoryManager;
             _processManager = processManager;
-            _memoryManager.FreeMemory += FreeMemory;
+            _memoryManager.FreeMemory += (proc, address, length) => proc.FreeMemory(address, 0);
         }
 
         /// <summary>
@@ -229,8 +229,6 @@ namespace CoreHook.BinaryInjection
 
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length) 
             => _memoryManager.Add(proc, proc.MemCopyTo(buffer, length), false);
-
-        public static bool FreeMemory(Process proc, IntPtr address, uint length = 0) => proc.FreeMemory(address, 0);
 
         public void Load(
             Process targetProcess,
