@@ -53,7 +53,7 @@ namespace CoreHook.FileMonitor
                 throw new PlatformNotSupportedException("Win32 example");
             }
 
-            int targetPID = 0;// System.Diagnostics.Process.GetProcessesByName("TestCPP")[0].Id;
+            int targetPID = 0;
             string targetProgam = string.Empty;
 
             // Get the process to hook by file path for launching or process id for attaching
@@ -128,10 +128,8 @@ namespace CoreHook.FileMonitor
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
 
-            CoreHookNativeConfig configX86;
-            CoreHookNativeConfig configX64;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(false, out configX86)
-                && Examples.Common.Utilities.GetCoreLoadPaths(true, out configX64))
+            if (Examples.Common.Utilities.GetCoreLoadPaths(false, out CoreHookNativeConfig configX86)
+                && Examples.Common.Utilities.GetCoreLoadPaths(true, out CoreHookNativeConfig configX64))
             {
                 RemoteHooking.CreateAndInject(
                      new ProcessCreationConfig()
@@ -159,9 +157,11 @@ namespace CoreHook.FileMonitor
         {
             ValidateFilePath(injectionLibrary);
 
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll, coreHookDll;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(ProcessHelper.GetProcessById(procId).Is64Bit(),
-                out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll, out coreHookDll))
+            if (Examples.Common.Utilities.GetCoreLoadPaths(
+                ProcessHelper.GetProcessById(procId).Is64Bit(),
+                out string coreRunDll, out string coreLibrariesPath,
+                out string coreRootPath, out string coreLoadDll,
+                out string coreHookDll))
             {
                 RemoteHooking.Inject(
                     procId,

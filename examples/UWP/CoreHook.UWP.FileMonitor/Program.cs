@@ -105,9 +105,11 @@ namespace CoreHook.UWP.FileMonitor
 
         private static void InjectDllIntoTarget(int procId, string injectionLibrary)
         {
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll, corehookPath;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(ProcessHelper.GetProcessById(procId).Is64Bit(),
-                out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll, out corehookPath))
+            if (Examples.Common.Utilities.GetCoreLoadPaths(
+                ProcessHelper.GetProcessById(procId).Is64Bit(),
+                out string coreRunDll, out string coreLibrariesPath, 
+                out string coreRootPath, out string coreLoadDll,
+                out string corehookPath))
             {
                 // make sure the native dll modules can be accessed by the UWP application
                 GrantAllAppPkgsAccessToFile(coreRunDll);
