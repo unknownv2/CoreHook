@@ -44,11 +44,16 @@ namespace CoreHook.BinaryInjection
         string Module { get; set; }
         string Function { get; set; }
     }
+    public class FunctionName : IFunctionName
+    {
+        public string Module { get; set; }
+        public string Function { get; set; }
+    }
     public interface IRemoteFunctionCall
     {
-        bool Is64BitProcess { get; }
-        IFunctionName FunctionName { get; }
-        IBinarySerializer Arguments { get; }
+        bool Is64BitProcess { get; set; }
+        IFunctionName FunctionName { get; set; }
+        IBinarySerializer Arguments { get; set; }
     }
     public interface IRemoteManagedFunctionCall : IRemoteFunctionCall
     {

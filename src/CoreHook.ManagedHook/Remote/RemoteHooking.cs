@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -47,7 +48,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
-        private static IBinaryLoader2 GetBinaryLoader2()
+        private static IBinaryLoader2 GetBinaryLoader2(Process process)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
@@ -61,7 +62,7 @@ namespace CoreHook.ManagedHook.Remote
             {
                 return new WindowsBinaryLoader2(
                     new MemoryManager(),
-                    new Unmanaged.Windows.ProcessManager());
+                    new Unmanaged.Windows.ProcessManager(process));
             }
             else
             {
@@ -81,6 +82,44 @@ namespace CoreHook.ManagedHook.Remote
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new WindowsBinaryLoaderConfig();
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Binary injection");
+            }
+        }
+        private static string GetCoreCLRStartFunctionName()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "LoadAssembly";
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Binary injection");
+            }
+        }
+        private static string GetCoreCLRExecuteManagedFunctionName()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "ExecuteAssemblyFunction";
             }
             else
             {
@@ -153,7 +192,7 @@ namespace CoreHook.ManagedHook.Remote
             IPipePlatform pipePlatform,
             params object[] passThruArgs)
         {
-            InjectEx(
+            InjectEx2(
                 ProcessHelper.GetCurrentProcessId(),
                 targetPID,
                 remoteHook,
@@ -289,19 +328,19 @@ namespace CoreHook.ManagedHook.Remote
                     // and then call the IEntryPoint.Run method located in the hooking library
                     try
                     {
-                        var proc = ProcessHelper.GetProcessById(targetPID);
+                        var process = ProcessHelper.GetProcessById(targetPID);
                         var length = (uint)passThru.Length;
 
-                        using (var binaryLoader = GetBinaryLoader2())
+                        using (var binaryLoader = GetBinaryLoader2(process))
                         {
-                            binaryLoader.Load(proc, config.HostLibrary, new[] { config.DetourLibrary });
+                            binaryLoader.Load(process, config.HostLibrary, new[] { config.DetourLibrary });
 
-                            binaryLoader.ExecuteRemoteFunction(proc,
+                            binaryLoader.ExecuteRemoteFunction(process,
                                 new RemoteFunctionCall()
                                 {
                                     Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
                                     {
-                                        Arguments = 
+                                        Arguments = new BinaryLoaderArgs()
                                         {
                                             Verbose = config.VerboseLog,
                                             WaitForDebugger = config.WaitForDebugger,
@@ -311,17 +350,19 @@ namespace CoreHook.ManagedHook.Remote
                                             CoreLibrariesPath = config.CoreCLRLibrariesPath
                                         }
                                     },
-                                    FunctionName = { Module = config.HostLibrary, Function = "LoadAssembly" },
+                                    FunctionName = new FunctionName ()
+                                    { Module = config.HostLibrary, Function = GetCoreCLRStartFunctionName() },
                                 });
-                                binaryLoader.ExecuteRemoteManagedFunction(proc, 
+                                binaryLoader.ExecuteRemoteManagedFunction(process, 
                                 new RemoteManagedFunctionCall()
                                 {
                                     ManagedFunction = CoreHookLoaderDel,
-                                    FunctionName = { Module = config.HostLibrary, Function = "ExecuteAssemblyFunction" },
+                                    FunctionName = new FunctionName()
+                                    { Module = config.HostLibrary, Function = GetCoreCLRExecuteManagedFunctionName() },
                                     Arguments = new RemoteFunctionArgs()
                                     {
-                                        Is64BitProcess = proc.Is64Bit(),
-                                        UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
+                                        Is64BitProcess = process.Is64Bit(),
+                                        UserData = binaryLoader.CopyMemoryTo(process, passThru.GetBuffer(), length),
                                         UserDataSize = length
                                     }
                                 }
