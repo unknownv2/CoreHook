@@ -10,6 +10,9 @@ namespace CoreHook.BinaryInjection
     public interface IBinarySerializer
     {
         byte[] Serialize();
+    }
+    public interface IBinaryStreamSerializer
+    {
         void Serialize(MemoryStream stream);
     }
     public class RemoteFunctionArgs : IBinarySerializer
@@ -23,8 +26,20 @@ namespace CoreHook.BinaryInjection
             {
                 using (var writer = new BinaryWriter(ms))
                 {
-                    writer.Write(Is64BitProcess ? UserData.ToInt64() : UserData.ToInt32());
-                    writer.Write(UserDataSize);
+                    // serialize information about the serialized class 
+                    // data that is passed to the remote function
+                    if (Is64BitProcess)
+                    {
+                        writer.Write(UserData.ToInt64());
+                        writer.Write(UserDataSize);
+                    }
+                    else
+                    {
+                        writer.Write(UserData.ToInt32());
+                        writer.Write(UserDataSize);
+                        // add padding to fill the whole buffer
+                        writer.Write(new byte[4]);
+                    }
                 }
                 return ms.ToArray();
             }

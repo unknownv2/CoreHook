@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
+using CoreHook.ManagedHook.ProcessUtils;
+using CoreHook.Unmanaged;
 
 namespace CoreHook.UWP.FileMonitor
 {
@@ -85,9 +87,6 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
-            string coreHookDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
             GrantAllAppPkgsAccessToDir(currentDir);
             GrantAllAppPkgsAccessToDir(Path.GetDirectoryName(injectionLibrary));
 
@@ -98,19 +97,21 @@ namespace CoreHook.UWP.FileMonitor
             }
 
             // Inject the FileMonitor.Hook dll into the process
-            InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
+            InjectDllIntoTarget(targetPID, injectionLibrary);
 
             // Start the RPC server for handling requests from the hooked app
             StartListener();
         }
 
-        private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
+        private static void InjectDllIntoTarget(int procId, string injectionLibrary)
         {
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
+            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll, corehookPath;
+            if (Examples.Common.Utilities.GetCoreLoadPaths(ProcessHelper.GetProcessById(procId).Is64Bit(),
+                out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll, out corehookPath))
             {
-                // make sure corerundll can be accessed by the UWP application
+                // make sure the native dll modules can be accessed by the UWP application
                 GrantAllAppPkgsAccessToFile(coreRunDll);
+                GrantAllAppPkgsAccessToFile(corehookPath);
 
                 RemoteHooking.Inject(
                     procId,
@@ -120,7 +121,7 @@ namespace CoreHook.UWP.FileMonitor
                         CoreCLRPath = coreRootPath,
                         CoreCLRLibrariesPath = coreLibrariesPath,
                         CLRBootstrapLibrary = coreLoadDll,
-                        DetourLibrary = coreHookDll,
+                        DetourLibrary = corehookPath,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog,
                         WaitForDebugger = HostWaitForDebugger,

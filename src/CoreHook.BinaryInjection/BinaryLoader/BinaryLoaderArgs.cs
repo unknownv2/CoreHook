@@ -19,10 +19,6 @@ namespace CoreHook.BinaryInjection
 
         public string CoreLibrariesPath;
 
-        public Encoding Encoding;
-
-        public int PathLength;
-
         public static byte[] GetPathArray(string path, int pathLength, Encoding encoding)
         {
             return encoding.GetBytes(path.PadRight(pathLength, '\0'));

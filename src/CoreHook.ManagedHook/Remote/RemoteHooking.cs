@@ -39,16 +39,58 @@ namespace CoreHook.ManagedHook.Remote
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new WindowsBinaryLoader(
-                    new MemoryManager());
+                    new MemoryManager(),
+                    new Unmanaged.Windows.ProcessManager());
             }
             else
             {
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
-
+        private static IBinaryLoader2 GetBinaryLoader2()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new WindowsBinaryLoader2(
+                    new MemoryManager(),
+                    new Unmanaged.Windows.ProcessManager());
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Binary injection");
+            }
+        }
+        private static IBinaryLoaderConfig GetBinaryLoaderConfig()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return null;
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new WindowsBinaryLoaderConfig();
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Binary injection");
+            }
+        }
         public static void CreateAndInject(
             ProcessCreationConfig process,
+            CoreHookNativeConfig configX86,
+            CoreHookNativeConfig configX64,
             RemoteHookingConfig remoteHook,
             IPipePlatform pipePlatform,
             out int outProcessId,
@@ -65,6 +107,7 @@ namespace CoreHook.ManagedHook.Remote
 
             si.wShowWindow = SW_HIDE;
             si.dwFlags = STARTF_USESHOWWINDOW;
+            remoteHook.DetourLibrary = configX64.DetourLibrary;
 
             if (Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(
                     process.ExecutablePath,
@@ -88,6 +131,12 @@ namespace CoreHook.ManagedHook.Remote
                 outProcessId = pi.dwProcessId;
 
                 System.Diagnostics.Process.GetProcessById(pi.dwProcessId).BringToFront();
+                var is64BitProcess = System.Diagnostics.Process.GetProcessById(pi.dwProcessId).Is64Bit();
+
+                remoteHook.HostLibrary = is64BitProcess ? configX64.HostLibrary : configX86.HostLibrary;
+                remoteHook.CoreCLRPath = is64BitProcess ? configX64.CoreCLRPath : configX86.CoreCLRPath;
+                remoteHook.CoreCLRLibrariesPath = is64BitProcess ? configX64.CoreCLRLibrariesPath : configX86.CoreCLRLibrariesPath;
+                remoteHook.DetourLibrary = is64BitProcess ? configX64.DetourLibrary : configX86.DetourLibrary;
 
                 InjectEx(
                     ProcessHelper.GetCurrentProcessId(),
@@ -161,7 +210,7 @@ namespace CoreHook.ManagedHook.Remote
                         using (var binaryLoader = GetBinaryLoader())
                         {
                             binaryLoader.Load(proc, config.HostLibrary, new[] { config.DetourLibrary });
-
+     
                             binaryLoader.CallFunctionWithRemoteArgs(proc,
                                 config.HostLibrary,
                                 CoreHookLoaderMethodName,
@@ -175,10 +224,12 @@ namespace CoreHook.ManagedHook.Remote
                                     CoreLibrariesPath = config.CoreCLRLibrariesPath
                                 },
                                 new RemoteFunctionArgs()
-                                {
+                                { 
+                                    Is64BitProcess = proc.Is64Bit(),
                                     UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
                                     UserDataSize = length
-                                });
+                                }
+                                );
 
                             InjectionHelper.WaitForInjection(targetPID);
                         }
@@ -195,6 +246,101 @@ namespace CoreHook.ManagedHook.Remote
             }
         }
 
+        public static void InjectEx2(
+            int hostPID,
+            int targetPID,
+            RemoteHookingConfig config,
+            IPipePlatform pipePlatform,
+            params object[] passThruArgs)
+        {
+            var passThru = new MemoryStream();
+            InjectionHelper.BeginInjection(targetPID);
+            using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
+            {
+                try
+                {
+                    var remoteInfo = new ManagedRemoteInfo();
+                    remoteInfo.HostPID = hostPID;
+
+                    var format = new BinaryFormatter();
+                    var args = new List<object>();
+                    if (passThruArgs != null)
+                    {
+                        foreach (var arg in passThruArgs)
+                        {
+                            using (var ms = new MemoryStream())
+                            {
+                                format.Serialize(ms, arg);
+                                args.Add(ms.ToArray());
+                            }
+                        }
+                    }
+                    remoteInfo.UserParams = args.ToArray();
+
+                    var libraryPath = config.PayloadLibrary;
+                    GCHandle hPassThru = PrepareInjection(
+                        remoteInfo,
+                        ref libraryPath,
+                        ref libraryPath,
+                        passThru);
+
+                    // Inject the corerundll into the process, start the CoreCLR
+                    // and use the CoreLoad dll to resolve the dependencies of the hooking library
+                    // and then call the IEntryPoint.Run method located in the hooking library
+                    try
+                    {
+                        var proc = ProcessHelper.GetProcessById(targetPID);
+                        var length = (uint)passThru.Length;
+
+                        using (var binaryLoader = GetBinaryLoader2())
+                        {
+                            binaryLoader.Load(proc, config.HostLibrary, new[] { config.DetourLibrary });
+
+                            binaryLoader.ExecuteRemoteFunction(proc,
+                                new RemoteFunctionCall()
+                                {
+                                    Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
+                                    {
+                                        Arguments = 
+                                        {
+                                            Verbose = config.VerboseLog,
+                                            WaitForDebugger = config.WaitForDebugger,
+                                            StartAssembly = config.StartAssembly,
+                                            PayloadFileName = config.CLRBootstrapLibrary,
+                                            CoreRootPath = config.CoreCLRPath,
+                                            CoreLibrariesPath = config.CoreCLRLibrariesPath
+                                        }
+                                    },
+                                    FunctionName = { Module = config.HostLibrary, Function = "LoadAssembly" },
+                                });
+                                binaryLoader.ExecuteRemoteManagedFunction(proc, 
+                                new RemoteManagedFunctionCall()
+                                {
+                                    ManagedFunction = CoreHookLoaderDel,
+                                    FunctionName = { Module = config.HostLibrary, Function = "ExecuteAssemblyFunction" },
+                                    Arguments = new RemoteFunctionArgs()
+                                    {
+                                        Is64BitProcess = proc.Is64Bit(),
+                                        UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
+                                        UserDataSize = length
+                                    }
+                                }
+                                );
+
+                            InjectionHelper.WaitForInjection(targetPID);
+                        }
+                    }
+                    finally
+                    {
+                        hPassThru.Free();
+                    }
+                }
+                finally
+                {
+                    InjectionHelper.EndInjection(targetPID);
+                }
+            }
+        }
         private static GCHandle PrepareInjection(
             ManagedRemoteInfo remoteInfo,
             ref string libraryX86,
@@ -242,5 +388,6 @@ namespace CoreHook.ManagedHook.Remote
 
             return GCHandle.Alloc(argsStream.GetBuffer(), GCHandleType.Pinned);
         }
+  
     }
 }

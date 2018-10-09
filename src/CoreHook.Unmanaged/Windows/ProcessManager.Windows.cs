@@ -1,15 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
+using System.IO;
 
-namespace CoreHook.Unmanaged
+namespace CoreHook.Unmanaged.Windows
 {
-    public static class ProcessExtensions
+    public class ProcessManager : IProcessManager
     {
+        public Process ProcessHandle { get; private set; }
+        public ProcessManager()
+        {
+
+        }
+
+        public ProcessManager(Process process)
+        {
+            ProcessHandle = process;
+        }
+
+        public void OpenHandle(Process process)
+        {
+            ProcessHandle?.Dispose();
+            ProcessHandle = process;
+        }
         private static IntPtr GetHandle(int processId, NativeMethods.ProcessAccessFlags accessFlags)
         {
             var handle = NativeMethods.OpenProcess(accessFlags, false, processId);
@@ -25,18 +41,18 @@ namespace CoreHook.Unmanaged
         private static IntPtr GetReadHandle(int processId)
         {
             return GetHandle(processId,
-                NativeMethods.ProcessAccessFlags.QueryInformation 
+                NativeMethods.ProcessAccessFlags.QueryInformation
                 | NativeMethods.ProcessAccessFlags.VirtualMemoryRead);
         }
 
-        public static bool BringToFront(this Process process)
+        public bool BringToFront()
         {
-            if (IsActiveWindow(process))
+            if (IsActiveWindow())
             {
                 return true;
             }
 
-            var hWindow = process.MainWindowHandle;
+            var hWindow = ProcessHandle.MainWindowHandle;
 
             var style = NativeMethods.GetWindowLong(hWindow, NativeMethods.GWL_STYLE);
 
@@ -45,12 +61,12 @@ namespace CoreHook.Unmanaged
                 NativeMethods.ShowWindow(hWindow, NativeMethods.ShowWindowCommand.Normal);
             }
 
-            return NativeMethods.BringWindowToTop(process.MainWindowHandle);
+            return NativeMethods.BringWindowToTop(ProcessHandle.MainWindowHandle);
         }
 
-        public static bool IsActiveWindow(this Process process)
+        public bool IsActiveWindow()
         {
-            if (process.HasExited)
+            if (ProcessHandle.HasExited)
             {
                 return false;
             }
@@ -66,14 +82,14 @@ namespace CoreHook.Unmanaged
 
             NativeMethods.GetWindowThreadProcessId(activeWindow, out pid);
 
-            return Marshal.GetLastWin32Error() == 0 && pid == process.Id;
+            return Marshal.GetLastWin32Error() == 0 && pid == ProcessHandle.Id;
         }
 
-        public static IntPtr GetWin32ProcAddress(this Process process, string module, string function)
+        public IntPtr GetWin32ProcAddress(string module, string function)
         {
             if (Environment.Is64BitOperatingSystem)
             {
-                if (process.Is64Bit())
+                if (ProcessHandle.Is64Bit())
                 {
                     if (!Environment.Is64BitProcess)
                     {
@@ -81,12 +97,13 @@ namespace CoreHook.Unmanaged
                     }
                 }
             }
-            return process.GetAbsoluteFunctionAddressEx(module, function);
+
+            return GetAbsoluteFunctionAddressEx(module, function);
         }
 
-        public static void LoadLibrary(this Process process, string modulePath)
+        public void InjectBinary(string modulePath)
         {
-            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
+            using (var hProcess = SafeHandle.Wrap(GetHandle(ProcessHandle.Id,
                 NativeMethods.ProcessAccessFlags.CreateThread |
                 NativeMethods.ProcessAccessFlags.QueryInformation |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryOperation |
@@ -127,18 +144,18 @@ namespace CoreHook.Unmanaged
 
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
                     var hThread = NativeMethods.CreateRemoteThread(
-                        hProcess.Handle,
-                        IntPtr.Zero,
-                        0,
-                        process.GetWin32ProcAddress(
-                            Path.Combine(
-                                Environment.ExpandEnvironmentVariables("%Windir%"),
-                                "System32",
-                                "kernel32.dll"
-                                ), "LoadLibraryW"),
-                            remoteAllocAddr,
-                            0,
-                            IntPtr.Zero);
+                     hProcess.Handle,
+                     IntPtr.Zero,
+                     0,
+                     GetWin32ProcAddress(
+                         Path.Combine(
+                             Environment.ExpandEnvironmentVariables("%Windir%"),
+                             "System32",
+                             "kernel32.dll"
+                             ), "LoadLibraryW"),
+                         remoteAllocAddr,
+                         0,
+                         IntPtr.Zero);
 
                     if (hThread == IntPtr.Zero)
                     {
@@ -164,9 +181,9 @@ namespace CoreHook.Unmanaged
         /// <param name="function">The name of the exported function we will call.</param>
         /// <param name="args">Serialized arguments for passing to the module function.</param>
         /// <param name="canWait">We can wait for the thread to finish before cleaning up memory or we need to cleanup later.</param>
-        public static IntPtr Execute(this Process process, string module, string function, byte[] args, bool canWait = true)
+        public IntPtr Execute(string module, string function, byte[] args, bool canWait = true)
         {
-            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
+            using (var hProcess = SafeHandle.Wrap(GetHandle(ProcessHandle.Id,
                 NativeMethods.ProcessAccessFlags.CreateThread |
                 NativeMethods.ProcessAccessFlags.QueryInformation |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryOperation |
@@ -210,7 +227,7 @@ namespace CoreHook.Unmanaged
                         hProcess.Handle,
                         IntPtr.Zero,
                         0,
-                        process.GetAbsoluteFunctionAddressEx(module, function),
+                        GetAbsoluteFunctionAddressEx(module, function),
                         remoteAllocAddr,
                         0,
                         IntPtr.Zero);
@@ -239,10 +256,10 @@ namespace CoreHook.Unmanaged
                 }
             }
         }
- 
-        public static IntPtr MemAllocate(this Process process, uint size)
+
+        public IntPtr MemAllocate(uint size)
         {
-            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
+            using (var hProcess = SafeHandle.Wrap(GetHandle(ProcessHandle.Id,
                 NativeMethods.ProcessAccessFlags.QueryInformation |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryOperation |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
@@ -265,16 +282,16 @@ namespace CoreHook.Unmanaged
             }
         }
 
-        public static IntPtr MemCopyTo(this Process process, byte[] data, uint size = 0)
+        public IntPtr MemCopyTo(byte[] data, uint size = 0)
         {
-            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
+            using (var hProcess = SafeHandle.Wrap(GetHandle(ProcessHandle.Id,
                   NativeMethods.ProcessAccessFlags.QueryInformation |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryOperation |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryWrite)))
             {
                 uint dataLen = size > 0 ? size : (uint)data.Length;
-                IntPtr remoteAllocAddr = MemAllocate(process, dataLen);
+                IntPtr remoteAllocAddr = MemAllocate(dataLen);
                 UIntPtr bytesWritten;
 
                 // Write the DLL path to the allocated memory.
@@ -293,12 +310,12 @@ namespace CoreHook.Unmanaged
             }
         }
 
-        public static bool FreeMemory(this Process process, IntPtr address, int size = 0)
+        public bool FreeMemory(IntPtr address, int size = 0)
         {
             if (address == IntPtr.Zero)
                 return true;
 
-            using (var hProcess = SafeHandle.Wrap(GetHandle(process.Id,
+            using (var hProcess = SafeHandle.Wrap(GetHandle(ProcessHandle.Id,
                   NativeMethods.ProcessAccessFlags.QueryInformation |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryOperation)))
             {
@@ -307,7 +324,7 @@ namespace CoreHook.Unmanaged
                     : NativeMethods.VirtualFreeEx(hProcess.Handle, address, size, NativeMethods.FreeType.Decommit);
             }
         }
-        public static bool Is64Bit(this Process process)
+        public bool Is64Bit()
         {
             if (!Environment.Is64BitOperatingSystem)
             {
@@ -317,7 +334,7 @@ namespace CoreHook.Unmanaged
             IntPtr handle = NativeMethods.OpenProcess(
                 NativeMethods.ProcessAccessFlags.QueryInformation,
                 false,
-                process.Id
+                ProcessHandle.Id
             );
 
             if (handle == IntPtr.Zero)
@@ -338,9 +355,9 @@ namespace CoreHook.Unmanaged
             }
         }
 
-        public static IntPtr GetAbsoluteFunctionAddressEx(this Process process, string moduleFileName, string functionName)
+        public IntPtr GetAbsoluteFunctionAddressEx(string moduleFileName, string functionName)
         {
-            IntPtr hProcess = GetReadHandle(process.Id);
+            IntPtr hProcess = GetReadHandle(ProcessHandle.Id);
 
             IntPtr hModule = GetModuleHandleByFileName(hProcess, moduleFileName);
 
@@ -441,7 +458,7 @@ namespace CoreHook.Unmanaged
                         throw new BadImageFormatException("Unknown optional header magic in PE header.");
                 }
 
-                io.BaseStream.Position += 8*index;
+                io.BaseStream.Position += 8 * index;
 
                 var rva = io.ReadUInt32();
 
@@ -541,7 +558,7 @@ namespace CoreHook.Unmanaged
 
             return IntPtr.Zero;
         }
- 
+
         public static IntPtr GetModuleHandleByFileName(IntPtr hProcess, string moduleName)
         {
             IntPtr[] handles = GetAllModuleHandles(hProcess);
@@ -581,7 +598,7 @@ namespace CoreHook.Unmanaged
                     success = NativeMethods.EnumProcessModulesEx(
                         hProcess,
                         gcHandle.AddrOfPinnedObject(),
-                        (uint)(IntPtr.Size*moduleHandles.Length),
+                        (uint)(IntPtr.Size * moduleHandles.Length),
                         out size,
                         NativeMethods.ModuleFilterFlags.All);
                 }

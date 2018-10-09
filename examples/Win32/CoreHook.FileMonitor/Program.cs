@@ -4,7 +4,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
+using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.ManagedHook.Remote;
+using CoreHook.Unmanaged;
 
 namespace CoreHook.FileMonitor
 {
@@ -51,7 +53,7 @@ namespace CoreHook.FileMonitor
                 throw new PlatformNotSupportedException("Win32 example");
             }
 
-            int targetPID = 0;
+            int targetPID = 0;// System.Diagnostics.Process.GetProcessesByName("TestCPP")[0].Id;
             string targetProgam = string.Empty;
 
             // Get the process to hook by file path for launching or process id for attaching
@@ -90,18 +92,15 @@ namespace CoreHook.FileMonitor
 
             string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
-            string coreHookDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
             // start process and begin dll loading
             if (!string.IsNullOrEmpty(targetProgam))
             {
-                CreateAndInjectDll(targetProgam, injectionLibrary, coreHookDll);
+                CreateAndInjectDll(targetProgam, injectionLibrary);
             }
             else
             {
                 // inject FileMonitor dll into process
-                InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
+                InjectDllIntoTarget(targetPID, injectionLibrary);
             }
             
             // start RPC server
@@ -124,14 +123,15 @@ namespace CoreHook.FileMonitor
             }
         }
 
-        private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
+        private static void CreateAndInjectDll(string exePath, string injectionLibrary)
         {
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
-            ValidateFilePath(coreHookDll);
 
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
+            CoreHookNativeConfig configX86;
+            CoreHookNativeConfig configX64;
+            if (Examples.Common.Utilities.GetCoreLoadPaths(false, out configX86)
+                && Examples.Common.Utilities.GetCoreLoadPaths(true, out configX64))
             {
                 RemoteHooking.CreateAndInject(
                      new ProcessCreationConfig()
@@ -140,13 +140,10 @@ namespace CoreHook.FileMonitor
                          CommandLine = null,
                          ProcessCreationFlags = 0x00
                      },
+                     configX86,
+                     configX64,
                      new RemoteHookingConfig()
                      {
-                         HostLibrary = coreRunDll,
-                         CoreCLRPath = coreRootPath,
-                         CoreCLRLibrariesPath = coreLibrariesPath,
-                         CLRBootstrapLibrary = coreLoadDll,
-                         DetourLibrary = coreHookDll,
                          PayloadLibrary = injectionLibrary,
                          VerboseLog = HostVerboseLog,
                          WaitForDebugger = HostWaitForDebugger,
@@ -158,13 +155,13 @@ namespace CoreHook.FileMonitor
             }
         }
 
-        private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
+        private static void InjectDllIntoTarget(int procId, string injectionLibrary)
         {
             ValidateFilePath(injectionLibrary);
-            ValidateFilePath(coreHookDll);
 
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
+            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll, coreHookDll;
+            if (Examples.Common.Utilities.GetCoreLoadPaths(ProcessHelper.GetProcessById(procId).Is64Bit(),
+                out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll, out coreHookDll))
             {
                 RemoteHooking.Inject(
                     procId,

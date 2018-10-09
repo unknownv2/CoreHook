@@ -129,8 +129,7 @@ namespace CoreHook.Unix.FileMonitor
         {
             // info on these environment variables: 
             // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-            //var coreLibrariesPath = Environment.GetEnvironmentVariable("CORE_LIBRARIES");
-            //var coreRootPath = Environment.GetEnvironmentVariable("CORE_ROOT");
+
             var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             var coreLibrariesPath = CoreLibrariesPathLinux;

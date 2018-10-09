@@ -183,7 +183,12 @@ namespace CoreHook.BinaryInjection
         }
 
 
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(
+            Process process,
+            string module,
+            string function,
+            BinaryLoaderArgs blArgs,
+            IBinarySerializer arguments)
         {
             if (IsAttached(process.Id))
             {

@@ -24,14 +24,20 @@ namespace CoreHook.BinaryInjection
         }
 
 
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs arguments)
+        public void CallFunctionWithRemoteArgs(
+            Process process,
+            string module,
+            string function,
+            BinaryLoaderArgs blArgs,
+            IBinarySerializer arguments)
         {
-            // combinary functioncallargs and binaryloader args
+            // combine functioncallargs and binaryloader args
+            var encoding = System.Text.Encoding.ASCII;
             var paramArgs = new DotnetAssemblyFunctionCall()
             {
-                coreRunLib = System.Text.Encoding.ASCII.GetBytes(_coreRunLib.PadRight(1024, '\0')),
-                binaryLoaderFunctionName = System.Text.Encoding.ASCII.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
-                assemblyCallFunctionName = System.Text.Encoding.ASCII.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
+                coreRunLib = encoding.GetBytes(_coreRunLib.PadRight(1024, '\0')),
+                binaryLoaderFunctionName = encoding.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
+                assemblyCallFunctionName = encoding.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
                 binaryLoaderArgs = MacOSBinaryLoaderArgs.Create(blArgs),
                 assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
             };
