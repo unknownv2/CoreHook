@@ -47,12 +47,11 @@ namespace CoreHook.Tests
             Resources.EndTargetAppProcess();
         }
 
-        private void InjectDllIntoTarget(Process target, string injectionLibrary, string message)
+        public static void InjectDllIntoTarget(Process target, string injectionLibrary, string message)
         {
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll, coreHookDll;
             if (Resources.GetCoreLoadPaths(
-                out coreRunDll, out coreLibrariesPath,
-                out coreRootPath, out coreLoadDll, out coreHookDll))
+                out string coreRunDll, out string coreLibrariesPath,
+                out string coreRootPath, out string coreLoadDll, out string coreHookDll))
             {
                 RemoteHooking.Inject(
                     target.Id,

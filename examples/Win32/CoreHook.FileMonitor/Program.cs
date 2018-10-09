@@ -28,7 +28,9 @@ namespace CoreHook.FileMonitor
         /// Immediately start the .NET assembly if we are injecting a .NET Core application
         /// </summary>
         private const bool HostStartAssembly = false;
-
+        /// <summary>
+        /// Class that handles creating a named pipe server upong request
+        /// </summary>
         private static IPipePlatform pipePlatform = new PipePlatform();
 
         /// <summary>
@@ -128,8 +130,10 @@ namespace CoreHook.FileMonitor
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
 
-            if (Examples.Common.Utilities.GetCoreLoadPaths(false, out CoreHookNativeConfig configX86)
-                && Examples.Common.Utilities.GetCoreLoadPaths(true, out CoreHookNativeConfig configX64))
+            if (Examples.Common.Utilities.GetCoreLoadPaths(
+                false, out CoreHookNativeConfig configX86) &&
+                Examples.Common.Utilities.GetCoreLoadPaths(
+                true, out CoreHookNativeConfig configX64))
             {
                 RemoteHooking.CreateAndInject(
                      new ProcessCreationConfig()

@@ -32,7 +32,9 @@ namespace CoreHook.UWP.FileMonitor
         /// Immediately start the .NET assembly if we are injecting a .NET Core application
         /// </summary>
         private const bool HostStartAssembly = false;
-
+        /// <summary>
+        /// Class that handles creating a named pipe server upong request
+        /// </summary>
         private static IPipePlatform pipePlatform = new Pipe.PipePlatform();
 
         private static void Main(string[] args)
@@ -87,6 +89,8 @@ namespace CoreHook.UWP.FileMonitor
                 return;
             }
 
+            // Grant read+execute permissions on the binary files
+            // we are injecting into the UWP application
             GrantAllAppPkgsAccessToDir(currentDir);
             GrantAllAppPkgsAccessToDir(Path.GetDirectoryName(injectionLibrary));
 
