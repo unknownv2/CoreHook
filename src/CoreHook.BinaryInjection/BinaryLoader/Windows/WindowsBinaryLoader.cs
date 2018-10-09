@@ -210,14 +210,8 @@ namespace CoreHook.BinaryInjection
                 true
             );
         }
-        public void ExecuteWithArgs(Process process, IFunctionName function, BinaryLoaderArgs args)
-        {
-            //ExecuteAssemblyWithArgs(process, function, WindowsBinaryLoaderArgs.Create(args));
-        }
         public void ExecuteWithArgs(Process process, IFunctionName function, IBinarySerializer args)
-        {
-            ExecuteAssemblyWithArgs(process, function, args.Serialize());
-        }
+            => ExecuteAssemblyWithArgs(process, function, args.Serialize());
         private void ExecuteAssemblyWithArgs(Process process, string module, byte[] args)
         {
             _memoryManager.Add(
@@ -226,54 +220,17 @@ namespace CoreHook.BinaryInjection
                 true
             );
         }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="process">Process to execute the function in</param>
-        /// <param name="module">The name of the module containing the function we are executing</param>
-        /// <param name="function">The name of the function to execute in the <paramref name="process"/></param>
-        /// <param name="blArgs">The arguments passed to the function <paramref name="function"/></param>
-        /// <param name="rfArgs">The arguments passed to the executed .NET delegate.</param>
-        public void CallFunctionWithRemoteArgs(
-            Process process,
-            string module,
-            string function,
-            BinaryLoaderArgs blArgs,
-            RemoteFunctionArgs rfArgs)
-        {
-            //ExecuteWithArgs(process, module, blArgs);
 
-           // ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc,
-              //  new FunctionCallArgs(function, rfArgs));
-        }
 
-        public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call)
-        {
-            ExecuteWithArgs(process, call.FunctionName, call.Arguments);
+        public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call) 
+            => ExecuteWithArgs(process, call.FunctionName, call.Arguments);
+        public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call) 
+            => ExecuteAssemblyFunctionWithArgs(process, call.FunctionName, new FunctionCallArgs(call.ManagedFunction, call.Arguments));
 
-            //ExecuteAssemblyFunctionWithArgs(process, call.Module, call.Function,
-               // new FunctionCallArgs(function, rfArgs));
-            // _processManager.Execute(call.Module, call.Function, Binary.StructToByteArray(args)),
-        }
-        public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call)
-        {
-            ExecuteAssemblyFunctionWithArgs(process, call.FunctionName,
-                new FunctionCallArgs(call.ManagedFunction, call.Arguments));
-            // _processManager.Execute(call.Module, call.Function, Binary.StructToByteArray(args)),
-        }
-        public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
-        {
-            return _memoryManager.Add(
-                proc,
-                proc.MemCopyTo(buffer, length),
-                false
-            );
-        }
+        public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length) 
+            => _memoryManager.Add(proc, proc.MemCopyTo(buffer, length), false);
 
-        public static bool FreeMemory(Process proc, IntPtr address, uint length = 0)
-        {
-            return proc.FreeMemory(address, 0);
-        }
+        public static bool FreeMemory(Process proc, IntPtr address, uint length = 0) => proc.FreeMemory(address, 0);
 
         public void Load(
             Process targetProcess,
