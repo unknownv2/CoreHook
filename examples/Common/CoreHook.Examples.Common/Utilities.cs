@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -64,12 +65,8 @@ namespace CoreHook.Examples.Common
                 is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))
             {
-                coreRunPath = Environment.GetEnvironmentVariable("CORERUNDLL");
-                if (!File.Exists(coreRunPath))
-                {
-                    Console.WriteLine("Cannot find corerun dll");
-                    return false;
-                }
+                Console.WriteLine("Cannot find corerun dll");
+                return false;
             }
             // Module that loads and executes the IEntryPoint.Run method of our hook dll.
             // It also resolves any dependencies for the hook dll
