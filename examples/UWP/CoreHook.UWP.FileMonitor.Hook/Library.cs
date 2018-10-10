@@ -19,7 +19,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
         {
             // Use camelcase for RPC method names.
             NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
+            // Use camelcase for the property names in parameter value objects.
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
@@ -27,10 +27,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
 
         LocalHook CreateFileHook;
 
-        public Library(IContext context, string arg1)
-        {
-
-        }
+        public Library(IContext context, string arg1) { }
 
         public void Run(IContext context, string pipeName)
         {
@@ -44,10 +41,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
             }
         }
 
-        private static void ClientWriteLine(object msg)
-        {
-            Debug.WriteLine(msg);
-        }
+        private static void ClientWriteLine(string msg) => Debug.WriteLine(msg);
 
         public void StartClient(string pipeName)
         {
@@ -138,15 +132,12 @@ namespace CoreHook.UWP.FileMonitor.Hook
             using (var writer = new ByLineTextMessageWriter(clientStream))
             using (clientHandler.Attach(reader, writer))
             {
-
-                var client = new JsonRpcClient(clientHandler);
-
                 var builder = new JsonRpcProxyBuilder
                 {
                     ContractResolver = myContractResolver
                 };
 
-                var proxy = builder.CreateProxy<Shared.IFileMonitor>(client);
+                var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));
 
                 CreateHooks();
 

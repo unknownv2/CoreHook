@@ -27,9 +27,7 @@ namespace CoreHook.FileMonitor.Hook
 
         private LocalHook CreateFileHook;
 
-        public Library(IContext context, string arg1)
-        {
-        }
+        public Library(IContext context, string arg1) { }
 
         public void Run(IContext context, string pipeName)
         {
@@ -43,10 +41,7 @@ namespace CoreHook.FileMonitor.Hook
             }
         }
 
-        private static void ClientWriteLine(object msg)
-        {
-            Console.WriteLine(msg);
-        }
+        private static void ClientWriteLine(string msg) => Console.WriteLine(msg);
 
         private void StartClient(string pipeName)
         {
@@ -84,7 +79,8 @@ namespace CoreHook.FileMonitor.Hook
             uint flagsAndAttributes,
             IntPtr templateFile);
 
-        // this is where we are intercepting all file accesses!
+
+        // Intercepts all file accesses and stores the requested filenames to a Queue
         private static IntPtr CreateFile_Hooked(
             string fileName,
             uint desiredAccess,
@@ -114,7 +110,7 @@ namespace CoreHook.FileMonitor.Hook
             }
 
 
-            // call original API...
+            // Call original API function.
             return CreateFile(
                 fileName,
                 desiredAccess,
@@ -143,20 +139,21 @@ namespace CoreHook.FileMonitor.Hook
         {
             await Task.Yield(); // We want this task to run on another thread.
 
+            // Initialize the client connection to the RPC server
             var clientHandler = new StreamRpcClientHandler();
 
             using (var reader = new ByLineTextMessageReader(clientStream))
             using (var writer = new ByLineTextMessageWriter(clientStream))
             using (clientHandler.Attach(reader, writer))
             {
-                var client = new JsonRpcClient(clientHandler);
                 var builder = new JsonRpcProxyBuilder
                 {
                     ContractResolver = myContractResolver
                 };
 
-                var proxy = builder.CreateProxy<Shared.IFileMonitor>(client);
+                var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));
 
+                // Create the function hooks after connection to the server.
                 CreateHooks();
 
                 try
