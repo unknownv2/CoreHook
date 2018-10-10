@@ -11,11 +11,6 @@ namespace CoreHook.Examples.Common
 {
     public class Utilities
     {
-        public static bool Is64BitProc()
-        {
-            //return Environment.Is64BitProcess;
-            return false;
-        }
         // info on these environment variables: 
         // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
         public static string GetCoreLibrariesPath(bool is64BitProcess)
@@ -65,7 +60,7 @@ namespace CoreHook.Examples.Common
                 is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))
             {
-                Console.WriteLine("Cannot find corerun dll");
+                Console.WriteLine("Cannot find the corerun dll");
                 return false;
             }
             // Module that loads and executes the IEntryPoint.Run method of our hook dll.
@@ -74,7 +69,7 @@ namespace CoreHook.Examples.Common
 
             if (!File.Exists(coreLoadPath))
             {
-                Console.WriteLine("Cannot find CoreLoad dll");
+                Console.WriteLine("Cannot find the CoreLoad dll");
                 return false;
             }
 
@@ -130,12 +125,8 @@ namespace CoreHook.Examples.Common
                 is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))
             {
-                coreRunPath = Environment.GetEnvironmentVariable("CORERUNDLL");
-                if (!File.Exists(coreRunPath))
-                {
-                    Console.WriteLine("Cannot find corerun dll");
-                    return false;
-                }
+                Console.WriteLine("Cannot find the corerun dll");
+                return false;
             }
 
             // Module that loads and executes the IEntryPoint.Run method of our hook dll.
