@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.IO.Pipes;
-using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using CoreHook.IPC.NamedPipes;
-using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 
 namespace CoreHook.Tests
@@ -25,7 +22,7 @@ namespace CoreHook.Tests
             {
                 try
                 {
-                    new Thread(() => SendInjectionComplete(InjectionHelperPipeName, TargetProcessId)).Start();
+                    Task.Run(() => SendInjectionComplete(InjectionHelperPipeName, TargetProcessId));
 
                     InjectionHelper.WaitForInjection(TargetProcessId);
                 }

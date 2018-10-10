@@ -53,17 +53,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.ManagedHook", "src
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Unmanaged", "src\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj", "{9BF07061-551A-431F-B27B-AD35E7AA7DA8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{651578A4-4B76-4A11-897F-45A3D5714574}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{651578A4-4B76-4A11-897F-45A3D5714574}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests", "test\CoreHook.Tests\CoreHook.Tests.csproj", "{AAAC3722-8911-4F80-8232-840D81F8C938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests", "tests\CoreHook.Tests\CoreHook.Tests.csproj", "{AAAC3722-8911-4F80-8232-840D81F8C938}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hook", "hook", "{BFEBEA69-1024-42F8-A2D5-B1B43E6CE719}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleHook1", "test\hook\CoreHook.Tests.SimpleHook1\CoreHook.Tests.SimpleHook1.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleHook1", "tests\hook\CoreHook.Tests.SimpleHook1\CoreHook.Tests.SimpleHook1.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "target", "target", "{E601DB0A-91DB-45DD-928B-B9CF3BD65026}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.TargetApp", "test\target\CoreHook.Tests.TargetApp\CoreHook.Tests.TargetApp.csproj", "{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.TargetApp", "tests\target\CoreHook.Tests.TargetApp\CoreHook.Tests.TargetApp.csproj", "{A3BAA2B1-64C9-42E1-BD46-F49AC4A4EF12}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6F6AB2BD-CB01-4B87-88B0-BA00D15BD8D5}"
 EndProject

@@ -50,7 +50,7 @@ namespace CoreHook.Tests
 
         public static void InjectDllIntoTarget(Process target, string injectionLibrary, string message)
         {
-            if (CoreHook.Examples.Common.Utilities.GetCoreLoadPaths(target.Is64Bit(),
+            if (Examples.Common.Utilities.GetCoreLoadPaths(target.Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath,
                 out string coreRootPath, out string coreLoadDll, out string coreHookDll))
             {
