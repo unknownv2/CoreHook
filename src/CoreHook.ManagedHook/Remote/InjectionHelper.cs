@@ -105,7 +105,7 @@ namespace CoreHook.ManagedHook.Remote
 
             if (!waitInfo.Completion.WaitOne(timeOutMs, false))
             {
-                throw new TimeoutException("Unable to wait for injection completion.");
+                InjectionException(targetPID, new TimeoutException("Unable to wait for injection completion."));
             }
 
             if (waitInfo.Error != null)

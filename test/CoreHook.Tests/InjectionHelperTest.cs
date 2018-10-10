@@ -12,14 +12,13 @@ namespace CoreHook.Tests
 {
     public class InjectionHelperTest
     {
-        private const string InjectionHelperPipeName = "InjectionHelperPipeTest";
-
         private int TargetProcessId = Process.GetCurrentProcess().Id;
 
         [Fact]
         public void InjectionHelperCompleted()
         {
-            bool injectionComplete = false;
+            var injectionComplete = false;
+            var InjectionHelperPipeName = "InjectionHelperPipeTest";
 
             InjectionHelper.BeginInjection(TargetProcessId);
             using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
@@ -38,6 +37,25 @@ namespace CoreHook.Tests
                 }
             }
             Assert.True(injectionComplete);
+        }
+
+        [Fact]
+        public void InjectionHelperDidNotComplete()
+        {
+            var InjectionHelperPipeName = "InjectionHelperFailedPipeTest";
+
+            InjectionHelper.BeginInjection(TargetProcessId);
+            using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
+            {
+                try
+                {
+                    Assert.Throws<TimeoutException>(() => InjectionHelper.WaitForInjection(TargetProcessId, 500));
+                }
+                finally
+                {
+                    InjectionHelper.InjectionCompleted(TargetProcessId);
+                }
+            }
         }
 
         private static bool SendInjectionComplete(string pipeName, int pid)
