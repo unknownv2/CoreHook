@@ -270,19 +270,19 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void TestInvalidExportFunctionName()
+        public void Find_Invalid_Export_Function_Throws_MissingMethodException()
         {
             Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress("kernel32.dll", "ThisFunctionDoesNotExist"));
         }
 
         [Fact]
-        public void TestInvalidExportModuleName()
+        public void Find_Invalid_Export_Module_Throws_MissingMethodException()
         {
             Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress("UnknownModule.dll", "CreateFileW"));
         }
 
         [Fact]
-        public void TestInvalidExportModuleAndFunctionName()
+        public void Find_Invalid_Export_ModuleFunction_Throws_MissingMethodException()
         {
             Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress("UnknownModule.dll", "ThisFunctionDoesNotExist"));
         }

@@ -91,7 +91,7 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void TestInvalidDetourDelegate()
+        public void Invalid_LocalHook_Create_Detour_Delegate_Throws_ArgumentNUllException()
         {
             Assert.Throws<ArgumentNullException>(() => LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
