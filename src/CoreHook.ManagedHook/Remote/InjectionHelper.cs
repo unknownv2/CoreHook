@@ -8,13 +8,6 @@ namespace CoreHook.ManagedHook.Remote
 {
     public class InjectionHelper
     {
-        internal class PipeConnectionBrokenException : Exception
-        {
-            internal PipeConnectionBrokenException() : base ($"Pipe connection was broken")
-            {
-
-            }
-        }
         private class InjectionWait
         {
             public Mutex ThreadLock = new Mutex(false);
@@ -31,7 +24,7 @@ namespace CoreHook.ManagedHook.Remote
         {
             if(!connection.IsConnected)
             {
-                throw new PipeConnectionBrokenException();
+                throw new InvalidOperationException("Pipe connection was broken while handling request");
             }
 
             var message = NamedPipeMessages.Message.FromString(request);
@@ -138,16 +131,6 @@ namespace CoreHook.ManagedHook.Remote
 
             waitInfo.Error = null;
             waitInfo.Completion.Set();
-        }
-    }
-
-    public class InjectionPrepareEventArgs : EventArgs
-    {
-        public string PipeName{ get; set; }
-
-        public InjectionPrepareEventArgs(string pipeName)
-        {
-            PipeName = pipeName;
         }
     }
 }
