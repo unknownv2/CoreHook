@@ -202,7 +202,7 @@ srv*C:\SymbolCache*https://msdl.microsoft.com/downloads/symbols
 
 The `C:\SymbolCache` folder is a local cache directory where symbol files can be stored or downloaded to. When Windows needs to retrieve a PDB for a DLL, it can download them from `https://msdl.microsoft.com/downloads/symbols` and store them in a folder for use by a debugger.
 
-You can test symbol support by running the [symbols tests](test/CoreHook.Tests/Windows/SymbolsTest.cs).
+You can confirm that symbol support is properly configured by running the [symbols tests](tests/CoreHook.Tests/Windows/SymbolsTest.cs).
 
 ## Contributing
 
