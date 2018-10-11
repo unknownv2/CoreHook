@@ -308,32 +308,43 @@ namespace CoreHook.Unmanaged
         }
         public static bool Is64Bit(this Process process)
         {
-            if (!Environment.Is64BitOperatingSystem)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return false;
+                return Environment.Is64BitOperatingSystem;
             }
-
-            SafeProcessHandle handle = NativeMethods.OpenProcess(
-                 NativeMethods.ProcessAccessFlags.QueryInformation,
-                 false,
-                 process.Id
-             );
-
-            if (handle == null)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                throw new Win32Exception();
-            }
+                if (!Environment.Is64BitOperatingSystem)
+                {
+                    return false;
+                }
 
-            using (handle)
-            {
-                bool ret;
+                SafeProcessHandle handle = NativeMethods.OpenProcess(
+                     NativeMethods.ProcessAccessFlags.QueryInformation,
+                     false,
+                     process.Id
+                 );
 
-                if (!NativeMethods.IsWow64Process(handle, out ret))
+                if (handle == null)
                 {
                     throw new Win32Exception();
                 }
 
-                return !ret;
+                using (handle)
+                {
+                    bool ret;
+
+                    if (!NativeMethods.IsWow64Process(handle, out ret))
+                    {
+                        throw new Win32Exception();
+                    }
+
+                    return !ret;
+                }
+            }
+            else
+            {
+                throw new PlatformNotSupportedException("Cannot determine process architecture");
             }
         }
 
