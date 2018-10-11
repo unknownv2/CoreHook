@@ -15,8 +15,8 @@ namespace CoreHook.Unix.FileMonitor
         private const string HookLibraryDirName = "Hook";
         private const string HookLibraryName = "CoreHook.Unix.FileMonitor.Hook.dll";
 
-        private const string CoreLibrariesPathOSX = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.0";
-        private const string CoreLibrariesPathLinux = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.0/";
+        private const string CoreLibrariesPathOSX = "/usr/local/share/dotnet/shared/Microsoft.NETCore.App/2.1.5";
+        private const string CoreLibrariesPathLinux = "/usr/share/dotnet/shared/Microsoft.NETCore.App/2.1.5/";
 
         private static IPipePlatform pipePlatform = new PipePlatform();
 
