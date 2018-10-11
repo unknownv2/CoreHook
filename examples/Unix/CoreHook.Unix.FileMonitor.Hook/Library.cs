@@ -9,8 +9,8 @@ using JsonRpc.DynamicProxy.Client;
 using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
-using CoreHook.IPC.Pipes.Client;
 using CoreHook.Utilities.Import;
+using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.Unix.FileMonitor.Hook
 {
@@ -34,9 +34,7 @@ namespace CoreHook.Unix.FileMonitor.Hook
             SetLastError = true)]
         delegate int DOpen(string pathname, int flags, int mode);
 
-        public Library(IContext context, string arg1)
-        {
-        }
+        public Library(IContext context, string arg1) { }
 
         public void Run(IContext context, string pipeName)
         {
@@ -49,16 +47,11 @@ namespace CoreHook.Unix.FileMonitor.Hook
                 ClientWriteLine(ex.ToString());
             }
         }
-        private static void ClientWriteLine(object msg)
-        {
-            Console.WriteLine(msg);
-        }
+        private static void ClientWriteLine(string msg) => Console.WriteLine(msg);
 
         public void StartClient(string pipeName)
         {
-            var clientPipe = new ClientPipe(pipeName);
-
-            var clientTask = RunClientAsync(clientPipe.Start());
+            var clientTask = RunClientAsync(NamedPipeClient.CreatePipeStream(pipeName));
 
             // Wait for the client to exit.
             clientTask.GetAwaiter().GetResult();
@@ -81,6 +74,10 @@ namespace CoreHook.Unix.FileMonitor.Hook
                 dllLoadUtils = new LibLoaderMacOS();
                 dllHandle = dllLoadUtils.LoadLibrary("/usr/lib/libc.dylib");
             }
+            else
+            {
+                throw new PlatformNotSupportedException("Function hooks");
+            }
 
             IntPtr functionHandle = dllLoadUtils.GetProcAddress(dllHandle, "open");
 
@@ -95,6 +92,7 @@ namespace CoreHook.Unix.FileMonitor.Hook
 
             OpenHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
+
         const string LIBC = "libc";
         [DllImport(LIBC, SetLastError = true)]
         internal static extern int open(string pathname, int flags, int mode);

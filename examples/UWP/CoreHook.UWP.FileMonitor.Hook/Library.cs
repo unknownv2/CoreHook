@@ -9,7 +9,7 @@ using JsonRpc.DynamicProxy.Client;
 using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
-using CoreHook.IPC.Pipes.Client;
+using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.UWP.FileMonitor.Hook
 {
@@ -45,9 +45,7 @@ namespace CoreHook.UWP.FileMonitor.Hook
 
         public void StartClient(string pipeName)
         {
-            var clientPipe = new ClientPipe(pipeName);
-
-            var clientTask = RunClientAsync(clientPipe.Start());
+            var clientTask = RunClientAsync(NamedPipeClient.CreatePipeStream(pipeName));
 
             // Wait for the client to exit.
             clientTask.GetAwaiter().GetResult();
