@@ -28,8 +28,8 @@ namespace CoreHook.BinaryInjection
             Process process,
             string module,
             string function,
-            BinaryLoaderArgs blArgs,
-            IBinarySerializer arguments)
+            BinaryLoaderArgs binaryLoaderArgs,
+            IBinarySerializer remoteFunctionArgs)
         {
             // combine functioncallargs and binaryloader args
             var encoding = System.Text.Encoding.ASCII;
@@ -38,8 +38,8 @@ namespace CoreHook.BinaryInjection
                 coreRunLib = encoding.GetBytes(_coreRunLib.PadRight(1024, '\0')),
                 binaryLoaderFunctionName = encoding.GetBytes(LoadAssemblyBinaryArgsFuncName.PadRight(256, '\0')),
                 assemblyCallFunctionName = encoding.GetBytes(ExecManagedAssemblyClassFunctionName.PadRight(256, '\0')),
-                binaryLoaderArgs = MacOSBinaryLoaderArgs.Create(blArgs),
-                assemblyFunctionCall = new LinuxFunctionCallArgs(function, arguments)
+                binaryLoaderArgs = MacOSBinaryLoaderArgs.Create(binaryLoaderArgs),
+                assemblyFunctionCall = new LinuxFunctionCallArgs(function, remoteFunctionArgs)
             };
             var parameters = Binary.StructToByteArray(paramArgs);
             Unmanaged.MacOS.Process.injectByPidWithArgs(process.Id, parameters, parameters.Length);

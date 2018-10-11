@@ -17,7 +17,7 @@ namespace CoreHook.BinaryInjection
             string module,
             string function,
             BinaryLoaderArgs binaryLoaderArgs,
-            IBinarySerializer rfArgs);
+            IBinarySerializer remoteFunctionArgs);
 
         IntPtr CopyMemoryTo(
             Process proc,

@@ -82,9 +82,9 @@ namespace CoreHook.BinaryInjection
         {
             var addrSize = IntPtr.Size;
             var addrPtr = new IntPtr(addr);
-            // clear memory
+            // Clear the memory for the remote RPC arguments
             Unmanaged.Linux.Process.ptrace_write(pid, addrPtr, new byte[length], length);
-            // write new function args          
+            // Write the new function arguments for the RPC command
             Unmanaged.Linux.Process.ptrace_write(pid, addrPtr, buffer, length);
         }
         private static long ReadIntPtr(int pid, long address)
@@ -187,15 +187,15 @@ namespace CoreHook.BinaryInjection
             Process process,
             string module,
             string function,
-            BinaryLoaderArgs blArgs,
-            IBinarySerializer arguments)
+            BinaryLoaderArgs binaryLoaderArgs,
+            IBinarySerializer remoteFunctionArgs)
         {
             if (IsAttached(process.Id))
             {
-                ExecuteWithArgs(process, module, LinuxBinaryLoaderArgs.Create(blArgs));
+                ExecuteWithArgs(process, module, LinuxBinaryLoaderArgs.Create(binaryLoaderArgs));
 
                 var pid = process.Id;
-                var args = new LinuxFunctionCallArgs(function, arguments);
+                var args = new LinuxFunctionCallArgs(function, remoteFunctionArgs);
                 var argsBuf = Binary.StructToByteArray(args);
                 var bufPtr = CopyMemoryTo(process, argsBuf, (uint)argsBuf.Length);
 
