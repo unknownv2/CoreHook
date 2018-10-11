@@ -48,6 +48,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
+
         private static IBinaryLoader2 GetBinaryLoader2(Process process)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -69,6 +70,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
+
         private static IBinaryLoaderConfig GetBinaryLoaderConfig()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -88,15 +90,16 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
+
         private static string GetCoreCLRStartFunctionName()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return null;
+                return "LoadAssemblyBinaryArgs";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return null;
+                return "LoadAssemblyBinaryArgs";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -107,15 +110,16 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
+
         private static string GetCoreCLRExecuteManagedFunctionName()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                return null;
+                return "ExecuteManagedAssemblyClassFunction";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
-                return null;
+                return "ExecuteManagedAssemblyClassFunction";
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -126,6 +130,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
+
         public static void CreateAndInject(
             ProcessCreationConfig process,
             CoreHookNativeConfig configX86,
@@ -242,14 +247,15 @@ namespace CoreHook.ManagedHook.Remote
                     // and then call the IEntryPoint.Run method located in the hooking library
                     try
                     {
-                        var proc = ProcessHelper.GetProcessById(targetPID);
+                        var process = ProcessHelper.GetProcessById(targetPID);
                         var length = (uint)passThru.Length;
 
                         using (var binaryLoader = GetBinaryLoader())
                         {
-                            binaryLoader.Load(proc, config.HostLibrary, new[] { config.DetourLibrary });
+                            binaryLoader.Load(process, config.HostLibrary, new[] { config.DetourLibrary });
      
-                            binaryLoader.CallFunctionWithRemoteArgs(proc,
+                            binaryLoader.CallFunctionWithRemoteArgs(
+                                process,
                                 config.HostLibrary,
                                 CoreHookLoaderMethodName,
                                 new BinaryLoaderArgs
@@ -263,8 +269,8 @@ namespace CoreHook.ManagedHook.Remote
                                 },
                                 new RemoteFunctionArgs
                                 { 
-                                    Is64BitProcess = proc.Is64Bit(),
-                                    UserData = binaryLoader.CopyMemoryTo(proc, passThru.GetBuffer(), length),
+                                    Is64BitProcess = process.Is64Bit(),
+                                    UserData = binaryLoader.CopyMemoryTo(process, passThru.GetBuffer(), length),
                                     UserDataSize = length
                                 }
                                 );
