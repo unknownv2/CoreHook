@@ -33,7 +33,11 @@ namespace CoreHook.BinaryInjection
         {
             _memoryManager.Add(
                 process,
-                _processManager.Execute(functionName.Module, functionName.Function, Binary.StructToByteArray(args), false),
+                _processManager.Execute(
+                    functionName.Module, 
+                    functionName.Function,
+                    Binary.StructToByteArray(args), 
+                    false),
                 false
             );
         }
@@ -52,7 +56,10 @@ namespace CoreHook.BinaryInjection
         public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call) 
             => ExecuteWithArgs(process, call.FunctionName, call.Arguments);
         public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call) 
-            => ExecuteAssemblyFunctionWithArgs(process, call.FunctionName, new FunctionCallArgs(call.ManagedFunction, call.Arguments));
+            => ExecuteAssemblyFunctionWithArgs(
+                process, 
+                call.FunctionName, 
+                new FunctionCallArgs(call.ManagedFunction, call.Arguments));
 
         public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length) 
             => _memoryManager.Add(proc, proc.MemCopyTo(buffer, length), false);
@@ -90,30 +97,15 @@ namespace CoreHook.BinaryInjection
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
                     _memoryManager.Dispose();
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.               
-
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~WindowsBinaryLoader() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
 
         #endregion
