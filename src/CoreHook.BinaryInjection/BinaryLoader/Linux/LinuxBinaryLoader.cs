@@ -9,7 +9,7 @@ using CoreHook.Unmanaged;
 
 namespace CoreHook.BinaryInjection
 {
-    public class LinuxBinaryLoader : IBinaryLoader
+    public class LinuxBinaryLoader
     {
         private int _processAttached = -1;
 

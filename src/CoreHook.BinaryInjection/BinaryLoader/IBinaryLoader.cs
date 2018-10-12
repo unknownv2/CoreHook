@@ -8,27 +8,6 @@ namespace CoreHook.BinaryInjection
     {
         void Load(
             Process targetProcess,
-            string binaryPath, 
-            IEnumerable<string> dependencies = null, 
-            string dir = null);
-
-        void CallFunctionWithRemoteArgs(
-            Process process, 
-            string module,
-            string function,
-            BinaryLoaderArgs binaryLoaderArgs,
-            IBinarySerializer remoteFunctionArgs);
-
-        IntPtr CopyMemoryTo(
-            Process proc,
-            byte[] buffer,
-            uint length);
-    }
-
-    public interface IBinaryLoader2 : IDisposable
-    {
-        void Load(
-            Process targetProcess,
             string binaryPath,
             IEnumerable<string> dependencies = null,
             string dir = null);

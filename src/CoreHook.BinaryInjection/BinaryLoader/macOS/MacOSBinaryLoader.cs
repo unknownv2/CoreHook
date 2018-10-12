@@ -6,7 +6,7 @@ using CoreHook.Unmanaged;
 
 namespace CoreHook.BinaryInjection
 {
-    public class MacOSBinaryLoader : IBinaryLoader
+    public class MacOSBinaryLoader 
     {
         //private const string ExecDotnetAssemblyFuncName = "ExecuteDotnetAssembly";
         private const string LoadAssemblyBinaryArgsFuncName = "LoadAssemblyBinaryArgs";
