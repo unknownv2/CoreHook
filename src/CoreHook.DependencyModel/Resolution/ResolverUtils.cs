@@ -22,7 +22,7 @@ namespace CoreHook.DependencyModel.Resolution
             {
                 return true;
             }
-            // check all lower case for systems with case sensitive filepath
+            // Check all lower case for systems with case sensitive filepath
             if (fileSystem.Directory.Exists(packagePath.ToLower()))
             {
                 return true;
@@ -33,7 +33,7 @@ namespace CoreHook.DependencyModel.Resolution
 
         internal static bool TryResolveAssemblyFile(IFileSystem fileSystem, string basePath, string assemblyPath, out string fullName)
         {
-            // several checks for determining whether a file exists since 
+            // Several checks for determining whether a file exists since 
             // Linux filesystems have case sensitive filepaths
             // for their Nuget Package paths
             fullName = Path.Combine(basePath, assemblyPath);

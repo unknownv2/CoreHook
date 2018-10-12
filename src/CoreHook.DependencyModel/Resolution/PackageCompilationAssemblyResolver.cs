@@ -10,10 +10,6 @@ namespace CoreHook.DependencyModel.Resolution
 {
     public class PackageCompilationAssemblyResolver : ICompilationAssemblyResolver
     {
-        public static void Log(string message)
-        {
-            System.Diagnostics.Debug.WriteLine(message);
-        }
         private readonly IFileSystem _fileSystem;
         private readonly string[] _nugetPackageDirectories;
 
@@ -54,8 +50,6 @@ namespace CoreHook.DependencyModel.Resolution
 
             if (!string.IsNullOrEmpty(listOfDirectories))
             {
-                Log($"List of file directories: {listOfDirectories}");
-
                 return listOfDirectories.Split(new char[] { Path.PathSeparator }, StringSplitOptions.RemoveEmptyEntries);
             }
 #endif
@@ -97,11 +91,9 @@ namespace CoreHook.DependencyModel.Resolution
             foreach (var directory in _nugetPackageDirectories)
             {
                 string packagePath;
-                Log($"TryResolveAssemblyPaths: {directory}");
 
                 if (ResolverUtils.TryResolvePackagePath(_fileSystem, library, directory, out packagePath))
                 {
-                    Log($"TryResolveAssemblyPaths packagePath: {packagePath}");
 
                     IEnumerable<string> fullPathsFromPackage;
                     if (TryResolveFromPackagePath(_fileSystem, library, packagePath, out fullPathsFromPackage))
@@ -114,7 +106,6 @@ namespace CoreHook.DependencyModel.Resolution
             return false;
         }
 
-
         private static bool TryResolveFromPackagePath(IFileSystem fileSystem, CompilationLibrary library, string basePath, out IEnumerable<string> results)
         {
             var paths = new List<string>();
@@ -124,26 +115,15 @@ namespace CoreHook.DependencyModel.Resolution
                 string fullName;
                 if (!ResolverUtils.TryResolveAssemblyFile(fileSystem, basePath, assembly, out fullName))
                 {
-                    Log($"TryResolveAssemblyFile fullName: {fullName} failed before UWP_Acccess");
-
-                    //PipeHelper.SendPipeMsg(fullName);
-                    if (!ResolverUtils.TryResolveAssemblyFile(fileSystem, basePath, assembly, out fullName))
-                    {
-                        Log($"TryResolveAssemblyFile fullName: {fullName} failed after UWP_Acccess");
-
-                        // if one of the files can't be found, skip this package path completely.
-                        // there are package paths that don't include all of the "ref" assemblies 
-                        // (ex. ones created by 'dotnet store')
-                        results = null;
-                        return false;
-                    }
+                    // If one of the files can't be found, skip this package path completely.
+                    // there are package paths that don't include all of the "ref" assemblies 
+                    // (ex. ones created by 'dotnet store')
+                    results = null;
+                    return false;
                 }
-                Log($"TryResolveFromPackagePath fullName: {fullName}");
 
                 paths.Add(fullName);
             }
-
-            Log($"TryResolveFromPackagePath success");
 
             results = paths;
             return true;

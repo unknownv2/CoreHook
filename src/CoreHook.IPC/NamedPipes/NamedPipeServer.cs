@@ -97,7 +97,7 @@ namespace CoreHook.IPC.NamedPipes
             if (createNewThreadIfSynchronous &&
                ar.CompletedSynchronously)
             {
-                // if this callback got called synchronously, we must not do any blocking IO on this thread
+                // If this callback got called synchronously, we must not do any blocking IO on this thread
                 // or we will block the original caller. Moving to a new thread so that it will be safe
                 // to call a blocking Read on the NamedPipeServerStream
                 new Thread(() => OnNewConnection(ar, createNewThreadIfSynchronous: false)).Start();
