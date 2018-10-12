@@ -11,8 +11,6 @@ namespace CoreHook.BinaryInjection
 
         public bool WaitForDebugger;
 
-        public bool StartAssembly;
-
         public string PayloadFileName;
 
         public string CoreRootPath;

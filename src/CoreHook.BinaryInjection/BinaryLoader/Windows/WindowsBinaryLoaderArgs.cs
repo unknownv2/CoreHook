@@ -38,9 +38,8 @@ namespace CoreHook.BinaryInjection
                     // Data that is passed to the remote function
                     writer.Write(Arguments.Verbose);
                     writer.Write(Arguments.WaitForDebugger);
-                    writer.Write(Arguments.StartAssembly);
                     // Padding for reserved data to align structure to 8 bytes
-                    writer.Write(new byte[5]);
+                    writer.Write(new byte[6]);
                     writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.PayloadFileName, Config.MaxPathLength, Config.PathEncoding));
                     writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.CoreRootPath, Config.MaxPathLength, Config.PathEncoding));
                     writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.CoreLibrariesPath ?? string.Empty, Config.MaxPathLength, Config.PathEncoding));

@@ -25,10 +25,6 @@ namespace CoreHook.FileMonitor
         /// </summary>
         private const bool HostWaitForDebugger = false;
         /// <summary>
-        /// Immediately start the .NET assembly if we are injecting a .NET Core application
-        /// </summary>
-        private const bool HostStartAssembly = false;
-        /// <summary>
         /// Class that handles creating a named pipe server upong request
         /// </summary>
         private static IPipePlatform pipePlatform = new PipePlatform();
@@ -94,18 +90,18 @@ namespace CoreHook.FileMonitor
 
             string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
-            // start process and begin dll loading
+            // Start process and begin dll loading
             if (!string.IsNullOrEmpty(targetProgam))
             {
                 CreateAndInjectDll(targetProgam, injectionLibrary);
             }
             else
             {
-                // inject FileMonitor dll into process
+                // Inject FileMonitor dll into process
                 InjectDllIntoTarget(targetPID, injectionLibrary);
             }
-            
-            // start RPC server
+
+            // Start the RPC server for handling requests from the hooked program
             StartListener();
         }
  
@@ -148,8 +144,7 @@ namespace CoreHook.FileMonitor
                      {
                          PayloadLibrary = injectionLibrary,
                          VerboseLog = HostVerboseLog,
-                         WaitForDebugger = HostWaitForDebugger,
-                         StartAssembly = HostStartAssembly
+                         WaitForDebugger = HostWaitForDebugger
                      },
                      pipePlatform,
                      out _,
@@ -178,8 +173,7 @@ namespace CoreHook.FileMonitor
                         DetourLibrary = coreHookDll,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog,
-                        WaitForDebugger = HostWaitForDebugger,
-                        StartAssembly = HostStartAssembly
+                        WaitForDebugger = HostWaitForDebugger
                     },
                     pipePlatform,
                     CoreHookPipeName);

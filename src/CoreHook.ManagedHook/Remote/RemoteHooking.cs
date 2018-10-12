@@ -235,7 +235,6 @@ namespace CoreHook.ManagedHook.Remote
                                         {
                                             Verbose = config.VerboseLog,
                                             WaitForDebugger = config.WaitForDebugger,
-                                            StartAssembly = config.StartAssembly,
                                             PayloadFileName = config.CLRBootstrapLibrary,
                                             CoreRootPath = config.CoreCLRPath,
                                             CoreLibrariesPath = config.CoreCLRLibrariesPath

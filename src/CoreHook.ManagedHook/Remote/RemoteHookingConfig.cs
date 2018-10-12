@@ -46,11 +46,6 @@ namespace CoreHook.ManagedHook.Remote
         /// </summary>
         public bool WaitForDebugger { get; set; }
         /// <summary>
-        /// Option to immediately execute an .NET Assembly after initializing
-        /// the .NET Core runtime.
-        /// </summary>
-        public bool StartAssembly { get; set; }
-        /// <summary>
         /// Library that resolves dependencies and passes arguments to
         /// the .NET payload Assembly.
         /// </summary>
@@ -143,10 +138,5 @@ namespace CoreHook.ManagedHook.Remote
         /// .NET Assemblies are loaded by the HostLibrary.
         /// </summary>
         bool WaitForDebugger { get; set; }
-        /// <summary>
-        /// Option to immediately execute an .NET Assembly after initializing
-        /// the .NET Core runtime.
-        /// </summary>
-        bool StartAssembly { get; set; }
     }
 }

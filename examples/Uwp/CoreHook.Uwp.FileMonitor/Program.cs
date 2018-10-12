@@ -29,10 +29,6 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const bool HostWaitForDebugger = false;
         /// <summary>
-        /// Immediately start the .NET assembly if we are injecting a .NET Core application
-        /// </summary>
-        private const bool HostStartAssembly = false;
-        /// <summary>
         /// Class that handles creating a named pipe server upong request
         /// </summary>
         private static IPipePlatform pipePlatform = new Pipe.PipePlatform();
@@ -115,7 +111,7 @@ namespace CoreHook.Uwp.FileMonitor
                 out string coreRootPath, out string coreLoadDll,
                 out string corehookPath))
             {
-                // make sure the native dll modules can be accessed by the UWP application
+                // Make sure the native dll modules can be accessed by the UWP application
                 GrantAllAppPkgsAccessToFile(coreRunDll);
                 GrantAllAppPkgsAccessToFile(corehookPath);
 
@@ -130,8 +126,7 @@ namespace CoreHook.Uwp.FileMonitor
                         DetourLibrary = corehookPath,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog,
-                        WaitForDebugger = HostWaitForDebugger,
-                        StartAssembly = HostStartAssembly
+                        WaitForDebugger = HostWaitForDebugger
                     },
                     pipePlatform,
                     CoreHookPipeName);

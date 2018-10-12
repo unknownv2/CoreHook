@@ -65,8 +65,7 @@ namespace CoreHook.Tests
                         DetourLibrary = coreHookDll,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = false,
-                        WaitForDebugger = false,
-                        StartAssembly = false
+                        WaitForDebugger = false
                     },
                     new PipePlatformBase(),
                     message);
