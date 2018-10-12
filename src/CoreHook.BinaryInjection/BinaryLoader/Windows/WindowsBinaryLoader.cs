@@ -7,12 +7,12 @@ using CoreHook.Unmanaged.Windows;
 
 namespace CoreHook.BinaryInjection
 {
-    public class WindowsBinaryLoader2 : IBinaryLoader
+    public class WindowsBinaryLoader : IBinaryLoader
     {
         private readonly IMemoryManager _memoryManager;
         private readonly IProcessManager _processManager;
 
-        public WindowsBinaryLoader2(IMemoryManager memoryManager, IProcessManager processManager)
+        public WindowsBinaryLoader(IMemoryManager memoryManager, IProcessManager processManager)
         {
             _memoryManager = memoryManager;
             _processManager = processManager;

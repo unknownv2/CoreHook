@@ -29,7 +29,7 @@ namespace CoreHook.ManagedHook.Remote
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new WindowsBinaryLoader2(
+                return new WindowsBinaryLoader(
                     new MemoryManager(),
                     new Unmanaged.Windows.ProcessManager(process));
             }
