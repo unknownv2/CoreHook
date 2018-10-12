@@ -40,7 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
-    <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Shared\CoreHook.UWP.FileMonitor.Shared.csproj" />
+    <ProjectReference Include="..\CoreHook.Uwp.FileMonitor.Shared\CoreHook.Uwp.FileMonitor.Shared.csproj" />
   </ItemGroup>
 
 </Project>

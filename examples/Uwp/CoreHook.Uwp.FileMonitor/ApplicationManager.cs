@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
-namespace CoreHook.UWP.FileMonitor
+namespace CoreHook.Uwp.FileMonitor
 {
     public enum ActivateOptions
     {
