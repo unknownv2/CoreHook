@@ -128,7 +128,7 @@ namespace CoreHook.Tests
    
             using (INamedPipeClient pipeClient = new NamedPipeClient(clientNamedPipe))
             {
-                if(pipeClient.Connect(3000))
+                if(pipeClient.Connect(1000))
                 {
                     connected = true;
                 }
