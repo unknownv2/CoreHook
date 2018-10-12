@@ -8,7 +8,5 @@ namespace CoreHook.Uwp.FileMonitor.Shared
     {
         [JsonRpcMethod]
         Task OnCreateFile(string[] fileNames);
-        [JsonRpcMethod]
-        Task PrintFile(byte[] header);
     }
 }
