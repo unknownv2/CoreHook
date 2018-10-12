@@ -32,8 +32,12 @@ namespace CoreHook.BinaryInjection
             string binaryPath,
             IEnumerable<string> dependencies = null,
             string dir = null);
-        void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call);
-        void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call);
+        void ExecuteRemoteFunction(
+            Process process, 
+            IRemoteFunctionCall call);
+        void ExecuteRemoteManagedFunction(
+            Process process, 
+            IRemoteManagedFunctionCall call);
         IntPtr CopyMemoryTo(
             Process proc,
             byte[] buffer,

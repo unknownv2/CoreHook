@@ -157,18 +157,18 @@ namespace CoreHook.FileMonitor
             }
         }
 
-        private static void InjectDllIntoTarget(int procId, string injectionLibrary)
+        private static void InjectDllIntoTarget(int processId, string injectionLibrary)
         {
             ValidateFilePath(injectionLibrary);
 
             if (Examples.Common.Utilities.GetCoreLoadPaths(
-                ProcessHelper.GetProcessById(procId).Is64Bit(),
+                ProcessHelper.GetProcessById(processId).Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath,
                 out string coreRootPath, out string coreLoadDll,
                 out string coreHookDll))
             {
                 RemoteHooking.Inject(
-                    procId,
+                    processId,
                     new RemoteHookingConfig()
                     {
                         HostLibrary = coreRunDll,
