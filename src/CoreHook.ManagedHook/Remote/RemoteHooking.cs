@@ -39,9 +39,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new WindowsBinaryLoader(
-                    new MemoryManager(),
-                    new Unmanaged.Windows.ProcessManager());
+                return null;
             }
             else
             {
@@ -90,7 +88,10 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
-
+        /// <summary>
+        /// Get the name of the function that starts CoreCLR in a target process
+        /// </summary>
+        /// <returns>The name of the library function used to start CoreCLR.</returns>
         private static string GetCoreCLRStartFunctionName()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -110,7 +111,14 @@ namespace CoreHook.ManagedHook.Remote
                 throw new PlatformNotSupportedException("Binary injection");
             }
         }
-
+        /// <summary>
+        /// Get the name of a function that executes a single function inside
+        /// a .NET library loaded in a process, referenced by class name
+        /// and function name.
+        /// </summary>
+        /// <returns>The name of the library function used to execute the .NET
+        /// Bootstrapping module, CoreLoad.
+        /// </returns>
         private static string GetCoreCLRExecuteManagedFunctionName()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
