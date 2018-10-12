@@ -11,7 +11,7 @@ using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
 using CoreHook.IPC.NamedPipes;
 
-namespace CoreHook.UWP.FileMonitor.Hook
+namespace CoreHook.Uwp.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {

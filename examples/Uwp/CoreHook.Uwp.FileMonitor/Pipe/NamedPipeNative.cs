@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Text;
 
-namespace CoreHook.UWP.FileMonitor.Pipe
+namespace CoreHook.Uwp.FileMonitor.Pipe
 {
     /// <summary>
     /// Native API for Named Pipes

@@ -12,13 +12,13 @@ using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.Unmanaged;
 
-namespace CoreHook.UWP.FileMonitor
+namespace CoreHook.Uwp.FileMonitor
 {
     class Program
     {
-        private const string CoreHookPipeName = "UWPCoreHook";
+        private const string CoreHookPipeName = "UwpCoreHook";
         private const string HookLibraryDirName = "Hook";
-        private const string HookLibraryName = "CoreHook.UWP.FileMonitor.Hook.dll";
+        private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
 
         /// <summary>
         /// Enable verbose logging to the console for the CoreCLR host module corerundll
