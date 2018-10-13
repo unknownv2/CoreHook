@@ -57,15 +57,7 @@ namespace CoreHook.ManagedHook.Remote
         /// <returns>The name of the library function used to start CoreCLR.</returns>
         private static string GetCoreCLRStartFunctionName()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return "LoadAssemblyBinaryArgs";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return "LoadAssemblyBinaryArgs";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return "StartCoreCLR";
             }
@@ -85,15 +77,7 @@ namespace CoreHook.ManagedHook.Remote
         /// </returns>
         private static string GetCoreCLRExecuteManagedFunctionName()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                return "ExecuteManagedAssemblyClassFunction";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return "ExecuteManagedAssemblyClassFunction";
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return "ExecuteAssemblyFunction";
             }
