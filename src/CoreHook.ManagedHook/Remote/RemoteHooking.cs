@@ -21,8 +21,6 @@ namespace CoreHook.ManagedHook.Remote
                 typeName: "Loader",
                 methodName: "Load");
 
-        private static string CoreHookLoaderMethodName = CoreHookLoaderDel.ToString();
-
         private const string InjectionPipe = "CoreHookInjection";
 
         private static IBinaryLoader GetBinaryLoader2(Process process)
@@ -88,7 +86,7 @@ namespace CoreHook.ManagedHook.Remote
         }
 
         public static void CreateAndInject(
-            ProcessCreationConfig process,
+            ProcessCreationConfig processConfig,
             CoreHookNativeConfig configX86,
             CoreHookNativeConfig configX64,
             RemoteHookingConfig remoteHook,
@@ -97,54 +95,23 @@ namespace CoreHook.ManagedHook.Remote
             params object[] passThruArgs
             )
         {
-            const int STARTF_USESHOWWINDOW = 1;
-            const int SW_HIDE = 0;
+            var process = Process.Start(processConfig.ExecutablePath);
 
-            outProcessId = -1;
+            var is64BitProcess = process.Is64Bit();
 
-            var si = new NativeMethods.StartupInfo();
-            var pi = new NativeMethods.ProcessInformation();
+            remoteHook.HostLibrary = is64BitProcess ? configX64.HostLibrary : configX86.HostLibrary;
+            remoteHook.CoreCLRPath = is64BitProcess ? configX64.CoreCLRPath : configX86.CoreCLRPath;
+            remoteHook.CoreCLRLibrariesPath = is64BitProcess ? configX64.CoreCLRLibrariesPath : configX86.CoreCLRLibrariesPath;
+            remoteHook.DetourLibrary = is64BitProcess ? configX64.DetourLibrary : configX86.DetourLibrary;
 
-            si.wShowWindow = SW_HIDE;
-            si.dwFlags = STARTF_USESHOWWINDOW;
-            remoteHook.DetourLibrary = configX64.DetourLibrary;
+            InjectEx(
+                ProcessHelper.GetCurrentProcessId(),
+                process.Id,
+                remoteHook,
+                pipePlatform,
+                passThruArgs);
 
-            if (Unmanaged.Windows.NativeAPI.DetourCreateProcessWithDllExW(
-                    process.ExecutablePath,
-                    process.CommandLine,
-                    IntPtr.Zero,
-                    IntPtr.Zero,
-                    false,
-                    process.ProcessCreationFlags |
-                    (uint)
-                    (
-                    NativeMethods.CreateProcessFlags.CREATE_NEW_CONSOLE
-                    ),
-                    IntPtr.Zero,
-                    null,
-                    ref si,
-                    out pi,
-                    remoteHook.DetourLibrary,
-                    IntPtr.Zero
-                    ))
-            {
-                outProcessId = pi.dwProcessId;
-
-                System.Diagnostics.Process.GetProcessById(pi.dwProcessId).BringToFront();
-                var is64BitProcess = System.Diagnostics.Process.GetProcessById(pi.dwProcessId).Is64Bit();
-
-                remoteHook.HostLibrary = is64BitProcess ? configX64.HostLibrary : configX86.HostLibrary;
-                remoteHook.CoreCLRPath = is64BitProcess ? configX64.CoreCLRPath : configX86.CoreCLRPath;
-                remoteHook.CoreCLRLibrariesPath = is64BitProcess ? configX64.CoreCLRLibrariesPath : configX86.CoreCLRLibrariesPath;
-                remoteHook.DetourLibrary = is64BitProcess ? configX64.DetourLibrary : configX86.DetourLibrary;
-
-                InjectEx(
-                    ProcessHelper.GetCurrentProcessId(),
-                    pi.dwProcessId,
-                    remoteHook,
-                    pipePlatform,
-                    passThruArgs);
-            }
+            outProcessId = process.Id;
         }
 
         public static void Inject(

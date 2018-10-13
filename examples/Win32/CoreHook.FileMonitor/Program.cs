@@ -129,7 +129,8 @@ namespace CoreHook.FileMonitor
             if (Examples.Common.Utilities.GetCoreLoadPaths(
                 false, out CoreHookNativeConfig configX86) &&
                 Examples.Common.Utilities.GetCoreLoadPaths(
-                true, out CoreHookNativeConfig configX64))
+                true, out CoreHookNativeConfig configX64) &&
+                Examples.Common.Utilities.GetCoreLoadModulePath(out string coreLoadLibrary))
             {
                 RemoteHooking.CreateAndInject(
                      new ProcessCreationConfig()
@@ -142,6 +143,7 @@ namespace CoreHook.FileMonitor
                      configX64,
                      new RemoteHookingConfig()
                      {
+                         CLRBootstrapLibrary = coreLoadLibrary,
                          PayloadLibrary = injectionLibrary,
                          VerboseLog = HostVerboseLog,
                          WaitForDebugger = HostWaitForDebugger

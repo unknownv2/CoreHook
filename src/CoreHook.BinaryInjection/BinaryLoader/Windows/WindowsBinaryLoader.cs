@@ -33,9 +33,9 @@ namespace CoreHook.BinaryInjection
             _memoryManager.Add(
                 process,
                 _processManager.Execute(
-                    functionName.Module, 
+                    functionName.Module,
                     functionName.Function,
-                    Binary.StructToByteArray(args), 
+                    Binary.StructToByteArray(args),
                     false),
                 false
             );

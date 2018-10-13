@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.ManagedHook.Remote;
 
@@ -34,15 +31,19 @@ namespace CoreHook.Examples.Common
              )
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
+
         /// <summary>
         /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process
         /// </summary>
         /// <param name="is64BitProcess">Flag for determining which native modules to load into the target process</param>
         /// <param name="corehookConfig"></param>
+        /// <param name="clrBootstrapLibrary"></param>
         /// <returns>Returns wether all required paths and modules have been found.</returns>
-        public static bool GetCoreLoadPaths(bool is64BitProcess, out CoreHookNativeConfig corehookConfig)
+        public static bool GetCoreLoadPaths(bool is64BitProcess,
+            out CoreHookNativeConfig corehookConfig)
         {
             corehookConfig = null;
+
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
             // Paths to the CoreCLR dlls used to host and execute .NET assemblies 
@@ -63,6 +64,39 @@ namespace CoreHook.Examples.Common
                 Console.WriteLine("Cannot find the corerun dll");
                 return false;
             }
+
+            var corehookPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                 is64BitProcess ? "corehook64.dll" : "corehook32.dll");
+
+            if (!File.Exists(corehookPath))
+            {
+                Console.WriteLine($"Cannot find {Path.GetFileName(corehookPath)}");
+                return false;
+            }
+
+            corehookConfig = new CoreHookNativeConfig()
+            {
+                
+                CoreCLRLibrariesPath = coreLibsPath,
+                CoreCLRPath = coreRootPath,
+                HostLibrary = coreRunPath,
+                DetourLibrary = corehookPath
+            };
+
+            return true;
+        }
+
+        /// <summary>
+        /// Get the path of the .NET Assembly that is first loaded by the host 
+        /// and initializes the dependencies for hooking libraries.
+        /// </summary>
+        /// <param name="coreLoadLibrary">The path to the .NET bootstrap library</param>
+        /// <returns>True if the file exists, othwerwise false.</returns>
+        public static bool GetCoreLoadModulePath(out string coreLoadLibrary)
+        {
+            coreLoadLibrary = null;
+
+            string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             // Module that loads and executes the IEntryPoint.Run method of our hook dll.
             // It also resolves any dependencies for the hook dll
             var coreLoadPath = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
@@ -73,25 +107,11 @@ namespace CoreHook.Examples.Common
                 return false;
             }
 
-            var corehookPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                 is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
-            if (!File.Exists(coreLoadPath))
-            {
-                Console.WriteLine($"Cannot find {Path.GetFileName(corehookPath)}");
-                return false;
-            }
-
-            corehookConfig = new CoreHookNativeConfig()
-            {
-                CoreCLRLibrariesPath = coreLibsPath,
-                CoreCLRPath = coreRootPath,
-                HostLibrary = coreRunPath,
-                DetourLibrary = corehookPath
-            };
+            coreLoadLibrary = coreLoadPath;
 
             return true;
         }
+
         /// <summary>
         /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process
         /// </summary>
@@ -129,26 +149,23 @@ namespace CoreHook.Examples.Common
                 return false;
             }
 
-            // Module that loads and executes the IEntryPoint.Run method of our hook dll.
-            // It also resolves any dependencies for the hook dll
-            coreLoadPath = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
-
-            if (!File.Exists(coreLoadPath))
+            if (GetCoreLoadModulePath(out coreLoadPath))
             {
-                Console.WriteLine("Cannot find CoreLoad dll");
+                corehookPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                     is64BitProcess ? "corehook64.dll" : "corehook32.dll");
+
+                if (!File.Exists(corehookPath))
+                {
+                    Console.WriteLine($"Cannot find {Path.GetFileName(corehookPath)}");
+                    return false;
+                }
+
+                return true;
+            }
+            else
+            {
                 return false;
             }
-
-            corehookPath = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                 is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
-            if (!File.Exists(coreLoadPath))
-            {
-                Console.WriteLine($"Cannot find {Path.GetFileName(corehookPath)}");
-                return false;
-            }
-
-            return true;
         }
     }
 }
