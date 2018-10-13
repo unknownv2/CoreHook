@@ -32,7 +32,7 @@ namespace CoreHook.FileMonitor
         /// <summary>
         /// Parse a file path and remove quotes from path name if it is enclosed
         /// </summary>
-        /// <param name="filePath">A  path to a file or directory.</param>
+        /// <param name="filePath">A path to a file or directory.</param>
         /// <returns></returns>
         private static string GetFilePath(string filePath)
         {

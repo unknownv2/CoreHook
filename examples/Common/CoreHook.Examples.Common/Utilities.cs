@@ -32,6 +32,11 @@ namespace CoreHook.Examples.Common
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
+        private static void HandleFileNotFound(string path)
+        {
+            Console.WriteLine($"Cannot find file {Path.GetFileName(path)}");
+        }
+
         /// <summary>
         /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process
         /// </summary>
@@ -52,7 +57,14 @@ namespace CoreHook.Examples.Common
 
             if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibsPath))
             {
-                Console.WriteLine("CoreCLR root path was not set!");
+                if (is64BitProcess)
+                {
+                    Console.WriteLine($"CoreCLR root path was not set for 64-bit processes.");
+                }
+                else
+                {
+                    Console.WriteLine($"CoreCLR root path was not set for 32-bit processes");
+                }
                 return false;
             }
 
@@ -61,7 +73,7 @@ namespace CoreHook.Examples.Common
                 is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))
             {
-                Console.WriteLine("Cannot find the corerun dll");
+                HandleFileNotFound(coreRunPath);
                 return false;
             }
 
@@ -70,7 +82,7 @@ namespace CoreHook.Examples.Common
 
             if (!File.Exists(corehookPath))
             {
-                Console.WriteLine($"Cannot find {Path.GetFileName(corehookPath)}");
+                HandleFileNotFound(corehookPath);
                 return false;
             }
 
@@ -103,7 +115,7 @@ namespace CoreHook.Examples.Common
 
             if (!File.Exists(coreLoadPath))
             {
-                Console.WriteLine("Cannot find the CoreLoad dll");
+                HandleFileNotFound(coreLoadPath);
                 return false;
             }
 
@@ -136,7 +148,14 @@ namespace CoreHook.Examples.Common
 
             if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibsPath))
             {
-                Console.WriteLine("CoreCLR root path was not set!");
+                if (is64BitProcess)
+                {
+                    Console.WriteLine($"CoreCLR root path was not set for 64-bit processes.");
+                }
+                else
+                {
+                    Console.WriteLine($"CoreCLR root path was not set for 32-bit processes");
+                }
                 return false;
             }
 
@@ -145,7 +164,7 @@ namespace CoreHook.Examples.Common
                 is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
             if (!File.Exists(coreRunPath))
             {
-                Console.WriteLine("Cannot find the corerun dll");
+                HandleFileNotFound(coreRunPath);
                 return false;
             }
 
@@ -156,7 +175,7 @@ namespace CoreHook.Examples.Common
 
                 if (!File.Exists(corehookPath))
                 {
-                    Console.WriteLine($"Cannot find {Path.GetFileName(corehookPath)}");
+                    HandleFileNotFound(corehookPath);
                     return false;
                 }
 

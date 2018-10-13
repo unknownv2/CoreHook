@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace CoreHook.ManagedHook.ProcessUtils
 {
@@ -20,7 +19,7 @@ namespace CoreHook.ManagedHook.ProcessUtils
         }
         public static Process GetProcessByName(string processName)
         {
-            return GetProcessListByName(processName)[0];
+            return GetProcessListByName(processName).First();
         }
         public static int GetCurrentProcessId()
         {
