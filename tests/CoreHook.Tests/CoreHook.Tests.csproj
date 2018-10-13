@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\AnyCPU</OutputPath>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
     <DefineConstants>TRACE;WIN64</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
@@ -22,7 +22,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;WIN64</DefineConstants>
-    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />

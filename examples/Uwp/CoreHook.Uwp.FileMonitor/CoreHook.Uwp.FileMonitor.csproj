@@ -10,7 +10,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\AnyCPU</OutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
