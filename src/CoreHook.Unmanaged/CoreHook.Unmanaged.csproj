@@ -5,23 +5,14 @@
     <Platforms>AnyCPU;x86</Platforms>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>    
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\AnyCPU</OutputPath>
     <WarningsAsErrors />
   </PropertyGroup>
-
+  
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
     <WarningsAsErrors />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
   </PropertyGroup>
 
 </Project>

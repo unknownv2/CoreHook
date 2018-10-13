@@ -9,29 +9,17 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\AnyCPU</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
-    <Prefer32Bit>true</Prefer32Bit>
-    <PlatformTarget>x86</PlatformTarget>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x64</OutputPath>
+    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />    
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
-    <Prefer32Bit>true</Prefer32Bit>
-    <PlatformTarget>x86</PlatformTarget>    
   </PropertyGroup>
 
   <ItemGroup>
