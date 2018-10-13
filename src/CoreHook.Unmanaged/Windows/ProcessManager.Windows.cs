@@ -92,7 +92,9 @@ namespace CoreHook.Unmanaged.Windows
                 {
                     if (!Environment.Is64BitProcess)
                     {
-                        throw new InvalidOperationException("Cannot get 64-bit proc address from a 32-bit process.");
+                        throw new InvalidOperationException(
+                            "Cannot get 64-bit proc address from a 32-bit process."
+                            );
                     }
                 }
             }
@@ -111,7 +113,7 @@ namespace CoreHook.Unmanaged.Windows
             {
                 var pathBytes = Encoding.Unicode.GetBytes(modulePath + "\0");
 
-                // Allocate space in the remote process for the DLL path. 
+                // Allocate space in the remote process for the DLL path.
                 var remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
@@ -167,19 +169,24 @@ namespace CoreHook.Unmanaged.Windows
                 }
                 finally
                 {
-                    NativeMethods.VirtualFreeEx(hProcess, remoteAllocAddr, 0, NativeMethods.FreeType.Release);
+                    NativeMethods.VirtualFreeEx(
+                        hProcess,
+                        remoteAllocAddr,
+                        0,
+                        NativeMethods.FreeType.Release);
                 }
             }
         }
 
         /// <summary>
-        /// Execute an exported function inside the specified module with custom arguments
+        /// Execute function inside the specified module with custom arguments.
         /// </summary>
         /// <param name="process">A handle to the main process with the target module loaded.</param>
         /// <param name="module">The name of the module containing the desired function.</param>
         /// <param name="function">The name of the exported function we will call.</param>
         /// <param name="args">Serialized arguments for passing to the module function.</param>
-        /// <param name="canWait">We can wait for the thread to finish before cleaning up memory or we need to cleanup later.</param>
+        /// <param name="canWait">We can wait for the thread to finish before cleaning up memory
+        /// or we need to cleanup later.</param>
         public IntPtr Execute(string module, string function, byte[] args, bool canWait = true)
         {
             using (var hProcess = GetProcessHandle(ProcessHandle.Id,
@@ -190,7 +197,7 @@ namespace CoreHook.Unmanaged.Windows
                 NativeMethods.ProcessAccessFlags.VirtualMemoryWrite))
             {
 
-                // Allocate space in the remote process for the DLL path. 
+                // Allocate space in the remote process for the DLL path.
                 IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
@@ -220,7 +227,6 @@ namespace CoreHook.Unmanaged.Windows
                         throw new Win32Exception("Failed to allocate memory in remote process.");
                     }
 
-                    //var addr = process.GetAbsoluteFunctionAddress(module, function);
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
                     IntPtr hThread = NativeMethods.CreateRemoteThread(
                         hProcess,
@@ -250,7 +256,11 @@ namespace CoreHook.Unmanaged.Windows
                 {
                     if (canWait)
                     {
-                        NativeMethods.VirtualFreeEx(hProcess, remoteAllocAddr, 0, NativeMethods.FreeType.Release);
+                        NativeMethods.VirtualFreeEx(
+                            hProcess, 
+                            remoteAllocAddr,
+                            0,
+                            NativeMethods.FreeType.Release);
                     }
                 }
             }
@@ -264,7 +274,7 @@ namespace CoreHook.Unmanaged.Windows
                 NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryWrite))
             {
-                // Allocate space in the remote process for the DLL path. 
+                // Allocate space in the remote process for the DLL path.
                 IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
@@ -388,14 +398,19 @@ namespace CoreHook.Unmanaged.Windows
                 throw new Win32Exception("Failed to read export table from memory of module.");
             }
 
-            return new IntPtr(moduleInfo.BaseAddress.ToInt64() + GetFunctionAddress(buffer, exportDir.Rva, functionName).ToInt64());
+            return new IntPtr(moduleInfo.BaseAddress.ToInt64() +
+                GetFunctionAddress(buffer, exportDir.Rva, functionName).ToInt64());
         }
 
         private static NativeMethods.MODULEINFO GetModuleInfo(SafeProcessHandle hProcess, IntPtr hModule)
         {
             NativeMethods.MODULEINFO moduleInfo;
 
-            if (!NativeMethods.GetModuleInformation(hProcess, hModule, out moduleInfo, (uint)Marshal.SizeOf<NativeMethods.MODULEINFO>()))
+            if (!NativeMethods.GetModuleInformation(
+                hProcess,
+                hModule,
+                out moduleInfo,
+                (uint)Marshal.SizeOf<NativeMethods.MODULEINFO>()))
             {
                 throw new Win32Exception("Failed to get module information.");
             }
@@ -597,7 +612,7 @@ namespace CoreHook.Unmanaged.Windows
                     NativeMethods.ModuleFilterFlags.All))
                 {
                     throw new Win32Exception("EnumProcessModulesEx failed");
-                }                
+                }
 
                 gcHandle.Free();
 
