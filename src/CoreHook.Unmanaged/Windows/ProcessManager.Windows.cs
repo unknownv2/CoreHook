@@ -588,26 +588,18 @@ namespace CoreHook.Unmanaged.Windows
             for (; ; )
             {
                 var gcHandle = GCHandle.Alloc(moduleHandles, GCHandleType.Pinned);
-
-                int x;
-                var success = false;
-
-                for (x = 0; x < 50 && !success; x++)
+                
+               if(!NativeMethods.EnumProcessModulesEx(
+                    hProcess,
+                    gcHandle.AddrOfPinnedObject(),
+                    (uint)(IntPtr.Size * moduleHandles.Length),
+                    out size,
+                    NativeMethods.ModuleFilterFlags.All))
                 {
-                    success = NativeMethods.EnumProcessModulesEx(
-                        hProcess,
-                        gcHandle.AddrOfPinnedObject(),
-                        (uint)(IntPtr.Size * moduleHandles.Length),
-                        out size,
-                        NativeMethods.ModuleFilterFlags.All);
-                }
+                    throw new Win32Exception("EnumProcessModulesEx failed");
+                }                
 
                 gcHandle.Free();
-
-                if (x == 50)
-                {
-                    throw new Win32Exception();
-                }
 
                 size /= (uint)IntPtr.Size;
 
