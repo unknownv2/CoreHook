@@ -6,10 +6,6 @@
    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>    
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\AnyCPU</OutputPath>
   </PropertyGroup>
@@ -18,10 +14,6 @@
     <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -15,22 +15,12 @@
     <WarningsAsErrors />
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
-    <OutputPath>..\..\Build\bin\Debug\netcoreapp2.1\x86</OutputPath>
-    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;WIN64</DefineConstants>
     <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <OutputPath>..\..\Build\bin\Release\netcoreapp2.1\x86</OutputPath>
-    <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>    
   </PropertyGroup>
 
   <ItemGroup>
