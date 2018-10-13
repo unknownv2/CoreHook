@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Unmanaged
 {
@@ -26,7 +27,7 @@ namespace CoreHook.Unmanaged
         [DllImport("kernel32.dll", SetLastError = true, CallingConvention = CallingConvention.Winapi)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool IsWow64Process(
-            [In] IntPtr processHandle,
+            [In] SafeProcessHandle processHandle,
             [Out, MarshalAs(UnmanagedType.Bool)] out bool wow64Process);
 
         [DllImport("user32.dll")]
@@ -38,7 +39,7 @@ namespace CoreHook.Unmanaged
             out uint lpdwProcessId);
 
         [DllImport("kernel32.dll")]
-        internal static extern IntPtr OpenProcess(
+        internal static extern SafeProcessHandle OpenProcess(
             ProcessAccessFlags dwDesiredAccess, 
             bool bInheritHandle, 
             int dwProcessId);
@@ -54,7 +55,7 @@ namespace CoreHook.Unmanaged
 
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         internal static extern IntPtr VirtualAllocEx(
-            IntPtr hProcess, 
+            SafeProcessHandle hProcess, 
             IntPtr lpAddress, 
             uint dwSize, 
             AllocationType flAllocationType, 
@@ -76,13 +77,13 @@ namespace CoreHook.Unmanaged
 
         [DllImport("kernel32.dll")]
         internal static extern bool VirtualProtectEx(
-            IntPtr hProcess, IntPtr lpAddress,
+            SafeProcessHandle hProcess, IntPtr lpAddress,
             uint dwSize,
             MemoryProtection flNewProtect, out MemoryProtection lpflOldProtect);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern bool WriteProcessMemory(
-            IntPtr hProcess, 
+            SafeProcessHandle hProcess, 
             IntPtr lpBaseAddress, 
             byte[] lpBuffer, 
             uint nSize, 
@@ -90,7 +91,7 @@ namespace CoreHook.Unmanaged
 
         [DllImport("kernel32.dll")]
         internal static extern IntPtr CreateRemoteThread(
-            IntPtr hProcess,
+            SafeProcessHandle hProcess,
             IntPtr lpThreadAttributes, 
             uint dwStackSize, 
             IntPtr lpStartAddress, 
@@ -110,7 +111,7 @@ namespace CoreHook.Unmanaged
 
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         internal static extern bool VirtualFreeEx(
-            IntPtr hProcess, 
+            SafeProcessHandle hProcess, 
             IntPtr lpAddress,
             int dwSize, 
             FreeType dwFreeType);
@@ -126,21 +127,21 @@ namespace CoreHook.Unmanaged
 
         [DllImport("psapi.dll", CharSet = CharSet.Unicode)]
         internal static extern uint GetModuleBaseName(
-            IntPtr hProcess,
+            SafeProcessHandle hProcess,
             IntPtr hModule,
             StringBuilder lpBaseName,
             uint nSize
         );
         [DllImport("psapi.dll", CharSet = CharSet.Unicode)]
         internal static extern uint GetModuleFileNameEx(
-            IntPtr hProcess,
+            SafeProcessHandle hProcess,
             IntPtr hModule,
             StringBuilder lpBaseName,
             uint nSize
         );
         [DllImport("psapi.dll", CallingConvention = CallingConvention.Winapi, SetLastError = true)]
         internal static extern bool EnumProcessModulesEx(
-            IntPtr hProcess,
+            SafeProcessHandle hProcess,
             [Out] IntPtr lphModule,
             uint cb,
             out uint lpcbNeeded,
@@ -149,14 +150,14 @@ namespace CoreHook.Unmanaged
 
         [DllImport("psapi.dll", SetLastError = true)]
         internal static extern bool GetModuleInformation(
-            IntPtr hProcess, 
+            SafeProcessHandle hProcess, 
             IntPtr hModule, 
             out MODULEINFO lpmodinfo, 
             uint cb);
 
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern bool ReadProcessMemory(
-            IntPtr hProcess,
+            SafeProcessHandle hProcess,
             IntPtr lpBaseAddress,
             [Out] byte[] lpBuffer,
             int dwSize,

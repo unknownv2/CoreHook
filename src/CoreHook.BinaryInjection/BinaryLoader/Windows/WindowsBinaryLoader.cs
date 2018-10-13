@@ -8,34 +8,14 @@ namespace CoreHook.BinaryInjection
 {
     public class WindowsBinaryLoader : IBinaryLoader
     {
-        /// <summary>
-        /// The name of the function that starts the CoreCLR in a target process
-        /// and can also execute a .NET assembly immediately.
-        /// </summary>
-        private const string LoadAssemblyFunc = "LoadAssembly";
-
-        /// <summary>
-        /// The name of a function that executes a single function inside a .NET library loaded in a process,
-        /// referenced by class name and function name.
-        /// </summary>
-        private const string ExecAssemblyFunc = "ExecuteAssemblyFunction";
-
-
         private readonly IMemoryManager _memoryManager;
+        private readonly IProcessManager _processManager;
 
-        public WindowsBinaryLoader(IMemoryManager memoryManager)
+        public WindowsBinaryLoader(IMemoryManager memoryManager, IProcessManager processManager)
         {
             _memoryManager = memoryManager;
-            _memoryManager.FreeMemory += FreeMemory;
-        }
-
-        private void ExecuteAssemblyWithArgs(Process process, string module, WindowsBinaryLoaderArgs args)
-        {
-            _memoryManager.Add(
-                process,
-                process.Execute(module, LoadAssemblyFunc, Binary.StructToByteArray(args)),
-                true
-            );
+            _processManager = processManager;
+            _memoryManager.FreeMemory += (proc, address, length) => processManager.FreeMemory(address, 0);
         }
 
         /// <summary>
@@ -45,51 +25,51 @@ namespace CoreHook.BinaryInjection
         /// <param name="moduleName">The module name of the binary containing the function to execute.</param>
         /// <param name="functionName">The name of the function to be executed.</param>
         /// <param name="args">The class which will be serialized and passed to the function being executed.</param>
-        private void ExecuteAssemblyFunctionWithArgs(Process process, string moduleName, string functionName, FunctionCallArgs args)
+        private void ExecuteAssemblyFunctionWithArgs(
+            Process process,
+            IFunctionName functionName,
+            FunctionCallArgs args)
         {
             _memoryManager.Add(
                 process,
-                process.Execute(moduleName, functionName, Binary.StructToByteArray(args), false),
+                _processManager.Execute(
+                    functionName.Module,
+                    functionName.Function,
+                    Binary.StructToByteArray(args),
+                    false),
                 false
             );
         }
 
-        public void ExecuteWithArgs(Process process, string module, BinaryLoaderArgs args)
+        private void ExecuteAssemblyWithArgs(Process process, IFunctionName function, byte[] args)
         {
-            ExecuteAssemblyWithArgs(process, module, WindowsBinaryLoaderArgs.Create(args));
-        }
-
-        public void CallFunctionWithArgs(Process process, string module, string function, byte[] arguments)
-        {
-            ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, arguments));
-        }
-
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, BinaryLoaderArgs blArgs, RemoteFunctionArgs rfArgs)
-        {
-            ExecuteWithArgs(process, module, blArgs);
-            ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, rfArgs));
-        }
-
-        public void CallFunctionWithRemoteArgs(Process process, string module, string function, IntPtr arguments)
-        {
-            ExecuteAssemblyFunctionWithArgs(process, module, ExecAssemblyFunc, new FunctionCallArgs(function, arguments));
-        }
-
-        public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length)
-        {
-            return _memoryManager.Add(
-                proc,
-                proc.MemCopyTo(buffer, length),
-                false
+            _memoryManager.Add(
+                process,
+                _processManager.Execute(function.Module, function.Function, args),
+                true
             );
         }
 
-        public static bool FreeMemory(Process proc, IntPtr address, uint length = 0)
-        {
-            return proc.FreeMemory(address, 0);
-        }
+        public void ExecuteWithArgs(Process process, IFunctionName function, IBinarySerializer args)
+            => ExecuteAssemblyWithArgs(process, function, args.Serialize());
 
-        public void Load(Process targetProcess, string binaryPath, IEnumerable<string> dependencies = null, string dir = null)
+        public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call) 
+            => ExecuteWithArgs(process, call.FunctionName, call.Arguments);
+
+        public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call) 
+            => ExecuteAssemblyFunctionWithArgs(
+                process, 
+                call.FunctionName, 
+                new FunctionCallArgs(call.ManagedFunction, call.Arguments));
+
+        public IntPtr CopyMemoryTo(Process proc, byte[] buffer, uint length) 
+            => _memoryManager.Add(proc, _processManager.MemCopyTo(buffer, length), false);
+
+        public void Load(
+            Process targetProcess,
+            string binaryPath,
+            IEnumerable<string> dependencies = null,
+            string dir = null)
         {
             if (dependencies != null)
             {
@@ -102,11 +82,11 @@ namespace CoreHook.BinaryInjection
 
                     var moduleName = Path.GetFileName(binary);
 
-                    targetProcess.LoadLibrary(binary);
+                    _processManager.InjectBinary(binary);
                 }
             }
 
-            targetProcess.LoadLibrary(binaryPath);
+            _processManager.InjectBinary(binaryPath);
         }
 
         #region IDisposable Support
@@ -118,30 +98,15 @@ namespace CoreHook.BinaryInjection
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
                     _memoryManager.Dispose();
                 }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.               
-
                 disposedValue = true;
             }
         }
 
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~WindowsBinaryLoader() {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
         }
 
         #endregion

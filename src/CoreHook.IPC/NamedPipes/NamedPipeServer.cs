@@ -97,7 +97,7 @@ namespace CoreHook.IPC.NamedPipes
             if (createNewThreadIfSynchronous &&
                ar.CompletedSynchronously)
             {
-                // if this callback got called synchronously, we must not do any blocking IO on this thread
+                // If this callback got called synchronously, we must not do any blocking IO on this thread
                 // or we will block the original caller. Moving to a new thread so that it will be safe
                 // to call a blocking Read on the NamedPipeServerStream
                 new Thread(() => OnNewConnection(ar, createNewThreadIfSynchronous: false)).Start();
@@ -153,66 +153,6 @@ namespace CoreHook.IPC.NamedPipes
         {
             Console.WriteLine(message);
             Console.WriteLine(e);
-        }
-
-        public class Connection : IConnection
-        {
-            public NamedPipeServerStream ServerStream { get; }
-
-            private readonly StreamReader _reader;
-            private readonly StreamWriter _writer;
-            private readonly Func<bool> _isStopping;
-
-            public Connection(NamedPipeServerStream serverStream, Func<bool> isStopping)
-            {
-                ServerStream = serverStream;
-
-                _isStopping = isStopping;
-                _reader = new StreamReader(ServerStream);
-                _writer = new StreamWriter(ServerStream);
-            }
-
-            public bool IsConnected
-            {
-                get { return !_isStopping() && ServerStream.IsConnected; }
-            }
-
-            public NamedPipeMessages.IMessage ReadMessage()
-            {
-                return NamedPipeMessages.Message.FromString(ReadRequest());
-            }
-
-            public string ReadRequest()
-            {
-                try
-                {
-                    return _reader.ReadLine();
-                }
-                catch (IOException)
-                {
-                    return null;
-                }
-            }
-
-            public bool TrySendResponse(string message)
-            {
-                try
-                {
-                    _writer.WriteLine(message);
-                    _writer.Flush();
-
-                    return true;
-                }
-                catch (IOException)
-                {
-                    return false;
-                }
-            }
-
-            public bool TrySendResponse(NamedPipeMessages.Message message)
-            {
-                return TrySendResponse(message.ToString());
-            }
         }
     }
 }

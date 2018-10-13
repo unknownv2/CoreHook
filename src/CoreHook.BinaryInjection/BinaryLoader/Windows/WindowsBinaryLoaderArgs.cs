@@ -1,51 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.IO;
 using System.Text;
 
 namespace CoreHook.BinaryInjection
 {
-    [StructLayout(LayoutKind.Explicit)]
-    public struct WindowsBinaryLoaderArgs
+    public interface IBinaryLoaderConfig
     {
-        [FieldOffset(0)]
-        [MarshalAs(UnmanagedType.U1)]
-        public bool Verbose;
+        int MaxPathLength { get; }
+        Encoding PathEncoding { get; }
+    }
 
-        [FieldOffset(1)]
-        [MarshalAs(UnmanagedType.U1)]
-        public bool WaitForDebugger;
+    public class WindowsBinaryLoaderConfig : IBinaryLoaderConfig
+    {
+        public int MaxPathLength { get => 260; }
+        public Encoding PathEncoding { get => Encoding.Unicode; }
+    }
 
-        [FieldOffset(2)]
-        [MarshalAs(UnmanagedType.U1)]
-        public bool StartAssembly;
+    public class BinaryLoaderSerializer : IBinarySerializer
+    {
+        public BinaryLoaderArgs Arguments { get; set; }
+        public IBinaryLoaderConfig Config { get; }
 
-        [FieldOffset(8)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
-        public byte[] PayloadFileName;
-
-        [FieldOffset(528)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
-        public byte[] CoreRootPath;
-
-        [FieldOffset(1048)]
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = PathLength*2)]
-        public byte[] CoreLibrariesPath;
-
-        private static Encoding Encoding = Encoding.Unicode;
-        private const int PathLength = 260;
-
-        public static WindowsBinaryLoaderArgs Create(BinaryLoaderArgs args)
+        public BinaryLoaderSerializer(IBinaryLoaderConfig config)
         {
-            return new WindowsBinaryLoaderArgs()
+            Config = config;
+        }
+
+        public byte[] Serialize()
+        {
+            using (var ms = new MemoryStream())
             {
-                Verbose = args.Verbose,
-                WaitForDebugger = args.WaitForDebugger,
-                StartAssembly = args.StartAssembly,
-                PayloadFileName = BinaryLoaderArgs.GetPathArray(args.PayloadFileName, PathLength, Encoding),
-                CoreRootPath = BinaryLoaderArgs.GetPathArray(args.CoreRootPath, PathLength, Encoding),
-                CoreLibrariesPath = BinaryLoaderArgs.GetPathArray(args.CoreLibrariesPath ?? string.Empty, PathLength, Encoding)
-             };
+                using (var writer = new BinaryWriter(ms))
+                {
+                    // Serialize information about the serialized class 
+                    // Data that is passed to the remote function
+                    writer.Write(Arguments.Verbose);
+                    writer.Write(Arguments.WaitForDebugger);
+                    // Padding for reserved data to align structure to 8 bytes
+                    writer.Write(new byte[6]);
+                    writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.PayloadFileName, Config.MaxPathLength, Config.PathEncoding));
+                    writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.CoreRootPath, Config.MaxPathLength, Config.PathEncoding));
+                    writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.CoreLibrariesPath ?? string.Empty, Config.MaxPathLength, Config.PathEncoding));
+                }
+                return ms.ToArray();
+            }
         }
     }
+
 }

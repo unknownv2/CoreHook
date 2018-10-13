@@ -8,6 +8,7 @@ namespace CoreHook.IPC.NamedPipes
     public class NamedPipeClient : INamedPipeClient
     {
         private readonly string _pipeName;
+        public PipeStream PipeStream { get { return _clientStream; } }
         private NamedPipeClientStream _clientStream;
         private StreamReader _reader;
         private StreamWriter _writer;
@@ -19,11 +20,17 @@ namespace CoreHook.IPC.NamedPipes
             _pipeName = pipeName;
         }
 
+        public static PipeStream CreatePipeStream(string pipeName)
+        {
+            var client = new NamedPipeClient(pipeName);
+            return client.Connect() ? client.PipeStream : null;
+        }
+
         public bool Connect(int timeoutMilliseconds = 3000)
         {
             if (_clientStream != null)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("Client pipe already connected");
             }
             if (_pipeName == null)
             {

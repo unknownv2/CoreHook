@@ -11,7 +11,7 @@ using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
 using CoreHook.IPC.NamedPipes;
 
-namespace CoreHook.FileMonitor.Hook
+namespace CoreHook.Uwp.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
@@ -19,13 +19,13 @@ namespace CoreHook.FileMonitor.Hook
         {
             // Use camelcase for RPC method names.
             NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
+            // Use camelcase for the property names in parameter value objects.
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        private Queue<string> Queue = new Queue<string>();
+        Queue<string> Queue = new Queue<string>();
 
-        private LocalHook CreateFileHook;
+        LocalHook CreateFileHook;
 
         public Library(IContext context, string arg1) { }
 
@@ -41,9 +41,9 @@ namespace CoreHook.FileMonitor.Hook
             }
         }
 
-        private static void ClientWriteLine(string msg) => Console.WriteLine(msg);
+        private static void ClientWriteLine(string msg) => Debug.WriteLine(msg);
 
-        private void StartClient(string pipeName)
+        public void StartClient(string pipeName)
         {
             var clientTask = RunClientAsync(NamedPipeClient.CreatePipeStream(pipeName));
 
@@ -51,44 +51,35 @@ namespace CoreHook.FileMonitor.Hook
             clientTask.GetAwaiter().GetResult();
         }
 
-        [UnmanagedFunctionPointer(
-            CallingConvention.StdCall,
+        [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
-        delegate IntPtr DCreateFile(
+        delegate IntPtr DCreateFile2(
             string fileName,
             uint desiredAccess,
             uint shareMode,
-            IntPtr securityAttributes,
             uint creationDisposition,
-            uint flagsAndAttributes,
-            IntPtr templateFile);
+            IntPtr pCreateExParams);
 
-        [DllImport("kernel32.dll",
-            CallingConvention = CallingConvention.StdCall,
-            CharSet = CharSet.Unicode,
-            SetLastError = true)]
-        static extern IntPtr CreateFile(
+        [DllImport("kernelbase.dll",
+        CharSet = CharSet.Unicode,
+        SetLastError = true,
+        CallingConvention = CallingConvention.StdCall)]
+        static extern IntPtr CreateFile2(
             string fileName,
             uint desiredAccess,
             uint shareMode,
-            IntPtr securityAttributes,
             uint creationDisposition,
-            uint flagsAndAttributes,
-            IntPtr templateFile);
+            IntPtr pCreateExParams);
 
-
-        // Intercepts all file accesses and stores the requested filenames to a Queue
-        private static IntPtr CreateFile_Hooked(
-            string fileName,
-            uint desiredAccess,
-            uint shareMode,
-            IntPtr securityAttributes,
-            uint creationDisposition,
-            uint flagsAndAttributes,
-            IntPtr templateFile)
-        {
-
+        // this is where we are intercepting all file accesses!
+        private static IntPtr CreateFile2_Hooked(
+           string fileName,
+           uint desiredAccess,
+           uint shareMode,
+           uint creationDisposition,
+           IntPtr pCreateExParams)
+        { 
             ClientWriteLine($"Creating file: '{fileName}'...");
 
             try
@@ -107,27 +98,23 @@ namespace CoreHook.FileMonitor.Hook
 
             }
 
-
-            // Call original API function.
-            return CreateFile(
+            // call original API...
+            return CreateFile2(
                 fileName,
                 desiredAccess,
                 shareMode,
-                securityAttributes,
                 creationDisposition,
-                flagsAndAttributes,
-                templateFile);
+                pCreateExParams);
         }
 
         private void CreateHooks()
         {
-            string[] functionName = new string[] { "kernel32.dll", "CreateFileW" };
-
+            string[] functionName = new string[] { "kernelbase.dll", "CreateFile2" };
             ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
             CreateFileHook = LocalHook.Create(
                 LocalHook.GetProcAddress(functionName[0], functionName[1]),
-                new DCreateFile(CreateFile_Hooked),
+                new DCreateFile2(CreateFile2_Hooked),
                 this);
 
             CreateFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
@@ -137,7 +124,6 @@ namespace CoreHook.FileMonitor.Hook
         {
             await Task.Yield(); // We want this task to run on another thread.
 
-            // Initialize the client connection to the RPC server
             var clientHandler = new StreamRpcClientHandler();
 
             using (var reader = new ByLineTextMessageReader(clientStream))
@@ -151,7 +137,6 @@ namespace CoreHook.FileMonitor.Hook
 
                 var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));
 
-                // Create the function hooks after connection to the server.
                 CreateHooks();
 
                 try

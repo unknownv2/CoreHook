@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 
 namespace CoreHook.BinaryInjection
 {
@@ -11,17 +8,11 @@ namespace CoreHook.BinaryInjection
 
         public bool WaitForDebugger;
 
-        public bool StartAssembly;
-
         public string PayloadFileName;
 
         public string CoreRootPath;
 
         public string CoreLibrariesPath;
-
-        public Encoding Encoding;
-
-        public int PathLength;
 
         public static byte[] GetPathArray(string path, int pathLength, Encoding encoding)
         {

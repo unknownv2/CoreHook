@@ -2,21 +2,34 @@
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/unknownv2/CoreHook/blob/master/LICENSE)
 
-A library that simplifies intercepting application function calls using managed code by [hosting](https://github.com/dotnet/docs/blob/master/docs/core/tutorials/netcore-hosting.md) the .NET Core runtime. 
+A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 
 
+## Contents
+
+- [Build Status](#build-status)
+- [Features](#features)
+- [Supported Platforms](#supported-platforms)
+- [Tested Platforms](#tested-platforms)
+- [Dependencies](#dependencies)
+- [Examples](#examples)
+- [Usage](#usage)
+    - [Windows](##windows)
+- [Contributing](#contributing)
+- [Credits](#credits)
+- [Licenses](#licenses)
 ## Build status
 
 | Build server    | Platform           | Build status                                                                                                                                                                    |
 | --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | AppVeyor        | Linux, Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook)                                    |
-| Azure Pipelines | Linux              | [![Build Status](https://unknowndev.visualstudio.com/CoreHook/_apis/build/status/CoreHook/CoreHook)](https://unknowndev.visualstudio.com/CoreHook/_build/latest?definitionId=2) |
+| Azure Pipelines | Linux, Windows     | [![Build Status](https://unknowndev.visualstudio.com/CoreHook/_apis/build/status/CoreHook/CoreHook)](https://unknowndev.visualstudio.com/CoreHook/_build/latest?definitionId=2) |
 | Travis CI       | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                                                         |
 
 
 ## Features
-* Intercept public API functions such as [kernel32.dll!CreateFile](https://docs.microsoft.com/en-us/windows/desktop/api/fileapi/nf-fileapi-createfilew) on Windows or [libc!open](http://man7.org/linux/man-pages/man2/open.2.html) on Unix systems
+* Intercept public API functions such as `CreateFile`
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Write libraries for intercepting API calls that can be ran on multiple architectures without any changes
 
@@ -24,22 +37,20 @@ For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki)
 
 ## Supported Platforms
 
-CoreHook supports application function call interception on various architectures running [Linux](https://docs.microsoft.com/en-us/dotnet/core/linux-prerequisites?tabs=netcore2x), [macOS](https://docs.microsoft.com/en-us/dotnet/core/macos-prerequisites?tabs=netcore2x), and [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x).
+CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS supported is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
+
 
 | Architecture  | Operating System      | Working    |
 | ------------- |:---------------------:|:----------:|
 | x86           | Windows               | Yes        |
-| x64           | Linux, macOS, Windows | Yes        |
-| ARM32         | Linux, Windows        | Windows    |
-| ARM64         | Linux, Windows        | WIP        |
+| x64           | Windows               | Yes        |
+| ARM32         | Windows               | Yes        |
+| ARM64         | Windows               | WIP        |
 
 ## Tested Platforms
 
 | Operating System    | Architecture(s)       |
 | ------------------  |:---------------------:|
-| macOS High Sierra   | x64                   |
-| Ubuntu 14           | x64                   |
-| Ubuntu 16           | x64                   |
 | Windows 7 SP1       | x86, x64              |
 | Windows 8.1         | x86, x64              |
 | Windows 10 (Win32)  | x86, x64, ARM32       |
@@ -53,13 +64,10 @@ CoreHook supports application function call interception on various architecture
 * [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
 * [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking)
 * [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
-* [CoreHook.ProcessInjection](https://github.com/unknownv2/CoreHook.ProcessInjection)
-* [CoreHook.UnixHook](https://github.com/unknownv2/CoreHook.UnixHook)
 
 ## Examples
 
- * [FileMonitor - Linux and macOS (Unix)](examples/Unix/CoreHook.Unix.FileMonitor/)
- * [FileMonitor - Universal Windows Platform (UWP)](examples/UWP/CoreHook.UWP.FileMonitor/) 
+ * [FileMonitor - Universal Windows Platform (UWP)](examples/Uwp/CoreHook.Uwp.FileMonitor/) 
  * [FileMonitor - Windows Desktop Applications (Win32)](examples/Win32/CoreHook.FileMonitor)
 
 ## Usage
@@ -93,6 +101,28 @@ Then open the `CoreHook` solution in `Visual Studio` and you can build the examp
 Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
+
+### Windows 10 UWP
+
+You can get the Application User Model Id (AUMID) required for launching UWP apps for the FileMonitor example with [this script:](
+https://docs.microsoft.com/en-us/windows/configuration/find-the-application-user-model-id-of-an-installed-app)
+```ps
+$installedapps = get-AppxPackage
+
+$aumidList = @()
+foreach ($app in $installedapps)
+{
+    foreach ($id in (Get-AppxPackageManifest $app).package.applications.application.id)
+    {
+        $aumidList += $app.packagefamilyname + "!" + $id
+    }
+}
+
+$aumidList
+```
+ You can print the list using the `$aumidList` variable.
+
+ **Notes:** There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
 
 ### Windows 10 IoT Core (ARM32)
 **There is currently no ARM32 SDK for .NET Core, so you must publish the application and copy it to your device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
@@ -128,7 +158,7 @@ You can then copy the folder to your device and start the `CoreHook.FileMonitor.
 The PowerShell script `publish.ps1` allows you to publish the [examples](/examples) as self-contained executables. The default configuration is `Release` and the output will be in the `Publish` directory, created in the same location as the publishing script.
 
 ```ps
-.\publish -example [unix|uwp|win32] -runtime [Runtime IDentifier] -configuration [Debug|Release]
+.\publish -example [uwp|win32] -runtime [Runtime IDentifier] -configuration [Debug|Release]
 ```
 
 **You can find a list of Runtime IDentifiers [here](https://docs.microsoft.com/en-us/dotnet/core/rid-catalog)**.
@@ -155,8 +185,8 @@ CoreHook supports symbol name lookup from PDBs to get function addresses with th
 
 Example locations where you can find `dbghelp.dll` and `symsrv.dll` are:
 
-* *C:\Program Files (x86)\Windows Kits\10\Debuggers\x86* (For 32-bit applications)
-* *C:\Program Files (x86)\Windows Kits\10\Debuggers\x64* (For 64-bit applications)
+* **C:\Program Files (x86)\Windows Kits\10\Debuggers\x86** (For 32-bit applications)
+* **C:\Program Files (x86)\Windows Kits\10\Debuggers\x64** (For 64-bit applications)
 
 
 An example of what you can set the environment variable `_NT_SYMBOL_PATH` to is:
@@ -167,24 +197,16 @@ srv*C:\SymbolCache*https://msdl.microsoft.com/downloads/symbols
 
 The `C:\SymbolCache` folder is a local cache directory where symbol files can be stored or downloaded to. When Windows needs to retrieve a PDB for a DLL, it can download them from `https://msdl.microsoft.com/downloads/symbols` and store them in a folder for use by a debugger.
 
-You can test symbol support by running the [symbols tests](test/CoreHook.Tests/Windows/SymbolsTest.cs).
-
-### Notes on Windows UWP Usage
-
- There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
+You can confirm that symbol support is properly configured by running the [symbols tests](tests/CoreHook.Tests/Windows/SymbolsTest.cs).
 
 ## Contributing
 
 Any contributions are all welcome! If you find any problems or want to add features, don't hesitate to open a new issue or create a pull request.
 
-## Thanks
+## Credits
 
 A lot of this project is based on the work of others who were willing to share their knowledge.
 
-* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook) - The original developers of the EasyHook project which this one would not be possible without. A large amount of code in CoreHook is borrowed from their great work, going from C# all the way to assembly code. 
+* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - The original developers of the EasyHook project which this one would not be possible without. A large amount of code in CoreHook is borrowed from their great work, going from C# all the way to assembly code. 
 * [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and other great tools he has created, such as the [.NET Core Plugins](https://github.com/natemcmaster/DotNetCorePlugins).
-* [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework.
-
-## Licenses
-
-[EasyHook - MIT](https://github.com/EasyHook/EasyHook/blob/master/LICENSE)
+* [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework. Code from the open-source .NET Core framework was used in this project and is really helpful in the development process. 

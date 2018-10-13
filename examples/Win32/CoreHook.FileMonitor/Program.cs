@@ -4,7 +4,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
+using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.ManagedHook.Remote;
+using CoreHook.Unmanaged;
 
 namespace CoreHook.FileMonitor
 {
@@ -23,16 +25,14 @@ namespace CoreHook.FileMonitor
         /// </summary>
         private const bool HostWaitForDebugger = false;
         /// <summary>
-        /// Immediately start the .NET assembly if we are injecting a .NET Core application
+        /// Class that handles creating a named pipe server upong request
         /// </summary>
-        private const bool HostStartAssembly = false;
-
         private static IPipePlatform pipePlatform = new PipePlatform();
 
         /// <summary>
         /// Parse a file path and remove quotes from path name if it is enclosed
         /// </summary>
-        /// <param name="filePath">A  path to a file or directory.</param>
+        /// <param name="filePath">A path to a file or directory.</param>
         /// <returns></returns>
         private static string GetFilePath(string filePath)
         {
@@ -90,21 +90,18 @@ namespace CoreHook.FileMonitor
 
             string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
-            string coreHookDll = Path.Combine(currentDir,
-                Environment.Is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
-            // start process and begin dll loading
+            // Start process and begin dll loading
             if (!string.IsNullOrEmpty(targetProgam))
             {
-                CreateAndInjectDll(targetProgam, injectionLibrary, coreHookDll);
+                CreateAndInjectDll(targetProgam, injectionLibrary);
             }
             else
             {
-                // inject FileMonitor dll into process
-                InjectDllIntoTarget(targetPID, injectionLibrary, coreHookDll);
+                // Inject FileMonitor dll into process
+                InjectDllIntoTarget(targetPID, injectionLibrary);
             }
-            
-            // start RPC server
+
+            // Start the RPC server for handling requests from the hooked program
             StartListener();
         }
  
@@ -124,14 +121,16 @@ namespace CoreHook.FileMonitor
             }
         }
 
-        private static void CreateAndInjectDll(string exePath, string injectionLibrary, string coreHookDll)
+        private static void CreateAndInjectDll(string exePath, string injectionLibrary)
         {
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
-            ValidateFilePath(coreHookDll);
 
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
+            if (Examples.Common.Utilities.GetCoreLoadPaths(
+                false, out CoreHookNativeConfig configX86) &&
+                Examples.Common.Utilities.GetCoreLoadPaths(
+                true, out CoreHookNativeConfig configX64) &&
+                Examples.Common.Utilities.GetCoreLoadModulePath(out string coreLoadLibrary))
             {
                 RemoteHooking.CreateAndInject(
                      new ProcessCreationConfig()
@@ -140,17 +139,14 @@ namespace CoreHook.FileMonitor
                          CommandLine = null,
                          ProcessCreationFlags = 0x00
                      },
+                     configX86,
+                     configX64,
                      new RemoteHookingConfig()
                      {
-                         HostLibrary = coreRunDll,
-                         CoreCLRPath = coreRootPath,
-                         CoreCLRLibrariesPath = coreLibrariesPath,
-                         CLRBootstrapLibrary = coreLoadDll,
-                         DetourLibrary = coreHookDll,
+                         CLRBootstrapLibrary = coreLoadLibrary,
                          PayloadLibrary = injectionLibrary,
                          VerboseLog = HostVerboseLog,
-                         WaitForDebugger = HostWaitForDebugger,
-                         StartAssembly = HostStartAssembly
+                         WaitForDebugger = HostWaitForDebugger
                      },
                      pipePlatform,
                      out _,
@@ -158,16 +154,18 @@ namespace CoreHook.FileMonitor
             }
         }
 
-        private static void InjectDllIntoTarget(int procId, string injectionLibrary, string coreHookDll)
+        private static void InjectDllIntoTarget(int processId, string injectionLibrary)
         {
             ValidateFilePath(injectionLibrary);
-            ValidateFilePath(coreHookDll);
 
-            string coreRunDll, coreLibrariesPath, coreRootPath, coreLoadDll;
-            if (Examples.Common.Utilities.GetCoreLoadPaths(out coreRunDll, out coreLibrariesPath, out coreRootPath, out coreLoadDll))
+            if (Examples.Common.Utilities.GetCoreLoadPaths(
+                ProcessHelper.GetProcessById(processId).Is64Bit(),
+                out string coreRunDll, out string coreLibrariesPath,
+                out string coreRootPath, out string coreLoadDll,
+                out string coreHookDll))
             {
                 RemoteHooking.Inject(
-                    procId,
+                    processId,
                     new RemoteHookingConfig()
                     {
                         HostLibrary = coreRunDll,
@@ -177,8 +175,7 @@ namespace CoreHook.FileMonitor
                         DetourLibrary = coreHookDll,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog,
-                        WaitForDebugger = HostWaitForDebugger,
-                        StartAssembly = HostStartAssembly
+                        WaitForDebugger = HostWaitForDebugger
                     },
                     pipePlatform,
                     CoreHookPipeName);
