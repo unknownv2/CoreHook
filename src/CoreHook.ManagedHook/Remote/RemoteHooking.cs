@@ -67,7 +67,7 @@ namespace CoreHook.ManagedHook.Remote
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return "LoadAssembly";
+                return "StartCoreCLR";
             }
             else
             {

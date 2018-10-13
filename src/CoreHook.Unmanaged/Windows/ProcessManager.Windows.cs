@@ -258,7 +258,7 @@ namespace CoreHook.Unmanaged.Windows
 
         public IntPtr MemAllocate(uint size)
         {
-            using (var hProcess =GetProcessHandle(ProcessHandle.Id,
+            using (var hProcess = GetProcessHandle(ProcessHandle.Id,
                 NativeMethods.ProcessAccessFlags.QueryInformation |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryOperation |
                 NativeMethods.ProcessAccessFlags.VirtualMemoryRead |

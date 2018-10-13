@@ -50,11 +50,13 @@ namespace CoreHook.BinaryInjection
                 true
             );
         }
+
         public void ExecuteWithArgs(Process process, IFunctionName function, IBinarySerializer args)
             => ExecuteAssemblyWithArgs(process, function, args.Serialize());
 
         public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call) 
             => ExecuteWithArgs(process, call.FunctionName, call.Arguments);
+
         public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call) 
             => ExecuteAssemblyFunctionWithArgs(
                 process, 
