@@ -18,7 +18,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
     - [Windows](##windows)
 - [Contributing](#contributing)
 - [Credits](#credits)
-- [Licenses](#licenses)
+
 ## Build status
 
 | Build server    | Platform           | Build status                                                                                                                                                                    |
@@ -40,12 +40,11 @@ For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki)
 CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS supported is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
 
 
-| Architecture  | Operating System      | Working    |
-| ------------- |:---------------------:|:----------:|
-| x86           | Windows               | Yes        |
-| x64           | Windows               | Yes        |
-| ARM32         | Windows               | Yes        |
-| ARM64         | Windows               | WIP        |
+| Architecture  | Operating System      |
+| ------------- |:---------------------:|
+| x86           | Windows               |
+| x64           | Windows               |
+| ARM32         | Windows 10 IoT Core   |
 
 ## Tested Platforms
 
@@ -91,7 +90,7 @@ setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.
 
 Or set them for the current command prompt session with:
 
-```ps
+```
 set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5
 set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5
 ```

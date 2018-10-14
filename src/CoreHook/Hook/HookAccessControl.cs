@@ -113,9 +113,9 @@ namespace CoreHook
             return (int[])_ACL.Clone();
         }
 
-        internal HookAccessControl(IntPtr InHandle)
+        internal HookAccessControl(IntPtr handle)
         {
-            if (InHandle == IntPtr.Zero)
+            if (handle == IntPtr.Zero)
             {
                 _isExclusive = true;
             }
@@ -123,7 +123,7 @@ namespace CoreHook
             {
                 _isExclusive = false;
             }
-            _handle = InHandle;
+            _handle = handle;
         }
     }
 }
