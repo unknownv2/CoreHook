@@ -255,7 +255,7 @@ namespace CoreHook.ManagedHook.Remote
                         }
                         catch (Exception ex)
                         {
-                            Console.WriteLine(ex.ToString());
+                            Debug.WriteLine(ex.ToString());
                         }
                     }
                 }
