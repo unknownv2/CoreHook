@@ -20,7 +20,7 @@ namespace CoreHook.BinaryInjection
         IntPtr CopyMemoryTo(
             Process proc,
             byte[] buffer,
-            uint length);
+            int length);
     }
     public interface IFunctionName
     {

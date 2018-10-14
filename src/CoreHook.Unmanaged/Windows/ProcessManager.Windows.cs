@@ -117,7 +117,7 @@ namespace CoreHook.Unmanaged.Windows
                 var remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
-                    (uint)pathBytes.Length,
+                    pathBytes.Length,
                     NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
                     NativeMethods.MemoryProtection.ReadWrite);
 
@@ -135,7 +135,7 @@ namespace CoreHook.Unmanaged.Windows
                         hProcess,
                         remoteAllocAddr,
                         pathBytes,
-                        (uint)pathBytes.Length,
+                        pathBytes.Length,
                         out bytesWritten);
 
                     if (!result || bytesWritten.ToUInt32() != pathBytes.Length)
@@ -201,7 +201,7 @@ namespace CoreHook.Unmanaged.Windows
                 IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
-                    (uint)args.Length,
+                    args.Length,
                     NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
                     NativeMethods.MemoryProtection.ReadWrite);
 
@@ -219,7 +219,7 @@ namespace CoreHook.Unmanaged.Windows
                         hProcess,
                         remoteAllocAddr,
                         args,
-                        (uint)args.Length,
+                        args.Length,
                         out bytesWritten);
 
                     if (!result || bytesWritten.ToUInt32() != args.Length)
@@ -266,7 +266,7 @@ namespace CoreHook.Unmanaged.Windows
             }
         }
 
-        public IntPtr MemAllocate(uint size)
+        public IntPtr MemAllocate(int size)
         {
             using (var hProcess = GetProcessHandle(ProcessHandle.Id,
                 NativeMethods.ProcessAccessFlags.QueryInformation |
@@ -291,7 +291,7 @@ namespace CoreHook.Unmanaged.Windows
             }
         }
 
-        public IntPtr MemCopyTo(byte[] data, uint size = 0)
+        public IntPtr MemCopyTo(byte[] data, int? size)
         {
             using (var hProcess = GetProcessHandle(ProcessHandle.Id,
                   NativeMethods.ProcessAccessFlags.QueryInformation |
@@ -299,7 +299,7 @@ namespace CoreHook.Unmanaged.Windows
                   NativeMethods.ProcessAccessFlags.VirtualMemoryRead |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryWrite))
             {
-                uint dataLen = size > 0 ? size : (uint)data.Length;
+                int dataLen = size ?? data.Length;
                 IntPtr remoteAllocAddr = MemAllocate(dataLen);
                 UIntPtr bytesWritten;
 
@@ -319,7 +319,7 @@ namespace CoreHook.Unmanaged.Windows
             }
         }
 
-        public bool FreeMemory(IntPtr address, int size = 0)
+        public bool FreeMemory(IntPtr address, int? size)
         {
             if (address == IntPtr.Zero)
                 return true;
@@ -328,11 +328,12 @@ namespace CoreHook.Unmanaged.Windows
                   NativeMethods.ProcessAccessFlags.QueryInformation |
                   NativeMethods.ProcessAccessFlags.VirtualMemoryOperation))
             {
-                return size == 0 ?
-                    NativeMethods.VirtualFreeEx(hProcess, address, 0, NativeMethods.FreeType.Release)
-                    : NativeMethods.VirtualFreeEx(hProcess, address, size, NativeMethods.FreeType.Decommit);
+                return size.HasValue ?
+                    NativeMethods.VirtualFreeEx(hProcess, address, size.GetValueOrDefault(), NativeMethods.FreeType.Decommit) :
+                    NativeMethods.VirtualFreeEx(hProcess, address, 0, NativeMethods.FreeType.Release);
             }
         }
+
         public bool Is64Bit()
         {
             if (!Environment.Is64BitOperatingSystem)
