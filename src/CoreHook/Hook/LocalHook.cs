@@ -205,10 +205,10 @@ namespace CoreHook
         /// is collected...
         /// </para>
         /// </remarks>
-        /// <param name="InTargetProc">A target entry point that should be hooked.</param>
-        /// <param name="InNewProc">A handler with the same signature as the original entry point
+        /// <param name="targetProcess">A target entry point that should be hooked.</param>
+        /// <param name="newProcess">A handler with the same signature as the original entry point
         /// that will be invoked for every call that has passed the Fiber Deadlock Barrier and various integrity checks.</param>
-        /// <param name="InCallback">An uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.</param>
+        /// <param name="callback">An uninterpreted callback that will later be available through <see cref="HookRuntimeInfo.Callback"/>.</param>
         /// <returns>
         /// A handle to the newly created hook.
         /// </returns>
@@ -227,14 +227,14 @@ namespace CoreHook
         /// The maximum amount of hooks has been installed. This is currently set to MAX_HOOK_COUNT (1024).
         /// </exception>
         public static LocalHook Create(
-            IntPtr InTargetProc,
-            Delegate InNewProc,
-            object InCallback)
+            IntPtr targetProcess,
+            Delegate newProcess,
+            object callback)
         {
             LocalHook Result = new LocalHook();
 
-            Result._callback = InCallback;
-            Result._hookProc = InNewProc;
+            Result._callback = callback;
+            Result._hookProc = newProcess;
             Result._handle = Marshal.AllocCoTaskMem(IntPtr.Size);
             Result._selfHandle = GCHandle.Alloc(Result, GCHandleType.Weak);
 
@@ -243,7 +243,7 @@ namespace CoreHook
             try
             {
                 NativeAPI.DetourInstallHook(
-                    InTargetProc,
+                    targetProcess,
                     Marshal.GetFunctionPointerForDelegate(Result._hookProc),
                     GCHandle.ToIntPtr(Result._selfHandle),
                     Result._handle);
@@ -288,10 +288,10 @@ namespace CoreHook
         /// considering the thread deadlock barrier and thread ACL negotiation that are already included in this benchmark!
         /// </para>
         /// </remarks>
-        /// <param name="InTargetProc">A target entry point that should be hooked.</param>
-        /// <param name="InNewProc">A handler with the same signature as the original entry point
+        /// <param name="targetProcess">A target entry point that should be hooked.</param>
+        /// <param name="newProcess">A handler with the same signature as the original entry point
         /// that will be invoked for every call that has passed the Thread Deadlock Barrier and various integrity checks.</param>
-        /// <param name="InCallback">An uninterpreted callback that will later be available through <c>DetourBarrierGetCallback()</c>.</param>
+        /// <param name="callback">An uninterpreted callback that will later be available through <c>DetourBarrierGetCallback()</c>.</param>
         /// <returns>
         /// A handle to the newly created hook.
         /// </returns>
@@ -310,13 +310,13 @@ namespace CoreHook
         /// The maximum amount of hooks has been installed. This is currently set to MAX_HOOK_COUNT (1024).
         /// </exception>
         public static LocalHook CreateUnmanaged(
-            IntPtr InTargetProc,
-            IntPtr InNewProc,
-            IntPtr InCallback)
+            IntPtr targetProcess,
+            IntPtr newProcess,
+            IntPtr callback)
         {
             LocalHook Result = new LocalHook();
 
-            Result._callback = InCallback;
+            Result._callback = callback;
             Result._handle = Marshal.AllocCoTaskMem(IntPtr.Size);
             Result._selfHandle = GCHandle.Alloc(Result, GCHandleType.Weak);
 
@@ -325,9 +325,9 @@ namespace CoreHook
             try
             {
                 NativeAPI.DetourInstallHook(
-                    InTargetProc,
-                    InNewProc,
-                    InCallback,
+                    targetProcess,
+                    newProcess,
+                    callback,
                     Result._handle);
             }
             catch (Exception e)
@@ -357,8 +357,8 @@ namespace CoreHook
         /// entry point. Please note that you will also hook any managed code, which
         /// of course ultimately relies on the native windows API!
         /// </remarks>
-        /// <param name="InModule">A system DLL name like "kernel32.dll" or a full qualified path to any DLL.</param>
-        /// <param name="InSymbolName">An exported symbol name like "CreateFileW".</param>
+        /// <param name="module">A system DLL name like "kernel32.dll" or a full qualified path to any DLL.</param>
+        /// <param name="symbolName">An exported symbol name like "CreateFileW".</param>
         /// <returns>The entry point for the given API method.</returns>
         /// <exception cref="DllNotFoundException">
         /// The given module is not loaded into the current process.
@@ -367,19 +367,19 @@ namespace CoreHook
         /// The given module does not export the desired method.
         /// </exception>
         public static IntPtr GetProcAddress(
-            string InModule,
-            string InSymbolName)
+            string module,
+            string symbolName)
         {
-            if(InModule == null)
+            if(module == null)
             {
-                throw new ArgumentNullException(InModule);
+                throw new ArgumentNullException(module);
             }
-            if (InSymbolName == null)
+            if (symbolName == null)
             {
-                throw new ArgumentNullException(InModule);
+                throw new ArgumentNullException(module);
             }
 
-            IntPtr Method = NativeAPI.DetourFindFunction(InModule, InSymbolName);
+            IntPtr Method = NativeAPI.DetourFindFunction(module, symbolName);
             if (Method == IntPtr.Zero)
             {
                 throw new MissingMethodException("The given method does not exist.");
@@ -390,8 +390,7 @@ namespace CoreHook
 
         /// <summary>
         /// Will return a delegate for a given DLL export symbol. The specified
-        /// module has to be loaded into the current process space and also export
-        /// the given method.
+        /// module has to be loaded into the current process space.
         /// </summary>
         /// <remarks><para>
         /// This method is usually not useful to hook something but it allows you
@@ -400,8 +399,8 @@ namespace CoreHook
         /// </para></remarks>
         /// <typeparam name="TDelegate">A delegate using the <see cref="UnmanagedFunctionPointerAttribute"/> and
         /// exposing the same method signature as the specified native symbol.</typeparam>
-        /// <param name="InModule">A system DLL name like "kernel32.dll" or a full qualified path to any DLL.</param>
-        /// <param name="InSymbolName">An exported symbol name like "CreateFileW".</param>
+        /// <param name="module">A system DLL name like "kernel32.dll" or a full qualified path to any DLL.</param>
+        /// <param name="symbolName">An exported symbol name like "CreateFileW".</param>
         /// <returns>The managed delegate wrapping around the given native symbol.</returns>
         /// <exception cref="DllNotFoundException">
         /// The given module is not loaded into the current process.
@@ -410,10 +409,10 @@ namespace CoreHook
         /// The given module does not export the given method.
         /// </exception>
         public static TDelegate GetProcDelegate<TDelegate>(
-            string InModule,
-            string InSymbolName)
+            string module,
+            string symbolName)
         {
-            return (TDelegate)(object)Marshal.GetDelegateForFunctionPointer(GetProcAddress(InModule, InSymbolName), typeof(TDelegate));
+            return (TDelegate)(object)Marshal.GetDelegateForFunctionPointer(GetProcAddress(module, symbolName), typeof(TDelegate));
         }
 
         /// <summary>

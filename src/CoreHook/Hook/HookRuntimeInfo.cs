@@ -102,11 +102,11 @@ namespace CoreHook
         /// module list from time to time.
         /// Executes in less than one micro secound.
         /// </summary>
-        /// <param name="InPointer"></param>
+        /// <param name="nativePointer"></param>
         /// <returns></returns>
-        public static ProcessModule PointerToModule(IntPtr InPointer)
+        public static ProcessModule PointerToModule(IntPtr nativePointer)
         {
-            long pointer = InPointer.ToInt64();
+            long pointer = nativePointer.ToInt64();
 
             if ((pointer == 0) || (pointer == ~0))
             {
@@ -340,5 +340,4 @@ namespace CoreHook
             }
         }
     }
-
 }
