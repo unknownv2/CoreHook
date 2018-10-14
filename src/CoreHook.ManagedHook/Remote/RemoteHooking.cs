@@ -198,44 +198,44 @@ namespace CoreHook.ManagedHook.Remote
                     }
                     remoteInfo.UserParams = args.ToArray();
 
-                    var passThruStream = new MemoryStream();
-
-                    var libraryPath = remoteHookConfig.PayloadLibrary;
-                    PrepareInjection(
-                        remoteInfo,
-                        ref libraryPath,
-                        passThruStream);
-
-                    // Inject the corerundll into the process, start the CoreCLR
-                    // and use the CoreLoad dll to resolve the dependencies of the hooking library
-                    // and then call the IEntryPoint.Run method located in the hooking library
-                    try
+                    using (var passThruStream = new MemoryStream())
                     {
-                        var process = ProcessHelper.GetProcessById(targetPID);
-                        var length = (int)passThruStream.Length;
+                        var libraryPath = remoteHookConfig.PayloadLibrary;
+                        PrepareInjection(
+                            remoteInfo,
+                            ref libraryPath,
+                            passThruStream);
 
-                        using (var binaryLoader = GetBinaryLoader(process))
+                        // Inject the corerundll into the process, start the CoreCLR
+                        // and use the CoreLoad dll to resolve the dependencies of the hooking library
+                        // and then call the IEntryPoint.Run method located in the hooking library
+                        try
                         {
-                            binaryLoader.Load(process, remoteHookConfig.HostLibrary, new[] { remoteHookConfig.DetourLibrary });
+                            var process = ProcessHelper.GetProcessById(targetPID);
+                            var length = (int)passThruStream.Length;
 
-                            binaryLoader.ExecuteRemoteFunction(process,
-                                new RemoteFunctionCall
-                                {
-                                    Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
+                            using (var binaryLoader = GetBinaryLoader(process))
+                            {
+                                binaryLoader.Load(process, remoteHookConfig.HostLibrary, new[] { remoteHookConfig.DetourLibrary });
+
+                                binaryLoader.ExecuteRemoteFunction(process,
+                                    new RemoteFunctionCall
                                     {
-                                        Arguments = new BinaryLoaderArgs
+                                        Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
                                         {
-                                            Verbose = remoteHookConfig.VerboseLog,
-                                            WaitForDebugger = remoteHookConfig.WaitForDebugger,
-                                            PayloadFileName = remoteHookConfig.CLRBootstrapLibrary,
-                                            CoreRootPath = remoteHookConfig.CoreCLRPath,
-                                            CoreLibrariesPath = remoteHookConfig.CoreCLRLibrariesPath
-                                        }
-                                    },
-                                    FunctionName = new FunctionName
-                                    { Module = remoteHookConfig.HostLibrary, Function = GetCoreCLRStartFunctionName() },
-                                });
-                                binaryLoader.ExecuteRemoteManagedFunction(process, 
+                                            Arguments = new BinaryLoaderArgs
+                                            {
+                                                Verbose = remoteHookConfig.VerboseLog,
+                                                WaitForDebugger = remoteHookConfig.WaitForDebugger,
+                                                PayloadFileName = remoteHookConfig.CLRBootstrapLibrary,
+                                                CoreRootPath = remoteHookConfig.CoreCLRPath,
+                                                CoreLibrariesPath = remoteHookConfig.CoreCLRLibrariesPath
+                                            }
+                                        },
+                                        FunctionName = new FunctionName
+                                        { Module = remoteHookConfig.HostLibrary, Function = GetCoreCLRStartFunctionName() },
+                                    });
+                                binaryLoader.ExecuteRemoteManagedFunction(process,
                                 new RemoteManagedFunctionCall()
                                 {
                                     ManagedFunction = CoreHookLoaderDel,
@@ -250,12 +250,13 @@ namespace CoreHook.ManagedHook.Remote
                                 }
                                 );
 
-                            InjectionHelper.WaitForInjection(targetPID);
+                                InjectionHelper.WaitForInjection(targetPID);
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.ToString());
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
                 }
                 finally
