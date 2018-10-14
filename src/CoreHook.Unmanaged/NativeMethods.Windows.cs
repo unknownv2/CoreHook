@@ -57,7 +57,7 @@ namespace CoreHook.Unmanaged
         internal static extern IntPtr VirtualAllocEx(
             SafeProcessHandle hProcess, 
             IntPtr lpAddress, 
-            uint dwSize, 
+            int dwSize, 
             AllocationType flAllocationType, 
             MemoryProtection flProtect);
 
@@ -86,7 +86,7 @@ namespace CoreHook.Unmanaged
             SafeProcessHandle hProcess, 
             IntPtr lpBaseAddress, 
             byte[] lpBuffer, 
-            uint nSize, 
+            int nSize, 
             out UIntPtr lpNumberOfBytesWritten);
 
         [DllImport("kernel32.dll")]

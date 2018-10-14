@@ -212,7 +212,7 @@ namespace CoreHook.ManagedHook.Remote
                     try
                     {
                         var process = ProcessHelper.GetProcessById(targetPID);
-                        var length = (uint)passThruStream.Length;
+                        var length = (int)passThruStream.Length;
 
                         using (var binaryLoader = GetBinaryLoader(process))
                         {
