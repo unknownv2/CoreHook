@@ -15,7 +15,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [Dependencies](#dependencies)
 - [Examples](#examples)
 - [Usage](#usage)
-    - [Windows](##windows)
+    - [Windows](#windows)
 - [Contributing](#contributing)
 - [Credits](#credits)
 
