@@ -16,7 +16,7 @@ namespace CoreHook.CoreLoad
         }
 
         /// <summary>
-        /// Gets the state of the current <see cref="HostConnectionData"/>.
+        /// Gets the state of the current <see cref="ConnectionData"/>.
         /// </summary>
         internal ConnectionState State { get; private set; }
 
@@ -34,7 +34,7 @@ namespace CoreHook.CoreLoad
             UnmanagedInfo = null;
         }
         /// <summary>
-        /// Loads <see cref="HostConnectionData"/> from the <see cref="IntPtr"/> specified.
+        /// Loads <see cref="ConnectionData"/> from the <see cref="IntPtr"/> specified.
         /// </summary>
         /// <param name="unmanagedInfoPointer"></param>
         public static ConnectionData LoadData(IntPtr unmanagedInfoPointer)
@@ -51,9 +51,11 @@ namespace CoreHook.CoreLoad
                 using (Stream passThruStream = new MemoryStream())
                 {
                     byte[] passThruBytes = new byte[data.UnmanagedInfo.UserDataSize];
-                    BinaryFormatter format = new BinaryFormatter();
+                    BinaryFormatter format = new BinaryFormatter
+                    {
+                        Binder = new AllowAllAssemblyVersionsDeserializationBinder()
+                    };
                     // Workaround for deserialization when not using GAC registration
-                    format.Binder = new AllowAllAssemblyVersionsDeserializationBinder();
 
                     Marshal.Copy(data.UnmanagedInfo.UserData, passThruBytes, 0, data.UnmanagedInfo.UserDataSize);
 
@@ -61,7 +63,7 @@ namespace CoreHook.CoreLoad
 
                     passThruStream.Position = 0;
                     object remoteInfo = format.Deserialize(passThruStream);
-                    if(remoteInfo != null && remoteInfo is ManagedRemoteInfo info)
+                    if(remoteInfo is ManagedRemoteInfo info)
                     {
                         data.RemoteInfo = info;
                     }

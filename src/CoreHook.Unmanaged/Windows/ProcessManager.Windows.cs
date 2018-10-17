@@ -12,8 +12,6 @@ namespace CoreHook.Unmanaged.Windows
     {
         public Process ProcessHandle { get; private set; }
 
-        public ProcessManager() { }
-
         public ProcessManager(Process process)
         {
             ProcessHandle = process;
@@ -128,15 +126,13 @@ namespace CoreHook.Unmanaged.Windows
 
                 try
                 {
-                    UIntPtr bytesWritten;
-
                     // Write the DLL path to the allocated memory.
                     var result = NativeMethods.WriteProcessMemory(
                         hProcess,
                         remoteAllocAddr,
                         pathBytes,
                         pathBytes.Length,
-                        out bytesWritten);
+                        out UIntPtr bytesWritten);
 
                     if (!result || bytesWritten.ToUInt32() != pathBytes.Length)
                     {
@@ -181,7 +177,6 @@ namespace CoreHook.Unmanaged.Windows
         /// <summary>
         /// Execute function inside the specified module with custom arguments.
         /// </summary>
-        /// <param name="process">A handle to the main process with the target module loaded.</param>
         /// <param name="module">The name of the module containing the desired function.</param>
         /// <param name="function">The name of the exported function we will call.</param>
         /// <param name="args">Serialized arguments for passing to the module function.</param>
@@ -212,15 +207,13 @@ namespace CoreHook.Unmanaged.Windows
 
                 try
                 {
-                    UIntPtr bytesWritten;
-
                     // Write the DLL path to the allocated memory.
                     bool result = NativeMethods.WriteProcessMemory(
                         hProcess,
                         remoteAllocAddr,
                         args,
                         args.Length,
-                        out bytesWritten);
+                        out UIntPtr bytesWritten);
 
                     if (!result || bytesWritten.ToUInt32() != args.Length)
                     {
@@ -301,7 +294,6 @@ namespace CoreHook.Unmanaged.Windows
             {
                 int dataLen = size ?? data.Length;
                 IntPtr remoteAllocAddr = MemAllocate(dataLen);
-                UIntPtr bytesWritten;
 
                 // Write the DLL path to the allocated memory.
                 bool result = NativeMethods.WriteProcessMemory(
@@ -309,7 +301,7 @@ namespace CoreHook.Unmanaged.Windows
                     remoteAllocAddr,
                     data,
                     dataLen,
-                    out bytesWritten);
+                    out UIntPtr bytesWritten);
 
                 if (!result || bytesWritten.ToUInt32() != dataLen)
                 {
@@ -405,12 +397,10 @@ namespace CoreHook.Unmanaged.Windows
 
         private static NativeMethods.MODULEINFO GetModuleInfo(SafeProcessHandle hProcess, IntPtr hModule)
         {
-            NativeMethods.MODULEINFO moduleInfo;
-
             if (!NativeMethods.GetModuleInformation(
                 hProcess,
                 hModule,
-                out moduleInfo,
+                out NativeMethods.MODULEINFO moduleInfo,
                 (uint)Marshal.SizeOf<NativeMethods.MODULEINFO>()))
             {
                 throw new Win32Exception("Failed to get module information.");
@@ -423,14 +413,12 @@ namespace CoreHook.Unmanaged.Windows
         {
             var buffer = new byte[Environment.SystemPageSize];
 
-            IntPtr bytesRead;
-
             if (!NativeMethods.ReadProcessMemory(
                 hProcess,
                 address,
                 buffer,
                 buffer.Length,
-                out bytesRead) || bytesRead != (IntPtr)buffer.Length)
+                out IntPtr bytesRead) || bytesRead != (IntPtr)buffer.Length)
             {
                 throw new Win32Exception("Failed to read PE header from memory of module.");
             }
@@ -552,26 +540,6 @@ namespace CoreHook.Unmanaged.Windows
             }
 
             return sb.ToString();
-        }
-
-        public static IntPtr GetModuleHandleByBaseName(SafeProcessHandle hProcess, string moduleName)
-        {
-            IntPtr[] handles = GetAllModuleHandles(hProcess);
-
-            foreach (IntPtr moduleHandle in handles)
-            {
-                var sb = new StringBuilder(256);
-
-                if (NativeMethods.GetModuleBaseName(hProcess, moduleHandle, sb, 512) == moduleName.Length)
-                {
-                    if (moduleName.Equals(sb.ToString(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        return moduleHandle;
-                    }
-                }
-            }
-
-            return IntPtr.Zero;
         }
 
         public static IntPtr GetModuleHandleByFileName(SafeProcessHandle hProcess, string moduleName)
