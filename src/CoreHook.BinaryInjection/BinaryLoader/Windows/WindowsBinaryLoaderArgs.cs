@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using System.Text;
+using CoreHook.BinaryInjection.Host;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader.Windows
 {
     public interface IBinaryLoaderConfig
     {

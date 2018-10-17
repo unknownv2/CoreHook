@@ -1,12 +1,8 @@
-﻿using CoreHook.Unmanaged;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.Host
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct FunctionCallArgs
