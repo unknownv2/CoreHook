@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader.Memory
 {
     public class MemoryAllocation
     {

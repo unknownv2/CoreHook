@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader.Memory
 {
     public class MemoryManager : IMemoryManager
     {

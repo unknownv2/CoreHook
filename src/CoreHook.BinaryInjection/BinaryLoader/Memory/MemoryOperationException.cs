@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader.Memory
 {
     internal class MemoryOperationException : Exception
     {

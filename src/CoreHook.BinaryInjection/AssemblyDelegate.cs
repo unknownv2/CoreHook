@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace CoreHook.BinaryInjection
 {
-    public interface IAssemblyDelegate
-    {
-        string AssemblyName { get; }
-        string TypeName { get; }
-        string MethodName { get; }
-    }
     public class AssemblyDelegate : IAssemblyDelegate
     {
         public string AssemblyName { get; }

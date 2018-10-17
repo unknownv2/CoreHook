@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using CoreHook.BinaryInjection.BinaryLoader.Memory;
+using CoreHook.BinaryInjection.Host;
 using CoreHook.Unmanaged;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader.Windows
 {
     public class WindowsBinaryLoader : IBinaryLoader
     {
@@ -62,14 +64,14 @@ namespace CoreHook.BinaryInjection
                 call.FunctionName, 
                 new FunctionCallArgs(call.ManagedFunction, call.Arguments));
 
-        public IntPtr CopyMemoryTo(Process proc, byte[] buffer, int length) 
-            => _memoryManager.Add(proc, _processManager.MemCopyTo(buffer, length), false);
+        public IntPtr CopyMemoryTo(Process process, byte[] buffer, int length) 
+            => _memoryManager.Add(process, _processManager.MemCopyTo(buffer, length), false);
 
         public void Load(
             Process targetProcess,
             string binaryPath,
             IEnumerable<string> dependencies = null,
-            string dir = null)
+            string baseDirectory = null)
         {
             if (dependencies != null)
             {

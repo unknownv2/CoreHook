@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader
 {
     internal class BinaryLoaderException : Exception
     {

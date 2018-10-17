@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Text;
 using System.IO;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.Host
 {
     public interface IBinarySerializer
     {

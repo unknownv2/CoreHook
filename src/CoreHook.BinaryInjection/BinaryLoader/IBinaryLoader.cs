@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using CoreHook.BinaryInjection.Host;
 
-namespace CoreHook.BinaryInjection
+namespace CoreHook.BinaryInjection.BinaryLoader
 {
     public interface IBinaryLoader : IDisposable
     {
@@ -10,7 +11,7 @@ namespace CoreHook.BinaryInjection
             Process targetProcess,
             string binaryPath,
             IEnumerable<string> dependencies = null,
-            string dir = null);
+            string baseDirectory = null);
         void ExecuteRemoteFunction(
             Process process, 
             IRemoteFunctionCall call);
@@ -18,7 +19,7 @@ namespace CoreHook.BinaryInjection
             Process process, 
             IRemoteManagedFunctionCall call);
         IntPtr CopyMemoryTo(
-            Process proc,
+            Process process,
             byte[] buffer,
             int length);
     }
