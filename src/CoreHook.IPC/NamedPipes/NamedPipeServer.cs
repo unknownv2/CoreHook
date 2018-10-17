@@ -42,19 +42,9 @@ namespace CoreHook.IPC.NamedPipes
             {
                 throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
             }
-            var pipeServer = new NamedPipeServer(pipeName, platform, connection => handleConnection(connection));
+            var pipeServer = new NamedPipeServer(pipeName, platform, handleConnection);
             pipeServer.OpenListeningPipe();
             return pipeServer;
-        }
-
-        public void Dispose()
-        {
-            _isStopping = true;
-            NamedPipeServerStream pipe = Interlocked.Exchange(ref _listeningPipe, null);
-            if (pipe != null)
-            {
-                pipe.Dispose();
-            }
         }
 
         private static void HandleConnection(IConnection connection, Action<string, IConnection> handleRequest)
@@ -70,7 +60,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        private void OpenListeningPipe()
+        public void OpenListeningPipe()
         {
             try
             {
@@ -89,7 +79,7 @@ namespace CoreHook.IPC.NamedPipes
 
         private void OnNewConnection(IAsyncResult ar)
         {
-            OnNewConnection(ar, createNewThreadIfSynchronous: true);
+            OnNewConnection(ar, true);
         }
 
         private void OnNewConnection(IAsyncResult ar, bool createNewThreadIfSynchronous)
@@ -100,7 +90,7 @@ namespace CoreHook.IPC.NamedPipes
                 // If this callback got called synchronously, we must not do any blocking IO on this thread
                 // or we will block the original caller. Moving to a new thread so that it will be safe
                 // to call a blocking Read on the NamedPipeServerStream
-                new Thread(() => OnNewConnection(ar, createNewThreadIfSynchronous: false)).Start();
+                new Thread(() => OnNewConnection(ar, false)).Start();
                 return;
             }
             _listeningPipe = null;
@@ -129,7 +119,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 if (!_isStopping)
                 {
-                    new Thread(() => OpenListeningPipe()).Start();
+                    new Thread(OpenListeningPipe).Start();
                     if (!connectionBroken)
                     {
                         try
@@ -153,6 +143,12 @@ namespace CoreHook.IPC.NamedPipes
         {
             Console.WriteLine(message);
             Console.WriteLine(e);
+        }
+        public void Dispose()
+        {
+            _isStopping = true;
+            NamedPipeServerStream pipe = Interlocked.Exchange(ref _listeningPipe, null);
+            pipe?.Dispose();
         }
     }
 }
