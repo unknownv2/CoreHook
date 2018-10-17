@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CoreHook.DependencyModel
+﻿namespace CoreHook.DependencyModel
 {
     internal class FileSystemWrapper : IFileSystem
     {

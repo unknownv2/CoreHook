@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Linq;
-using System.IO;
-using System.IO.Pipes;
-using System.Security.AccessControl;
-using System.Security.Principal;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;

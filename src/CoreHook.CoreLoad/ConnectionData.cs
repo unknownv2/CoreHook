@@ -55,7 +55,6 @@ namespace CoreHook.CoreLoad
                     {
                         Binder = new AllowAllAssemblyVersionsDeserializationBinder()
                     };
-                    // Workaround for deserialization when not using GAC registration
 
                     Marshal.Copy(data.UnmanagedInfo.UserData, passThruBytes, 0, data.UnmanagedInfo.UserDataSize);
 

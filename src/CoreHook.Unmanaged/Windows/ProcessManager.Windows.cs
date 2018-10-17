@@ -567,7 +567,7 @@ namespace CoreHook.Unmanaged.Windows
         {
             var moduleHandles = new IntPtr[64];
 
-            uint size = 0;
+            uint size;
 
             for (; ; )
             {
