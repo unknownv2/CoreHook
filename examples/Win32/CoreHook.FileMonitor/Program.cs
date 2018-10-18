@@ -12,14 +12,23 @@ namespace CoreHook.FileMonitor
 {
     class Program
     {
+        /// <summary>
+        /// The pipe name over which the FileMonitor RPC service communicates over between processes.
+        /// </summary>
         private const string CoreHookPipeName = "CoreHook";
+        /// <summary>
+        /// The directory containing the CoreHook modules to be loaded in processes.
+        /// </summary>
         private const string HookLibraryDirName = "Hook";
+        /// <summary>
+        /// The library injected to be injected the target processed and executed using it's 'Run' Method.
+        /// </summary>
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
 
         /// <summary>
         /// Enable verbose logging to the console for the CoreCLR host module corerundll
         /// </summary>
-        private const bool HostVerboseLog = false;
+        private const bool HostVerboseLog = true;
         /// <summary>
         /// Wait for a debugger to attach to the target process before running any .NET assemblies
         /// </summary>
@@ -121,6 +130,13 @@ namespace CoreHook.FileMonitor
             }
         }
 
+        /// <summary>
+        /// Start the application at <paramref name="exePath"/>
+        /// and then inject and load the CoreHook hooking module <paramref name="injectionLibrary"/>
+        /// in the newly created process.
+        /// </summary>
+        /// <param name="exePath">The path to the application to be launched.</param>
+        /// <param name="injectionLibrary">The CoreHook hooking library to loaded in the target.</param>
         private static void CreateAndInjectDll(string exePath, string injectionLibrary)
         {
             ValidateFilePath(exePath);
@@ -154,6 +170,12 @@ namespace CoreHook.FileMonitor
             }
         }
 
+        /// <summary>
+        /// Inject and load the CoreHook hooking module <paramref name="injectionLibrary"/>
+        /// in the existing created process referenced by <paramref name="processId"/>.
+        /// </summary>
+        /// <param name="processId"></param>
+        /// <param name="injectionLibrary"></param>
         private static void InjectDllIntoTarget(int processId, string injectionLibrary)
         {
             ValidateFilePath(injectionLibrary);
@@ -182,6 +204,10 @@ namespace CoreHook.FileMonitor
             }
         }
 
+        /// <summary>
+        /// Create an RPC server that is called by the RPC client started in
+        /// a target process.
+        /// </summary>
         private static void StartListener()
         {
             var session = new FileMonitorSessionFeature();

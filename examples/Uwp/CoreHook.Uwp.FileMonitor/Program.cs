@@ -16,8 +16,17 @@ namespace CoreHook.Uwp.FileMonitor
 {
     class Program
     {
+        /// <summary>
+        /// The pipe name over which the FileMonitor RPC service communicates over between processes.
+        /// </summary>
         private const string CoreHookPipeName = "UwpCoreHook";
+        /// <summary>
+        /// The directory containing the CoreHook modules to be loaded in processes.
+        /// </summary>
         private const string HookLibraryDirName = "Hook";
+        /// <summary>
+        /// The library injected to be injected the target processed and executed using it's 'Run' Method.
+        /// </summary>
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
 
         /// <summary>
@@ -102,11 +111,16 @@ namespace CoreHook.Uwp.FileMonitor
             // Start the RPC server for handling requests from the hooked app
             StartListener();
         }
-
-        private static void InjectDllIntoTarget(int procId, string injectionLibrary)
+        /// <summary>
+        /// Inject and load the CoreHook hooking module <paramref name="injectionLibrary"/>
+        /// in the existing created process referenced by <paramref name="processId"/>.
+        /// </summary>
+        /// <param name="processId"></param>
+        /// <param name="injectionLibrary"></param>
+        private static void InjectDllIntoTarget(int processId, string injectionLibrary)
         {
             if (Examples.Common.Utilities.GetCoreLoadPaths(
-                ProcessHelper.GetProcessById(procId).Is64Bit(),
+                ProcessHelper.GetProcessById(processId).Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath, 
                 out string coreRootPath, out string coreLoadDll,
                 out string corehookPath))
@@ -116,7 +130,7 @@ namespace CoreHook.Uwp.FileMonitor
                 GrantAllAppPkgsAccessToFile(corehookPath);
 
                 RemoteHooking.Inject(
-                    procId,
+                    processId,
                     new RemoteHookingConfig()
                     {
                         HostLibrary = coreRunDll,
@@ -133,6 +147,9 @@ namespace CoreHook.Uwp.FileMonitor
             }
         }
 
+        /// <summary>
+        /// Create an RPC server that is called by the RPC client started in a target process.
+        /// </summary>
         private static void StartListener()
         {
             var session = new FileMonitorSessionFeature();
@@ -155,6 +172,11 @@ namespace CoreHook.Uwp.FileMonitor
             session.StopServer();
         }
 
+        /// <summary>
+        /// Grant ALL_APPLICATION_PACKAGES permissions to binary and 
+        /// configuration files in <paramref name="directoryPath"/>.
+        /// </summary>
+        /// <param name="directoryPath">Directory containing application files.</param>
         private static void GrantAllAppPkgsAccessToDir(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
@@ -171,6 +193,10 @@ namespace CoreHook.Uwp.FileMonitor
             }
         }
 
+        /// <summary>
+        /// Grant ALL_APPLICATION_PACKAGES permissions to the Symbol Cache directory <paramref name="directoryPath"/>.
+        /// </summary>
+        /// <param name="directoryPath">A directory containing Windows symbols (.PDB files).</param>
         private static void GrantAllAppPkgsAccessToSymCacheDir(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
@@ -187,15 +213,23 @@ namespace CoreHook.Uwp.FileMonitor
                 GrantAllAppPkgsAccessToFile(filePath);
             }
         }
-
-        private static void GrantFolderRecursive(string fileName, string rootDir)
+        /// <summary>
+        /// Grant ALL_APPLICATION_PACKAGES permissions to a directory and its subdirectories.
+        /// </summary>
+        /// <param name="path">The path of the directory to grant permissions to.</param>
+        /// <param name="rootDirectory">The root marking when to stop granting permissions if reached.</param>
+        private static void GrantFolderRecursive(string path, string rootDirectory)
         {
-            while((fileName = Path.GetDirectoryName(fileName)) != rootDir)
+            while((path = Path.GetDirectoryName(path)) != rootDirectory)
             {
-                GrantAllAppPkgsAccessToFolder(fileName);
+                GrantAllAppPkgsAccessToFolder(path);
             }
         }
 
+        /// <summary>
+        /// Grant ALL_APPLICATION_PACKAGES permissions to a file at <paramref name="fileName"/>.
+        /// </summary>
+        /// <param name="fileName">The file to be granted ALL_APPLICATION_PACKAGES permissions.</param>
         private static void GrantAllAppPkgsAccessToFile(string fileName)
         {
             try
@@ -211,10 +245,13 @@ namespace CoreHook.Uwp.FileMonitor
             }
             catch
             {
-                return;
             }
         }
 
+        /// <summary>
+        /// Grant ALL_APPLICATION_PACKAGES permissions to a directory at <paramref name="folderPath"/>.
+        /// </summary>
+        /// <param name="folderPath">The directory to be granted ALL_APPLICATION_PACKAGES permissions.</param>
         private static void GrantAllAppPkgsAccessToFolder(string folderPath)
         {
             try
@@ -231,10 +268,14 @@ namespace CoreHook.Uwp.FileMonitor
             }
             catch
             {
-                return;
             }
         }
 
+        /// <summary>
+        /// Launch a Universal Windows Platform (UWP) application on Windows 10.
+        /// </summary>
+        /// <param name="appName">The Application User Model Id (AUMID) to start.</param>
+        /// <returns></returns>
         private static int LaunchAppxPackageForPid(string appName)
         {
             var appActiveManager = new ApplicationActivationManager();
