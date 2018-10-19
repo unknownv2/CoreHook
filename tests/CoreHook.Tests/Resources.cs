@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Diagnostics;
-using System.Linq;
 using System.IO;
 using System.Reflection;
-using CoreHook.ManagedHook.ProcessUtils;
 
 namespace CoreHook.Tests
 {
@@ -56,7 +52,12 @@ namespace CoreHook.Tests
                     _targetApp = new Process();
 
                     _targetApp.StartInfo.FileName = "dotnet";
-                    _targetApp.StartInfo.Arguments = $"{Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "Test", TargetAppName)}";
+                    _targetApp.StartInfo.Arguments =
+                        Path.Combine(
+                            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), 
+                            TestModuleDir, 
+                            TargetAppName
+                        );
 
                     _targetApp.StartInfo.UseShellExecute = false;
                     _targetApp.StartInfo.RedirectStandardInput = true;
