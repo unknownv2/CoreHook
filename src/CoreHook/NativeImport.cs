@@ -18,13 +18,13 @@ namespace CoreHook
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourInstallHook(
-            IntPtr InEntryPoint,
-            IntPtr InHookProc,
-            IntPtr InCallback,
-            IntPtr OutHandle);
+            IntPtr entryPoint,
+            IntPtr hookProcedure,
+            IntPtr callback,
+            IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourUninstallHook(IntPtr RefHandle);
+        public static extern int DetourUninstallHook(IntPtr refHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourWaitForPendingRemovals();
@@ -38,35 +38,35 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle);
+                    int[] threadIdList,
+                    int threadCount,
+                    IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle);
+                    int[] threadIdList,
+                    int threadCount,
+                    IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetGlobalInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
+                    int[] threadIdList,
+                    int threadCount);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetGlobalExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
+                    int[] threadIdList,
+                    int threadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourIsThreadIntercepted(
-                    IntPtr InHandle,
-                    int InThreadID,
-                    out bool OutResult);
+                    IntPtr handle,
+                    int threadId,
+                    out bool result);
 
         /*
             The following barrier methods are meant to be used in hook handlers only!
@@ -76,48 +76,27 @@ namespace CoreHook
         */
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetCallback(out IntPtr OutValue);
+        public static extern int DetourBarrierGetCallback(out IntPtr returnValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetReturnAddress(out IntPtr OutValue);
+        public static extern int DetourBarrierGetReturnAddress(out IntPtr returnValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
+        public static extern int DetourBarrierGetAddressOfReturnAddress(out IntPtr returnValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierBeginStackTrace(out IntPtr OutBackup);
+        public static extern int DetourBarrierBeginStackTrace(out IntPtr backup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierEndStackTrace(IntPtr OutBackup);
+        public static extern int DetourBarrierEndStackTrace(IntPtr backup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetCallingModule(out IntPtr OutValue);
+        public static extern int DetourBarrierGetCallingModule(out IntPtr returnValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierCallStackTrace(IntPtr OutValue, long maxCount, out long outMaxCount);
-        /*
-            Debug helper API.
-        */
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgAttachDebugger();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgGetThreadIdByHandle(
-            IntPtr InThreadHandle,
-            out int OutThreadId);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgGetProcessIdByHandle(
-            IntPtr InProcessHandle,
-            out int OutProcessId);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgHandleToObjectName(
-            IntPtr InNamedHandle,
-            IntPtr OutNameBuffer,
-            int InBufferSize,
-            out int OutRequiredSize);
+        public static extern int DetourBarrierCallStackTrace(
+            IntPtr returnValue, long maxCount, out long maxStackTraceCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int DetourGetHookBypassAddress(IntPtr handle, out IntPtr address);
@@ -202,13 +181,13 @@ namespace CoreHook
         
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourInstallHook(
-            IntPtr InEntryPoint,
-            IntPtr InHookProc,
-            IntPtr InCallback,
-            IntPtr OutHandle);
+            IntPtr entryPoint,
+            IntPtr hookProcedure,
+            IntPtr callback,
+            IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourUninstallHook(IntPtr RefHandle);
+        public static extern int DetourUninstallHook(IntPtr refHandle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourWaitForPendingRemovals();
@@ -221,35 +200,35 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle);
+                    int[] threadIdList,
+                    int threadCount,
+                    IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle);
+                    int[] threadIdList,
+                    int threadCount,
+                    IntPtr handle);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetGlobalInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
+                    int[] threadIdList,
+                    int threadCount);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetGlobalExclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
-                    int[] InThreadIdList,
-                    int InThreadCount);
+                    int[] threadIdList,
+                    int threadCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourIsThreadIntercepted(
-                    IntPtr InHandle,
-                    int InThreadID,
-                    out bool OutResult);
+                    IntPtr handle,
+                    int threadId,
+                    out bool result);
 
         /*
             The following barrier methods are meant to be used in hook handlers only!
@@ -259,51 +238,28 @@ namespace CoreHook
         */
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetCallback(out IntPtr OutValue);
+        public static extern int DetourBarrierGetCallback(out IntPtr returnValue);
 
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetReturnAddress(out IntPtr OutValue);
+        public static extern int DetourBarrierGetReturnAddress(out IntPtr returnValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetAddressOfReturnAddress(out IntPtr OutValue);
+        public static extern int DetourBarrierGetAddressOfReturnAddress(out IntPtr returnValue);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierCallStackTrace(IntPtr OutValue, long maxCount, out long outMaxCount);
+        public static extern int DetourBarrierCallStackTrace(IntPtr returnValue, long maxCount, out long outMaxCount);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierBeginStackTrace(out IntPtr OutBackup);
+        public static extern int DetourBarrierBeginStackTrace(out IntPtr backup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierEndStackTrace(IntPtr OutBackup);
+        public static extern int DetourBarrierEndStackTrace(IntPtr backup);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DetourBarrierGetCallingModule(out IntPtr OutValue);
+        public static extern int DetourBarrierGetCallingModule(out IntPtr returnValue);
 
-        /*
-            Debug helper API.
-        */
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgAttachDebugger();
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgGetThreadIdByHandle(
-            IntPtr InThreadHandle,
-            out int OutThreadId);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgGetProcessIdByHandle(
-            IntPtr InProcessHandle,
-            out int OutProcessId);
-
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
-        public static extern int DbgHandleToObjectName(
-            IntPtr InNamedHandle,
-            IntPtr OutNameBuffer,
-            int InBufferSize,
-            out int OutRequiredSize);
-
-        
+          
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int DetourGetHookBypassAddress(IntPtr handle, out IntPtr address);
 
@@ -381,26 +337,26 @@ namespace CoreHook
         public static extern int GetCurrentThreadId();
 
         [DllImport("kernel32.dll")]
-        public static extern void CloseHandle(IntPtr InHandle);
+        public static extern void CloseHandle(IntPtr handle);
 
         [DllImport("kernel32.dll")]
         public static extern int GetCurrentProcessId();
 
         [DllImport("kernel32.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr GetProcAddress(IntPtr InModule, string InProcName);
+        public static extern IntPtr GetProcAddress(IntPtr module, string procedureName);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr LoadLibrary(string InPath);
+        public static extern IntPtr LoadLibrary(string path);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr GetModuleHandle(string InPath);
+        public static extern IntPtr GetModuleHandle(string path);
 
         [DllImport("kernel32.dll")]
         public static extern short RtlCaptureStackBackTrace(
-            int InFramesToSkip,
-            int InFramesToCapture,
-            IntPtr OutBackTrace,
-            IntPtr OutBackTraceHash);
+            int framesToSkip,
+            int framesToCapture,
+            IntPtr backTrace,
+            IntPtr backTraceHash);
 
         public const int STATUS_SUCCESS = unchecked((int)0);
         public const int STATUS_INVALID_PARAMETER = unchecked((int)0xC000000DL);
@@ -479,36 +435,42 @@ namespace CoreHook
 
         public static void DetourUninstallAllHooks()
         {
-            if (Is64Bit) NativeAPI_x64.DetourUninstallAllHooks();
-            else NativeAPI_x86.DetourUninstallAllHooks();
+            if (Is64Bit)
+            {
+                NativeAPI_x64.DetourUninstallAllHooks();
+            }
+            else
+            {
+                NativeAPI_x86.DetourUninstallAllHooks();
+            }
         }
 
         public static void DetourInstallHook(
-            IntPtr InEntryPoint,
-            IntPtr InHookProc,
-            IntPtr InCallback,
-            IntPtr OutHandle)
+            IntPtr entryPoint,
+            IntPtr hookProcedure,
+            IntPtr callback,
+            IntPtr handle)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+                Force(NativeAPI_x64.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
             }
             else
             {
 
-                Force(NativeAPI_x86.DetourInstallHook(InEntryPoint, InHookProc, InCallback, OutHandle));
+                Force(NativeAPI_x86.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
             }          
         }
 
-        public static void DetourUninstallHook(IntPtr RefHandle)
+        public static void DetourUninstallHook(IntPtr refHandle)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourUninstallHook(RefHandle));
+                Force(NativeAPI_x64.DetourUninstallHook(refHandle));
             }
             else
             {
-                Force(NativeAPI_x86.DetourUninstallHook(RefHandle));
+                Force(NativeAPI_x86.DetourUninstallHook(refHandle));
             }
         }
 
@@ -526,160 +488,160 @@ namespace CoreHook
         }
 
         public static void DetourIsThreadIntercepted(
-                    IntPtr InHandle,
-                    int InThreadID,
-                    out bool OutResult)
+                    IntPtr handle,
+                    int threadId,
+                    out bool result)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+                Force(NativeAPI_x64.DetourIsThreadIntercepted(handle, threadId, out result));
             }
             else
             {
-                Force(NativeAPI_x86.DetourIsThreadIntercepted(InHandle, InThreadID, out OutResult));
+                Force(NativeAPI_x86.DetourIsThreadIntercepted(handle, threadId, out result));
             }
         }
 
         public static void DetourSetInclusiveACL(
-                    int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle)
+                    int[] threadIdList,
+                    int threadCount,
+                    IntPtr handle)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
+                Force(NativeAPI_x64.DetourSetInclusiveACL(threadIdList, threadCount, handle));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetInclusiveACL(InThreadIdList, InThreadCount, InHandle));
+                Force(NativeAPI_x86.DetourSetInclusiveACL(threadIdList, threadCount, handle));
             }
         }
 
         public static void DetourSetExclusiveACL(
-                    int[] InThreadIdList,
-                    int InThreadCount,
-                    IntPtr InHandle)
+                    int[] threadIdList,
+                    int threadCount,
+                    IntPtr handle)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+                Force(NativeAPI_x64.DetourSetExclusiveACL(threadIdList, threadCount, handle));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetExclusiveACL(InThreadIdList, InThreadCount, InHandle));
+                Force(NativeAPI_x86.DetourSetExclusiveACL(threadIdList, threadCount, handle));
             }
         }
 
         public static void DetourSetGlobalInclusiveACL(
-                    int[] InThreadIdList,
-                    int InThreadCount)
+                    int[] threadIdList,
+                    int threadCount)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
+                Force(NativeAPI_x64.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetGlobalInclusiveACL(InThreadIdList, InThreadCount));
+                Force(NativeAPI_x86.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
             }
         }
 
         public static void DetourSetGlobalExclusiveACL(
-                    int[] InThreadIdList,
-                    int InThreadCount)
+                    int[] threadIdList,
+                    int threadCount)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+                Force(NativeAPI_x64.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetGlobalExclusiveACL(InThreadIdList, InThreadCount));
+                Force(NativeAPI_x86.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
             }
         }
 
 
-        public static void DetourBarrierGetCallingModule(out IntPtr OutValue)
+        public static void DetourBarrierGetCallingModule(out IntPtr returnValue)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetCallingModule(out OutValue));
+                Force(NativeAPI_x64.DetourBarrierGetCallingModule(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetCallingModule(out OutValue));
+                Force(NativeAPI_x86.DetourBarrierGetCallingModule(out returnValue));
             }
         }
 
-        public static void DetourBarrierGetCallback(out IntPtr OutValue)
+        public static void DetourBarrierGetCallback(out IntPtr returnValue)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetCallback(out OutValue));
+                Force(NativeAPI_x64.DetourBarrierGetCallback(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetCallback(out OutValue));
+                Force(NativeAPI_x86.DetourBarrierGetCallback(out returnValue));
             }
         }
 
-        public static void DetourBarrierGetReturnAddress(out IntPtr OutValue)
+        public static void DetourBarrierGetReturnAddress(out IntPtr returnValue)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetReturnAddress(out OutValue));
+                Force(NativeAPI_x64.DetourBarrierGetReturnAddress(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetReturnAddress(out OutValue));
+                Force(NativeAPI_x86.DetourBarrierGetReturnAddress(out returnValue));
             }
         }
 
-        public static void DetourBarrierGetAddressOfReturnAddress(out IntPtr OutValue)
+        public static void DetourBarrierGetAddressOfReturnAddress(out IntPtr returnValue)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetAddressOfReturnAddress(out OutValue));
+                Force(NativeAPI_x64.DetourBarrierGetAddressOfReturnAddress(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetAddressOfReturnAddress(out OutValue));
+                Force(NativeAPI_x86.DetourBarrierGetAddressOfReturnAddress(out returnValue));
             }
         }
 
-        public static void DetourBarrierBeginStackTrace(out IntPtr OutBackup)
+        public static void DetourBarrierBeginStackTrace(out IntPtr backup)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierBeginStackTrace(out OutBackup));
+                Force(NativeAPI_x64.DetourBarrierBeginStackTrace(out backup));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierBeginStackTrace(out OutBackup));
+                Force(NativeAPI_x86.DetourBarrierBeginStackTrace(out backup));
             }
         }
 
-        public static void DetourBarrierCallStackTrace(IntPtr OutBackup, long maxCount, out long outMaxCount)
+        public static void DetourBarrierCallStackTrace(IntPtr backup, long maxCount, out long outMaxCount)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
+                Force(NativeAPI_x64.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierCallStackTrace(OutBackup, maxCount, out outMaxCount));
+                Force(NativeAPI_x86.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
             }
 
         }
-        public static void DetourBarrierEndStackTrace(IntPtr OutBackup)
+        public static void DetourBarrierEndStackTrace(IntPtr backup)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierEndStackTrace(OutBackup));
+                Force(NativeAPI_x64.DetourBarrierEndStackTrace(backup));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierEndStackTrace(OutBackup));
+                Force(NativeAPI_x86.DetourBarrierEndStackTrace(backup));
             }
         }
 
