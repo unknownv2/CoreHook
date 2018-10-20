@@ -16,17 +16,6 @@ namespace CoreHook.IPC.NamedPipes
             Failure
         }
 
-        public class BaseResponse<TRequest>
-        {
-            public const string Header = nameof(TRequest) + ResponseSuffix;
-            public CompletionState State { get; set; }
-            public string ErrorMessage { get; set; }
-            public Message ToMessage()
-            {
-                return new Message(Header, JsonConvert.SerializeObject(this));
-            }
-        }
-
         public interface IMessage
         {
             string Header { get; }
