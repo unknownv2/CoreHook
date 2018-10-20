@@ -10,7 +10,7 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
         Encoding PathEncoding { get; }
     }
 
-    public class WindowsBinaryLoaderConfig : IBinaryLoaderConfig
+    public sealed partial class BinaryLoaderConfig : IBinaryLoaderConfig
     {
         public int MaxPathLength => 260; 
         public Encoding PathEncoding => Encoding.Unicode;

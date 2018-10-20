@@ -43,7 +43,7 @@ namespace CoreHook.ManagedHook.Remote
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new WindowsBinaryLoader(
+                return new BinaryLoader(
                     new MemoryManager(),
                     new Unmanaged.Windows.ProcessManager(process));
             }
@@ -61,7 +61,7 @@ namespace CoreHook.ManagedHook.Remote
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new WindowsBinaryLoaderConfig();
+                return new BinaryLoaderConfig();
             }
             else
             {
