@@ -25,8 +25,8 @@ namespace CoreHook.BinaryInjection.BinaryLoader
     }
     public interface IFunctionName
     {
-        string Module { get; set; }
-        string Function { get; set; }
+        string Module { get; }
+        string Function { get; }
     }
     public class FunctionName : IFunctionName
     {
@@ -35,17 +35,17 @@ namespace CoreHook.BinaryInjection.BinaryLoader
     }
     public interface IRemoteFunctionCall
     {
-        bool Is64BitProcess { get; set; }
-        IFunctionName FunctionName { get; set; }
-        IBinarySerializer Arguments { get; set; }
+        bool Is64BitProcess { get; }
+        IFunctionName FunctionName { get; }
+        IBinarySerializer Arguments { get; }
     }
     public interface IRemoteManagedFunctionCall : IRemoteFunctionCall
     {
-        IAssemblyDelegate ManagedFunction { get; set; }
+        IAssemblyDelegate ManagedFunction { get; }
     }
     public class RemoteFunctionCall : IRemoteFunctionCall
     {
-        public bool Is64BitProcess { get; set; }
+        public bool Is64BitProcess { get;}
 
         public IFunctionName FunctionName { get; set; }
 
