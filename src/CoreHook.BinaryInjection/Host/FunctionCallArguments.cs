@@ -5,7 +5,7 @@ using System.Text;
 namespace CoreHook.BinaryInjection.Host
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct FunctionCallArgs
+    public sealed partial class FunctionCallArguments
     {
         [FieldOffset(0)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMaxWide)]
@@ -30,7 +30,7 @@ namespace CoreHook.BinaryInjection.Host
 
         private static Encoding PathEncoding = Encoding.Unicode;
 
-        public FunctionCallArgs(IAssemblyDelegate assemblyDelegate, IBinarySerializer arguments)
+        public FunctionCallArguments(IAssemblyDelegate assemblyDelegate, IBinarySerializer arguments)
         {
             if (assemblyDelegate == null)
             {
