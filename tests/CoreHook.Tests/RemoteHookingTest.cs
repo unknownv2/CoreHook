@@ -1,32 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Diagnostics;
-using System.IO;
-using System.Reflection;
-using System.Threading;
-using CoreHook.ManagedHook.Remote;
-using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.Unmanaged;
-using Xunit;
+﻿using Xunit;
 
 namespace CoreHook.Tests
 {
-    public class RemoteHookingTest
+    public class RemoteHookingTest64
     {
         [Fact]
-        private void TestRemoteInject()
+        private void TestRemoteInject64()
         {
             const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
             const string TestMessage = "Berner";
+            var testProcess = Resources.TestProcess;
 
-            InjectDllIntoTarget(Resources.TestProcess,
+            Resources.InjectDllIntoTarget(testProcess,
                Resources.GetTestDllPath(
                TestHookLibrary
                ),
-               TestMessage);
+               TestMessage,
+               "CoreHookInjection64");
 
-            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TestProcess));
+            Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
 
             Resources.EndTestProcess();
         }
@@ -37,7 +29,7 @@ namespace CoreHook.Tests
             const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
             const string TestMessage = "Berner";
 
-            InjectDllIntoTarget(Resources.TargetProcess,
+            Resources.InjectDllIntoTarget(Resources.TargetProcess,
                Resources.GetTestDllPath(
                TestHookLibrary
                ),
@@ -47,29 +39,27 @@ namespace CoreHook.Tests
 
             Resources.EndTargetAppProcess();
         }
+    }
 
-        public static void InjectDllIntoTarget(Process target, string injectionLibrary, string message)
+    public class RemoteHookingTest32
+    {
+        [Fact]
+        private void TestRemoteInject32()
         {
-            if (Examples.Common.Utilities.GetCoreLoadPaths(target.Is64Bit(),
-                out string coreRunDll, out string coreLibrariesPath,
-                out string coreRootPath, out string coreLoadDll, out string coreHookDll))
-            {
-                RemoteHooking.Inject(
-                    target.Id,
-                    new RemoteHookingConfig()
-                    {
-                        HostLibrary = coreRunDll,
-                        CoreCLRPath = coreRootPath,
-                        CoreCLRLibrariesPath = coreLibrariesPath,
-                        CLRBootstrapLibrary = coreLoadDll,
-                        DetourLibrary = coreHookDll,
-                        PayloadLibrary = injectionLibrary,
-                        VerboseLog = false,
-                        WaitForDebugger = false
-                    },
-                    new PipePlatformBase(),
-                    message);
-            }
+            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestMessage = "Berner";
+            var testProcess = Resources.TestProcess2;
+
+            Resources.InjectDllIntoTarget(testProcess,
+               Resources.GetTestDllPath(
+               TestHookLibrary
+               ),
+               TestMessage,
+               "CoreHookInjection32");
+
+            Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
+
+            Resources.EndTestProcess2();
         }
     }
 }

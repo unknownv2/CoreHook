@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.Unmanaged
+namespace CoreHook.Memory
 {
     internal class ModuleNotFoundException : Exception
     {

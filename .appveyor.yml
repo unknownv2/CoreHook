@@ -8,10 +8,6 @@ test: off
 image:
   - Visual Studio 2017
   - Ubuntu
-branches:
-  only:
-    - master
-    - appveyor
 skip_commits:
   files:
     - '**/*.md'

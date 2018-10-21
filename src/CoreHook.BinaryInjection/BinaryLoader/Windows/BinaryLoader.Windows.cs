@@ -4,16 +4,16 @@ using System.Diagnostics;
 using System.IO;
 using CoreHook.BinaryInjection.BinaryLoader.Memory;
 using CoreHook.BinaryInjection.Host;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.BinaryInjection.BinaryLoader.Windows
 {
-    public class WindowsBinaryLoader : IBinaryLoader
+    public partial class BinaryLoader : IBinaryLoader
     {
         private readonly IMemoryManager _memoryManager;
         private readonly IProcessManager _processManager;
 
-        public WindowsBinaryLoader(IMemoryManager memoryManager, IProcessManager processManager)
+        public BinaryLoader(IMemoryManager memoryManager, IProcessManager processManager)
         {
             _memoryManager = memoryManager;
             _processManager = processManager;
@@ -21,48 +21,48 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
         }
 
         /// <summary>
-        ///  Execute a function in a process in a new thread with a <see cref="FunctionCallArgs" /> argument
+        ///  Execute a function in a process in a new thread with a <see cref="FunctionCallArguments" /> argument
         /// </summary>
         /// <param name="process">The process the thread will be created and executed in.</param>
         /// <param name="moduleName">The module name of the binary containing the function to execute.</param>
         /// <param name="functionName">The name of the function to be executed.</param>
-        /// <param name="args">The class which will be serialized and passed to the function being executed.</param>
-        private void ExecuteAssemblyFunctionWithArgs(
+        /// <param name="arguments">The class which will be serialized and passed to the function being executed.</param>
+        private void ExecuteAssemblyFunctionWithArguments(
             Process process,
             IFunctionName functionName,
-            FunctionCallArgs args)
+            FunctionCallArguments arguments)
         {
             _memoryManager.Add(
                 process,
                 _processManager.Execute(
                     functionName.Module,
                     functionName.Function,
-                    Binary.StructToByteArray(args),
+                    Binary.StructToByteArray(arguments),
                     false),
                 false
             );
         }
 
-        private void ExecuteAssemblyWithArgs(Process process, IFunctionName function, byte[] args)
+        private void ExecuteAssemblyWithArguments(Process process, IFunctionName moduleFunction, byte[] arguments)
         {
             _memoryManager.Add(
                 process,
-                _processManager.Execute(function.Module, function.Function, args),
+                _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments),
                 true
             );
         }
 
-        public void ExecuteWithArgs(Process process, IFunctionName function, IBinarySerializer args)
-            => ExecuteAssemblyWithArgs(process, function, args.Serialize());
+        public void ExecuteWithArguments(Process process, IFunctionName function, IBinarySerializer arguments)
+            => ExecuteAssemblyWithArguments(process, function, arguments.Serialize());
 
         public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call) 
-            => ExecuteWithArgs(process, call.FunctionName, call.Arguments);
+            => ExecuteWithArguments(process, call.FunctionName, call.Arguments);
 
         public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call) 
-            => ExecuteAssemblyFunctionWithArgs(
+            => ExecuteAssemblyFunctionWithArguments(
                 process, 
                 call.FunctionName, 
-                new FunctionCallArgs(call.ManagedFunction, call.Arguments));
+                new FunctionCallArguments(call.ManagedFunction, call.Arguments));
 
         public IntPtr CopyMemoryTo(Process process, byte[] buffer, int length) 
             => _memoryManager.Add(process, _processManager.MemCopyTo(buffer, length), false);

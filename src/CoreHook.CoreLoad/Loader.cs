@@ -22,32 +22,16 @@ namespace CoreHook.CoreLoad
         private const string EntryPointInterface = "CoreHook.IEntryPoint";
         private const string EntryPointMethodName = "Run";
 
-        public Loader()
+        public static int Load(IntPtr remoteParameters)
         {
-
-        }
-
-        public static int LoadUnmanaged([MarshalAs(UnmanagedType.LPWStr)]string inParam)
-        {
-            return 0;
-        }
-
-        public static int Load(string paramPtr)
-        {
-            if (paramPtr == null)
-            {
-                throw new ArgumentNullException("Remote arguments parameter was null");
-            }
             try
             {
-                IntPtr remoteParams = (IntPtr)long.Parse(paramPtr, System.Globalization.NumberStyles.HexNumber);
-
-                if (remoteParams == IntPtr.Zero)
+                if (remoteParameters == null || remoteParameters == IntPtr.Zero)
                 {
                     throw new ArgumentOutOfRangeException("Remote arguments address was zero");
                 }
 
-                var connection = ConnectionData.LoadData(remoteParams);
+                var connection = ConnectionData.LoadData(remoteParameters);
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
 
@@ -60,6 +44,11 @@ namespace CoreHook.CoreLoad
                 }
 
                 LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
+            }
+            catch(ArgumentOutOfRangeException outOfRangeEx)
+            {
+                Log(outOfRangeEx.ToString());
+                throw outOfRangeEx;
             }
             catch (Exception exception)
             {
@@ -190,7 +179,7 @@ namespace CoreHook.CoreLoad
 
         const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
+        private static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
 
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
         private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);

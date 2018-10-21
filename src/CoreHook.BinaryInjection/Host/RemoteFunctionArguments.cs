@@ -11,7 +11,7 @@ namespace CoreHook.BinaryInjection.Host
     {
         void Serialize(MemoryStream stream);
     }
-    public class RemoteFunctionArgs : IBinarySerializer
+    public class RemoteFunctionArguments : IBinarySerializer
     {
         public bool Is64BitProcess;
         public IntPtr UserData;

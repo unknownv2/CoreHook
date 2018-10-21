@@ -6,7 +6,7 @@ using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.ManagedHook.Remote;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.FileMonitor
 {
@@ -24,7 +24,12 @@ namespace CoreHook.FileMonitor
         /// The library injected to be injected the target processed and executed using it's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
-
+        /// <summary>
+        /// The name of the pipe used for notifying the host process
+        /// if hooking plugin has been loaded succesfully loaded in
+        /// the target process or not. 
+        /// </summary>
+        private const string InjectionPipeName = "CoreHookInjection";
         /// <summary>
         /// Enable verbose logging to the console for the CoreCLR host module corerundll
         /// </summary>
@@ -137,7 +142,11 @@ namespace CoreHook.FileMonitor
         /// </summary>
         /// <param name="exePath">The path to the application to be launched.</param>
         /// <param name="injectionLibrary">The CoreHook hooking library to loaded in the target.</param>
-        private static void CreateAndInjectDll(string exePath, string injectionLibrary)
+        /// <param name="injectionPipeName"></param>
+        private static void CreateAndInjectDll(
+            string exePath, 
+            string injectionLibrary,
+            string injectionPipeName = InjectionPipeName)
         {
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
@@ -157,9 +166,10 @@ namespace CoreHook.FileMonitor
                      },
                      configX86,
                      configX64,
-                     new RemoteHookingConfig()
+                     new RemoteHookingConfig
                      {
                          CLRBootstrapLibrary = coreLoadLibrary,
+                         InjectionPipeName = injectionPipeName,
                          PayloadLibrary = injectionLibrary,
                          VerboseLog = HostVerboseLog,
                          WaitForDebugger = HostWaitForDebugger
@@ -176,7 +186,11 @@ namespace CoreHook.FileMonitor
         /// </summary>
         /// <param name="processId"></param>
         /// <param name="injectionLibrary"></param>
-        private static void InjectDllIntoTarget(int processId, string injectionLibrary)
+        /// <param name="injectionPipeName"></param>
+        private static void InjectDllIntoTarget(
+            int processId, 
+            string injectionLibrary,
+            string injectionPipeName = InjectionPipeName)
         {
             ValidateFilePath(injectionLibrary);
 
@@ -188,16 +202,17 @@ namespace CoreHook.FileMonitor
             {
                 RemoteHooking.Inject(
                     processId,
-                    new RemoteHookingConfig()
+                    new RemoteHookingConfig
                     {
-                        HostLibrary = coreRunDll,
                         CoreCLRPath = coreRootPath,
                         CoreCLRLibrariesPath = coreLibrariesPath,
                         CLRBootstrapLibrary = coreLoadDll,
                         DetourLibrary = coreHookDll,
+                        HostLibrary = coreRunDll,
+                        InjectionPipeName = injectionPipeName,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog,
-                        WaitForDebugger = HostWaitForDebugger
+                        WaitForDebugger = HostWaitForDebugger,
                     },
                     pipePlatform,
                     CoreHookPipeName);

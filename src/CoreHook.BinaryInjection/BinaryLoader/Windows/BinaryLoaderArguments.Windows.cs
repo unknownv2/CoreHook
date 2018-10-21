@@ -10,15 +10,15 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
         Encoding PathEncoding { get; }
     }
 
-    public class WindowsBinaryLoaderConfig : IBinaryLoaderConfig
+    public sealed partial class BinaryLoaderConfig : IBinaryLoaderConfig
     {
-        public int MaxPathLength { get => 260; }
-        public Encoding PathEncoding { get => Encoding.Unicode; }
+        public int MaxPathLength => 260; 
+        public Encoding PathEncoding => Encoding.Unicode;
     }
 
     public class BinaryLoaderSerializer : IBinarySerializer
     {
-        public BinaryLoaderArgs Arguments { get; set; }
+        public BinaryLoaderArguments Arguments { get; set; }
         public IBinaryLoaderConfig Config { get; }
 
         public BinaryLoaderSerializer(IBinaryLoaderConfig config)
@@ -38,9 +38,9 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
                     writer.Write(Arguments.WaitForDebugger);
                     // Padding for reserved data to align structure to 8 bytes
                     writer.Write(new byte[6]);
-                    writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.PayloadFileName, Config.MaxPathLength, Config.PathEncoding));
-                    writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.CoreRootPath, Config.MaxPathLength, Config.PathEncoding));
-                    writer.Write(BinaryLoaderArgs.GetPathArray(Arguments.CoreLibrariesPath ?? string.Empty, Config.MaxPathLength, Config.PathEncoding));
+                    writer.Write(BinaryLoaderArguments.GetPathArray(Arguments.PayloadFileName, Config.MaxPathLength, Config.PathEncoding));
+                    writer.Write(BinaryLoaderArguments.GetPathArray(Arguments.CoreRootPath, Config.MaxPathLength, Config.PathEncoding));
+                    writer.Write(BinaryLoaderArguments.GetPathArray(Arguments.CoreLibrariesPath ?? string.Empty, Config.MaxPathLength, Config.PathEncoding));
                 }
                 return ms.ToArray();
             }

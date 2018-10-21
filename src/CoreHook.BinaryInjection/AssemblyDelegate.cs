@@ -12,9 +12,5 @@ namespace CoreHook.BinaryInjection
             TypeName = typeName;
             MethodName = methodName;
         }
-        public override string ToString()
-        {
-            return $"{AssemblyName}.{TypeName}.{MethodName}";
-        }
     }
 }

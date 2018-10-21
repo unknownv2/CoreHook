@@ -136,7 +136,7 @@ namespace CoreHook
         /// <summary>
         /// Determines the first unmanaged module on the current call stack. This is always the module
         /// that invoked the hook. 
-        /// Executes in max. 15 micro secounds.
+        /// Executes in max. 15 micro seconds.
         /// </summary>
         /// <remarks>
         /// The problem is that if the calling module is a NET assembly
@@ -156,7 +156,7 @@ namespace CoreHook
         /// <summary>
         /// Determines the first managed module on the current call stack. This is always the module
         /// that invoked the hook. 
-        /// Executes in max. 40 micro secounds.
+        /// Executes in max. 40 micro seconds.
         /// </summary>
         /// <remarks>
         /// Imagine your hook targets CreateFile. A NET assembly will now invoke this hook through
@@ -257,7 +257,7 @@ namespace CoreHook
         /// Creates a call stack trace of the unmanaged code path that finally
         /// lead to your hook. To detect whether the desired module is within the
         /// call stack you will have to walk through the whole list!
-        /// Executes in max. 20 micro secounds.
+        /// Executes in max. 20 micro seconds.
         /// </summary>
         /// <remarks>
         /// This method is not supported on Windows 2000 and will just return the
@@ -311,7 +311,7 @@ namespace CoreHook
         /// Creates a call stack trace of the managed code path that finally
         /// lead to your hook. To detect whether the desired module is within the
         /// call stack you will have to walk through the whole list!
-        /// Executes in max. 80 micro secounds.
+        /// Executes in max. 80 micro seconds.
         /// </summary>
         public static System.Reflection.Module[] ManagedStackTrace
         {

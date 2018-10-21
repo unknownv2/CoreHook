@@ -2,7 +2,7 @@
 
 namespace CoreHook.BinaryInjection
 {
-    public class BinaryLoaderArgs
+    public class BinaryLoaderArguments
     {
         public bool Verbose;
 

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace CoreHook.Unmanaged
+namespace CoreHook.Memory
 {
     public class Binary
     {

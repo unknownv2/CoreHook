@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace CoreHook.Unmanaged
+namespace CoreHook.Memory
 {
     public static class NativeMethods
     {

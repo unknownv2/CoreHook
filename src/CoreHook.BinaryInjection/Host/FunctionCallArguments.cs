@@ -5,7 +5,7 @@ using System.Text;
 namespace CoreHook.BinaryInjection.Host
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct FunctionCallArgs
+    public sealed partial class FunctionCallArguments
     {
         [FieldOffset(0)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMaxWide)]
@@ -25,22 +25,22 @@ namespace CoreHook.BinaryInjection.Host
 
         private const int FunctionNameMax = 256;
         private const int FunctionNameMaxWide = FunctionNameMax*2;
+        private const char PaddingCharacter = '\0';
 
         private const int BinaryArgumentsSize = 12;
 
         private static Encoding PathEncoding = Encoding.Unicode;
 
-        public FunctionCallArgs(IAssemblyDelegate assemblyDelegate, IBinarySerializer arguments)
+        public FunctionCallArguments(IAssemblyDelegate assemblyDelegate, IBinarySerializer arguments)
         {
             if (assemblyDelegate == null)
             {
-                throw new ArgumentNullException("Assembly delegate was null");
+                throw new ArgumentNullException("Invalid assembly delegate");
             }   
 
-            Assembly = PathEncoding.GetBytes(assemblyDelegate.AssemblyName.PadRight(FunctionNameMax, '\0'));
-            Class = PathEncoding.GetBytes(string.Format("{0}.{1}", 
-                assemblyDelegate.AssemblyName, assemblyDelegate.TypeName).PadRight(FunctionNameMax, '\0'));
-            Function = PathEncoding.GetBytes(assemblyDelegate.MethodName.PadRight(FunctionNameMax, '\0'));
+            Assembly = PathEncoding.GetBytes(assemblyDelegate.AssemblyName.PadRight(FunctionNameMax, PaddingCharacter));
+            Class = PathEncoding.GetBytes($"{assemblyDelegate.AssemblyName}.{assemblyDelegate.TypeName}".PadRight(FunctionNameMax, PaddingCharacter));
+            Function = PathEncoding.GetBytes(assemblyDelegate.MethodName.PadRight(FunctionNameMax, PaddingCharacter));
 
             Arguments = arguments.Serialize();
         }

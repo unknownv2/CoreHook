@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.IPC", "src\CoreHoo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.ManagedHook", "src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj", "{C1446EE3-AF70-4902-B2CE-ED7F53FC0CB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Unmanaged", "src\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj", "{9BF07061-551A-431F-B27B-AD35E7AA7DA8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Memory", "src\CoreHook.Memory\CoreHook.Memory.csproj", "{9BF07061-551A-431F-B27B-AD35E7AA7DA8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{651578A4-4B76-4A11-897F-45A3D5714574}"
 EndProject
