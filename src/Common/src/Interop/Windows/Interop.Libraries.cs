@@ -1,6 +1,3 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
 
 internal static partial class Interop
 {
@@ -21,6 +18,7 @@ internal static partial class Interop
         internal const string Odbc32 = "odbc32.dll";
         internal const string OleAut32 = "oleaut32.dll";
         internal const string PerfCounter = "perfcounter.dll";
+        internal const string Psapi = "psapi.dll";
         internal const string RoBuffer = "api-ms-win-core-winrt-robuffer-l1-1-0.dll";
         internal const string Secur32 = "secur32.dll";
         internal const string Shell32 = "shell32.dll";

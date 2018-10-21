@@ -525,15 +525,14 @@ namespace CoreHook.Unmanaged.Windows
             for (; ; )
             {
                 var gcHandle = GCHandle.Alloc(moduleHandles, GCHandleType.Pinned);
-                
-               if(!NativeMethods.EnumProcessModulesEx(
-                    hProcess,
-                    gcHandle.AddrOfPinnedObject(),
-                    (uint)(IntPtr.Size * moduleHandles.Length),
-                    out size,
-                    NativeMethods.ModuleFilterFlags.All))
+                    if (!Interop.Psapi.EnumProcessModulesEx(
+                     hProcess,
+                     gcHandle.AddrOfPinnedObject(),
+                     (uint)(IntPtr.Size * moduleHandles.Length),
+                     out size,
+                     Interop.Psapi.ModuleFilterFlags.All))
                 {
-                    throw new Win32Exception("EnumProcessModulesEx failed");
+                    throw new Win32Exception("Retrieving module handles failed on call to EnumProcessModulesEx");
                 }
 
                 gcHandle.Free();

@@ -31,7 +31,7 @@
     </Compile>       
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CloseHandle.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.CloseHandle.cs</Link>
-    </Compile>        
+    </Compile>   
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs</Link>
     </Compile>    
@@ -43,7 +43,7 @@
     </Compile>          
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs</Link>
-    </Compile>      
+    </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.VirtualFreeEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.VirtualFreeEx.cs</Link>
     </Compile>   
@@ -52,6 +52,9 @@
     </Compile>      
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs</Link>
-    </Compile>    
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Psapi\Interop.EnumProcessModulesEx.cs">
+      <Link>Common\Interop\Windows\Psapi\Interop.EnumProcessModulesEx.cs</Link>
+    </Compile>     
   </ItemGroup>
 </Project>
