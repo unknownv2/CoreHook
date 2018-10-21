@@ -7,7 +7,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using CoreHook.BinaryInjection;
 using CoreHook.BinaryInjection.BinaryLoader;
-using CoreHook.BinaryInjection.BinaryLoader.Memory;
 using CoreHook.BinaryInjection.BinaryLoader.Windows;
 using CoreHook.BinaryInjection.Host;
 using CoreHook.CoreLoad;

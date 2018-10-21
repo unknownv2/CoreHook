@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace CoreHook.BinaryInjection.BinaryLoader.Memory
+namespace CoreHook.Memory
 {
     public class MemoryManager : IMemoryManager
     {
         private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
 
-        public Func<Process, IntPtr, uint, bool> FreeMemory { get; set; }
+        public Func<Process, IntPtr, int, bool> FreeMemory { get; set; }
 
         public MemoryManager()
         {
 
         }
 
-        public IntPtr Add(Process process, IntPtr address, bool isFree, uint size = 0)
+        public IntPtr Add(Process process, IntPtr address, bool isFree, int size = 0)
         {
             _allocatedAddresses.Add(new MemoryAllocation()
             {
