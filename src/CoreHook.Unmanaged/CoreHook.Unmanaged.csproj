@@ -26,15 +26,27 @@
     <Compile Include="$(CommonPath)\Interop\Windows\advapi32\Interop.ProcessOptions.cs">
       <Link>Common\Interop\Windows\advapi32\Interop.ProcessOptions.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs</Link>
+    </Compile>       
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CloseHandle.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.CloseHandle.cs</Link>
+    </Compile>        
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs</Link>
     </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleInformation.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleInformation.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs</Link>
+    </Compile>      
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.VirtualFreeEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.VirtualFreeEx.cs</Link>
-    </Compile>    
+    </Compile>   
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WaitForSingleObject.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.WaitForSingleObject.cs</Link>
+    </Compile>      
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs</Link>
     </Compile>    

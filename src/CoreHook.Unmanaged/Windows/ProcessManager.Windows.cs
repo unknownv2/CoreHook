@@ -72,12 +72,12 @@ namespace CoreHook.Unmanaged.Windows
                 var pathBytes = Encoding.Unicode.GetBytes(modulePath + "\0");
 
                 // Allocate space in the remote process for the DLL path.
-                var remoteAllocAddr = NativeMethods.VirtualAllocEx(
+                var remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
-                    pathBytes.Length,
-                    NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
-                    NativeMethods.MemoryProtection.ReadWrite);
+                    new UIntPtr((uint)pathBytes.Length),
+                    Interop.Kernel32.AllocationType.Commit | Interop.Kernel32.AllocationType.Reserve,
+                    Interop.Kernel32.MemoryProtection.ReadWrite);
 
                 if (remoteAllocAddr == IntPtr.Zero)
                 {
@@ -100,10 +100,10 @@ namespace CoreHook.Unmanaged.Windows
                     }
 
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    var hThread = NativeMethods.CreateRemoteThread(
+                    var hThread = Interop.Kernel32.CreateRemoteThread(
                      hProcess,
                      IntPtr.Zero,
-                     0,
+                     UIntPtr.Zero,
                      GetWin32ProcAddress(
                          Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
@@ -114,14 +114,17 @@ namespace CoreHook.Unmanaged.Windows
                          0,
                          IntPtr.Zero);
 
-                    if (hThread == IntPtr.Zero)
+                    if (hThread.DangerousGetHandle() == IntPtr.Zero)
                     {
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
 
-                    NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
+                    const int infiniteWait = -1;
+                    Interop.Kernel32.WaitForSingleObject(
+                        hThread,
+                        infiniteWait);
 
-                    NativeMethods.CloseHandle(hThread);
+                    Interop.Kernel32.CloseHandle(hThread.DangerousGetHandle());
                 }
                 finally
                 {
@@ -153,12 +156,12 @@ namespace CoreHook.Unmanaged.Windows
             {
 
                 // Allocate space in the remote process for the DLL path.
-                IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
+                IntPtr remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
-                    arguments.Length,
-                    NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
-                    NativeMethods.MemoryProtection.ReadWrite);
+                    new UIntPtr((uint)arguments.Length),
+                    Interop.Kernel32.AllocationType.Commit | Interop.Kernel32.AllocationType.Reserve,
+                    Interop.Kernel32.MemoryProtection.ReadWrite);
 
                 if (remoteAllocAddr == IntPtr.Zero)
                 {
@@ -181,27 +184,29 @@ namespace CoreHook.Unmanaged.Windows
                     }
 
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    IntPtr hThread = NativeMethods.CreateRemoteThread(
+                    var hThread = Interop.Kernel32.CreateRemoteThread(
                         hProcess,
                         IntPtr.Zero,
-                        0,
+                        UIntPtr.Zero,
                         GetAbsoluteFunctionAddressEx(module, function),
                         remoteAllocAddr,
                         0,
                         IntPtr.Zero);
 
-                    if (hThread == IntPtr.Zero)
+                    if (hThread.DangerousGetHandle() == IntPtr.Zero)
                     {
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
 
                     if (canWait)
                     {
-                        NativeMethods.WaitForSingleObject(hThread, NativeMethods.INFINITE);
+                        const int infiniteWait = -1;
+                        Interop.Kernel32.WaitForSingleObject(
+                            hThread,
+                            infiniteWait);
                     }
 
-                    // We don't need this handle.
-                    NativeMethods.CloseHandle(hThread);
+                    Interop.Kernel32.CloseHandle(hThread.DangerousGetHandle());
 
                     return remoteAllocAddr;
                 }
@@ -228,12 +233,13 @@ namespace CoreHook.Unmanaged.Windows
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_WRITE))
             {
                 // Allocate space in the remote process for the DLL path.
-                IntPtr remoteAllocAddr = NativeMethods.VirtualAllocEx(
+
+                IntPtr remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
-                    size,
-                    NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
-                    NativeMethods.MemoryProtection.ReadWrite);
+                    new UIntPtr((uint)size),
+                    Interop.Kernel32.AllocationType.Commit | Interop.Kernel32.AllocationType.Reserve,
+                    Interop.Kernel32.MemoryProtection.ReadWrite);
 
                 if (remoteAllocAddr == IntPtr.Zero)
                 {

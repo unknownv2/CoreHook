@@ -7,16 +7,13 @@ internal partial class Interop
     internal partial class Kernel32
     {
         [DllImport(Libraries.Kernel32, CharSet = CharSet.Unicode, SetLastError = true)]
-        internal static extern bool VirtualFreeEx(
+        internal static extern SafeWaitHandle CreateRemoteThread(
             SafeProcessHandle processHandle,
-            IntPtr address,
-            UIntPtr size,
-            uint freeType);
-
-        internal partial class FreeType
-        {
-            internal const uint Decommit = 0x4000;
-            internal const uint Release = 0x8000;
-        }
+            IntPtr lpThreadAttributes,
+            UIntPtr dwStackSize,
+            IntPtr lpStartAddress,
+            IntPtr lpParameter,
+            uint dwCreationFlags,
+            IntPtr lpThreadId);
     }
 }
