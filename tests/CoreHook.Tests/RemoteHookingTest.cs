@@ -23,7 +23,6 @@ namespace CoreHook.Tests
             Resources.EndTestProcess();
         }
 
-
         //[Fact]
         private void TestTargetAppRemoteInject()
         {
