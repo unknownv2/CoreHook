@@ -174,7 +174,7 @@ namespace CoreHook.CoreLoad
 
         private static void Log(string message)
         {
-            Console.WriteLine(message);
+            Debug.WriteLine(message);
         }
 
         const long APPMODEL_ERROR_NO_PACKAGE = 15700L;

@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using CoreHook.BinaryInjection.BinaryLoader.Memory;
 using CoreHook.BinaryInjection.Host;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.BinaryInjection.BinaryLoader.Windows
 {

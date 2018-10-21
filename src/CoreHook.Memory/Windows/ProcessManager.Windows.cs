@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using Microsoft.Win32.SafeHandles;
 
-namespace CoreHook.Unmanaged.Windows
+namespace CoreHook.Memory.Windows
 {
     public sealed partial class ProcessManager : IProcessManager
     {

@@ -1,8 +1,8 @@
 ﻿using System;
-using static CoreHook.Unmanaged.NativeMethods;
+using static CoreHook.Memory.NativeMethods;
 using System.ComponentModel;
 
-namespace CoreHook.Unmanaged
+namespace CoreHook.Memory
 {
     public class Memory
     {

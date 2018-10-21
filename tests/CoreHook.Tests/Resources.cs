@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using CoreHook.ManagedHook.Remote;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.Tests
 {

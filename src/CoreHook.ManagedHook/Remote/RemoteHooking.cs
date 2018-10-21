@@ -13,7 +13,7 @@ using CoreHook.BinaryInjection.Host;
 using CoreHook.CoreLoad;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.ManagedHook.Remote
 {
@@ -40,7 +40,7 @@ namespace CoreHook.ManagedHook.Remote
             {
                 return new BinaryLoader(
                     new MemoryManager(),
-                    new Unmanaged.Windows.ProcessManager(process));
+                    new Memory.Windows.ProcessManager(process));
             }
             else
             {

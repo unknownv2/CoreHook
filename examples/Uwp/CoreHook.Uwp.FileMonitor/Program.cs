@@ -10,7 +10,7 @@ using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
 using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.Uwp.FileMonitor
 {

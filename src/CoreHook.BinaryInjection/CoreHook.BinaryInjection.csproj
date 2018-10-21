@@ -17,7 +17,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoreHook.Unmanaged\CoreHook.Unmanaged.csproj" />
+    <ProjectReference Include="..\CoreHook.Memory\CoreHook.Memory.csproj" />
   </ItemGroup>
 
 </Project>

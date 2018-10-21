@@ -6,7 +6,7 @@ using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.ManagedHook.Remote;
-using CoreHook.Unmanaged;
+using CoreHook.Memory;
 
 namespace CoreHook.FileMonitor
 {

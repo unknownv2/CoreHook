@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace CoreHook.Unmanaged
+namespace CoreHook.Memory
 {
     public interface IProcessManager
     {

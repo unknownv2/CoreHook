@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace CoreHook.Unmanaged.Windows
+namespace CoreHook.Memory.Windows
 {
     static class NativeAPI_x86
     {
