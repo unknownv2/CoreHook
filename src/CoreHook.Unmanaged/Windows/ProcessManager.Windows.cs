@@ -472,19 +472,29 @@ namespace CoreHook.Unmanaged.Windows
         private IntPtr GetModuleHandleByFileName(SafeProcessHandle hProcess, string moduleName)
         {
             IntPtr[] handles = GetAllModuleHandles(hProcess);
+            char[] chars = new char[1024];
 
             foreach (IntPtr moduleHandle in handles)
             {
-                var sb = new StringBuilder(256);
-
-                if (NativeMethods.GetModuleFileNameEx(hProcess, moduleHandle, sb, 512) == moduleName.Length)
+                int length = Interop.Kernel32.GetModuleFileNameEx(hProcess, moduleHandle, chars, chars.Length);
+                if(length == 0)
                 {
-                    if (moduleName.Equals(sb.ToString(), StringComparison.OrdinalIgnoreCase))
+                    continue;
+                }
+
+                var moduleFileName = (length >= 4 && chars[0] == '\\' && chars[1] == '\\' && chars[2] == '?' && chars[3] == '\\') ?
+                        new string(chars, 4, length - 4) :
+                        new string(chars, 0, length);
+
+                if (length == moduleName.Length)
+                {
+                    if (moduleName.Equals(moduleFileName, StringComparison.OrdinalIgnoreCase))
                     {
                         return moduleHandle;
                     }
                 }
-                Debug.WriteLine(sb.ToString());
+
+                Debug.WriteLine(moduleFileName);
             }
 
             return IntPtr.Zero;
