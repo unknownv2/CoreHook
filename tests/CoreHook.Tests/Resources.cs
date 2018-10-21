@@ -128,6 +128,7 @@ namespace CoreHook.Tests
                 dllName
                 );
         }
+
         internal static void InjectDllIntoTarget(
             Process target,
             string injectionLibrary,

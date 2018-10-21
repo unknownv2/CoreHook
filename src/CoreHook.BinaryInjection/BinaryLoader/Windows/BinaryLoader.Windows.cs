@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using CoreHook.BinaryInjection.BinaryLoader.Memory;
 using CoreHook.BinaryInjection.Host;
 using CoreHook.Memory;
 
@@ -81,8 +80,6 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
-
-                    var moduleName = Path.GetFileName(binary);
 
                     _processManager.InjectBinary(binary);
                 }
