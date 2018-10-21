@@ -28,7 +28,12 @@ namespace CoreHook.Uwp.FileMonitor
         /// The library injected to be injected the target processed and executed using it's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
-
+        /// <summary>
+        /// The name of the pipe used for notifying the host process
+        /// if hooking plugin has been loaded succesfully loaded in
+        /// the target process or not. 
+        /// </summary>
+        private const string InjectionPipeName = "UwpCoreHookInjection";
         /// <summary>
         /// Enable verbose logging to the console for the CoreCLR host module corerundll
         /// </summary>
@@ -117,7 +122,11 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         /// <param name="processId"></param>
         /// <param name="injectionLibrary"></param>
-        private static void InjectDllIntoTarget(int processId, string injectionLibrary)
+        /// <param name="injectionPipeName"></param>
+        private static void InjectDllIntoTarget(
+            int processId, 
+            string injectionLibrary,
+            string injectionPipeName = InjectionPipeName)
         {
             if (Examples.Common.Utilities.GetCoreLoadPaths(
                 ProcessHelper.GetProcessById(processId).Is64Bit(),
@@ -131,13 +140,14 @@ namespace CoreHook.Uwp.FileMonitor
 
                 RemoteHooking.Inject(
                     processId,
-                    new RemoteHookingConfig()
+                    new RemoteHookingConfig
                     {
-                        HostLibrary = coreRunDll,
                         CoreCLRPath = coreRootPath,
                         CoreCLRLibrariesPath = coreLibrariesPath,
                         CLRBootstrapLibrary = coreLoadDll,
                         DetourLibrary = corehookPath,
+                        HostLibrary = coreRunDll,
+                        InjectionPipeName = injectionPipeName,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog,
                         WaitForDebugger = HostWaitForDebugger

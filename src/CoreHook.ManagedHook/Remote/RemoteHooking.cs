@@ -30,11 +30,6 @@ namespace CoreHook.ManagedHook.Remote
                 methodName: "Load");
 
         /// <summary>
-        /// Pipe named used for communicating with the target process during the boostrap stage.
-        /// </summary>
-        private const string InjectionPipe = "CoreHookInjection";
-
-        /// <summary>
         /// Retrieve the class used to load binary modules in a process.
         /// </summary>
         /// <param name="process">The target process.</param>
@@ -180,8 +175,15 @@ namespace CoreHook.ManagedHook.Remote
             IPipePlatform pipePlatform,
             params object[] passThruArguments)
         {
+            string injectionPipeName = remoteHookConfig.InjectionPipeName;
+            if(string.IsNullOrEmpty(injectionPipeName))
+            {
+                throw new ArgumentNullException("Invalid injection pipe name");
+            }
+
             InjectionHelper.BeginInjection(targetPID);
-            using (var pipeServer = InjectionHelper.CreateServer(InjectionPipe, pipePlatform))
+            
+            using (var pipeServer = InjectionHelper.CreateServer(injectionPipeName, pipePlatform))
             {
                 try
                 {
@@ -208,7 +210,8 @@ namespace CoreHook.ManagedHook.Remote
                         PrepareInjection(
                             remoteInfo,
                             ref libraryPath,
-                            passThruStream);
+                            passThruStream,
+                            injectionPipeName);
 
                         // Inject the corerundll into the process, start the CoreCLR
                         // and use the CoreLoad dll to resolve the dependencies of the hooking library
@@ -276,10 +279,12 @@ namespace CoreHook.ManagedHook.Remote
         /// <param name="remoteInfo">The configuration that is serialized and passed to CoreLoad.</param>
         /// <param name="library">The managed hooking library to be loaded and executed in the target process.</param>
         /// <param name="argumentsStream">The stream that holds the the serialized <paramref name="remoteInfo"/> class.</param>
+        /// <param name="injectionPipeName">The pipe name used for notifying the host process that the hook plugin has been loaded in the target process.</param>
         private static void PrepareInjection(
             ManagedRemoteInfo remoteInfo,
             ref string library,
-            MemoryStream argumentsStream)
+            MemoryStream argumentsStream,
+            string injectionPipeName)
         {
             if (string.IsNullOrEmpty(library))
             {
@@ -302,7 +307,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new FileNotFoundException($"The given assembly could not be found: '{remoteInfo.UserLibrary}'", remoteInfo.UserLibrary);
             }
 
-            remoteInfo.ChannelName = InjectionPipe;
+            remoteInfo.ChannelName = injectionPipeName;
 
             var formatter = new BinaryFormatter();
             formatter.Serialize(argumentsStream, remoteInfo);

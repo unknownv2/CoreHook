@@ -57,6 +57,12 @@ namespace CoreHook.ManagedHook.Remote
         /// runtime libraries such as System.Private.CoreLib.dll.
         /// </summary>
         public string CoreCLRLibrariesPath { get; set; }
+        /// <summary>
+        /// The name of the pipe used for notifying the host process
+        /// if hooking plugin has been loaded succesfully loaded in
+        /// the target process or not. 
+        /// </summary>
+        public string InjectionPipeName { get; set; }
     }
     public interface ICreateProcessConfig
     {

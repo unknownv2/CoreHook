@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using CoreHook.ManagedHook.Remote;
+using CoreHook.Unmanaged;
 
 namespace CoreHook.Tests
 {
@@ -17,7 +19,7 @@ namespace CoreHook.Tests
             get
             {
                 if(_testProcess64 == null)
-                {          
+                {
                     _testProcess64 = new Process();
 
                     _testProcess64.StartInfo.FileName = Path.Combine(
@@ -61,10 +63,12 @@ namespace CoreHook.Tests
         {
             _testProcess64?.Kill();
             _testProcess64 = null;
+        }
+        internal static void EndTestProcess2()
+        {
             _testProcess32?.Kill();
             _testProcess32 = null;
         }
-
         private const string TargetAppName = "CoreHook.Tests.TargetApp.dll";
         private static Process _targetApp;
 
@@ -123,6 +127,34 @@ namespace CoreHook.Tests
                 TestModuleDir,
                 dllName
                 );
+        }
+        internal static void InjectDllIntoTarget(
+            Process target,
+            string injectionLibrary,
+            string message,
+            string pipeName = "CoreHookInjection")
+        {
+            if (Examples.Common.Utilities.GetCoreLoadPaths(target.Is64Bit(),
+                out string coreRunDll, out string coreLibrariesPath,
+                out string coreRootPath, out string coreLoadDll, out string coreHookDll))
+            {
+                RemoteHooking.Inject(
+                    target.Id,
+                    new RemoteHookingConfig()
+                    {
+                        HostLibrary = coreRunDll,
+                        CoreCLRPath = coreRootPath,
+                        CoreCLRLibrariesPath = coreLibrariesPath,
+                        CLRBootstrapLibrary = coreLoadDll,
+                        DetourLibrary = coreHookDll,
+                        PayloadLibrary = injectionLibrary,
+                        VerboseLog = false,
+                        WaitForDebugger = false,
+                        InjectionPipeName = pipeName
+                    },
+                    new PipePlatformBase(),
+                    message);
+            }
         }
     }
 }

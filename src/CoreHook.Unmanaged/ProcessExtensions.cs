@@ -60,25 +60,24 @@ namespace CoreHook.Unmanaged
                 {
                     return false;
                 }
+         
+                SafeProcessHandle processHandle = NativeMethods.OpenProcess(
+                    NativeMethods.ProcessAccessFlags.QueryInformation,
+                    false,
+                    process.Id);
 
-                SafeProcessHandle handle = NativeMethods.OpenProcess(
-                     NativeMethods.ProcessAccessFlags.QueryInformation,
-                     false,
-                     process.Id
-                 );
-
-                if (handle == null)
+                if (processHandle.IsInvalid)
                 {
-                    throw new Win32Exception();
+                    throw new Win32Exception("Failed to open process handle");
                 }
 
-                using (handle)
+                using (processHandle)
                 {
                     bool ret;
 
-                    if (!NativeMethods.IsWow64Process(handle, out ret))
+                    if (!NativeMethods.IsWow64Process(processHandle, out ret))
                     {
-                        throw new Win32Exception();
+                        throw new Win32Exception("Cannot determine process architecture");
                     }
 
                     return !ret;
