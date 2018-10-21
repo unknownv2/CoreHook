@@ -62,6 +62,7 @@ namespace CoreHook.Unmanaged.Windows
 
         public void InjectBinary(string modulePath)
         {
+            SafeWaitHandle hThread = null;
             using (var hProcess = GetProcessHandle(ProcessHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
@@ -100,7 +101,7 @@ namespace CoreHook.Unmanaged.Windows
                     }
 
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    var hThread = Interop.Kernel32.CreateRemoteThread(
+                     hThread = Interop.Kernel32.CreateRemoteThread(
                      hProcess,
                      IntPtr.Zero,
                      UIntPtr.Zero,
@@ -114,7 +115,7 @@ namespace CoreHook.Unmanaged.Windows
                          0,
                          IntPtr.Zero);
 
-                    if (hThread.DangerousGetHandle() == IntPtr.Zero)
+                    if (hThread.IsInvalid)
                     {
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
@@ -123,11 +124,11 @@ namespace CoreHook.Unmanaged.Windows
                     Interop.Kernel32.WaitForSingleObject(
                         hThread,
                         infiniteWait);
-
-                    Interop.Kernel32.CloseHandle(hThread.DangerousGetHandle());
                 }
                 finally
                 {
+                    hThread?.Dispose();
+
                     Interop.Kernel32.VirtualFreeEx(
                         hProcess,
                         remoteAllocAddr,
@@ -147,6 +148,7 @@ namespace CoreHook.Unmanaged.Windows
         /// or we need to cleanup later.</param>
         public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
         {
+            SafeWaitHandle hThread = null;
             using (var hProcess = GetProcessHandle(ProcessHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
@@ -184,7 +186,7 @@ namespace CoreHook.Unmanaged.Windows
                     }
 
                     // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    var hThread = Interop.Kernel32.CreateRemoteThread(
+                    hThread = Interop.Kernel32.CreateRemoteThread(
                         hProcess,
                         IntPtr.Zero,
                         UIntPtr.Zero,
@@ -193,7 +195,7 @@ namespace CoreHook.Unmanaged.Windows
                         0,
                         IntPtr.Zero);
 
-                    if (hThread.DangerousGetHandle() == IntPtr.Zero)
+                    if (hThread.IsInvalid)
                     {
                         throw new Win32Exception("Failed to create thread in remote process.");
                     }
@@ -205,13 +207,12 @@ namespace CoreHook.Unmanaged.Windows
                             hThread,
                             infiniteWait);
                     }
-
-                    Interop.Kernel32.CloseHandle(hThread.DangerousGetHandle());
-
+                    
                     return remoteAllocAddr;
                 }
                 finally
                 {
+                    hThread?.Dispose();
                     if (canWait)
                     {
                         Interop.Kernel32.VirtualFreeEx(
@@ -233,7 +234,6 @@ namespace CoreHook.Unmanaged.Windows
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_WRITE))
             {
                 // Allocate space in the remote process for the DLL path.
-
                 IntPtr remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
                     hProcess,
                     IntPtr.Zero,
@@ -280,7 +280,9 @@ namespace CoreHook.Unmanaged.Windows
         public bool FreeMemory(IntPtr address, int? size)
         {
             if (address == IntPtr.Zero)
+            {
                 return true;
+            }
 
             using (var hProcess = GetProcessHandle(ProcessHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
@@ -322,17 +324,18 @@ namespace CoreHook.Unmanaged.Windows
 
             var buffer = new byte[exportDir.Size];
 
-            IntPtr bytesRead;
-
-            if (!NativeMethods.ReadProcessMemory(
+            if (!Interop.Kernel32.ReadProcessMemory(
                 hProcess,
                 moduleInfo.BaseOfDll + (int)exportDir.Rva,
                 buffer,
-                buffer.Length,
-                out bytesRead) || bytesRead != (IntPtr)buffer.Length)
+                new UIntPtr((uint)buffer.Length),
+                out UIntPtr bytesRead) || bytesRead.ToUInt32() != buffer.Length)
             {
                 throw new Win32Exception("Failed to read export table from memory of module.");
             }
+
+            // We no longer need the process handle, so close it.
+            hProcess.Dispose();
 
             return new IntPtr(moduleInfo.BaseOfDll.ToInt64() +
                 GetFunctionAddress(buffer, exportDir.Rva, functionName).ToInt64());
@@ -354,13 +357,12 @@ namespace CoreHook.Unmanaged.Windows
         private byte[] ReadPage(SafeProcessHandle hProcess, IntPtr address)
         {
             var buffer = new byte[Environment.SystemPageSize];
-
-            if (!NativeMethods.ReadProcessMemory(
+            if (!Interop.Kernel32.ReadProcessMemory(
                 hProcess,
                 address,
                 buffer,
-                buffer.Length,
-                out IntPtr bytesRead) || bytesRead != (IntPtr)buffer.Length)
+                new UIntPtr((uint)buffer.Length),
+                out UIntPtr bytesRead) || bytesRead.ToUInt32() != buffer.Length)
             {
                 throw new Win32Exception("Failed to read PE header from memory of module.");
             }

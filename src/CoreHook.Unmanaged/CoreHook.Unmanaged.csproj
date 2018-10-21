@@ -38,6 +38,9 @@
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleInformation.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleInformation.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.ReadProcessMemory.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.ReadProcessMemory.cs</Link>
+    </Compile>          
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs</Link>
     </Compile>      
