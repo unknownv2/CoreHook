@@ -15,7 +15,7 @@ namespace CoreHook.Tests
     public class RemoteHookingTest
     {
         [Fact]
-        private void TestRemoteInject()
+        private void TestRemoteInject64()
         {
             const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
             const string TestMessage = "Berner";
@@ -27,6 +27,23 @@ namespace CoreHook.Tests
                TestMessage);
 
             Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TestProcess));
+
+            Resources.EndTestProcess();
+        }
+
+        [Fact]
+        private void TestRemoteInject32()
+        {
+            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestMessage = "Berner";
+
+            InjectDllIntoTarget(Resources.TestProcess2,
+               Resources.GetTestDllPath(
+               TestHookLibrary
+               ),
+               TestMessage);
+
+            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TestProcess2));
 
             Resources.EndTestProcess();
         }

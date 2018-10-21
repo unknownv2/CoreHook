@@ -9,35 +9,60 @@ namespace CoreHook.Tests
     {
         private const string TestModuleDir = "Test";
 
-        private static Process _testProcess;
+        private static Process _testProcess64;
+        private static Process _testProcess32;
 
         internal static Process TestProcess
         {
             get
             {
-                if(_testProcess == null)
+                if(_testProcess64 == null)
                 {          
-                    _testProcess = new Process();
+                    _testProcess64 = new Process();
 
-                    _testProcess.StartInfo.FileName = Path.Combine(
+                    _testProcess64.StartInfo.FileName = Path.Combine(
                             Environment.ExpandEnvironmentVariables("%Windir%"),
                             "System32",
                             "notepad.exe"
                             );
 
-                    _testProcess.StartInfo.UseShellExecute = false;
-                    _testProcess.StartInfo.RedirectStandardInput = true;
-                    _testProcess.StartInfo.RedirectStandardOutput = true;
-                    _testProcess.Start();
+                    _testProcess64.StartInfo.UseShellExecute = false;
+                    _testProcess64.StartInfo.RedirectStandardInput = true;
+                    _testProcess64.StartInfo.RedirectStandardOutput = true;
+                    _testProcess64.Start();
                 }
-                return _testProcess;
+                return _testProcess64;
+            }
+        }
+        internal static Process TestProcess2
+        {
+            get
+            {
+                if (_testProcess32 == null)
+                {
+                    _testProcess32 = new Process();
+
+                    _testProcess32.StartInfo.FileName = Path.Combine(
+                            Environment.ExpandEnvironmentVariables("%Windir%"),
+                            "SysWOW64",
+                            "notepad.exe"
+                            );
+
+                    _testProcess32.StartInfo.UseShellExecute = false;
+                    _testProcess32.StartInfo.RedirectStandardInput = true;
+                    _testProcess32.StartInfo.RedirectStandardOutput = true;
+                    _testProcess32.Start();
+                }
+                return _testProcess32;
             }
         }
 
         internal static void EndTestProcess()
         {
-            _testProcess?.Kill();
-            _testProcess = null;
+            _testProcess64?.Kill();
+            _testProcess64 = null;
+            _testProcess32?.Kill();
+            _testProcess32 = null;
         }
 
         private const string TargetAppName = "CoreHook.Tests.TargetApp.dll";
