@@ -53,8 +53,8 @@
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs</Link>
     </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\Psapi\Interop.EnumProcessModulesEx.cs">
-      <Link>Common\Interop\Windows\Psapi\Interop.EnumProcessModulesEx.cs</Link>
+    <Compile Include="$(CommonPath)\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs">
+      <Link>Common\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs</Link>
     </Compile>     
   </ItemGroup>
 </Project>
