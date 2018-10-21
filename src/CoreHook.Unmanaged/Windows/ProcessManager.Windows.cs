@@ -87,14 +87,14 @@ namespace CoreHook.Unmanaged.Windows
                 try
                 {
                     // Write the DLL path to the allocated memory.
-                    var result = NativeMethods.WriteProcessMemory(
+                    var result = Interop.Kernel32.WriteProcessMemory(
                         hProcess,
                         remoteAllocAddr,
                         pathBytes,
                         pathBytes.Length,
-                        out UIntPtr bytesWritten);
+                        out IntPtr bytesWritten);
 
-                    if (!result || bytesWritten.ToUInt32() != pathBytes.Length)
+                    if (!result || bytesWritten.ToInt32() != pathBytes.Length)
                     {
                         throw new Win32Exception("Failed to allocate memory in remote process.");
                     }
@@ -107,7 +107,7 @@ namespace CoreHook.Unmanaged.Windows
                      GetWin32ProcAddress(
                          Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
-                             "System32",
+                             Environment.Is64BitOperatingSystem ? "System32" : "SysWOW64",
                              "kernel32.dll"
                              ), "LoadLibraryW"),
                          remoteAllocAddr,
@@ -125,11 +125,11 @@ namespace CoreHook.Unmanaged.Windows
                 }
                 finally
                 {
-                    NativeMethods.VirtualFreeEx(
+                    Interop.Kernel32.VirtualFreeEx(
                         hProcess,
                         remoteAllocAddr,
-                        0,
-                        NativeMethods.FreeType.Release);
+                        new UIntPtr(0),
+                        Interop.Kernel32.FreeType.Release);
                 }
             }
         }
@@ -168,14 +168,14 @@ namespace CoreHook.Unmanaged.Windows
                 try
                 {
                     // Write the DLL path to the allocated memory.
-                    bool result = NativeMethods.WriteProcessMemory(
+                    bool result = Interop.Kernel32.WriteProcessMemory(
                         hProcess,
                         remoteAllocAddr,
                         arguments,
                         arguments.Length,
-                        out UIntPtr bytesWritten);
+                        out IntPtr bytesWritten);
 
-                    if (!result || bytesWritten.ToUInt32() != arguments.Length)
+                    if (!result || bytesWritten.ToInt32() != arguments.Length)
                     {
                         throw new Win32Exception("Failed to allocate memory in remote process.");
                     }
@@ -209,11 +209,11 @@ namespace CoreHook.Unmanaged.Windows
                 {
                     if (canWait)
                     {
-                        NativeMethods.VirtualFreeEx(
-                            hProcess, 
+                        Interop.Kernel32.VirtualFreeEx(
+                            hProcess,
                             remoteAllocAddr,
-                            0,
-                            NativeMethods.FreeType.Release);
+                            new UIntPtr(0),
+                            Interop.Kernel32.FreeType.Release);
                     }
                 }
             }
@@ -256,14 +256,14 @@ namespace CoreHook.Unmanaged.Windows
                 IntPtr remoteAllocAddr = MemAllocate(dataLen);
 
                 // Write the DLL path to the allocated memory.
-                bool result = NativeMethods.WriteProcessMemory(
+                bool result = Interop.Kernel32.WriteProcessMemory(
                     hProcess,
                     remoteAllocAddr,
                     data,
                     dataLen,
-                    out UIntPtr bytesWritten);
+                    out IntPtr bytesWritten);
 
-                if (!result || bytesWritten.ToUInt32() != dataLen)
+                if (!result || bytesWritten.ToInt32() != dataLen)
                 {
                     throw new Win32Exception("Failed to allocate memory in remote process.");
                 }
@@ -281,8 +281,16 @@ namespace CoreHook.Unmanaged.Windows
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION))
             {
                 return size.HasValue ?
-                    NativeMethods.VirtualFreeEx(hProcess, address, size.GetValueOrDefault(), NativeMethods.FreeType.Decommit) :
-                    NativeMethods.VirtualFreeEx(hProcess, address, 0, NativeMethods.FreeType.Release);
+                    Interop.Kernel32.VirtualFreeEx(
+                        hProcess, 
+                        address, 
+                        new UIntPtr((uint)size.GetValueOrDefault()),
+                        Interop.Kernel32.FreeType.Decommit) :
+                    Interop.Kernel32.VirtualFreeEx(
+                        hProcess, 
+                        address, 
+                        new UIntPtr(0), 
+                        Interop.Kernel32.FreeType.Release);
             }
         }
 

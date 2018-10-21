@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
-using System.Diagnostics;
 
 namespace CoreHook.CoreLoad
 {
@@ -79,7 +79,7 @@ namespace CoreHook.CoreLoad
                         library.Serviceable);
 
                     var assemblies = new List<string>();
-                    this.assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
+                    assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
 
                     if (assemblies.Count > 0)
                     {
