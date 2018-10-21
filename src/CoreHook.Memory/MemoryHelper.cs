@@ -4,7 +4,7 @@ using System.ComponentModel;
 
 namespace CoreHook.Memory
 {
-    public class Memory
+    public class MemoryHelper
     {
         public static IntPtr Allocate(IntPtr address, int size, AllocationType allocationFlags = AllocationType.Commit, MemoryProtection protectionFlags = MemoryProtection.ExecuteReadWrite)
         {
