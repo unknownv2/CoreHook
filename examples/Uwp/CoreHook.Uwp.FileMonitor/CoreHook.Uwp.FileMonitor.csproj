@@ -31,7 +31,7 @@
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
     <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
-    <ProjectReference Include="..\CoreHook.UWP.FileMonitor.Shared\CoreHook.UWP.FileMonitor.Shared.csproj" />
+    <ProjectReference Include="..\CoreHook.Uwp.FileMonitor.Shared\CoreHook.Uwp.FileMonitor.Shared.csproj" />
   </ItemGroup>
 
 </Project>
