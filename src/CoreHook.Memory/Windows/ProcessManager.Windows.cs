@@ -10,17 +10,17 @@ namespace CoreHook.Memory.Windows
 {
     public sealed partial class ProcessManager : IProcessManager
     {
-        public Process ProcessHandle { get; private set; }
+        private Process _processHandle;
 
         public ProcessManager(Process process)
         {
-            ProcessHandle = process;
+            _processHandle = process;
         }
 
         public void OpenHandle(Process process)
         {
-            ProcessHandle?.Dispose();
-            ProcessHandle = process;
+            _processHandle?.Dispose();
+            _processHandle = process;
         }
 
         private static SafeProcessHandle GetProcessHandle(int processId, int access)
@@ -46,7 +46,7 @@ namespace CoreHook.Memory.Windows
         {
             if (Environment.Is64BitOperatingSystem)
             {
-                if (ProcessHandle.Is64Bit())
+                if (_processHandle.Is64Bit())
                 {
                     if (!Environment.Is64BitProcess)
                     {
@@ -63,7 +63,7 @@ namespace CoreHook.Memory.Windows
         public void InjectBinary(string modulePath)
         {
             SafeWaitHandle hThread = null;
-            using (var hProcess = GetProcessHandle(ProcessHandle.Id,
+            using (var hProcess = GetProcessHandle(_processHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
@@ -149,7 +149,7 @@ namespace CoreHook.Memory.Windows
         public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
         {
             SafeWaitHandle hThread = null;
-            using (var hProcess = GetProcessHandle(ProcessHandle.Id,
+            using (var hProcess = GetProcessHandle(_processHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
@@ -227,7 +227,7 @@ namespace CoreHook.Memory.Windows
 
         private IntPtr MemAllocate(int size)
         {
-            using (var hProcess = GetProcessHandle(ProcessHandle.Id,
+            using (var hProcess = GetProcessHandle(_processHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_READ |
@@ -252,7 +252,7 @@ namespace CoreHook.Memory.Windows
 
         public IntPtr MemCopyTo(byte[] data, int? size)
         {
-            using (var hProcess = GetProcessHandle(ProcessHandle.Id,
+            using (var hProcess = GetProcessHandle(_processHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_READ |
@@ -284,7 +284,7 @@ namespace CoreHook.Memory.Windows
                 return true;
             }
 
-            using (var hProcess = GetProcessHandle(ProcessHandle.Id,
+            using (var hProcess = GetProcessHandle(_processHandle.Id,
                 Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
                 Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION))
             {
@@ -304,7 +304,7 @@ namespace CoreHook.Memory.Windows
 
         private IntPtr GetAbsoluteFunctionAddressEx(string moduleFileName, string functionName)
         {
-            var hProcess = GetReadProcessHandle(ProcessHandle.Id);
+            var hProcess = GetReadProcessHandle(_processHandle.Id);
 
             IntPtr hModule = GetModuleHandleByFileName(hProcess, moduleFileName);
 
