@@ -108,7 +108,7 @@ namespace CoreHook.Memory.Windows
                      GetWin32ProcAddress(
                          Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
-                             Environment.Is64BitOperatingSystem ? "System32" : "SysWOW64",
+                             "System32",
                              "kernel32.dll"
                              ), "LoadLibraryW"),
                          remoteAllocAddr,
