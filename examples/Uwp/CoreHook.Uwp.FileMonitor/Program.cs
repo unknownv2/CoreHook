@@ -25,7 +25,8 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const string HookLibraryDirName = "Hook";
         /// <summary>
-        /// The library injected to be injected the target processed and executed using it's 'Run' Method.
+        /// The library injected to be injected the target processed and executed
+        /// using it's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
         /// <summary>
@@ -35,15 +36,15 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
         /// <summary>
-        /// Enable verbose logging to the console for the CoreCLR host module corerundll
+        /// Enable verbose logging to the console for the CoreCLR host module corerundll.
         /// </summary>
         private const bool HostVerboseLog = false;
         /// <summary>
-        /// Wait for a debugger to attach to the target process before running any .NET assemblies
+        /// Wait for a debugger to attach to the target process before running any .NET assemblies.
         /// </summary>
         private const bool HostWaitForDebugger = false;
         /// <summary>
-        /// Class that handles creating a named pipe server upong request
+        /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>
         private static IPipePlatform PipePlatform = new Pipe.PipePlatform();
 
