@@ -11,8 +11,8 @@ using CoreHook.BinaryInjection.BinaryLoader.Windows;
 using CoreHook.BinaryInjection.Host;
 using CoreHook.CoreLoad;
 using CoreHook.IPC.Platform;
-using CoreHook.ManagedHook.ProcessUtils;
 using CoreHook.Memory;
+using static CoreHook.ManagedHook.ProcessUtils.ProcessHelper;
 
 namespace CoreHook.ManagedHook.Remote
 {
@@ -129,7 +129,7 @@ namespace CoreHook.ManagedHook.Remote
             remoteHook.DetourLibrary = is64BitProcess ? configX64.DetourLibrary : configX86.DetourLibrary;
 
             InjectEx(
-                ProcessHelper.GetCurrentProcessId(),
+                GetCurrentProcessId(),
                 process.Id,
                 remoteHook,
                 pipePlatform,
@@ -152,7 +152,7 @@ namespace CoreHook.ManagedHook.Remote
             params object[] passThruArguments)
         {
             InjectEx(
-                ProcessHelper.GetCurrentProcessId(),
+                GetCurrentProcessId(),
                 targetPID,
                 remoteHookConfig,
                 pipePlatform,
@@ -177,7 +177,7 @@ namespace CoreHook.ManagedHook.Remote
             string injectionPipeName = remoteHookConfig.InjectionPipeName;
             if(string.IsNullOrEmpty(injectionPipeName))
             {
-                throw new ArgumentNullException("Invalid injection pipe name");
+                throw new ArgumentException("Invalid injection pipe name");
             }
 
             InjectionHelper.BeginInjection(targetPID);
@@ -217,7 +217,7 @@ namespace CoreHook.ManagedHook.Remote
                         // and then call the IEntryPoint.Run method located in the hooking library
                         try
                         {
-                            var process = ProcessHelper.GetProcessById(targetPID);
+                            var process = GetProcessById(targetPID);
                             var length = (int)passThruStream.Length;
 
                             using (var binaryLoader = GetBinaryLoader(process))

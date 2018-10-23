@@ -41,22 +41,7 @@ namespace CoreHook.FileMonitor
         /// <summary>
         /// Class that handles creating a named pipe server upong request
         /// </summary>
-        private static IPipePlatform pipePlatform = new PipePlatform();
-
-        /// <summary>
-        /// Parse a file path and remove quotes from path name if it is enclosed
-        /// </summary>
-        /// <param name="filePath">A path to a file or directory.</param>
-        /// <returns></returns>
-        private static string GetFilePath(string filePath)
-        {
-            if(filePath == null)
-            {
-                throw new ArgumentNullException("Invalid file path name");
-            }
-
-            return filePath.Replace("\"", "");
-        }
+        private static IPipePlatform PipePlatform = new PipePlatform();
 
         private static void Main(string[] args)
         {
@@ -69,13 +54,13 @@ namespace CoreHook.FileMonitor
             string targetProgam = string.Empty;
 
             // Get the process to hook by file path for launching or process id for attaching
-            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(GetFilePath(args[0])))
+            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
             {
                 if (targetPID > 0)
                 {
                     break;
                 }
-                if (args.Length != 1 || !File.Exists(GetFilePath(args[0])))
+                if (args.Length != 1 || !File.Exists(args[0]))
                 {
                     Console.WriteLine();
                     Console.WriteLine("Usage: FileMonitor %PID%");
@@ -95,7 +80,7 @@ namespace CoreHook.FileMonitor
                 }
                 else
                 {
-                    targetProgam = GetFilePath(args[0]);
+                    targetProgam = args[0];
                     break;
                 }
             }
@@ -127,7 +112,7 @@ namespace CoreHook.FileMonitor
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                throw new ArgumentNullException($"Invalid file path {filePath}");
+                throw new ArgumentException($"Invalid file path {filePath}");
             }
             if (!File.Exists(filePath))
             {
@@ -174,7 +159,7 @@ namespace CoreHook.FileMonitor
                          VerboseLog = HostVerboseLog,
                          WaitForDebugger = HostWaitForDebugger
                      },
-                     pipePlatform,
+                     PipePlatform,
                      out _,
                      CoreHookPipeName);
             }
@@ -214,7 +199,7 @@ namespace CoreHook.FileMonitor
                         VerboseLog = HostVerboseLog,
                         WaitForDebugger = HostWaitForDebugger,
                     },
-                    pipePlatform,
+                    PipePlatform,
                     CoreHookPipeName);
             }
         }
@@ -229,7 +214,7 @@ namespace CoreHook.FileMonitor
 
             Examples.Common.RpcService.CreateRpcService(
                   CoreHookPipeName,
-                  pipePlatform,
+                  PipePlatform,
                   session,
                   typeof(FileMonitorService),
                   async (context, next) =>

@@ -8,6 +8,20 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
     {
         int MaxPathLength { get; }
         Encoding PathEncoding { get; }
+
+    }
+    public interface IBinaryLoaderHostConfig
+    {
+        string CoreCLRStartFunction { get; }
+        string CoreCLRExecuteManagedFunction { get; }
+    }
+
+    public sealed partial class BinaryLoaderHostConfig : IBinaryLoaderHostConfig
+    {
+        public string CoreCLRStartFunction
+            => "StartCoreCLR";
+        public string CoreCLRExecuteManagedFunction
+            => "ExecuteAssemblyFunction";
     }
 
     public sealed partial class BinaryLoaderConfig : IBinaryLoaderConfig

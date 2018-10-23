@@ -59,8 +59,8 @@ namespace CoreHook.ManagedHook.Remote
         public string CoreCLRLibrariesPath { get; set; }
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if hooking plugin has been loaded succesfully loaded in
-        /// the target process or not. 
+        /// when the hooking plugin has been succesfully loaded in
+        /// the target process or if the injection process failed.
         /// </summary>
         public string InjectionPipeName { get; set; }
     }
