@@ -112,7 +112,7 @@ namespace CoreHook.FileMonitor
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                throw new ArgumentNullException($"Invalid file path {filePath}");
+                throw new ArgumentException($"Invalid file path {filePath}");
             }
             if (!File.Exists(filePath))
             {
