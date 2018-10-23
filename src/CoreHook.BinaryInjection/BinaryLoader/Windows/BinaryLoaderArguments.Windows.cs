@@ -16,15 +16,18 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Windows
         string CoreCLRExecuteManagedFunction { get; }
     }
 
-    public sealed partial class BinaryLoaderConfig : IBinaryLoaderConfig, IBinaryLoaderHostConfig
+    public sealed partial class BinaryLoaderHostConfig : IBinaryLoaderHostConfig
     {
-        public int MaxPathLength => 260; 
-        public Encoding PathEncoding => Encoding.Unicode;
-
         public string CoreCLRStartFunction
             => "StartCoreCLR";
         public string CoreCLRExecuteManagedFunction
             => "ExecuteAssemblyFunction";
+    }
+
+    public sealed partial class BinaryLoaderConfig : IBinaryLoaderConfig
+    {
+        public int MaxPathLength => 260; 
+        public Encoding PathEncoding => Encoding.Unicode;
     }
 
     public class BinaryLoaderSerializer : IBinarySerializer
