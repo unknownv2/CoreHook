@@ -45,7 +45,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// <summary>
         /// Class that handles creating a named pipe server upong request
         /// </summary>
-        private static IPipePlatform pipePlatform = new Pipe.PipePlatform();
+        private static IPipePlatform PipePlatform = new Pipe.PipePlatform();
 
         private static void Main(string[] args)
         {
@@ -152,7 +152,7 @@ namespace CoreHook.Uwp.FileMonitor
                         VerboseLog = HostVerboseLog,
                         WaitForDebugger = HostWaitForDebugger
                     },
-                    pipePlatform,
+                    PipePlatform,
                     CoreHookPipeName);
             }
         }
@@ -166,7 +166,7 @@ namespace CoreHook.Uwp.FileMonitor
 
             Examples.Common.RpcService.CreateRpcService(
                   CoreHookPipeName,
-                  pipePlatform,
+                  PipePlatform,
                   session,
                   typeof(FileMonitorService),
                   async (context, next) =>
