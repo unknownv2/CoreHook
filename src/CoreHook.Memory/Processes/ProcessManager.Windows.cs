@@ -68,81 +68,6 @@ namespace CoreHook.Memory.Processes
                              "kernel32.dll"
                              ), "LoadLibraryW",
             Encoding.Unicode.GetBytes(modulePath + "\0"));
-            /*
-            SafeWaitHandle hThread = null;
-            using (var hProcess = GetProcessHandle(_processHandle.Id,
-                Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
-                Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_READ |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_WRITE))
-            {
-                var pathBytes = Encoding.Unicode.GetBytes(modulePath + "\0");
-
-                // Allocate space in the remote process for the DLL path.
-                var remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
-                    hProcess,
-                    IntPtr.Zero,
-                    new UIntPtr((uint)pathBytes.Length),
-                    Interop.Kernel32.AllocationType.Commit | Interop.Kernel32.AllocationType.Reserve,
-                    Interop.Kernel32.MemoryProtection.ReadWrite);
-
-                if (remoteAllocAddr == IntPtr.Zero)
-                {
-                    throw new Win32Exception("Failed to allocate memory in remote process.");
-                }
-
-                try
-                {
-                    // Write the DLL path to the allocated memory.
-                    var result = Interop.Kernel32.WriteProcessMemory(
-                        hProcess,
-                        remoteAllocAddr,
-                        pathBytes,
-                        pathBytes.Length,
-                        out IntPtr bytesWritten);
-
-                    if (!result || bytesWritten.ToInt32() != pathBytes.Length)
-                    {
-                        throw new Win32Exception("Failed to allocate memory in remote process.");
-                    }
-
-                    // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                     hThread = Interop.Kernel32.CreateRemoteThread(
-                     hProcess,
-                     IntPtr.Zero,
-                     UIntPtr.Zero,
-                     GetWin32ProcAddress(
-                         Path.Combine(
-                             Environment.ExpandEnvironmentVariables("%Windir%"),
-                             "System32",
-                             "kernel32.dll"
-                             ), "LoadLibraryW"),
-                         remoteAllocAddr,
-                         0,
-                         IntPtr.Zero);
-
-                    if (hThread.IsInvalid)
-                    {
-                        throw new Win32Exception("Failed to create thread in remote process.");
-                    }
-
-                    const int infiniteWait = -1;
-                    Interop.Kernel32.WaitForSingleObject(
-                        hThread,
-                        infiniteWait);
-                }
-                finally
-                {
-                    hThread?.Dispose();
-
-                    Interop.Kernel32.VirtualFreeEx(
-                        hProcess,
-                        remoteAllocAddr,
-                        new UIntPtr(0),
-                        Interop.Kernel32.FreeType.Release);
-                }
-            }*/
         }
 
         /// <summary>
@@ -155,82 +80,13 @@ namespace CoreHook.Memory.Processes
         /// or we need to cleanup later.</param>
         public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
         {
-            SafeWaitHandle hThread = null;
-            using (var hProcess = GetProcessHandle(_processHandle.Id,
-                Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
-                Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_READ |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_WRITE))
-            {
-
-                // Allocate space in the remote process for the DLL path.
-                IntPtr remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
-                    hProcess,
-                    IntPtr.Zero,
-                    new UIntPtr((uint)arguments.Length),
-                    Interop.Kernel32.AllocationType.Commit | Interop.Kernel32.AllocationType.Reserve,
-                    Interop.Kernel32.MemoryProtection.ReadWrite);
-
-                if (remoteAllocAddr == IntPtr.Zero)
-                {
-                    throw new Win32Exception("Failed to allocate memory in remote process.");
-                }
-
-                try
-                {
-                    // Write the DLL path to the allocated memory.
-                    bool result = Interop.Kernel32.WriteProcessMemory(
-                        hProcess,
-                        remoteAllocAddr,
-                        arguments,
-                        arguments.Length,
-                        out IntPtr bytesWritten);
-
-                    if (!result || bytesWritten.ToInt32() != arguments.Length)
-                    {
-                        throw new Win32Exception("Failed to allocate memory in remote process.");
-                    }
-
-                    // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                    hThread = Interop.Kernel32.CreateRemoteThread(
-                        hProcess,
-                        IntPtr.Zero,
-                        UIntPtr.Zero,
-                        GetAbsoluteFunctionAddressEx(module, function),
-                        remoteAllocAddr,
-                        0,
-                        IntPtr.Zero);
-
-                    if (hThread.IsInvalid)
-                    {
-                        throw new Win32Exception("Failed to create thread in remote process.");
-                    }
-
-                    if (canWait)
-                    {
-                        const int infiniteWait = -1;
-                        Interop.Kernel32.WaitForSingleObject(
-                            hThread,
-                            infiniteWait);
-                    }
-                    
-                    return remoteAllocAddr;
-                }
-                finally
-                {
-                    hThread?.Dispose();
-                    if (canWait)
-                    {
-                        Interop.Kernel32.VirtualFreeEx(
-                            hProcess,
-                            remoteAllocAddr,
-                            new UIntPtr(0),
-                            Interop.Kernel32.FreeType.Release);
-                    }
-                }
-            }
+            return ExecuteRemoteFunction(
+                module,
+                function,
+                arguments,
+                canWait);
         }
+
         private IntPtr ExecuteRemoteFunction(string module, string function, byte[] arguments, bool canWait = true)
         {
             SafeWaitHandle hThread = null;
@@ -309,6 +165,7 @@ namespace CoreHook.Memory.Processes
                 }
             }
         }
+
         private IntPtr MemAllocate(int size)
         {
             using (var hProcess = GetProcessHandle(_processHandle.Id,
