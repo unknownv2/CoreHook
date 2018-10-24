@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.ProcessUtils;
@@ -27,7 +26,7 @@ namespace CoreHook.FileMonitor
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if hooking plugin has been loaded succesfully loaded in
+        /// if the hooking plugin has been loaded succesfully loaded in
         /// the target process or not. 
         /// </summary>
         private const string InjectionPipeName = "CoreHookInjection";
@@ -46,11 +45,6 @@ namespace CoreHook.FileMonitor
 
         private static void Main(string[] args)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                throw new PlatformNotSupportedException("Win32 example");
-            }
-
             int targetPID = 0;
             string targetProgam = string.Empty;
 

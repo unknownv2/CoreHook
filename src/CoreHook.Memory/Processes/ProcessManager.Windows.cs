@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.IO;
 using Microsoft.Win32.SafeHandles;
 
-namespace CoreHook.Memory.Windows
+namespace CoreHook.Memory.Processes
 {
     public sealed partial class ProcessManager : IProcessManager
     {
@@ -62,80 +62,12 @@ namespace CoreHook.Memory.Windows
 
         public void InjectBinary(string modulePath)
         {
-            SafeWaitHandle hThread = null;
-            using (var hProcess = GetProcessHandle(_processHandle.Id,
-                Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
-                Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_READ |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_WRITE))
-            {
-                var pathBytes = Encoding.Unicode.GetBytes(modulePath + "\0");
-
-                // Allocate space in the remote process for the DLL path.
-                var remoteAllocAddr = Interop.Kernel32.VirtualAllocEx(
-                    hProcess,
-                    IntPtr.Zero,
-                    new UIntPtr((uint)pathBytes.Length),
-                    Interop.Kernel32.AllocationType.Commit | Interop.Kernel32.AllocationType.Reserve,
-                    Interop.Kernel32.MemoryProtection.ReadWrite);
-
-                if (remoteAllocAddr == IntPtr.Zero)
-                {
-                    throw new Win32Exception("Failed to allocate memory in remote process.");
-                }
-
-                try
-                {
-                    // Write the DLL path to the allocated memory.
-                    var result = Interop.Kernel32.WriteProcessMemory(
-                        hProcess,
-                        remoteAllocAddr,
-                        pathBytes,
-                        pathBytes.Length,
-                        out IntPtr bytesWritten);
-
-                    if (!result || bytesWritten.ToInt32() != pathBytes.Length)
-                    {
-                        throw new Win32Exception("Failed to allocate memory in remote process.");
-                    }
-
-                    // Create a thread in the process at LoadLibraryW and pass it the DLL path.
-                     hThread = Interop.Kernel32.CreateRemoteThread(
-                     hProcess,
-                     IntPtr.Zero,
-                     UIntPtr.Zero,
-                     GetWin32ProcAddress(
-                         Path.Combine(
+            ExecuteFuntion(Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
                              "System32",
                              "kernel32.dll"
-                             ), "LoadLibraryW"),
-                         remoteAllocAddr,
-                         0,
-                         IntPtr.Zero);
-
-                    if (hThread.IsInvalid)
-                    {
-                        throw new Win32Exception("Failed to create thread in remote process.");
-                    }
-
-                    const int infiniteWait = -1;
-                    Interop.Kernel32.WaitForSingleObject(
-                        hThread,
-                        infiniteWait);
-                }
-                finally
-                {
-                    hThread?.Dispose();
-
-                    Interop.Kernel32.VirtualFreeEx(
-                        hProcess,
-                        remoteAllocAddr,
-                        new UIntPtr(0),
-                        Interop.Kernel32.FreeType.Release);
-                }
-            }
+                             ), "LoadLibraryW",
+            Encoding.Unicode.GetBytes(modulePath + "\0"));
         }
 
         /// <summary>
@@ -147,6 +79,15 @@ namespace CoreHook.Memory.Windows
         /// <param name="canWait">We can wait for the thread to finish before cleaning up memory
         /// or we need to cleanup later.</param>
         public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
+        {
+            return ExecuteFuntion(
+                module,
+                function,
+                arguments,
+                canWait);
+        }
+
+        private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool canWait = true)
         {
             SafeWaitHandle hThread = null;
             using (var hProcess = GetProcessHandle(_processHandle.Id,
