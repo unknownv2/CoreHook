@@ -62,7 +62,7 @@ namespace CoreHook.Memory.Processes
 
         public void InjectBinary(string modulePath)
         {
-            ExecuteRemoteFunction(Path.Combine(
+            ExecuteFuntion(Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
                              "System32",
                              "kernel32.dll"
@@ -80,14 +80,14 @@ namespace CoreHook.Memory.Processes
         /// or we need to cleanup later.</param>
         public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
         {
-            return ExecuteRemoteFunction(
+            return ExecuteFuntion(
                 module,
                 function,
                 arguments,
                 canWait);
         }
 
-        private IntPtr ExecuteRemoteFunction(string module, string function, byte[] arguments, bool canWait = true)
+        private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool canWait = true)
         {
             SafeWaitHandle hThread = null;
             using (var hProcess = GetProcessHandle(_processHandle.Id,

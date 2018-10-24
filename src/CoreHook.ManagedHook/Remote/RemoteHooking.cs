@@ -224,11 +224,10 @@ namespace CoreHook.ManagedHook.Remote
                             using (var binaryLoader = GetBinaryLoader(process))
                             {
                                 binaryLoader.Load(process, remoteHookConfig.HostLibrary, new[] { remoteHookConfig.DetourLibrary });
-                                var binaryLoaderConfig = GetBinaryLoaderConfig();
                                 binaryLoader.ExecuteRemoteFunction(process,
                                     new RemoteFunctionCall
                                     {
-                                        Arguments = new BinaryLoaderSerializer(binaryLoaderConfig)
+                                        Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
                                         {
                                             Arguments = new BinaryLoaderArguments
                                             {
