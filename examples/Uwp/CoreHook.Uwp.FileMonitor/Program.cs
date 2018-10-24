@@ -5,7 +5,6 @@ using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.ManagedHook.Remote;
@@ -31,7 +30,7 @@ namespace CoreHook.Uwp.FileMonitor
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if hooking plugin has been loaded succesfully loaded in
+        /// if the hooking plugin has been loaded succesfully loaded in
         /// the target process or not. 
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
@@ -50,11 +49,6 @@ namespace CoreHook.Uwp.FileMonitor
 
         private static void Main(string[] args)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                throw new PlatformNotSupportedException("UWP example");
-            }
-
             int targetPID = 0;
             string targetApp = string.Empty;
 
