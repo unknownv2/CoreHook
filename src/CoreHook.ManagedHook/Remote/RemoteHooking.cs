@@ -12,6 +12,7 @@ using CoreHook.BinaryInjection.Host;
 using CoreHook.CoreLoad;
 using CoreHook.IPC.Platform;
 using CoreHook.Memory;
+using CoreHook.Memory.Processes;
 using static CoreHook.ManagedHook.ProcessUtils.ProcessHelper;
 
 namespace CoreHook.ManagedHook.Remote
@@ -39,7 +40,7 @@ namespace CoreHook.ManagedHook.Remote
             {
                 return new BinaryLoader(
                     new MemoryManager(),
-                    new Memory.Windows.ProcessManager(process));
+                    new ProcessManager(process));
             }
             else
             {
@@ -223,11 +224,11 @@ namespace CoreHook.ManagedHook.Remote
                             using (var binaryLoader = GetBinaryLoader(process))
                             {
                                 binaryLoader.Load(process, remoteHookConfig.HostLibrary, new[] { remoteHookConfig.DetourLibrary });
-
+                                var binaryLoaderConfig = GetBinaryLoaderConfig();
                                 binaryLoader.ExecuteRemoteFunction(process,
                                     new RemoteFunctionCall
                                     {
-                                        Arguments = new BinaryLoaderSerializer(GetBinaryLoaderConfig())
+                                        Arguments = new BinaryLoaderSerializer(binaryLoaderConfig)
                                         {
                                             Arguments = new BinaryLoaderArguments
                                             {
