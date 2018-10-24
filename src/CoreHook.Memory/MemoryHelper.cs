@@ -4,9 +4,9 @@ using System.ComponentModel;
 
 namespace CoreHook.Memory
 {
-    public class MemoryHelper
+    internal class MemoryHelper
     {
-        public static IntPtr Allocate(IntPtr address, int size, AllocationType allocationFlags = AllocationType.Commit, MemoryProtection protectionFlags = MemoryProtection.ExecuteReadWrite)
+        internal static IntPtr Allocate(IntPtr address, int size, AllocationType allocationFlags = AllocationType.Commit, MemoryProtection protectionFlags = MemoryProtection.ExecuteReadWrite)
         {
             // Allocate a memory page
             var ret = VirtualAlloc(address, (uint)size, allocationFlags, protectionFlags);
@@ -18,7 +18,7 @@ namespace CoreHook.Memory
             // If the pointer isn't valid, throws an exception
             throw new Win32Exception(string.Format("Couldn't allocate memory of {0} byte(s).", size));
         }
-        public static void Free(IntPtr address, int size = 0, FreeType freeType = FreeType.Release)
+        internal static void Free(IntPtr address, int size = 0, FreeType freeType = FreeType.Release)
         {
             // Free the memory
             if (!VirtualFree(address, size, freeType))
@@ -27,7 +27,7 @@ namespace CoreHook.Memory
                 throw new Win32Exception(string.Format("The memory page 0x{0} cannot be freed.", address.ToString("X")));
             }
         }
-        public static bool ChangeProtection(IntPtr address, uint size, MemoryProtection protection, out MemoryProtection oldProtect)
+        internal static bool ChangeProtection(IntPtr address, uint size, MemoryProtection protection, out MemoryProtection oldProtect)
         {
             if(!VirtualProtect(address, size, protection, out oldProtect))
             {
