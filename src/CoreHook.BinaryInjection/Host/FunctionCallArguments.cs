@@ -35,7 +35,7 @@ namespace CoreHook.BinaryInjection.Host
         {
             if (assemblyDelegate == null)
             {
-                throw new ArgumentNullException("Invalid assembly delegate");
+                throw new ArgumentNullException(nameof(assemblyDelegate));
             }   
 
             Assembly = PathEncoding.GetBytes(assemblyDelegate.AssemblyName.PadRight(FunctionNameMax, PaddingCharacter));
