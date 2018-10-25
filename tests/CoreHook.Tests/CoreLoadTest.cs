@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace CoreHook.Tests
@@ -11,6 +9,6 @@ namespace CoreHook.Tests
         public void ShouldThrowArgumentOutOfRange_For_Loader_IntPtrZeroParameter()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => CoreLoad.Loader.Load(IntPtr.Zero));
-        }        
+        }
     }
 }

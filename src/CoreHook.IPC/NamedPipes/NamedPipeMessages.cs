@@ -8,13 +8,6 @@ namespace CoreHook.IPC.NamedPipes
         private const string ResponseSuffix = "Response";
         public const string UnknownRequest = "UnknownRequest";
         private const char MessageSeparator = '|';
-        
-        public enum CompletionState
-        {
-            NotCompleted,
-            Success,
-            Failure
-        }
 
         public interface IMessage
         {
