@@ -463,7 +463,7 @@ namespace CoreHook.Memory.Processes
 
             uint size;
 
-            for (; ; )
+            while(true)
             {
                 var gcHandle = GCHandle.Alloc(moduleHandles, GCHandleType.Pinned);
                     if (!Interop.Psapi.EnumProcessModulesEx(

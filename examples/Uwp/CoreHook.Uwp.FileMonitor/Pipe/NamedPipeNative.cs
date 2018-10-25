@@ -101,9 +101,19 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
             PipeSecurity pipeSecurity)
 
         {
-            if (serverName == null) { throw new ArgumentNullException("serverName"); }
-            if (namespaceName == null) { throw new ArgumentNullException("namespaceName"); }
-            if (pipeName == null) { throw new ArgumentNullException("pipeName"); }
+            if (serverName == null)
+            {
+                throw new ArgumentNullException("serverName");
+            }
+            if (namespaceName == null)
+            {
+                throw new ArgumentNullException("namespaceName");
+            }
+            if (pipeName == null)
+            {
+                throw new ArgumentNullException("pipeName");
+            }
+
 
             string fullPipeName = @"\\" + serverName + @"\" + namespaceName + @"\" + pipeName;
 

@@ -376,7 +376,7 @@ namespace CoreHook
             }
             if (symbolName == null)
             {
-                throw new ArgumentNullException(module);
+                throw new ArgumentNullException(symbolName);
             }
 
             IntPtr Method = NativeAPI.DetourFindFunction(module, symbolName);
