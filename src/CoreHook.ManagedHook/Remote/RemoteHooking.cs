@@ -242,7 +242,7 @@ namespace CoreHook.ManagedHook.Remote
                                         { Module = remoteHookConfig.HostLibrary, Function = GetCoreCLRStartFunctionName() },
                                     });
                                 binaryLoader.ExecuteRemoteManagedFunction(process,
-                                new RemoteManagedFunctionCall()
+                                new RemoteManagedFunctionCall
                                 {
                                     ManagedFunction = CoreHookLoaderDel,
                                     FunctionName = new FunctionName
