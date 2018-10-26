@@ -30,7 +30,7 @@ namespace CoreHook.Uwp.FileMonitor
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if the hooking plugin has been loaded succesfully loaded in
+        /// if the hooking plugin has been loaded successfully loaded in
         /// the target process or not. 
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
@@ -72,7 +72,7 @@ namespace CoreHook.Uwp.FileMonitor
                         Console.ReadLine()
                     };
 
-                    if (string.IsNullOrEmpty(args[0]))
+                    if (string.IsNullOrWhiteSpace(args[0]))
                     {
                         return;
                     }

@@ -13,7 +13,7 @@ namespace CoreHook.IPC.NamedPipes
         private StreamReader _reader;
         private StreamWriter _writer;
 
-        private const string serverName = ".";
+        private const string ServerName = ".";
 
         public NamedPipeClient(string pipeName)
         {
@@ -39,7 +39,7 @@ namespace CoreHook.IPC.NamedPipes
             try
             {
                 _clientStream = new NamedPipeClientStream(
-                    serverName,
+                    ServerName,
                     _pipeName,
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous,

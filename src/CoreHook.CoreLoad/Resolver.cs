@@ -44,7 +44,7 @@ namespace CoreHook.CoreLoad
             }
             catch(Exception ex)
             {
-                Log($"AssemblyResolver error: {ex.ToString()}");
+                Log($"AssemblyResolver error: {ex}");
             }
         }
 
@@ -94,7 +94,7 @@ namespace CoreHook.CoreLoad
             }
             catch (Exception ex)
             {
-                Log($"OnResolving error: {ex.ToString()}");
+                Log($"OnResolving error: {ex}");
             }
             return null;
         }
