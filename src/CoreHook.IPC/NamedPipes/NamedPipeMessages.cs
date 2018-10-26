@@ -1,12 +1,9 @@
 ﻿using System;
-using Newtonsoft.Json;
 
 namespace CoreHook.IPC.NamedPipes
 {
     public static partial class NamedPipeMessages
     {
-        private const string ResponseSuffix = "Response";
-        public const string UnknownRequest = "UnknownRequest";
         private const char MessageSeparator = '|';
 
         public interface IMessage
@@ -17,10 +14,12 @@ namespace CoreHook.IPC.NamedPipes
 
             string ToMessage();
         }
+
         public interface ICustomMessage
         {
             string ToMessage();
         }
+
         public class Message : IMessage
         {
             public string Header { get; }
