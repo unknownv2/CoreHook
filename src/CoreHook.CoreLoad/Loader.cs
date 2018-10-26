@@ -25,7 +25,7 @@ namespace CoreHook.CoreLoad
         {
             try
             {
-                if (remoteParameters == IntPtr.Zero)
+                if (remoteParameters == null || remoteParameters == IntPtr.Zero)
                 {
                     throw new ArgumentOutOfRangeException(nameof(remoteParameters), 
                         "Remote arguments address was zero");
@@ -51,7 +51,7 @@ namespace CoreHook.CoreLoad
             catch(ArgumentOutOfRangeException outOfRangeEx)
             {
                 Log(outOfRangeEx.ToString());
-                throw outOfRangeEx;
+                throw;
             }
             catch (Exception exception)
             {
@@ -63,8 +63,10 @@ namespace CoreHook.CoreLoad
         private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
         {
             Type entryPoint = FindEntryPoint(assembly);
-            var format = new BinaryFormatter();
-            format.Binder = new AllowAllAssemblyVersionsDeserializationBinder(entryPoint.Assembly);
+            var format = new BinaryFormatter
+            {
+                Binder = new AllowAllAssemblyVersionsDeserializationBinder(entryPoint.Assembly)
+            };
 
             for (int i = 1; i < paramArray.Length; i++)
             {

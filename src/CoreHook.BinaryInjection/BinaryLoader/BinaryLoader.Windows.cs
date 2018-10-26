@@ -24,7 +24,6 @@ namespace CoreHook.BinaryInjection.BinaryLoader
         ///  Execute a function in a process in a new thread with a <see cref="FunctionCallArguments" /> argument
         /// </summary>
         /// <param name="process">The process the thread will be created and executed in.</param>
-        /// <param name="moduleName">The module name of the binary containing the function to execute.</param>
         /// <param name="functionName">The name of the function to be executed.</param>
         /// <param name="arguments">The class which will be serialized and passed to the function being executed.</param>
         private void ExecuteAssemblyFunctionWithArguments(

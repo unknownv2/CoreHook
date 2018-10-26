@@ -121,6 +121,11 @@ namespace CoreHook.ManagedHook.Remote
             )
         {
             var process = Process.Start(processConfig.ExecutablePath);
+            if (process == null)
+            {
+                throw new InvalidOperationException(
+                    $"Failed to start the executable at {processConfig.ExecutablePath}");
+            }
 
             var is64BitProcess = process.Is64Bit();
 
