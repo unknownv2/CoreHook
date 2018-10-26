@@ -9,7 +9,7 @@ using CoreHook.BinaryInjection;
 using CoreHook.BinaryInjection.BinaryLoader;
 using CoreHook.BinaryInjection.BinaryLoader.Windows;
 using CoreHook.BinaryInjection.Host;
-using CoreHook.CoreLoad;
+using CoreHook.CoreLoad.Data;
 using CoreHook.IPC.Platform;
 using CoreHook.Memory;
 using CoreHook.Memory.Processes;
@@ -176,7 +176,7 @@ namespace CoreHook.ManagedHook.Remote
             params object[] passThruArguments)
         {
             string injectionPipeName = remoteHookConfig.InjectionPipeName;
-            if(string.IsNullOrEmpty(injectionPipeName))
+            if(string.IsNullOrWhiteSpace(injectionPipeName))
             {
                 throw new ArgumentException("Invalid injection pipe name");
             }
@@ -285,9 +285,9 @@ namespace CoreHook.ManagedHook.Remote
             MemoryStream argumentsStream,
             string injectionPipeName)
         {
-            if (string.IsNullOrEmpty(library))
+            if (string.IsNullOrWhiteSpace(library))
             {
-                throw new ArgumentException("At least one library to be injected must be provided");
+                throw new ArgumentException("The injection library was not valid");
             }
 
             if ((library != null) && File.Exists(library))
