@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -28,12 +26,13 @@ namespace CoreHook.CoreLoad.Data
             }
         }
 
-        public static T DeserializeClass(Stream binaryStream)
+        internal static T DeserializeClass(Stream binaryStream)
         {
             var format = new BinaryFormatter
             {
                 Binder = new AllowAllAssemblyVersionsDeserializationBinder()
             };
+
             object remoteInfo = format.Deserialize(binaryStream);
             if (remoteInfo is T info)
             {
@@ -43,11 +42,6 @@ namespace CoreHook.CoreLoad.Data
             {
                 throw new InvalidCastException($"Deserialized data was not of type {nameof(T)}");
             }
-        }
-
-        public T DeserializeClass(IFormatter formatter, Stream stream)
-        {
-            return default(T);
         }
     }
 }
