@@ -26,11 +26,6 @@ namespace CoreHook.IPC.NamedPipes
             public string Header { get; }
             public string Body { get; }
 
-            public Message()
-            {
-
-            }
-
             public Message(string header, string body)
             {
                 Header = header;

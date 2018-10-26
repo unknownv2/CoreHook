@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.CoreLoad
+namespace CoreHook.CoreLoad.Data
 {
     [Serializable]
     public class ManagedRemoteInfo

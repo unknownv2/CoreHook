@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using CoreHook.BinaryInjection.Host;
+using CoreHook.BinaryInjection.BinaryLoader.Serializer;
 using CoreHook.Memory;
 
-namespace CoreHook.BinaryInjection.BinaryLoader.Windows
+namespace CoreHook.BinaryInjection.BinaryLoader
 {
     public partial class BinaryLoader : IBinaryLoader
     {

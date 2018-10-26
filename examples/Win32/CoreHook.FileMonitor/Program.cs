@@ -26,7 +26,7 @@ namespace CoreHook.FileMonitor
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if the hooking plugin has been loaded succesfully loaded in
+        /// if the hooking plugin has been loaded successfully loaded in
         /// the target process or not. 
         /// </summary>
         private const string InjectionPipeName = "CoreHookInjection";
@@ -85,7 +85,7 @@ namespace CoreHook.FileMonitor
             string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
             // Start process and begin dll loading
-            if (!string.IsNullOrEmpty(targetProgam))
+            if (!string.IsNullOrWhiteSpace(targetProgam))
             {
                 CreateAndInjectDll(targetProgam, injectionLibrary);
             }
@@ -105,7 +105,7 @@ namespace CoreHook.FileMonitor
         /// <param name="filePath">Path to a file or directory to validate</param>
         private static void ValidateFilePath(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
             {
                 throw new ArgumentException($"Invalid file path {filePath}");
             }

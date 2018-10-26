@@ -83,7 +83,7 @@ namespace CoreHook.Examples.Common
             coreLibsPath = GetCoreLibrariesPath(is64BitProcess);
             coreRootPath = GetCoreRootPath(is64BitProcess);
 
-            if (string.IsNullOrEmpty(coreRootPath) && string.IsNullOrEmpty(coreLibsPath))
+            if (string.IsNullOrWhiteSpace(coreRootPath) && string.IsNullOrWhiteSpace(coreLibsPath))
             {
                 if (is64BitProcess)
                 {
@@ -141,7 +141,6 @@ namespace CoreHook.Examples.Common
 
                 corehookConfig = new CoreHookNativeConfig()
                 {
-
                     CoreCLRLibrariesPath = coreLibsPath,
                     CoreCLRPath = coreRootPath,
                     HostLibrary = coreRunPath,

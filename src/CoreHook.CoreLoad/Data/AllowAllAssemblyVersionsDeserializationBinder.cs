@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace CoreHook.CoreLoad
+namespace CoreHook.CoreLoad.Data
 {
     /// <summary>
     /// When not using the GAC, the BinaryFormatter fails to recognise the InParam

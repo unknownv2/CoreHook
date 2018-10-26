@@ -4,7 +4,8 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.IO;
 using Xunit;
-using CoreHook.CoreLoad;
+using CoreHook.CoreLoad.Data;
+using System.Runtime.InteropServices;
 
 namespace CoreHook.Tests
 {

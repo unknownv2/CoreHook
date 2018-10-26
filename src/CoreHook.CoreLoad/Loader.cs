@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using CoreHook.CoreLoad.Data;
 using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.CoreLoad
@@ -31,7 +32,10 @@ namespace CoreHook.CoreLoad
                     throw new ArgumentOutOfRangeException("Remote arguments address was zero");
                 }
 
-                var connection = ConnectionData.LoadData(remoteParameters);
+                var connection =
+                    ConnectionData<RemoteEntryInfo, ManagedRemoteInfo>.LoadData(
+                        remoteParameters, new UserDataBinaryFormatter<ManagedRemoteInfo>()
+                    );
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
 
@@ -175,25 +179,6 @@ namespace CoreHook.CoreLoad
         private static void Log(string message)
         {
             Debug.WriteLine(message);
-        }
-
-        const long APPMODEL_ERROR_NO_PACKAGE = 15700L;
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern int GetCurrentPackageFullName(ref int packageFullNameLength, StringBuilder packageFullName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        private static extern uint GetPackageFamilyName(IntPtr hProcess, ref uint packageFamilyNameLength, StringBuilder packageFamilyName);
-
-        private static bool IsUwp()
-        {
-            int length = 1024;
-            StringBuilder sb = new StringBuilder(length);
-            int result = GetCurrentPackageFullName(ref length, sb);
-            if (result != APPMODEL_ERROR_NO_PACKAGE)
-            {
-                return true;
-            }
-            return false;
         }
     }
 }
