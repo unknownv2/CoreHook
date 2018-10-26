@@ -19,7 +19,7 @@ namespace CoreHook.CoreLoad.Data
         internal ConnectionState State { get; private set; }
 
         /// <summary>
-        /// Gets the unmanaged data containing the pointer to the memory block containing <see cref="RemoteInfo"/>;
+        /// Gets the unmanaged data containing the pointer to the memory block containing a class of type <see cref="T"/>;
         /// </summary>
         internal T UnmanagedInfo { get; private set; }
 
@@ -36,9 +36,10 @@ namespace CoreHook.CoreLoad.Data
         /// Loads <see cref="ConnectionData"/> from the <see cref="IntPtr"/> specified.
         /// </summary>
         /// <param name="unmanagedInfoPointer"></param>
+        /// <param name="formatter"></param>
         public static ConnectionData<T, U> LoadData(
-            IntPtr unmanagedInfoPointer, 
-            IUserDataFormatter<U> deserializer)
+            IntPtr unmanagedInfoPointer,
+            IUserDataFormatter formatter)
         {
             var data = new ConnectionData<T, U>
             {
@@ -52,11 +53,11 @@ namespace CoreHook.CoreLoad.Data
 
                 if (data.UnmanagedInfo.UserDataSize >= int.MaxValue)
                 {
-                    throw new ArgumentOutOfRangeException("UserDataSize");
+                    throw new InvalidOperationException("UserDataSize is too large to load.");
                 }
 
                 // Deserialize user data class passed to CoreLoad
-                data.RemoteInfo = deserializer.DeserializeClass(
+                data.RemoteInfo = formatter.DeserializeClass<U>(
                     data.UnmanagedInfo.UserData,
                     data.UnmanagedInfo.UserDataSize);
             }

@@ -12,9 +12,9 @@ namespace CoreHook.DependencyModel
 {
     internal sealed class AssemblyResolver : IDisposable
     {
-        private readonly ICompilationAssemblyResolver assemblyResolver;
-        private readonly DependencyContext dependencyContext;
-        private readonly AssemblyLoadContext loadContext;
+        private readonly ICompilationAssemblyResolver _assemblyResolver;
+        private readonly DependencyContext _dependencyContext;
+        private readonly AssemblyLoadContext _loadContext;
 
         public AssemblyResolver(string path)
         {
@@ -22,9 +22,9 @@ namespace CoreHook.DependencyModel
             {
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
-                dependencyContext = DependencyContext.Load(Assembly);
+                _dependencyContext = DependencyContext.Load(Assembly);
 
-                assemblyResolver = new CompositeCompilationAssemblyResolver
+                _assemblyResolver = new CompositeCompilationAssemblyResolver
                                         (new ICompilationAssemblyResolver[]
                 {
                     new Resolution.AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
@@ -32,9 +32,9 @@ namespace CoreHook.DependencyModel
                     new ReferenceAssemblyPathResolver()
                 });
 
-                loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
+                _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
 
-                loadContext.Resolving += OnResolving;
+                _loadContext.Resolving += OnResolving;
             }
             catch (Exception ex)
             {
@@ -42,16 +42,11 @@ namespace CoreHook.DependencyModel
             }
         }
 
-        private void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
-
         public Assembly Assembly { get; }
 
         public void Dispose()
         {
-            loadContext.Resolving -= this.OnResolving;
+            _loadContext.Resolving -= OnResolving;
         }
 
         private Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
@@ -70,12 +65,12 @@ namespace CoreHook.DependencyModel
             try
             {
                 RuntimeLibrary library =
-                    dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
+                    _dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatch);
 
                 if (library == null)
                 {
                     library =
-                        dependencyContext.RuntimeLibraries.FirstOrDefault(NamesContain);
+                        _dependencyContext.RuntimeLibraries.FirstOrDefault(NamesContain);
                 }
                 if (library != null)
                 {
@@ -89,24 +84,28 @@ namespace CoreHook.DependencyModel
                         library.Serviceable);
 
                     var assemblies = new List<string>();
-                    this.assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
+                    _assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
 
                     if (assemblies.Count > 0)
                     {
                         Log($"Resolved {assemblies[0]}");
-                        return loadContext.LoadFromAssemblyPath(assemblies[0]);
+                        return _loadContext.LoadFromAssemblyPath(assemblies[0]);
                     }
-                    else
-                    {
-                        Log("Failed to resolve assembly");
-                    }
+
+                    Log("Failed to resolve assembly");
+                    
                 }
             }
             catch (Exception ex)
             {
-                Log($"OnResolving error: {ex.ToString()}");
+                Log($"OnResolving error: {ex}");
             }
             return null;
+        }
+
+        private void Log(string message)
+        {
+            Debug.WriteLine(message);
         }
     }
 }

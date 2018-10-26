@@ -144,6 +144,7 @@ namespace CoreHook.IPC.NamedPipes
             Console.WriteLine(message);
             Console.WriteLine(e);
         }
+
         public void Dispose()
         {
             _isStopping = true;

@@ -8,10 +8,13 @@ namespace CoreHook.IPC.NamedPipes
     public class NamedPipeClient : INamedPipeClient
     {
         private readonly string _pipeName;
-        public PipeStream PipeStream { get { return _clientStream; } }
+       
         private NamedPipeClientStream _clientStream;
+
         private StreamReader _reader;
         private StreamWriter _writer;
+
+        public PipeStream PipeStream => _clientStream;
 
         private const string ServerName = ".";
 
