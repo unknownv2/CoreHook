@@ -1,8 +1,6 @@
 ﻿using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace CoreHook.Tests
@@ -16,7 +14,7 @@ namespace CoreHook.Tests
             const string testMessage = "TestMessage";
             bool receivedMessage = false;
 
-            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+            using (CreateServer(namedPipe, new PipePlatformBase(),
                 (string request, IPC.IConnection connection) =>
                 {
                     receivedMessage = true;
@@ -70,7 +68,7 @@ namespace CoreHook.Tests
             const string testMessage2 = "TestMessage2";
             const string testMessage3 = "TestMessage3";
 
-            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+            using (CreateServer(namedPipe, new PipePlatformBase(),
                 (string request, IPC.IConnection connection) =>
                 {
                     connection.TrySendResponse(request);
@@ -99,7 +97,7 @@ namespace CoreHook.Tests
             const string testMessage = "TestMessage";
             bool receivedCorrectMessage = false;
 
-            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+            using (CreateServer(namedPipe, new PipePlatformBase(),
                 (string request, IPC.IConnection connection) =>
                 {
                     if (request == testMessage)

@@ -37,7 +37,7 @@ namespace CoreHook.IPC.NamedPipes
                 string body = null;
                 if (!string.IsNullOrEmpty(message))
                 {
-                    string[] parts = message.Split(new[] { NamedPipeMessages.MessageSeparator }, count: 2);
+                    string[] parts = message.Split(new[] { MessageSeparator }, 2);
                     header = parts[0];
                     if (parts.Length > 1)
                     {
@@ -56,7 +56,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 if (Body != null)
                 {
-                    result = result + NamedPipeMessages.MessageSeparator + Body;
+                    result = result + MessageSeparator + Body;
                 }
                 return result;
             }

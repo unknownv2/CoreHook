@@ -9,7 +9,7 @@ namespace CoreHook.Tests
 {
     public class InjectionHelperTest
     {
-        private int TargetProcessId = Process.GetCurrentProcess().Id;
+        private readonly int _targetProcessId = Process.GetCurrentProcess().Id;
 
         [Fact]
         public void InjectionHelperCompleted()
@@ -17,18 +17,18 @@ namespace CoreHook.Tests
             var injectionComplete = false;
             var InjectionHelperPipeName = "InjectionHelperPipeTest";
 
-            InjectionHelper.BeginInjection(TargetProcessId);
+            InjectionHelper.BeginInjection(_targetProcessId);
             using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
             {
                 try
                 {
-                    Task.Run(() => SendInjectionComplete(InjectionHelperPipeName, TargetProcessId));
+                    Task.Run(() => SendInjectionComplete(InjectionHelperPipeName, _targetProcessId));
 
-                    InjectionHelper.WaitForInjection(TargetProcessId);
+                    InjectionHelper.WaitForInjection(_targetProcessId);
                 }
                 finally
                 {
-                    InjectionHelper.InjectionCompleted(TargetProcessId);
+                    InjectionHelper.InjectionCompleted(_targetProcessId);
 
                     injectionComplete = true;
                 }
@@ -41,16 +41,16 @@ namespace CoreHook.Tests
         {
             var InjectionHelperPipeName = "InjectionHelperFailedPipeTest";
 
-            InjectionHelper.BeginInjection(TargetProcessId);
+            InjectionHelper.BeginInjection(_targetProcessId);
             using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
             {
                 try
                 {
-                    Assert.Throws<TimeoutException>(() => InjectionHelper.WaitForInjection(TargetProcessId, 500));
+                    Assert.Throws<TimeoutException>(() => InjectionHelper.WaitForInjection(_targetProcessId, 500));
                 }
                 finally
                 {
-                    InjectionHelper.InjectionCompleted(TargetProcessId);
+                    InjectionHelper.InjectionCompleted(_targetProcessId);
                 }
             }
         }

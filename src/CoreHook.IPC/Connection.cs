@@ -22,10 +22,7 @@ namespace CoreHook.IPC
             _writer = new StreamWriter(ServerStream);
         }
 
-        public bool IsConnected
-        {
-            get { return !_isStopping() && ServerStream.IsConnected; }
-        }
+        public bool IsConnected => !_isStopping() && ServerStream.IsConnected;
 
         public NamedPipeMessages.IMessage ReadMessage()
         {
