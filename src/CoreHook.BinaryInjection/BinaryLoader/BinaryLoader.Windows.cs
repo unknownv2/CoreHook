@@ -5,7 +5,7 @@ using System.IO;
 using CoreHook.BinaryInjection.Host;
 using CoreHook.Memory;
 
-namespace CoreHook.BinaryInjection.BinaryLoader.Windows
+namespace CoreHook.BinaryInjection.BinaryLoader
 {
     public partial class BinaryLoader : IBinaryLoader
     {

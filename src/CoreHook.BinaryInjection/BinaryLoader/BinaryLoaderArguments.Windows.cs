@@ -2,7 +2,7 @@
 using System.Text;
 using CoreHook.BinaryInjection.Host;
 
-namespace CoreHook.BinaryInjection.BinaryLoader.Windows
+namespace CoreHook.BinaryInjection.BinaryLoader
 {
     public interface IBinaryLoaderConfig
     {
