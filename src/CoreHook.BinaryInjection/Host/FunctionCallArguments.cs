@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using CoreHook.BinaryInjection.BinaryLoader.Serializer;
 
 namespace CoreHook.BinaryInjection.Host
 {

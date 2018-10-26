@@ -1,16 +1,9 @@
 ﻿using System;
 using System.IO;
+using CoreHook.BinaryInjection.BinaryLoader.Serializer;
 
 namespace CoreHook.BinaryInjection.Host
 {
-    public interface IBinarySerializer
-    {
-        byte[] Serialize();
-    }
-    public interface IBinaryStreamSerializer
-    {
-        void Serialize(MemoryStream stream);
-    }
     public class RemoteFunctionArguments : IBinarySerializer
     {
         public bool Is64BitProcess;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using CoreHook.BinaryInjection.Host;
+using CoreHook.BinaryInjection.BinaryLoader.Serializer;
 
 namespace CoreHook.BinaryInjection.BinaryLoader
 {
