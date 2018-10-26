@@ -2,7 +2,7 @@
 
 namespace CoreHook.Tests
 {
-    public class RemoteHookingTest64
+    public class RemoteInjectionTest64
     {
         [Fact]
         private void TestRemoteInject64()
@@ -41,7 +41,7 @@ namespace CoreHook.Tests
         }
     }
 
-    public class RemoteHookingTest32
+    public class RemoteInjectionTest32
     {
         [Fact]
         private void TestRemoteInject32()
