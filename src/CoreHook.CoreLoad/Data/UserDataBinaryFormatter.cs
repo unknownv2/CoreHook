@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.CoreLoad.Data
 {
-    internal class UserDataBinaryFormatter<T> : IUserDataFormatter<T>
+    internal class UserDataBinaryFormatter : IUserDataFormatter
     {
         internal UserDataBinaryFormatter() { }
 
-        public T DeserializeClass(IntPtr data, int size)
+        public T DeserializeClass<T>(IntPtr data, int size)
         {
             using (Stream passThruStream = new MemoryStream())
             {
@@ -22,11 +22,11 @@ namespace CoreHook.CoreLoad.Data
 
                 passThruStream.Position = 0;
 
-                return DeserializeClass(passThruStream);
+                return DeserializeClass<T>(passThruStream);
             }
         }
 
-        internal static T DeserializeClass(Stream binaryStream)
+        internal static T DeserializeClass<T>(Stream binaryStream)
         {
             var format = new BinaryFormatter
             {

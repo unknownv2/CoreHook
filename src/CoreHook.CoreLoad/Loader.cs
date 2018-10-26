@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -27,14 +25,15 @@ namespace CoreHook.CoreLoad
         {
             try
             {
-                if (remoteParameters == null || remoteParameters == IntPtr.Zero)
+                if (remoteParameters == IntPtr.Zero)
                 {
-                    throw new ArgumentOutOfRangeException("Remote arguments address was zero");
+                    throw new ArgumentOutOfRangeException(nameof(remoteParameters), 
+                        "Remote arguments address was zero");
                 }
 
                 var connection =
                     ConnectionData<RemoteEntryInfo, ManagedRemoteInfo>.LoadData(
-                        remoteParameters, new UserDataBinaryFormatter<ManagedRemoteInfo>()
+                        remoteParameters, new UserDataBinaryFormatter()
                     );
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
@@ -90,8 +89,7 @@ namespace CoreHook.CoreLoad
             SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id);
             try
             {
-                // After this it is safe to enter the Run() method, which will block until assembly unloading...
-                // From now on the user library has to take care about error reporting!
+                // Execute the CoreHook plugin entry point
                 runMethod.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
                                            BindingFlags.InvokeMethod, null, paramArray, null);
   
@@ -99,14 +97,6 @@ namespace CoreHook.CoreLoad
             finally
             {
                 Release(entryPoint);
-            }
-        }
-
-        private static void Release(Type entryPoint)
-        {
-            if(entryPoint != null)
-            {
-                LocalHook.Release();
             }
         }
 
@@ -129,8 +119,10 @@ namespace CoreHook.CoreLoad
             foreach (var method in methods)
             {
                 if (method.Name == methodName
-                    && (paramArray != null ? MethodMatchesParameters(method, paramArray) : true))
+                    && (paramArray == null || MethodMatchesParameters(method, paramArray)))
+                {
                     return method;
+                }
             }
             return null;
         }
@@ -174,6 +166,14 @@ namespace CoreHook.CoreLoad
                 }
             }
             return false;
+        }
+
+        private static void Release(Type entryPoint)
+        {
+            if (entryPoint != null)
+            {
+                LocalHook.Release();
+            }
         }
 
         private static void Log(string message)
