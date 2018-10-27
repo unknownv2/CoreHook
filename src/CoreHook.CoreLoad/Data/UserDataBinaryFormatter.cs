@@ -6,11 +6,23 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.CoreLoad.Data
 {
-    internal class UserDataBinaryFormatter : IUserDataFormatter
+    public class UserDataBinaryFormatter : IUserDataFormatter
     {
-        internal UserDataBinaryFormatter() { }
+        private readonly IFormatter _formatter;
+        public UserDataBinaryFormatter()
+        {
+            _formatter = new BinaryFormatter
+            {
+                Binder = new AllowAllAssemblyVersionsDeserializationBinder()
+            };
+        }
 
-        public T DeserializeClass<T>(IntPtr data, int size)
+        public UserDataBinaryFormatter(IFormatter formatter)
+        {
+            _formatter = formatter;
+        }
+
+        public T Deserialize<T>(IntPtr data, int size)
         {
             using (Stream passThruStream = new MemoryStream())
             {
@@ -26,14 +38,9 @@ namespace CoreHook.CoreLoad.Data
             }
         }
 
-        internal static T DeserializeClass<T>(Stream binaryStream)
+        private T DeserializeClass<T>(Stream binaryStream)
         {
-            var format = new BinaryFormatter
-            {
-                Binder = new AllowAllAssemblyVersionsDeserializationBinder()
-            };
-
-            object remoteInfo = format.Deserialize(binaryStream);
+            object remoteInfo = _formatter.Deserialize(binaryStream);
             if (remoteInfo is T info)
             {
                 return info;
@@ -42,6 +49,11 @@ namespace CoreHook.CoreLoad.Data
             {
                 throw new InvalidCastException($"Deserialized data was not of type {nameof(T)}");
             }
+        }
+
+        public void Serialize(Stream serializationStream, object graph)
+        {
+            _formatter.Serialize(serializationStream, graph);
         }
     }
 }

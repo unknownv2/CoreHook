@@ -214,6 +214,7 @@ namespace CoreHook.ManagedHook.Remote
                         var libraryPath = remoteHookConfig.PayloadLibrary;
                         PrepareInjection(
                             remoteInfo,
+                            new UserDataBinaryFormatter(),
                             ref libraryPath,
                             passThruStream,
                             injectionPipeName);
@@ -276,16 +277,19 @@ namespace CoreHook.ManagedHook.Remote
                 }
             }
         }
+
         /// <summary>
         /// Create the config class that is passed to the CLR bootstrap library to be loaded.
         /// The <paramref name="remoteInfo"/> holds information such as what hooking module to load.
         /// </summary>
         /// <param name="remoteInfo">The configuration that is serialized and passed to CoreLoad.</param>
+        /// <param name="serializer">Serializes the <paramref name="remoteInfo"/> data.</param>
         /// <param name="library">The managed hooking library to be loaded and executed in the target process.</param>
         /// <param name="argumentsStream">The stream that holds the the serialized <paramref name="remoteInfo"/> class.</param>
         /// <param name="injectionPipeName">The pipe name used for notifying the host process that the hook plugin has been loaded in the target process.</param>
         private static void PrepareInjection(
             ManagedRemoteInfo remoteInfo,
+            IUserDataFormatter serializer,
             ref string library,
             MemoryStream argumentsStream,
             string injectionPipeName)
@@ -313,8 +317,7 @@ namespace CoreHook.ManagedHook.Remote
 
             remoteInfo.ChannelName = injectionPipeName;
 
-            var formatter = new BinaryFormatter();
-            formatter.Serialize(argumentsStream, remoteInfo);
+            serializer.Serialize(argumentsStream, remoteInfo);
         }
     }
 }

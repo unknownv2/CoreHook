@@ -57,7 +57,7 @@ namespace CoreHook.CoreLoad.Data
                 }
 
                 // Deserialize user data class passed to CoreLoad
-                data.RemoteInfo = formatter.DeserializeClass<U>(
+                data.RemoteInfo = formatter.Deserialize<U>(
                     data.UnmanagedInfo.UserData,
                     data.UnmanagedInfo.UserDataSize);
             }
