@@ -15,7 +15,7 @@ namespace CoreHook.FileMonitor.Hook
 {
     public class Library : IEntryPoint
     {
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
+        private static readonly IJsonRpcContractResolver MyContractResolver = new JsonRpcContractResolver
         {
             // Use camelcase for RPC method names.
             NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
@@ -146,7 +146,7 @@ namespace CoreHook.FileMonitor.Hook
             {
                 var builder = new JsonRpcProxyBuilder
                 {
-                    ContractResolver = myContractResolver
+                    ContractResolver = MyContractResolver
                 };
 
                 var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));
