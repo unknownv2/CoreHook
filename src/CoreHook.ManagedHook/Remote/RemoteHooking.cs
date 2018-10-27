@@ -23,7 +23,7 @@ namespace CoreHook.ManagedHook.Remote
         /// The .NET Assembly class that loads the .NET hooking library, resolves any references, and executes
         /// the hooking library IEntryPoint.Run method.
         /// </summary>
-        private static AssemblyDelegate CoreHookLoaderDel =
+        private static readonly AssemblyDelegate CoreHookLoaderDel =
                 new AssemblyDelegate(
                 assemblyName: "CoreHook.CoreLoad",
                 typeName: "Loader",
@@ -188,7 +188,7 @@ namespace CoreHook.ManagedHook.Remote
 
             InjectionHelper.BeginInjection(targetPID);
             
-            using (var pipeServer = InjectionHelper.CreateServer(injectionPipeName, pipePlatform))
+            using (InjectionHelper.CreateServer(injectionPipeName, pipePlatform))
             {
                 try
                 {
