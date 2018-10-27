@@ -16,7 +16,7 @@ namespace CoreHook.Tests
                TestHookLibrary
                ),
                TestMessage,
-               "CoreHookInjection64");
+                Resources.GetUniquePipeName());
 
             Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
 
@@ -33,7 +33,8 @@ namespace CoreHook.Tests
                Resources.GetTestDllPath(
                TestHookLibrary
                ),
-               TestMessage);
+               TestMessage,
+               Resources.GetUniquePipeName());
 
             Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TargetProcess));
 
@@ -55,7 +56,8 @@ namespace CoreHook.Tests
                TestHookLibrary
                ),
                TestMessage,
-               "CoreHookInjection32");
+               Resources.GetUniquePipeName()
+                );
 
             Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
 
