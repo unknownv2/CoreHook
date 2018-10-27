@@ -131,11 +131,11 @@ namespace CoreHook.FileMonitor
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
 
-            if (Examples.Common.Utilities.GetCoreLoadPaths(
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     false, out CoreHookNativeConfig configX86) &&
-                Examples.Common.Utilities.GetCoreLoadPaths(
+                Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     true, out CoreHookNativeConfig configX64) &&
-                Examples.Common.Utilities.GetCoreLoadModulePath(
+                Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
                 RemoteHooking.CreateAndInject(
@@ -175,7 +175,7 @@ namespace CoreHook.FileMonitor
         {
             ValidateFilePath(injectionLibrary);
 
-            if (Examples.Common.Utilities.GetCoreLoadPaths(
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     ProcessHelper.GetProcessById(processId).Is64Bit(),
                     out string coreRunDll, out string coreLibrariesPath,
                     out string coreRootPath, out string coreLoadDll,

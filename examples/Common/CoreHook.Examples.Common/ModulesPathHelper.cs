@@ -6,7 +6,7 @@ using CoreHook.ManagedHook.Remote;
 
 namespace CoreHook.Examples.Common
 {
-    public class Utilities
+    public class ModulesPathHelper
     {
         // info on these environment variables: 
         // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md

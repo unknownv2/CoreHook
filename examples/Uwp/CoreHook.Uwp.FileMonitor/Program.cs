@@ -123,7 +123,7 @@ namespace CoreHook.Uwp.FileMonitor
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
-            if (Examples.Common.Utilities.GetCoreLoadPaths(
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                 ProcessHelper.GetProcessById(processId).Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath, 
                 out string coreRootPath, out string coreLoadDll,
