@@ -9,6 +9,7 @@ namespace CoreHook.CoreLoad.Data
     public class UserDataBinaryFormatter : IUserDataFormatter
     {
         private readonly IFormatter _formatter;
+
         public UserDataBinaryFormatter()
         {
             _formatter = new BinaryFormatter
@@ -22,19 +23,32 @@ namespace CoreHook.CoreLoad.Data
             _formatter = formatter;
         }
 
+        public T Deserialize<T>(Stream stream)
+        {
+            return DeserializeClass<T>(stream);
+        }
+
         public T Deserialize<T>(IntPtr data, int size)
         {
-            using (Stream passThruStream = new MemoryStream())
+            if (data == IntPtr.Zero)
             {
-                byte[] passThruBytes = new byte[size];
+                throw new ArgumentOutOfRangeException(
+                    nameof(data),
+                    "Invalid data address");
+            }
 
-                Marshal.Copy(data, passThruBytes, 0, size);
+            if (size >= int.MaxValue)
+            {
+                throw new InvalidOperationException("Data size is too large for deserializing");
+            }
 
-                passThruStream.Write(passThruBytes, 0, passThruBytes.Length);
+            byte[] objectData = new byte[size];
 
-                passThruStream.Position = 0;
+            Marshal.Copy(data, objectData, 0, size);
 
-                return DeserializeClass<T>(passThruStream);
+            using (Stream stream = new MemoryStream(objectData))
+            {
+                return DeserializeClass<T>(stream);
             }
         }
 

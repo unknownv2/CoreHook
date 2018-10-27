@@ -31,9 +31,10 @@ namespace CoreHook.CoreLoad
                         "Remote arguments address was zero");
                 }
 
+                var remoteInfoFormatter = new UserDataBinaryFormatter();
                 var connection =
                     ConnectionData<RemoteEntryInfo, ManagedRemoteInfo>.LoadData(
-                        remoteParameters, new UserDataBinaryFormatter()
+                        remoteParameters, remoteInfoFormatter
                     );
 
                 var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
@@ -46,7 +47,11 @@ namespace CoreHook.CoreLoad
                     paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
                 }
 
-                LoadUserLibrary(resolver.Assembly, paramArray, connection.RemoteInfo.ChannelName);
+                LoadUserLibrary(
+                    resolver.Assembly, 
+                    paramArray, 
+                    connection.RemoteInfo.ChannelName, 
+                    remoteInfoFormatter);
             }
             catch(ArgumentOutOfRangeException outOfRangeEx)
             {
@@ -60,19 +65,15 @@ namespace CoreHook.CoreLoad
             return 0;
         }
 
-        private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
+        private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName, IUserDataFormatter formatter)
         {
             Type entryPoint = FindEntryPoint(assembly);
-            var format = new BinaryFormatter
-            {
-                Binder = new AllowAllAssemblyVersionsDeserializationBinder(entryPoint.Assembly)
-            };
 
             for (int i = 1; i < paramArray.Length; i++)
             {
-                using (var ms = new MemoryStream((byte[])paramArray[i]))
+                using (Stream ms = new MemoryStream((byte[])paramArray[i]))
                 {
-                    paramArray[i] = format.Deserialize(ms);
+                    paramArray[i] = formatter.Deserialize<object>(ms);
                 }
             }
 

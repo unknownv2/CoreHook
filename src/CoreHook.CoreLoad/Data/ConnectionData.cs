@@ -51,11 +51,6 @@ namespace CoreHook.CoreLoad.Data
                 // Get the unmanaged data containing the remote user parameters
                 Marshal.PtrToStructure(unmanagedInfoPointer, data.UnmanagedInfo);
 
-                if (data.UnmanagedInfo.UserDataSize >= int.MaxValue)
-                {
-                    throw new InvalidOperationException("UserDataSize is too large to load.");
-                }
-
                 // Deserialize user data class passed to CoreLoad
                 data.RemoteInfo = formatter.Deserialize<U>(
                     data.UnmanagedInfo.UserData,
