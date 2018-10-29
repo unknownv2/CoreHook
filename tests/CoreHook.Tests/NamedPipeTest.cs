@@ -10,7 +10,7 @@ namespace CoreHook.Tests
         [Fact]
         private void ShouldConnectToServer()
         {
-            const string namedPipe = "NamedPipeNameTest1";
+            string namedPipe = Resources.GetUniquePipeName();
             const string testMessage = "TestMessage";
             bool receivedMessage = false;
 
@@ -35,7 +35,7 @@ namespace CoreHook.Tests
         [Fact]
         private void ShouldConnectToServerAndReceiveResponse()
         {
-            const string namedPipe = "NamedPipeNameTest2";
+            string namedPipe = Resources.GetUniquePipeName();
             const string testMessage = "TestMessage";
             bool receivedCorrectMessage = false;
             
@@ -63,7 +63,7 @@ namespace CoreHook.Tests
         [Fact]
         private void ShouldConnectToServerAndReceiveMultipleResponses()
         {
-            const string namedPipe = "NamedPipeNameTest4";
+            string namedPipe = Resources.GetUniquePipeName();
             const string testMessage1 = "TestMessage1";
             const string testMessage2 = "TestMessage2";
             const string testMessage3 = "TestMessage3";
@@ -93,7 +93,7 @@ namespace CoreHook.Tests
         [Fact]
         private void ShouldConnectToServerAndReceiveRandomResponse()
         {
-            const string namedPipe = "NamedPipeNameTest3";
+            string namedPipe = Resources.GetUniquePipeName();
             const string testMessage = "TestMessage";
             bool receivedCorrectMessage = false;
 
@@ -121,7 +121,7 @@ namespace CoreHook.Tests
         [Fact]
         private void ShouldNotConnectToServer()
         {
-            const string clientNamedPipe = "ClientNamedPipeNameTest1";
+            string clientNamedPipe = Resources.GetUniquePipeName();
             bool connected = false;
    
             using (INamedPipeClient pipeClient = new NamedPipeClient(clientNamedPipe))

@@ -329,27 +329,7 @@ namespace CoreHook
 
     public static class NativeAPI
     {
-        public const int MAX_HOOK_COUNT = 1024;
-        public const int MAX_ACE_COUNT = 128;
         public readonly static bool Is64Bit = IntPtr.Size == 8;
-
-        [DllImport("kernel32.dll")]
-        public static extern int GetCurrentThreadId();
-
-        [DllImport("kernel32.dll")]
-        public static extern void CloseHandle(IntPtr handle);
-
-        [DllImport("kernel32.dll")]
-        public static extern int GetCurrentProcessId();
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Ansi)]
-        public static extern IntPtr GetProcAddress(IntPtr module, string procedureName);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr LoadLibrary(string path);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern IntPtr GetModuleHandle(string path);
 
         [DllImport("kernel32.dll")]
         public static extern short RtlCaptureStackBackTrace(

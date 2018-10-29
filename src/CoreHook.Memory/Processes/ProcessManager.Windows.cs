@@ -51,7 +51,7 @@ namespace CoreHook.Memory.Processes
                     if (!Environment.Is64BitProcess)
                     {
                         throw new InvalidOperationException(
-                            "Cannot open a handle to a 64-bit proc address from a 32-bit process."
+                            "Cannot open a handle to a 64-bit process from a 32-bit process."
                             );
                     }
                 }
@@ -131,7 +131,7 @@ namespace CoreHook.Memory.Processes
                         hProcess,
                         IntPtr.Zero,
                         UIntPtr.Zero,
-                        GetAbsoluteFunctionAddressEx(module, function),
+                        GetWin32ProcAddress(module, function),
                         remoteAllocAddr,
                         0,
                         IntPtr.Zero);

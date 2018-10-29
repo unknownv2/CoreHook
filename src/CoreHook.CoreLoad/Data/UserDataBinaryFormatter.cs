@@ -6,34 +6,55 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.CoreLoad.Data
 {
-    internal class UserDataBinaryFormatter : IUserDataFormatter
+    public class UserDataBinaryFormatter : IUserDataFormatter
     {
-        internal UserDataBinaryFormatter() { }
+        private readonly IFormatter _formatter;
 
-        public T DeserializeClass<T>(IntPtr data, int size)
+        public UserDataBinaryFormatter()
         {
-            using (Stream passThruStream = new MemoryStream())
-            {
-                byte[] passThruBytes = new byte[size];
-
-                Marshal.Copy(data, passThruBytes, 0, size);
-
-                passThruStream.Write(passThruBytes, 0, passThruBytes.Length);
-
-                passThruStream.Position = 0;
-
-                return DeserializeClass<T>(passThruStream);
-            }
-        }
-
-        internal static T DeserializeClass<T>(Stream binaryStream)
-        {
-            var format = new BinaryFormatter
+            _formatter = new BinaryFormatter
             {
                 Binder = new AllowAllAssemblyVersionsDeserializationBinder()
             };
+        }
 
-            object remoteInfo = format.Deserialize(binaryStream);
+        public UserDataBinaryFormatter(IFormatter formatter)
+        {
+            _formatter = formatter;
+        }
+
+        public T Deserialize<T>(Stream stream)
+        {
+            return DeserializeClass<T>(stream);
+        }
+
+        public T Deserialize<T>(IntPtr data, int size)
+        {
+            if (data == IntPtr.Zero)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(data),
+                    "Invalid data address");
+            }
+
+            if (size >= int.MaxValue)
+            {
+                throw new InvalidOperationException("Data size is too large for deserializing");
+            }
+
+            byte[] objectData = new byte[size];
+
+            Marshal.Copy(data, objectData, 0, size);
+
+            using (Stream stream = new MemoryStream(objectData))
+            {
+                return DeserializeClass<T>(stream);
+            }
+        }
+
+        private T DeserializeClass<T>(Stream binaryStream)
+        {
+            object remoteInfo = _formatter.Deserialize(binaryStream);
             if (remoteInfo is T info)
             {
                 return info;
@@ -42,6 +63,11 @@ namespace CoreHook.CoreLoad.Data
             {
                 throw new InvalidCastException($"Deserialized data was not of type {nameof(T)}");
             }
+        }
+
+        public void Serialize(Stream serializationStream, object graph)
+        {
+            _formatter.Serialize(serializationStream, graph);
         }
     }
 }

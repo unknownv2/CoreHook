@@ -20,7 +20,7 @@ namespace CoreHook.FileMonitor
         /// </summary>
         private const string HookLibraryDirName = "Hook";
         /// <summary>
-        /// The library injected to be injected the target processed and executed
+        /// The library to be injected into the target process and executed
         /// using it's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
@@ -31,9 +31,9 @@ namespace CoreHook.FileMonitor
         /// </summary>
         private const string InjectionPipeName = "CoreHookInjection";
         /// <summary>
-        /// Enable verbose logging to the console for the CoreCLR host module corerundll.
+        /// Enable verbose logging to the console for the CoreCLR hosting module.
         /// </summary>
-        private const bool HostVerboseLog = true;
+        private const bool HostVerboseLog = false;
         /// <summary>
         /// Wait for a debugger to attach to the target process before running any .NET assemblies.
         /// </summary>
@@ -41,7 +41,7 @@ namespace CoreHook.FileMonitor
         /// <summary>
         /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>
-        private static IPipePlatform PipePlatform = new PipePlatform();
+        private static readonly IPipePlatform PipePlatform = new PipePlatform();
 
         private static void Main(string[] args)
         {
@@ -131,14 +131,15 @@ namespace CoreHook.FileMonitor
             ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
 
-            if (Examples.Common.Utilities.GetCoreLoadPaths(
-                false, out CoreHookNativeConfig configX86) &&
-                Examples.Common.Utilities.GetCoreLoadPaths(
-                true, out CoreHookNativeConfig configX64) &&
-                Examples.Common.Utilities.GetCoreLoadModulePath(out string coreLoadLibrary))
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
+                    false, out CoreHookNativeConfig configX86) &&
+                Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
+                    true, out CoreHookNativeConfig configX64) &&
+                Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
+                    out string coreLoadLibrary))
             {
                 RemoteHooking.CreateAndInject(
-                     new ProcessCreationConfig()
+                     new ProcessCreationConfig
                      {
                          ExecutablePath = exePath,
                          CommandLine = null,
@@ -174,11 +175,11 @@ namespace CoreHook.FileMonitor
         {
             ValidateFilePath(injectionLibrary);
 
-            if (Examples.Common.Utilities.GetCoreLoadPaths(
-                ProcessHelper.GetProcessById(processId).Is64Bit(),
-                out string coreRunDll, out string coreLibrariesPath,
-                out string coreRootPath, out string coreLoadDll,
-                out string coreHookDll))
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
+                    ProcessHelper.GetProcessById(processId).Is64Bit(),
+                    out string coreRunDll, out string coreLibrariesPath,
+                    out string coreRootPath, out string coreLoadDll,
+                    out string coreHookDll))
             {
                 RemoteHooking.Inject(
                     processId,

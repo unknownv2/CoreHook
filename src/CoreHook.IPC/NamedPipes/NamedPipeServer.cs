@@ -102,7 +102,7 @@ namespace CoreHook.IPC.NamedPipes
                 {
                     pipe.EndWaitForConnection(ar);
                 }
-                catch (IOException e)
+                catch (IOException)
                 {
                     connectionBroken = true;
                 }

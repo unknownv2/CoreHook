@@ -13,9 +13,9 @@ using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.Uwp.FileMonitor.Hook
 {
-    public class Library : IEntryPoint
+    public class EntryPoint : IEntryPoint
     {
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
+        private static readonly IJsonRpcContractResolver MyContractResolver = new JsonRpcContractResolver
         {
             // Use camelcase for RPC method names.
             NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
@@ -27,7 +27,7 @@ namespace CoreHook.Uwp.FileMonitor.Hook
 
         LocalHook CreateFileHook;
 
-        public Library(IContext context, string arg1) { }
+        public EntryPoint(IContext context, string arg1) { }
 
         public void Run(IContext context, string pipeName)
         {
@@ -84,7 +84,7 @@ namespace CoreHook.Uwp.FileMonitor.Hook
 
             try
             {
-                Library This = (Library)HookRuntimeInfo.Callback;
+                EntryPoint This = (EntryPoint)HookRuntimeInfo.Callback;
                 if (This != null)
                 {
                     lock (This.Queue)
@@ -132,7 +132,7 @@ namespace CoreHook.Uwp.FileMonitor.Hook
             {
                 var builder = new JsonRpcProxyBuilder
                 {
-                    ContractResolver = myContractResolver
+                    ContractResolver = MyContractResolver
                 };
 
                 var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));

@@ -24,7 +24,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const string HookLibraryDirName = "Hook";
         /// <summary>
-        /// The library injected to be injected the target processed and executed
+        /// The library to be injected into the target process and executed
         /// using it's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
@@ -45,7 +45,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// <summary>
         /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>
-        private static IPipePlatform PipePlatform = new Pipe.PipePlatform();
+        private static readonly IPipePlatform PipePlatform = new Pipe.PipePlatform();
 
         private static void Main(string[] args)
         {
@@ -123,7 +123,7 @@ namespace CoreHook.Uwp.FileMonitor
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
-            if (Examples.Common.Utilities.GetCoreLoadPaths(
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                 ProcessHelper.GetProcessById(processId).Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath, 
                 out string coreRootPath, out string coreLoadDll,

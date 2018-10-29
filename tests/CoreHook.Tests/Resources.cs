@@ -133,15 +133,15 @@ namespace CoreHook.Tests
             Process target,
             string injectionLibrary,
             string message,
-            string pipeName = "CoreHookInjection")
+            string pipeName)
         {
-            if (Examples.Common.Utilities.GetCoreLoadPaths(target.Is64Bit(),
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(target.Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath,
                 out string coreRootPath, out string coreLoadDll, out string coreHookDll))
             {
                 RemoteHooking.Inject(
                     target.Id,
-                    new RemoteHookingConfig()
+                    new RemoteHookingConfig
                     {
                         HostLibrary = coreRunDll,
                         CoreCLRPath = coreRootPath,
@@ -156,6 +156,10 @@ namespace CoreHook.Tests
                     new PipePlatformBase(),
                     message);
             }
+        }
+        internal static string GetUniquePipeName()
+        {
+            return Path.GetRandomFileName();
         }
     }
 }
