@@ -106,18 +106,12 @@ namespace CoreHook.Tests
 
         internal static void SendToProcess(Process target, string message)
         {
-            using (StreamWriter sw = target.StandardInput)
-            {
-                sw.WriteLine(message);
-            }
+            target.StandardInput.WriteLine(message);
         }
 
         internal static string ReadFromProcess(Process target)
         {
-            using (StreamReader sr = target.StandardOutput)
-            {
-                return sr.ReadLine();
-            }
+            return target.StandardOutput.ReadLine();
         }
  
         internal static string GetTestDllPath(string dllName)
@@ -132,8 +126,9 @@ namespace CoreHook.Tests
         internal static void InjectDllIntoTarget(
             Process target,
             string injectionLibrary,
-            string message,
-            string pipeName)
+            string injectionPipeName,
+            params object[] remoteArguments
+            )
         {
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(target.Is64Bit(),
                 out string coreRunDll, out string coreLibrariesPath,
@@ -151,12 +146,13 @@ namespace CoreHook.Tests
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = false,
                         WaitForDebugger = false,
-                        InjectionPipeName = pipeName
+                        InjectionPipeName = injectionPipeName
                     },
                     new PipePlatformBase(),
-                    message);
+                    remoteArguments);
             }
         }
+
         internal static string GetUniquePipeName()
         {
             return Path.GetRandomFileName();

@@ -38,6 +38,7 @@
     <ProjectReference Include="..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
     <ProjectReference Include="..\..\src\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\hook\CoreHook.Tests.Plugins.Shared\CoreHook.Tests.Plugins.Shared.csproj" />
   </ItemGroup>
 
 </Project>
