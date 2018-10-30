@@ -365,9 +365,9 @@ namespace CoreHook
             return $"{RtlGetLastErrorString()} (Code: {RtlGetLastError()})";
         }
 
-        internal static void Force(int InErrorCode)
+        internal static void Force(int errorCode)
         {
-            switch (InErrorCode)
+            switch (errorCode)
             {
                 case STATUS_SUCCESS: return;
                 case STATUS_INVALID_PARAMETER: throw new ArgumentException("STATUS_INVALID_PARAMETER: " + ComposeString());
@@ -384,7 +384,7 @@ namespace CoreHook
                 case STATUS_WOW_ASSERTION: throw new OutOfMemoryException("STATUS_WOW_ASSERTION: " + ComposeString());
                 case STATUS_ACCESS_DENIED: throw new AccessViolationException("STATUS_ACCESS_DENIED: " + ComposeString());
 
-                default: throw new ApplicationException("Unknown error code (" + InErrorCode + "): " + ComposeString());
+                default: throw new ApplicationException("Unknown error code (" + errorCode + "): " + ComposeString());
             }
         }
 
@@ -553,15 +553,15 @@ namespace CoreHook
             }
         }
 
-        public static void DetourBarrierGetCallback(out IntPtr returnValue)
+        public static int DetourBarrierGetCallback(out IntPtr returnValue)
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetCallback(out returnValue));
+                return NativeAPI_x64.DetourBarrierGetCallback(out returnValue);
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetCallback(out returnValue));
+                return NativeAPI_x86.DetourBarrierGetCallback(out returnValue);
             }
         }
 

@@ -65,9 +65,9 @@ namespace CoreHook.Memory.Processes
             ExecuteFuntion(Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
                              "System32",
-                             "kernel32.dll"
-                             ), "LoadLibraryW",
-            Encoding.Unicode.GetBytes(modulePath + "\0"));
+                             "kernel32.dll"),
+                             "LoadLibraryW",
+                             Encoding.Unicode.GetBytes(modulePath + "\0"));
         }
 
         /// <summary>

@@ -15,6 +15,14 @@ namespace CoreHook.Examples.Common
         private string _pipeName;
         private readonly Func<RequestContext, Func<Task>, Task> _handler;
 
+        private static readonly IJsonRpcContractResolver MyContractResolver = new JsonRpcContractResolver
+        {
+            // Use camelcase for RPC method names.
+            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
+            // Use camelcase for the property names in parameter value objects
+            ParameterValueConverter = new CamelCaseJsonValueConverter()
+        };
+
         public RpcService(ISessionFeature session, Type service, Func<RequestContext, Func<Task>, Task> handler)
         {
             _session = session;
@@ -37,14 +45,6 @@ namespace CoreHook.Examples.Common
             return service;
         }
 
-        private static readonly IJsonRpcContractResolver myContractResolver = new JsonRpcContractResolver
-        {
-            // Use camelcase for RPC method names.
-            NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
-            ParameterValueConverter = new CamelCaseJsonValueConverter()
-        };
-
         private INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             _pipeName = namedPipeName;
@@ -55,7 +55,7 @@ namespace CoreHook.Examples.Common
         {
             var builder = new JsonRpcServiceHostBuilder
             {
-                ContractResolver = myContractResolver,
+                ContractResolver = MyContractResolver,
             };
 
             builder.Register(service);
