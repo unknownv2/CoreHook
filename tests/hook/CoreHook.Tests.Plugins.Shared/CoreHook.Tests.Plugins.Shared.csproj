@@ -13,8 +13,4 @@
     <OutputPath>$(OutputDir)Test</OutputPath>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
-  </ItemGroup>
-
 </Project>

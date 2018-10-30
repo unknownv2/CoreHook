@@ -2,22 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Platforms>AnyCPU</Platforms>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>        
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>$(OutputDir)</OutputPath>
+    <OutputPath>$(OutputDir)Test</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>$(OutputDir)</OutputPath>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsAsErrors />
+    <OutputPath>$(OutputDir)Test</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoreHook.Memory\CoreHook.Memory.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\CoreHook.Tests.Plugins.Shared\CoreHook.Tests.Plugins.Shared.csproj" />
   </ItemGroup>
 
 </Project>

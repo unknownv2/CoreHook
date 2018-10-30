@@ -58,6 +58,7 @@ CoreHook supports application function call interception on various architecture
 | Windows Server 2008 | x86, x64              |
 | Windows Server 2012 | x86, x64              |
 | Windows Server 2016 | x86, x64              |
+| Windows Server 2019 | x86, x64              |
 
 ## Dependencies
 
@@ -96,7 +97,7 @@ set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.5
 set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.5
 ```
 
-Then open the `CoreHook` solution in `Visual Studio` and you can build the examples, either `CoreHook.FileMonitor` or `CoreHook.UWP.FileMonitor`.
+Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dotnet build` to build the library and the examples.
 
 Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
@@ -174,7 +175,7 @@ will create a folder called `Publish/win32/win10-arm/` containing the `CoreHook.
 ```ps
 .\publish -example uwp -runtime win10-arm64
 ```
-will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.UWP.FileMonitor` example.
+will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.Uwp.FileMonitor` example.
 
 
 ### Windows Symbol Support
