@@ -20,17 +20,21 @@ namespace CoreHook.Tests
             {
                 if(_testProcess64 == null)
                 {
-                    _testProcess64 = new Process();
+                    _testProcess64 = new Process
+                    {
+                        StartInfo =
+                        {
+                            FileName = Path.Combine(
+                                Environment.ExpandEnvironmentVariables("%Windir%"),
+                                "System32",
+                                "notepad.exe"
+                            ),
+                            UseShellExecute = false,
+                            RedirectStandardInput = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
 
-                    _testProcess64.StartInfo.FileName = Path.Combine(
-                            Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "System32",
-                            "notepad.exe"
-                            );
-
-                    _testProcess64.StartInfo.UseShellExecute = false;
-                    _testProcess64.StartInfo.RedirectStandardInput = true;
-                    _testProcess64.StartInfo.RedirectStandardOutput = true;
                     _testProcess64.Start();
                 }
                 return _testProcess64;
@@ -42,17 +46,21 @@ namespace CoreHook.Tests
             {
                 if (_testProcess32 == null)
                 {
-                    _testProcess32 = new Process();
+                    _testProcess32 = new Process
+                    {
+                        StartInfo =
+                        {
+                            FileName = Path.Combine(
+                                Environment.ExpandEnvironmentVariables("%Windir%"),
+                                "SysWOW64",
+                                "notepad.exe"
+                            ),
+                            UseShellExecute = false,
+                            RedirectStandardInput = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
 
-                    _testProcess32.StartInfo.FileName = Path.Combine(
-                            Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "SysWOW64",
-                            "notepad.exe"
-                            );
-
-                    _testProcess32.StartInfo.UseShellExecute = false;
-                    _testProcess32.StartInfo.RedirectStandardInput = true;
-                    _testProcess32.StartInfo.RedirectStandardOutput = true;
                     _testProcess32.Start();
                 }
                 return _testProcess32;
@@ -75,22 +83,25 @@ namespace CoreHook.Tests
         internal static Process TargetProcess
         {
             get
-            {                
+            {
                 if (_targetApp == null)
                 {
-                    _targetApp = new Process();
+                    _targetApp = new Process
+                    {
+                        StartInfo =
+                        {
+                            FileName = "dotnet",
+                            Arguments = Path.Combine(
+                                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                                TestModuleDir,
+                                TargetAppName
+                            ),
+                            UseShellExecute = false,
+                            RedirectStandardInput = true,
+                            RedirectStandardOutput = true
+                        }
+                    };
 
-                    _targetApp.StartInfo.FileName = "dotnet";
-                    _targetApp.StartInfo.Arguments =
-                        Path.Combine(
-                            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), 
-                            TestModuleDir, 
-                            TargetAppName
-                        );
-
-                    _targetApp.StartInfo.UseShellExecute = false;
-                    _targetApp.StartInfo.RedirectStandardInput = true;
-                    _targetApp.StartInfo.RedirectStandardOutput = true;
                     _targetApp.Start();
                 }
 
