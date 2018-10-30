@@ -14,7 +14,7 @@ namespace CoreHook.Tests
         }
 
         [Fact]
-        public void ShouldThrowNullExceptionWhenSerializingNUllObject()
+        public void ShouldThrowNullExceptionWhenSerializingNullObject()
         {
             IUserDataFormatter formatter = new UserDataBinaryFormatter();
             Stream serializationStream = new MemoryStream();
@@ -24,7 +24,7 @@ namespace CoreHook.Tests
         }
 
         [Fact]
-        public void ShouldThrowNullExceptionWhenSerializingWithNUllStream()
+        public void ShouldThrowNullExceptionWhenSerializingWithNullStream()
         {
             IUserDataFormatter formatter = new UserDataBinaryFormatter();
             Stream serializationStream = null;
@@ -34,7 +34,7 @@ namespace CoreHook.Tests
         }
 
         [Fact]
-        public void ShouldThrowNullExceptionWhenSerializingWithNUllStreamAndNUllObject()
+        public void ShouldThrowNullExceptionWhenSerializingWithNullStreamAndNUllObject()
         {
             IUserDataFormatter formatter = new UserDataBinaryFormatter();
             Stream serializationStream = null;
