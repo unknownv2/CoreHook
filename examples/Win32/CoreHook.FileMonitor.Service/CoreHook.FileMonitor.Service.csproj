@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\..\Build\bin\Debug\netcoreapp2.1\AnyCPU</OutputPath>
+    <OutputPath>$(OutputDir)</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\..\Build\bin\Release\netcoreapp2.1\AnyCPU</OutputPath>
+    <OutputPath>$(OutputDir)</OutputPath>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
