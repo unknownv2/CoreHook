@@ -72,6 +72,11 @@ namespace CoreHook.Tests
             _testProcess64?.Kill();
             _testProcess64 = null;
         }
+        internal static void EndProcess(Process process)
+        {
+            process?.Kill();
+            process = null;
+        }
         internal static void EndTestProcess2()
         {
             _testProcess32?.Kill();
@@ -115,6 +120,23 @@ namespace CoreHook.Tests
             _targetApp = null;
         }
 
+        internal static Process StartProcess(string fileName)
+        {
+            var testProcess = new Process
+            {
+                StartInfo =
+                    {
+                        FileName = fileName,
+                        UseShellExecute = false,
+                        RedirectStandardInput = true,
+                        RedirectStandardOutput = true
+                    }
+            };
+
+            testProcess.Start();
+            
+            return testProcess;
+        }
         internal static void SendToProcess(Process target, string message)
         {
             target.StandardInput.WriteLine(message);
