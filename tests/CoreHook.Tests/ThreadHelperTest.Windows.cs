@@ -11,20 +11,22 @@ namespace CoreHook.Tests
         [Fact]
         public void ShouldGetFunctionAddressForCurrentProcess()
         {
+            IntPtr functionAddress = IntPtr.Zero;
+            string moduleFileName = Path.Combine(
+                    Environment.ExpandEnvironmentVariables("%Windir%"),
+                    "System32",
+                    "kernel32.dll");
+            const string functionName = "LoadLibraryW";
+
             using (var processHandle = new ManagedProcess(Process.GetCurrentProcess()).SafeHandle)
             {
-                string moduleFileName = Path.Combine(
-                        Environment.ExpandEnvironmentVariables("%Windir%"),
-                        "System32",
-                        "kernel32.dll");
-                const string functionName = "LoadLibraryW";
-
-                Assert.NotEqual(IntPtr.Zero,
-                    ThreadHelper.GetProcAddress(
-                        processHandle,
-                        moduleFileName,
-                        functionName));
+                functionAddress = ThreadHelper.GetProcAddress(
+                                 processHandle,
+                                 moduleFileName,
+                                 functionName);
             }
+
+            Assert.NotEqual(IntPtr.Zero, functionAddress);
         }
     }
 }
