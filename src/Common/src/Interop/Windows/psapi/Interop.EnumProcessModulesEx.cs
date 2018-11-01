@@ -13,7 +13,15 @@ internal partial class Interop
             uint moduleArraySize,
             out uint moduleArraySizeNeeded,
             uint filterFlag);
-        
+
+        [DllImport(Libraries.Psapi, CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern bool EnumProcessModulesEx(
+            SafeProcessHandle processHandle,
+            [Out] IntPtr module,
+            uint moduleArraySize,
+            ref int moduleArraySizeNeeded,
+            uint filterFlag);
+
         internal partial class ModuleFilterFlags
         {
             internal const uint Default = 0x00;
