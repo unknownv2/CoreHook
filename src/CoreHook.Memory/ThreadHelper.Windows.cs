@@ -14,9 +14,20 @@ namespace CoreHook.Memory
         public static SafeWaitHandle CreateRemoteThread(SafeProcessHandle processHandle, IntPtr startAddress,
             IntPtr parameter)
         {
+
+
+            /*Interop.Kernel32.CreateRemoteThread(
+                       hProcess,
+                       IntPtr.Zero,
+                       UIntPtr.Zero,
+                       GetWin32ProcAddress(module, function),
+                       remoteAllocAddr,
+                       0,
+                       IntPtr.Zero);*/
+
             throw new NotImplementedException();
         }
-        private static IntPtr GetProcAddress(SafeProcessHandle processHandle, string module, string function)
+        public static IntPtr GetProcAddress(SafeProcessHandle processHandle, string module, string function)
         {
             var moduleHandle = GetModuleHandle(processHandle, module);
 
@@ -172,10 +183,10 @@ namespace CoreHook.Memory
 
                 switch(reader.ReadUInt16())
                 {
-                    case 0x10:
+                    case 0x10b:
                         reader.BaseStream.Position += 0x5E;
                         break;
-                    case 0x20:
+                    case 0x20b:
                         reader.BaseStream.Position += 0x6E;
                         break;
 
@@ -193,9 +204,68 @@ namespace CoreHook.Memory
                 return new DataDirectory(rva, size);
             }
         }
+
         private static IntPtr GetAddressFromExportTable(byte[] exportTable, uint exportTableRva, string functionName)
         {
-            throw new NotImplementedException();
+            using (var reader = new BinaryReader(new MemoryStream(exportTable)))
+            {
+                reader.BaseStream.Position = 0x10;
+
+                var ordinalBase = reader.ReadInt32();
+                var addressTableEntryCount = reader.ReadUInt32();
+                var namePointerTableEntryCount = reader.ReadUInt32();
+                var exportAddressTableRva = reader.ReadUInt32() - exportTableRva;
+                var exportNamePointerTableRva = reader.ReadUInt32() - exportTableRva;
+                var ordinalTableRva = reader.ReadUInt32() - exportTableRva;
+
+                reader.BaseStream.Position = exportNamePointerTableRva;
+
+                var functionAddress = IntPtr.Zero;
+
+                for(int x = 0; x < namePointerTableEntryCount; ++x)
+                {
+                    reader.BaseStream.Position = exportNamePointerTableRva + (x * 4);
+
+                    var nameRva = reader.ReadUInt32();
+
+                    if(nameRva == 0)
+                    {
+                        continue;
+                    }
+
+                    reader.BaseStream.Position = nameRva - exportTableRva;
+
+                    if(functionName == ReadAsciiString(reader))
+                    {
+                        reader.BaseStream.Position = ordinalTableRva + (x * 2);
+                        var ordinal = reader.ReadUInt16();
+
+                        if(ordinal >= addressTableEntryCount)
+                        {
+                            throw new Win32Exception("Invalid function export table");
+                        }
+
+                        reader.BaseStream.Position = exportAddressTableRva + (ordinal * 4);
+
+                        functionAddress = new IntPtr(reader.ReadUInt32());
+                    }
+                }
+
+                return functionAddress;
+            }
+           
+        }
+        private static string ReadAsciiString(BinaryReader reader)
+        {
+            var stringBuilder = new StringBuilder();
+
+            char character = '\0';
+            while((character = reader.ReadChar()) != '\0')
+            {
+                stringBuilder.Append(character);
+            }
+
+            return stringBuilder.ToString();
         }
 
         internal struct DataDirectory
