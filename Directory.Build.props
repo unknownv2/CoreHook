@@ -7,6 +7,7 @@
     <SourceDir>$(ProjectDir)src\</SourceDir>
     <CommonPath>$(SourceDir)Common\src</CommonPath>
     <BinDir Condition="'$(BinDir)'==''">$(ProjectDir)Build/bin/</BinDir>
-    <OutputDir>$(BinDir)$(Configuration)/netcoreapp2.1/$(Platform)/</OutputDir>    
+    <DefaultTargetFramework>netcoreapp2.1</DefaultTargetFramework>
+    <OutputDir>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/</OutputDir>    
   </PropertyGroup>
 </Project>
