@@ -14,6 +14,7 @@ internal partial class Interop
             uint allocationType,
             uint protect);
 
+        /*
         internal partial class AllocationType
         {
             internal const uint Commit = 0x1000;
@@ -24,7 +25,7 @@ internal partial class Interop
             internal const uint Physical = 0x400000;
             internal const uint TopDown = 0x100000;
             internal const uint WriteWatch = 0x200000;
-            internal const uint LargePages = 0x20000000;       
+            internal const uint LargePages = 0x20000000;
         }
 
         internal partial class MemoryProtection
@@ -40,6 +41,6 @@ internal partial class Interop
             internal const uint GuardModifierflag = 0x100;
             internal const uint NoCacheModifierflag = 0x200;
             internal const uint WriteCombineModifierflag = 0x400;
-        }
+        }*/
     }
 }
