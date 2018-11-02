@@ -9,7 +9,7 @@ namespace CoreHook.Memory
         internal static IntPtr Allocate(
             SafeProcessHandle processHandle,
             int size,
-            MemoryProtectionType protection,
+            uint protection,
             uint allocation = MemoryAllocationType.Commit | MemoryAllocationType.Reserve)
         {
             IntPtr allocationAddress = Interop.Kernel32.VirtualAllocEx(
@@ -17,7 +17,7 @@ namespace CoreHook.Memory
                 IntPtr.Zero,
                 new UIntPtr((uint) size),
                 allocation,
-                ConvertToPlatforProtectionType(protection));
+                protection);
 
             if (allocationAddress == IntPtr.Zero)
             {
@@ -25,11 +25,6 @@ namespace CoreHook.Memory
             }
 
             return allocationAddress;
-        }
-
-        private static uint ConvertToPlatforProtectionType(MemoryProtectionType protection)
-        {
-            return (uint) protection;
         }
 
         public static int WriteBytes(SafeProcessHandle processHandle, IntPtr address, byte[] byteArray)

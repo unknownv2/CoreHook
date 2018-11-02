@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace CoreHook.Memory
 {
@@ -9,7 +7,7 @@ namespace CoreHook.Memory
         IEnumerable<IMemoryAllocation> Allocations { get; }
         IMemoryAllocation Allocate(
             int size,
-            MemoryProtectionType protection,
+            uint protection,
             bool mustBeDisposed = true);
         void Deallocate(IMemoryAllocation allocation);
     }

@@ -20,7 +20,7 @@ namespace CoreHook.Memory
 
         public IMemoryAllocation Allocate(
             int size,
-            MemoryProtectionType protection,
+            uint protection,
             bool mustBeDisposed = true)
         {
             var memory = new MemoryAllocation(_process, size, protection, mustBeDisposed);

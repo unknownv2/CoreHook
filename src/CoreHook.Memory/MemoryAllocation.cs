@@ -9,7 +9,7 @@ namespace CoreHook.Memory
         public bool IsFree => IsDisposed;
 
         internal MemoryAllocation(IProcess process, int size,
-            MemoryProtectionType protection, bool mustBeDisposed = true)
+            uint protection, bool mustBeDisposed = true)
             : base(process, MemoryHelper.Allocate(process.SafeHandle, size, protection))
         {
             Size = size;
