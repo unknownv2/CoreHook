@@ -28,7 +28,7 @@ namespace CoreHook.Memory
 
                 if (processHandle.IsInvalid)
                 {
-                    throw new Win32Exception("Failed to open process handle");
+                    throw new Win32Exception("Failed to open process query handle.");
                 }
 
                 using (processHandle)
@@ -36,7 +36,7 @@ namespace CoreHook.Memory
                     bool processIsWow64 = false;
                     if (!Interop.Kernel32.IsWow64Process(processHandle, ref processIsWow64))
                     {
-                        throw new Win32Exception("Cannot determine process architecture");
+                        throw new Win32Exception("Determining process architecture with IsWow64Process failed.");
                     }
 
                     return !processIsWow64;
@@ -44,7 +44,7 @@ namespace CoreHook.Memory
             }
             else
             {
-                throw new PlatformNotSupportedException("Cannot determine process architecture");
+                throw new PlatformNotSupportedException("Plaform not supported for detecting process architecture.");
             }
         }
     }
