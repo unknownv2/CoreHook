@@ -196,7 +196,7 @@ namespace CoreHook.Uwp.FileMonitor
 
             GrantAllAppPkgsAccessToFolder(directoryPath);
             foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
-                    .Where(name => name.EndsWith(".json") || name.EndsWith(".dll")))
+                    .Where(name => name.EndsWith(".json") || name.EndsWith(".dll") || name.EndsWith(".pdb")))
             {
                 GrantFolderRecursive(filePath, directoryPath);
                 GrantAllAppPkgsAccessToFile(filePath);
