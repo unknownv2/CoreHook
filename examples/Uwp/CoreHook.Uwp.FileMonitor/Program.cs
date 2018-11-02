@@ -46,7 +46,6 @@ namespace CoreHook.Uwp.FileMonitor
         /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>
         private static readonly IPipePlatform PipePlatform = new Pipe.PipePlatform();
-
         /// <summary>
         /// Security Identifier representing ALL_APPLICATION_PACKAGES permission.
         /// </summary>

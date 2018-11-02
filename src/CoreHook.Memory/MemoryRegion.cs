@@ -4,17 +4,9 @@ using System.Text;
 
 namespace CoreHook.Memory
 {
-    public class MemoryRegion : MemoryPointer, IEquatable<MemoryRegion>
+    public class MemoryRegion : MemoryPointer
     {
-        public bool Equals(MemoryRegion other)
-        {
-            throw new NotImplementedException();
-        }
-
-        public MemoryRegion(IProcess process, IntPtr address) : base(process, address)
-        {
-
-        }
+        public MemoryRegion(IProcess process, IntPtr address) : base(process, address) { }
 
         public void Release()
         {

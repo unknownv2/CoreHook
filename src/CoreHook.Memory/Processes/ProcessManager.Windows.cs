@@ -81,7 +81,7 @@ namespace CoreHook.Memory.Processes
                 {
                     _memoryManager.Deallocate(argumentsAllocation);
                 }
-            }            
+            }
         }
 
         public IntPtr CopyToProcess(byte[] data, int? size)
