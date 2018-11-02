@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Text;
-using System.Diagnostics;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory.Processes
@@ -20,17 +20,11 @@ namespace CoreHook.Memory.Processes
             _memoryManager = memoryManager;
         }
 
-        public void OpenHandle(Process process)
-        {
-            ProcessHandle?.Dispose();
-            ProcessHandle = process;
-        }
-
         private SafeProcessHandle GetProcessHandle(int processId, int access)
         {
             SafeProcessHandle handle = Interop.Kernel32.OpenProcess(access, false, processId);
 
-            SafeHandle = handle ?? throw new UnauthorizedAccessException("Failed to open process with handle.");
+            SafeHandle = handle ?? throw new UnauthorizedAccessException("Failed to open process handle.");
 
             return handle;
         }
