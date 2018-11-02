@@ -71,7 +71,7 @@ namespace CoreHook.Memory
                 out UIntPtr bytesRead) || bytesRead.ToUInt32() != page.Length)
             {
                 throw new Win32Exception(
-                    $"Failed to read process memory page: {pageAddress.ToInt64().ToString("X")}.");
+                    $"Failed to read process memory page: {pageAddress.ToInt64():X16}.");
             }
             return page;
         }

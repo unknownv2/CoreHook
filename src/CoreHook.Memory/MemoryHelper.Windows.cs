@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory
@@ -63,7 +61,7 @@ namespace CoreHook.Memory
                 new UIntPtr(0),
                 Interop.Kernel32.FreeType.Release))
             {
-                throw new Win32Exception($"Failed to free the memory region at {address.ToString("X")}.");
+                throw new Win32Exception($"Failed to free the memory region at {address:X16}.");
             }
         }
     }
