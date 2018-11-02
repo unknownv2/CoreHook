@@ -24,6 +24,7 @@ namespace CoreHook.Memory
                        0,
                        IntPtr.Zero);
         }
+
         public static IntPtr GetProcAddress(SafeProcessHandle processHandle, string module, string function)
         {
             var moduleHandle = GetModuleHandle(processHandle, module);
@@ -134,11 +135,6 @@ namespace CoreHook.Memory
                         (uint)(moduleHandles.Length * IntPtr.Size),
                         ref moduleCount,
                         Interop.Psapi.ModuleFilterFlags.All);
-            
-                    /*enumResult = Interop.Kernel32.EnumProcessModules(processHandle,
-                        moduleHandlesArrayHandle.AddrOfPinnedObject(),
-                        moduleHandles.Length * IntPtr.Size, ref moduleCount);*/
-
                 }
                 finally
                 {

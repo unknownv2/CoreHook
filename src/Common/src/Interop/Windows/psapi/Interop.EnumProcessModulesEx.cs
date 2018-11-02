@@ -11,14 +11,6 @@ internal partial class Interop
             SafeProcessHandle processHandle,
             [Out] IntPtr module,
             uint moduleArraySize,
-            out uint moduleArraySizeNeeded,
-            uint filterFlag);
-
-        [DllImport(Libraries.Psapi, CharSet = CharSet.Unicode, SetLastError = true)]
-        internal static extern bool EnumProcessModulesEx(
-            SafeProcessHandle processHandle,
-            [Out] IntPtr module,
-            uint moduleArraySize,
             ref int moduleArraySizeNeeded,
             uint filterFlag);
 

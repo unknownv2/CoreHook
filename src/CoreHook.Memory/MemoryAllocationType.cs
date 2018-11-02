@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace CoreHook.Memory
 {
     public partial class MemoryAllocationType
     {
-        public const uint Commit = Interop.MemoryAllocationType.Commit;
-        public const uint Reserve = Interop.MemoryAllocationType.Reserve;
+        public const uint Commit = Interop.Kernel32.MemoryAllocationType.Commit;
+        public const uint Reserve = Interop.Kernel32.MemoryAllocationType.Reserve;
     }
 }

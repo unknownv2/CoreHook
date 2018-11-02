@@ -34,7 +34,6 @@ namespace CoreHook.Memory
             return (uint) protection;
         }
 
-
         public static int WriteBytes(SafeProcessHandle processHandle, IntPtr address, byte[] byteArray)
         {
             if (!Interop.Kernel32.WriteProcessMemory(

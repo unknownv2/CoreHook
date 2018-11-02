@@ -13,9 +13,8 @@ internal partial class Interop
             UIntPtr size,
             uint allocationType,
             uint protect);
-
-        /*
-        internal partial class AllocationType
+        
+        internal partial class MemoryAllocationType
         {
             internal const uint Commit = 0x1000;
             internal const uint Reserve = 0x2000;
@@ -41,6 +40,6 @@ internal partial class Interop
             internal const uint GuardModifierflag = 0x100;
             internal const uint NoCacheModifierflag = 0x200;
             internal const uint WriteCombineModifierflag = 0x400;
-        }*/
+        }
     }
 }
