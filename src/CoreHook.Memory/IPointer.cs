@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CoreHook.Memory
 {
-    interface IPointer
+    public interface IPointer
     {
         IntPtr Address { get; }
     }

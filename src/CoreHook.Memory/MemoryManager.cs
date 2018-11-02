@@ -1,71 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 
 namespace CoreHook.Memory
 {
     public class MemoryManager : IMemoryManager
     {
-        private List<MemoryAllocation> _allocatedAddresses = new List<MemoryAllocation>();
+        protected readonly List<IMemoryAllocation> MemoryAllocations;
 
-        public Func<Process, IntPtr, int, bool> FreeMemory { get; set; }
+        private readonly IProcess _process;
 
-        public MemoryManager()
+        public IEnumerable<IMemoryAllocation> Allocations => MemoryAllocations.AsReadOnly();
+
+          public MemoryManager(IProcess process)
         {
-
+            _process = process;
+            MemoryAllocations = new List<IMemoryAllocation>();
         }
 
-        public IntPtr Add(Process process, IntPtr address, bool isFree, int size = 0)
+        public IMemoryAllocation Allocate(
+            int size,
+            MemoryProtectionType protection,
+            bool mustBeDisposed = true)
         {
-            _allocatedAddresses.Add(new MemoryAllocation()
-            {
-                Process = process,
-                Address = address,
-                Size = size,
-                IsFree = isFree
-            });
-            return address;
+            var memory = new MemoryAllocation(_process, size, protection, mustBeDisposed);
+            MemoryAllocations.Add(memory);
+            return memory;
         }
- 
-        public void FreeAllocations()
+
+        public void Deallocate(IMemoryAllocation allocation)
         {
-            if (FreeMemory != null)
+            if (!allocation.IsFree)
             {
-                foreach (var memAlloc in _allocatedAddresses)
-                {
-                    if (!memAlloc.IsFree)
-                    {
-                        if (!FreeMemory(memAlloc.Process, memAlloc.Address, memAlloc.Size))
-                        {
-                            throw new MemoryOperationException("free");
-                        }
-                    }
-                }
+                allocation.Dispose();
+            }
+
+            if (MemoryAllocations.Contains(allocation))
+            {
+                MemoryAllocations.Remove(allocation);
             }
         }
 
-        #region IDisposable Support
-        private bool disposedValue = false;
-   
-        protected virtual void Dispose(bool disposing)
+        public byte[] ReadMemory(long address)
         {
-            if (!disposedValue)
+            throw new NotImplementedException();
+        }
+
+        public void WriteMemory(long address, byte[] data)
+        {
+            MemoryHelper.WriteBytes(
+                _process.SafeHandle,
+                new IntPtr(address),
+                data);
+        }
+
+        public virtual void Dispose()
+        {
+            foreach(var memoryAllocation in MemoryAllocations.Where(m => m.MusBeDisposed).ToArray())
             {
-                if (disposing)
-                {
-                    FreeAllocations();
-
-                    _allocatedAddresses.Clear();
-                }
-
-                disposedValue = true;
+                memoryAllocation.Dispose();
             }
+            GC.SuppressFinalize(this);
         }
 
-        public void Dispose()
+        ~MemoryManager()
         {
-            Dispose(true);
+            Dispose();
         }
-        #endregion
     }
 }

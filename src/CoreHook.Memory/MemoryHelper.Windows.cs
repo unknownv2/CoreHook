@@ -12,13 +12,13 @@ namespace CoreHook.Memory
             SafeProcessHandle processHandle,
             int size,
             MemoryProtectionType protection,
-            MemoryAllocationType allocation = MemoryAllocationType.Commit)
+            uint allocation = MemoryAllocationType.Commit | MemoryAllocationType.Reserve)
         {
             IntPtr allocationAddress = Interop.Kernel32.VirtualAllocEx(
                 processHandle,
                 IntPtr.Zero,
                 new UIntPtr((uint) size),
-                ConvertToPlatforAllocationType(allocation),
+                allocation,
                 ConvertToPlatforProtectionType(protection));
 
             if (allocationAddress == IntPtr.Zero)
@@ -34,10 +34,6 @@ namespace CoreHook.Memory
             return (uint) protection;
         }
 
-        private static uint ConvertToPlatforAllocationType(MemoryAllocationType allocation)
-        {
-            return (uint)allocation;
-        }
 
         public static int WriteBytes(SafeProcessHandle processHandle, IntPtr address, byte[] byteArray)
         {

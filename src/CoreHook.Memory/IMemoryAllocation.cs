@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CoreHook.Memory
 {
-    interface IMemoryAllocation : IPointer
+    public interface IMemoryAllocation : IPointer, IDisposableState
     {
         bool IsFree { get; }
         int Size { get; }

@@ -1,22 +1,29 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Text;
 
 namespace CoreHook.Memory
 {
-    public class MemoryAllocation : MemoryRegion, IMemoryAllocation
+    public class MemoryAllocation2 : MemoryRegion, IMemoryAllocation
     {
+        public new IntPtr Address { get; set; }
+        public new IProcess Process { get; set; }
         public int Size { get; set; }
-        public bool IsFree => IsDisposed;
+        public bool IsFree { get; set; }
+   
+        internal MemoryAllocation2() : base(null, IntPtr.Zero)
+        {
 
-        internal MemoryAllocation(IProcess process, int size,
+        }
+
+        internal MemoryAllocation2(IProcess process, int size,
             MemoryProtectionType protection, bool mustBeDisposed = true)
             : base(process, MemoryHelper.Allocate(process.SafeHandle, size, protection))
         {
             Size = size;
-
-            MusBeDisposed = mustBeDisposed;
             IsDisposed = false;
         }
+
 
         public bool IsDisposed { get; private set; }
         public bool MusBeDisposed { get; set; }
@@ -26,11 +33,10 @@ namespace CoreHook.Memory
             if (!IsDisposed)
             {
                 IsDisposed = true;
-                Release();
             }
         }
 
-        ~MemoryAllocation()
+        ~MemoryAllocation2()
         {
             if (MusBeDisposed)
             {
@@ -38,5 +44,4 @@ namespace CoreHook.Memory
             }
         }
     }
-
 }

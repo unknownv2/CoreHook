@@ -17,9 +17,15 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(CommonPath)\Interop\Windows\Interop.MemoryAllocationType.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.MemoryAllocationType.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Interop.MemoryProtection.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.MemoryProtection.cs</Link>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs</Link>
-    </Compile>  
+    </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
       <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
     </Compile>
@@ -31,7 +37,7 @@
     </Compile>       
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CloseHandle.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.CloseHandle.cs</Link>
-    </Compile>   
+    </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs</Link>
     </Compile>    
@@ -58,6 +64,6 @@
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs">
       <Link>Common\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs</Link>
-    </Compile>     
+    </Compile>
   </ItemGroup>
 </Project>

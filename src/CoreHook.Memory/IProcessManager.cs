@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Diagnostics;
+using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory
 {
-    public interface IProcessManager
+    public interface IProcessManager2 : IProcess
     {
+        void OpenHandle(Process process);
         void InjectBinary(string modulePath);
         IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true);
-        void OpenHandle(Process process);
         bool FreeMemory(IntPtr address, int? size = null);
-        IntPtr MemCopyTo(byte[] data, int? size = null);
+        IntPtr CopyToProcess(byte[] data, int? size = null);
+    }
+    public interface IProcessManager : IProcess, IDisposable
+    {
+        void OpenHandle(Process process);
+        void InjectBinary(string modulePath);
+        IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true);
+        IntPtr CopyToProcess(byte[] data, int? size = null);
     }
 }

@@ -4,9 +4,9 @@ using System.Text;
 
 namespace CoreHook.Memory
 {
-    public enum MemoryAllocationType
+    public partial class MemoryAllocationType
     {
-        Commit,
-        Reserve
+        public const uint Commit = Interop.MemoryAllocationType.Commit;
+        public const uint Reserve = Interop.MemoryAllocationType.Reserve;
     }
 }
