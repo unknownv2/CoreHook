@@ -1,13 +1,15 @@
 ﻿using System.Diagnostics;
+using System.IO;
 using Xunit;
 using CoreHook.Tests.Plugins.Shared;
+using System;
 
 namespace CoreHook.Tests
 {
     public class RemotePluginParameterTest
     {
         [Fact]
-        private void TestRemotePluginParameter()
+        private void TestRemotePluginComplexParameter()
         {
             const string TestHookLibrary = "CoreHook.Tests.ComplexParameterTest.dll";
             const string TestMessage = "Berner";
@@ -18,7 +20,11 @@ namespace CoreHook.Tests
                 HostProcessId = Process.GetCurrentProcess().Id
             };
 
-            var testProcess = Resources.TestProcess;
+            var testProcess = Resources.StartProcess(Path.Combine(
+                            Environment.ExpandEnvironmentVariables("%Windir%"),
+                            "System32",
+                            "notepad.exe"
+                        ));
 
             Resources.InjectDllIntoTarget(testProcess,
                Resources.GetTestDllPath(
@@ -30,7 +36,7 @@ namespace CoreHook.Tests
             Assert.Equal(complexParameter.Message, Resources.ReadFromProcess(testProcess));
             Assert.Equal(complexParameter.HostProcessId.ToString(), Resources.ReadFromProcess(testProcess));
 
-            Resources.EndTestProcess();
+            Resources.EndProcess(testProcess);
         }
     }
 }

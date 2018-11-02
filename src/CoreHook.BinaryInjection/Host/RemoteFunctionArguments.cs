@@ -9,6 +9,7 @@ namespace CoreHook.BinaryInjection.Host
         public bool Is64BitProcess;
         public IntPtr UserData;
         public int UserDataSize;
+
         public byte[] Serialize()
         {
             using (var ms = new MemoryStream())

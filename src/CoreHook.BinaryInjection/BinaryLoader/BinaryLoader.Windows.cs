@@ -10,14 +10,11 @@ namespace CoreHook.BinaryInjection.BinaryLoader
 {
     public partial class BinaryLoader : IBinaryLoader
     {
-        private readonly IMemoryManager _memoryManager;
         private readonly IProcessManager _processManager;
 
-        public BinaryLoader(IMemoryManager memoryManager, IProcessManager processManager)
+        public BinaryLoader(IProcessManager processManager)
         {
-            _memoryManager = memoryManager;
             _processManager = processManager;
-            _memoryManager.FreeMemory += (proc, address, length) => processManager.FreeMemory(address);
         }
 
         /// <summary>
@@ -31,24 +28,16 @@ namespace CoreHook.BinaryInjection.BinaryLoader
             IFunctionName functionName,
             FunctionCallArguments arguments)
         {
-            _memoryManager.Add(
-                process,
-                _processManager.Execute(
-                    functionName.Module,
-                    functionName.Function,
-                    Binary.StructToByteArray(arguments),
-                    false),
-                false
-            );
+            _processManager.Execute(
+                functionName.Module,
+                functionName.Function,
+                Binary.StructToByteArray(arguments),
+                false);
         }
 
         private void ExecuteAssemblyWithArguments(Process process, IFunctionName moduleFunction, byte[] arguments)
         {
-            _memoryManager.Add(
-                process,
-                _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments),
-                true
-            );
+            _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments);
         }
 
         public void ExecuteWithArguments(Process process, IFunctionName function, IBinarySerializer arguments)
@@ -63,8 +52,8 @@ namespace CoreHook.BinaryInjection.BinaryLoader
                 call.FunctionName, 
                 new FunctionCallArguments(call.ManagedFunction, call.Arguments));
 
-        public IntPtr CopyMemoryTo(Process process, byte[] buffer, int length) 
-            => _memoryManager.Add(process, _processManager.MemCopyTo(buffer, length), false);
+        public IntPtr CopyMemoryTo(Process process, byte[] buffer, int length)
+            => _processManager.CopyToProcess(buffer, length);
 
         public void Load(
             Process targetProcess,
@@ -97,7 +86,7 @@ namespace CoreHook.BinaryInjection.BinaryLoader
             {
                 if (disposing)
                 {
-                    _memoryManager.Dispose();
+                    _processManager.Dispose();
                 }
                 disposedValue = true;
             }

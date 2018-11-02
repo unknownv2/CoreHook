@@ -47,6 +47,11 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private static readonly IPipePlatform PipePlatform = new Pipe.PipePlatform();
 
+        /// <summary>
+        /// Security Identifier representing ALL_APPLICATION_PACKAGES permission.
+        /// </summary>
+        private static readonly SecurityIdentifier AllAppPkgsSid = new SecurityIdentifier("S-1-15-2-1");
+
         private static void Main(string[] args)
         {
             int targetPID = 0;
@@ -242,7 +247,7 @@ namespace CoreHook.Uwp.FileMonitor
                 var fileInfo = new FileInfo(fileName);
                 FileSecurity acl = fileInfo.GetAccessControl();
 
-                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"), 
+                var rule = new FileSystemAccessRule(AllAppPkgsSid,
                                FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);
 
@@ -264,7 +269,7 @@ namespace CoreHook.Uwp.FileMonitor
                 var dirInfo = new DirectoryInfo(folderPath);
                 DirectorySecurity acl = dirInfo.GetAccessControl(AccessControlSections.Access);
 
-                var rule = new FileSystemAccessRule(new SecurityIdentifier("S-1-15-2-1"),
+                var rule = new FileSystemAccessRule(AllAppPkgsSid,
                                FileSystemRights.ReadAndExecute, AccessControlType.Allow);
   
                 acl.SetAccessRule(rule);

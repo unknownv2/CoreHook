@@ -11,9 +11,9 @@ internal partial class Interop
             SafeProcessHandle processHandle,
             [Out] IntPtr module,
             uint moduleArraySize,
-            out uint moduleArraySizeNeeded,
+            ref int moduleArraySizeNeeded,
             uint filterFlag);
-        
+
         internal partial class ModuleFilterFlags
         {
             internal const uint Default = 0x00;

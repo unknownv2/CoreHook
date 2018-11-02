@@ -39,8 +39,8 @@ namespace CoreHook.ManagedHook.Remote
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 return new BinaryLoader(
-                    new MemoryManager(),
-                    new ProcessManager(process));
+                    new ProcessManager(process,
+                    new MemoryManager(new ManagedProcess(process))));
             }
             else
             {
@@ -104,16 +104,16 @@ namespace CoreHook.ManagedHook.Remote
         /// Create a process, inject the .NET Core runtime into it and load a .NET assembly.
         /// </summary>
         /// <param name="processConfig"></param>
-        /// <param name="configX86">Native modules required for starting CoreCLR in 32-bit applications.</param>
-        /// <param name="configX64">Native modules required for starting CoreCLR in 64-bit applications.</param>
+        /// <param name="config32">Native modules required for starting CoreCLR in 32-bit applications.</param>
+        /// <param name="config64">Native modules required for starting CoreCLR in 64-bit applications.</param>
         /// <param name="remoteHook">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
         /// <param name="pipePlatform">Class for creating pipes for communication with the target process.</param>
         /// <param name="outProcessId">Process ID of the newly created process.</param>
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
         public static void CreateAndInject(
             ProcessCreationConfig processConfig,
-            CoreHookNativeConfig configX86,
-            CoreHookNativeConfig configX64,
+            CoreHookNativeConfig config32,
+            CoreHookNativeConfig config64,
             RemoteHookingConfig remoteHook,
             IPipePlatform pipePlatform,
             out int outProcessId,
@@ -127,12 +127,12 @@ namespace CoreHook.ManagedHook.Remote
                     $"Failed to start the executable at {processConfig.ExecutablePath}");
             }
 
-            var is64BitProcess = process.Is64Bit();
-
-            remoteHook.HostLibrary = is64BitProcess ? configX64.HostLibrary : configX86.HostLibrary;
-            remoteHook.CoreCLRPath = is64BitProcess ? configX64.CoreCLRPath : configX86.CoreCLRPath;
-            remoteHook.CoreCLRLibrariesPath = is64BitProcess ? configX64.CoreCLRLibrariesPath : configX86.CoreCLRLibrariesPath;
-            remoteHook.DetourLibrary = is64BitProcess ? configX64.DetourLibrary : configX86.DetourLibrary;
+            var config = process.Is64Bit() ? config64 : config32;
+            
+            remoteHook.HostLibrary = config.HostLibrary;
+            remoteHook.CoreCLRPath = config.CoreCLRPath;
+            remoteHook.CoreCLRLibrariesPath = config.CoreCLRLibrariesPath;
+            remoteHook.DetourLibrary = config.DetourLibrary;
 
             InjectEx(
                 GetCurrentProcessId(),
@@ -215,7 +215,7 @@ namespace CoreHook.ManagedHook.Remote
                         PrepareInjection(
                             remoteInfo,
                             new UserDataBinaryFormatter(),
-                            ref libraryPath,
+                            libraryPath,
                             passThruStream,
                             injectionPipeName);
 
@@ -290,7 +290,7 @@ namespace CoreHook.ManagedHook.Remote
         private static void PrepareInjection(
             ManagedRemoteInfo remoteInfo,
             IUserDataFormatter serializer,
-            ref string library,
+            string library,
             MemoryStream argumentsStream,
             string injectionPipeName)
         {
@@ -299,7 +299,7 @@ namespace CoreHook.ManagedHook.Remote
                 throw new ArgumentException("The injection library was not valid");
             }
 
-            if ((library != null) && File.Exists(library))
+            if (File.Exists(library))
             {
                 library = Path.GetFullPath(library);
             }

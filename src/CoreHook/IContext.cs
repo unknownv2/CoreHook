@@ -2,8 +2,8 @@
 namespace CoreHook
 {
     /// <summary>
-    /// The context passed to each CoreHook module
-    /// as the first parameter.
+    /// Passed to each CoreHook module as the first parameter.
+    /// It contains user-defined information like <see cref="RemoteEntryInfo"/>.
     /// </summary>
     public interface IContext
     {

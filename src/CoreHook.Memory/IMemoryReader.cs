@@ -4,8 +4,8 @@ using System.Text;
 
 namespace CoreHook.Memory
 {
-    public interface IPointer
+    public interface IMemoryReader
     {
-        IntPtr Address { get; }
+        byte[] ReadMemory(long address);
     }
 }
