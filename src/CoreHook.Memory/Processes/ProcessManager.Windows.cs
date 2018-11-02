@@ -9,24 +9,13 @@ namespace CoreHook.Memory.Processes
 {
     public sealed partial class ProcessManager : IProcessManager
     {
-        public Process ProcessHandle { get; private set; }
-        public SafeProcessHandle SafeHandle { get; private set; }
-
         private readonly IMemoryManager _memoryManager;
+        private readonly IProcess _process;
 
-        public ProcessManager(Process process, IMemoryManager memoryManager)
+        public ProcessManager(IProcess process, IMemoryManager memoryManager)
         {
-            ProcessHandle = process;
+            _process = process;
             _memoryManager = memoryManager;
-        }
-
-        private SafeProcessHandle GetProcessHandle(int processId, int access)
-        {
-            SafeProcessHandle handle = Interop.Kernel32.OpenProcess(access, false, processId);
-
-            SafeHandle = handle ?? throw new UnauthorizedAccessException("Failed to open process handle.");
-
-            return handle;
         }
 
         public void InjectBinary(string modulePath)
@@ -53,53 +42,46 @@ namespace CoreHook.Memory.Processes
         private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool canWait = true)
         {
             SafeWaitHandle remoteThread = null;
-            using (var processHandle = GetProcessHandle(ProcessHandle.Id,
-                Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
-                Interop.Advapi32.ProcessOptions.PROCESS_QUERY_INFORMATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_OPERATION |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_READ |
-                Interop.Advapi32.ProcessOptions.PROCESS_VM_WRITE))
+
+            var argumentsAllocation =
+                _memoryManager.Allocate(
+                    arguments.Length,
+                    MemoryProtectionType.ReadWrite, !canWait);
+
+            if (argumentsAllocation.Address == IntPtr.Zero)
             {
-
-                var argumentsAllocation =
-                    _memoryManager.Allocate(
-                        arguments.Length,
-                        MemoryProtectionType.ReadWrite, !canWait);
-
-                if (argumentsAllocation.Address == IntPtr.Zero)
-                {
-                    throw new Win32Exception("Failed to allocate memory in remote process.");
-                }
-
-                try
-                {
-                    // Write the arguments buffer to our allocated address
-                    _memoryManager.WriteMemory(argumentsAllocation.Address.ToInt64(), arguments);
-
-                    // Execute the function call in a new thread
-                    remoteThread = ThreadHelper.CreateRemoteThread(processHandle,
-                        ThreadHelper.GetProcAddress(processHandle, module, function), 
-                        argumentsAllocation.Address);
-
-                    if (canWait)
-                    {
-                        const int infiniteWait = -1;
-                        Interop.Kernel32.WaitForSingleObject(
-                            remoteThread,
-                            infiniteWait);
-                    }
-
-                    return argumentsAllocation.Address;
-                }
-                finally
-                {
-                    remoteThread?.Dispose();
-                    if (canWait)
-                    {
-                        _memoryManager.Deallocate(argumentsAllocation);
-                    }
-                }
+                throw new Win32Exception("Failed to allocate memory in remote process.");
             }
+
+            try
+            {
+                var processHandle = _process.SafeHandle;
+                // Write the arguments buffer to our allocated address
+                _memoryManager.WriteMemory(argumentsAllocation.Address.ToInt64(), arguments);
+
+                // Execute the function call in a new thread
+                remoteThread = ThreadHelper.CreateRemoteThread(processHandle,
+                    ThreadHelper.GetProcAddress(processHandle, module, function), 
+                    argumentsAllocation.Address);
+
+                if (canWait)
+                {
+                    const int infiniteWait = -1;
+                    Interop.Kernel32.WaitForSingleObject(
+                        remoteThread,
+                        infiniteWait);
+                }
+
+                return argumentsAllocation.Address;
+            }
+            finally
+            {
+                remoteThread?.Dispose();
+                if (canWait)
+                {
+                    _memoryManager.Deallocate(argumentsAllocation);
+                }
+            }            
         }
 
         public IntPtr CopyToProcess(byte[] data, int? size)
