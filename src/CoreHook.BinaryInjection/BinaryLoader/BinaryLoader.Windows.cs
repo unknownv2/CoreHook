@@ -10,20 +10,11 @@ namespace CoreHook.BinaryInjection.BinaryLoader
 {
     public partial class BinaryLoader : IBinaryLoader
     {
-        //private readonly IMemoryManager2 _memoryManager;
         private readonly IProcessManager _processManager;
-        private readonly IProcessManager2 _processManager2;
 
         public BinaryLoader(IProcessManager processManager)
         {
             _processManager = processManager;
-        }
-
-        public BinaryLoader(IMemoryManager2 memoryManager, IProcessManager2 processManager)
-        {
-            //_memoryManager = memoryManager;
-            //_processManager = processManager;
-            //_memoryManager.FreeMemory += (proc, address, length) => processManager.FreeMemory(address);
         }
 
         /// <summary>
