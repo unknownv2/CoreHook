@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.ComponentModel;
@@ -11,21 +10,19 @@ namespace CoreHook.Memory
 {
     public static partial class ThreadHelper
     {
-        public static SafeWaitHandle CreateRemoteThread(SafeProcessHandle processHandle, IntPtr startAddress,
+        public static SafeWaitHandle CreateRemoteThread(
+            SafeProcessHandle processHandle,
+            IntPtr startAddress,
             IntPtr parameter)
         {
-
-
-            /*Interop.Kernel32.CreateRemoteThread(
-                       hProcess,
+            return Interop.Kernel32.CreateRemoteThread(
+                       processHandle,
                        IntPtr.Zero,
                        UIntPtr.Zero,
-                       GetWin32ProcAddress(module, function),
-                       remoteAllocAddr,
+                       startAddress,
+                       parameter,
                        0,
-                       IntPtr.Zero);*/
-
-            throw new NotImplementedException();
+                       IntPtr.Zero);
         }
         public static IntPtr GetProcAddress(SafeProcessHandle processHandle, string module, string function)
         {
@@ -57,8 +54,6 @@ namespace CoreHook.Memory
             {
                 throw new Win32Exception($"Cannot read export table at {exportTableAddress.ToInt64()}");
             }
-
-            processHandle.Dispose();
 
             return new IntPtr(moduleInfo.BaseOfDll.ToInt64() +
                 GetAddressFromExportTable(exportTable, exportDirectory.Rva, functionName).ToInt64());
