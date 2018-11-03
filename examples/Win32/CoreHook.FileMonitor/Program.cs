@@ -12,22 +12,22 @@ namespace CoreHook.FileMonitor
     class Program
     {
         /// <summary>
-        /// The pipe name over which the FileMonitor RPC service communicates over between processes.
+        /// The pipe name the FileMonitor RPC service communicates over between processes.
         /// </summary>
         private const string CoreHookPipeName = "CoreHook";
         /// <summary>
-        /// The directory containing the CoreHook modules to be loaded in processes.
+        /// The directory containing the CoreHook modules to be loaded in the target process.
         /// </summary>
         private const string HookLibraryDirName = "Hook";
         /// <summary>
         /// The library to be injected into the target process and executed
-        /// using it's 'Run' Method.
+        /// using the EntryPoint's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if the hooking plugin has been loaded successfully loaded in
-        /// the target process or not. 
+        /// if the hooking plugin has been loaded successfully in
+        /// the target process or if loading failed. 
         /// </summary>
         private const string InjectionPipeName = "CoreHookInjection";
         /// <summary>
@@ -98,7 +98,7 @@ namespace CoreHook.FileMonitor
             // Start the RPC server for handling requests from the hooked program
             StartListener();
         }
- 
+
         /// <summary>
         /// Check if a file path is valid, otherwise throw an exception
         /// </summary>
@@ -132,9 +132,9 @@ namespace CoreHook.FileMonitor
             ValidateFilePath(injectionLibrary);
 
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                    false, out CoreHookNativeConfig configX86) &&
+                    false, out CoreHookNativeConfig config32) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                    true, out CoreHookNativeConfig configX64) &&
+                    true, out CoreHookNativeConfig config64) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
@@ -145,8 +145,8 @@ namespace CoreHook.FileMonitor
                          CommandLine = null,
                          ProcessCreationFlags = 0x00
                      },
-                     configX86,
-                     configX64,
+                     config32,
+                     config64,
                      new RemoteHookingConfig
                      {
                          CLRBootstrapLibrary = coreLoadLibrary,

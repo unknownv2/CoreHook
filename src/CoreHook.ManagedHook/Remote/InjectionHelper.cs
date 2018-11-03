@@ -6,6 +6,12 @@ using CoreHook.IPC.Platform;
 
 namespace CoreHook.ManagedHook.Remote
 {
+    /// <summary>
+    /// Handles notifications from a target process related to the CoreHook boostrapping stage,
+    /// which is handled by the CoreLoad module. The host process should either receive 
+    /// a message about that the CoreHook plugin was successfully loaded or throw an
+    /// exception after a certain amount of time when no message has been received.
+    /// </summary>
     public class InjectionHelper
     {
         private class InjectionWait
