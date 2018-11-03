@@ -41,15 +41,16 @@ namespace CoreHook.CoreLoad
                 var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
 
                 paramArray[0] = connection.UnmanagedInfo;
-                for (int i = 0; i < connection.RemoteInfo.UserParams.Length; i++)
+                for (int i = 0; i < connection.RemoteInfo.UserParams.Length; ++i)
                 {
                     paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
                 }
 
+                // Execute the plugin's entry point and pass in the user arguments 
                 LoadUserLibrary(
                     resolver.Assembly, 
                     paramArray, 
-                    connection.RemoteInfo.ChannelName, 
+                    connection.RemoteInfo.ChannelName,
                     remoteInfoFormatter);
             }
             catch(ArgumentOutOfRangeException outOfRangeEx)
@@ -68,7 +69,7 @@ namespace CoreHook.CoreLoad
         {
             Type entryPoint = FindEntryPoint(assembly);
 
-            for (int i = 1; i < paramArray.Length; i++)
+            for (int i = 1; i < paramArray.Length; ++i)
             {
                 using (Stream ms = new MemoryStream((byte[])paramArray[i]))
                 {
@@ -132,8 +133,12 @@ namespace CoreHook.CoreLoad
         private static bool MethodMatchesParameters(MethodBase method, object[] paramArray)
         {
             var parameters = method.GetParameters();
-            if (parameters.Length != paramArray.Length) return false;
-            for (int i = 0; i < paramArray.Length; i++)
+            if (parameters.Length != paramArray.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < paramArray.Length; ++i)
             {
                 if (!parameters[i].ParameterType.IsInstanceOfType(paramArray[i]))
                     return false;

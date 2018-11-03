@@ -38,9 +38,10 @@ namespace CoreHook.ManagedHook.Remote
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
+                var managedProcess = new ManagedProcess(process);
                 return new BinaryLoader(
-                    new ProcessManager(process,
-                    new MemoryManager(new ManagedProcess(process))));
+                    new ProcessManager(managedProcess,
+                    new MemoryManager(managedProcess)));
             }
             else
             {

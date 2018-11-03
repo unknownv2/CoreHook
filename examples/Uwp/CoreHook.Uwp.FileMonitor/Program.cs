@@ -16,11 +16,11 @@ namespace CoreHook.Uwp.FileMonitor
     class Program
     {
         /// <summary>
-        /// The pipe name over which the FileMonitor RPC service communicates over between processes.
+        /// The pipe name the FileMonitor RPC service communicates over between processes.
         /// </summary>
         private const string CoreHookPipeName = "UwpCoreHook";
         /// <summary>
-        /// The directory containing the CoreHook modules to be loaded in processes.
+        /// The directory containing the CoreHook modules to be loaded in the target process.
         /// </summary>
         private const string HookLibraryDirName = "Hook";
         /// <summary>
@@ -30,8 +30,8 @@ namespace CoreHook.Uwp.FileMonitor
         private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// if the hooking plugin has been loaded successfully loaded in
-        /// the target process or not. 
+        /// if the hooking plugin has been loaded successfully in
+        /// the target process or if loading failed. 
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
         /// <summary>
@@ -46,7 +46,6 @@ namespace CoreHook.Uwp.FileMonitor
         /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>
         private static readonly IPipePlatform PipePlatform = new Pipe.PipePlatform();
-
         /// <summary>
         /// Security Identifier representing ALL_APPLICATION_PACKAGES permission.
         /// </summary>
