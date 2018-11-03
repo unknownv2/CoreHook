@@ -15,8 +15,8 @@ namespace CoreHook
         private GCHandle _selfHandle;
         private Delegate _hookProc;
         private object _callback;
-        private HookAccessControl _threadACL;
-        private static HookAccessControl _globalThreadACL = new HookAccessControl(IntPtr.Zero);
+        private IHookAccessControl _threadACL;
+        private static IHookAccessControl _globalThreadACL = new HookAccessControl(IntPtr.Zero);
 
         /// <summary>
         /// Ensures that each instance is always terminated with <see cref="Dispose"/>.
@@ -40,7 +40,7 @@ namespace CoreHook
         /// <exception cref="ObjectDisposedException">
         /// The underlying hook is already disposed.
         /// </exception>
-        public HookAccessControl ThreadACL
+        public IHookAccessControl ThreadACL
         {
             get
             {
@@ -145,7 +145,7 @@ namespace CoreHook
         /// Returns the gloabl thread ACL associated with ALL hooks. Refer to <see cref="IsThreadIntercepted"/>
         /// for more information about access negotiation.
         /// </summary>
-        public static HookAccessControl GlobalThreadACL { get { return _globalThreadACL; } }
+        public static IHookAccessControl GlobalThreadACL { get { return _globalThreadACL; } }
 
         /// <summary>
         /// If you want to immediately uninstall a hook, the only way is to dispose it. A disposed
@@ -346,9 +346,8 @@ namespace CoreHook
         }
 
         /// <summary>
-        /// Will return the address for a given DLL export symbol. The specified
-        /// module has to be loaded into the current process space and also export
-        /// the given method.
+        /// Will return the address for a given DLL symbol. The specified
+        /// module has to be loaded into the current process space.
         /// </summary>
         /// <remarks>
         /// If you wonder how to get native entry points in a managed environment,
@@ -358,7 +357,7 @@ namespace CoreHook
         /// of course ultimately relies on the native windows API!
         /// </remarks>
         /// <param name="module">A system DLL name like "kernel32.dll" or a full qualified path to any DLL.</param>
-        /// <param name="symbolName">An exported symbol name like "CreateFileW".</param>
+        /// <param name="symbolName">An symbol name like "CreateFileW".</param>
         /// <returns>The entry point for the given API method.</returns>
         /// <exception cref="DllNotFoundException">
         /// The given module is not loaded into the current process.

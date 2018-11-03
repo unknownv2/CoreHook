@@ -13,7 +13,7 @@ namespace CoreHook
     /// those ACLs in unmanaged code. So if any thread is not intercepted, it will never
     /// enter the manged environment what will speed up things about orders of magnitudes.
     /// </remarks>
-    public class HookAccessControl
+    public class HookAccessControl : IHookAccessControl
     {
         private int[] _ACL = new int[0];
         private IntPtr _handle;
