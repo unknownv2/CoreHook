@@ -34,21 +34,5 @@ namespace CoreHook.BinaryInjection.Host
                 return ms.ToArray();
             }
         }
-
-        public void Serialize(MemoryStream stream)
-        {
-            using (var writer = new BinaryWriter(stream))
-            {
-                if(Is64BitProcess)
-                {
-                    writer.Write(UserData.ToInt64());
-                }
-                else
-                {
-                    writer.Write(UserData.ToInt32());
-                }
-                writer.Write(UserDataSize);
-            }
-        }
     }
 }
