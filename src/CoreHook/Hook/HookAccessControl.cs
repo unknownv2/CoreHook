@@ -11,7 +11,7 @@ namespace CoreHook
     /// apply different kind of hooks to different threads. Even if you could do this
     /// in managed code, it is not that easy to implement and also EasyHook evaluates
     /// those ACLs in unmanaged code. So if any thread is not intercepted, it will never
-    /// enter the manged environment what will speed up things about orders of magnitudes.
+    /// enter the managed environment which will speed up things about orders of magnitudes.
     /// </remarks>
     public class HookAccessControl : IHookAccessControl
     {

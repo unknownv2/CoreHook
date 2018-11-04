@@ -114,7 +114,7 @@ namespace CoreHook
             }
 
         TRY_AGAIN:
-            for (int i = 0; i < ModuleArray.Length; i++)
+            for (int i = 0; i < ModuleArray.Length; ++i)
             {
                 if ((pointer >= ModuleArray[i].BaseAddress.ToInt64()) &&
                     (pointer <= ModuleArray[i].BaseAddress.ToInt64() + ModuleArray[i].ModuleMemorySize))
@@ -293,7 +293,7 @@ namespace CoreHook
 
                     StackBuffer.Synchronize(count);
 
-                    for (int i = 0; i < count; i++)
+                    for (int i = 0; i < count; ++i)
                     {
                         result[i] = PointerToModule(StackBuffer.Managed[i]);
                     }
@@ -326,7 +326,7 @@ namespace CoreHook
                     var frames = new StackTrace().GetFrames();
                     var result = new System.Reflection.Module[frames.Length];
 
-                    for (int i = 0; i < frames.Length; i++)
+                    for (int i = 0; i < frames.Length; ++i)
                     {
                         result[i] = frames[i].GetMethod().Module;
                     }
