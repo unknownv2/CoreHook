@@ -47,9 +47,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{651578A4
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests", "tests\CoreHook.Tests\CoreHook.Tests.csproj", "{AAAC3722-8911-4F80-8232-840D81F8C938}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hook", "hook", "{BFEBEA69-1024-42F8-A2D5-B1B43E6CE719}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{BFEBEA69-1024-42F8-A2D5-B1B43E6CE719}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleHook1", "tests\hook\CoreHook.Tests.SimpleHook1\CoreHook.Tests.SimpleHook1.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleHook1", "tests\plugins\CoreHook.Tests.SimpleHook1\CoreHook.Tests.SimpleHook1.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "target", "target", "{E601DB0A-91DB-45DD-928B-B9CF3BD65026}"
 EndProject
@@ -59,9 +59,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{6F6AB2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Examples.Common", "examples\Common\CoreHook.Examples.Common\CoreHook.Examples.Common.csproj", "{74E65AD3-BCD9-4580-A5ED-8972D5A3AAA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreHook.Tests.ComplexParameterTest", "tests\hook\CoreHook.Tests.ComplexParameterTest\CoreHook.Tests.ComplexParameterTest.csproj", "{AF446E9D-9530-4DBE-BD44-9BCF7D569AB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.ComplexParameterTest", "tests\plugins\CoreHook.Tests.ComplexParameterTest\CoreHook.Tests.ComplexParameterTest.csproj", "{AF446E9D-9530-4DBE-BD44-9BCF7D569AB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreHook.Tests.Plugins.Shared", "tests\hook\CoreHook.Tests.Plugins.Shared\CoreHook.Tests.Plugins.Shared.csproj", "{5C04FCAA-2E32-44EC-B838-B432CFCBB073}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.Plugins.Shared", "tests\plugins\CoreHook.Tests.Plugins.Shared\CoreHook.Tests.Plugins.Shared.csproj", "{5C04FCAA-2E32-44EC-B838-B432CFCBB073}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
