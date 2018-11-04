@@ -1,10 +1,9 @@
-﻿using Microsoft.Win32.SafeHandles;
-using System;
+﻿using System;
 using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
+using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory
 {
@@ -37,8 +36,7 @@ namespace CoreHook.Memory
             return GetModuleFunctionAddress(processHandle, moduleHandle, function);
         }
 
-        private static IntPtr GetModuleFunctionAddress(SafeProcessHandle processHandle, 
-            IntPtr moduleHandle, string functionName)
+        private static IntPtr GetModuleFunctionAddress(SafeProcessHandle processHandle, IntPtr moduleHandle, string functionName)
         {
             Interop.Kernel32.NtModuleInfo moduleInfo = GetModuleInfo(processHandle, moduleHandle);
 
@@ -239,11 +237,10 @@ namespace CoreHook.Memory
                         functionAddress = new IntPtr(reader.ReadUInt32());
                     }
                 }
-
                 return functionAddress;
             }
-           
         }
+
         private static string ReadAsciiString(BinaryReader reader)
         {
             var stringBuilder = new StringBuilder();
