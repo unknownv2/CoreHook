@@ -112,8 +112,6 @@ namespace CoreHook.Memory
                         return moduleHandle;
                     }
                 }
-
-                Debug.WriteLine(moduleFileName);
             }
 
             return IntPtr.Zero;
