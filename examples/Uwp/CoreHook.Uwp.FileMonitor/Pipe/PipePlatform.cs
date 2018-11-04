@@ -6,10 +6,6 @@ using CoreHook.IPC.Platform;
 
 namespace CoreHook.Uwp.FileMonitor.Pipe
 {
-    /// <summary>
-    /// Using code from here as an example:
-    /// https://github.com/PowerShell/PowerShellEditorServices/blob/1031e2296449ab30bb4968e0285566a33e4bf9f4/src/PowerShellEditorServices.Protocol/MessageProtocol/Channel/NamedPipeServerListener.cs#L136-L274
-    /// </summary>
     public class PipePlatform : IPipePlatform
     {
         private static PipeSecurity CreateUWPPipeSecurity()
@@ -47,12 +43,7 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
 
         public NamedPipeServerStream CreatePipeByName(string pipeName)
         {
-            // Unfortunately, .NET Core does not support passing in a PipeSecurity object into the constructor for
-            // NamedPipeServerStream so we are creating native Named Pipes and securing them using native APIs. The
-            // issue on .NET Core regarding Named Pipe security is here: https://github.com/dotnet/corefx/issues/30170
-            // 99% of this code was borrowed from PowerShell here:
-            // https://github.com/PowerShell/PowerShell/blob/master/src/System.Management.Automation/engine/remoting/common/RemoteSessionNamedPipe.cs#L124-L256
-            return NamedPipeNative.CreateNamedPipe(".", "pipe", pipeName, CreateUWPPipeSecurity());
+            return NamedPipeNative.CreateNamedServerPipe(".", "pipe", pipeName, CreateUWPPipeSecurity());
         }
     }
 }
