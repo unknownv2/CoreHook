@@ -20,7 +20,7 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
             securityAttributes.lpSecurityDescriptor = securityDescriptorHandle.AddrOfPinnedObject();
             return securityAttributes;
         }
-        internal const int ERROR_FILE_NOT_FOUND = 0x2;
+        
         internal static NamedPipeServerStream CreateNamedServerPipe(
             string serverName,
             string namespaceName,
@@ -48,7 +48,7 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
 
             if(Interop.Kernel32.WaitNamedPipe(fullPipeName, System.Threading.Timeout.Infinite))
             { 
-                if(Marshal.GetLastWin32Error() != ERROR_FILE_NOT_FOUND)
+                if(Marshal.GetLastWin32Error() != Interop.Errors.ERROR_FILE_NOT_FOUND)
                 {
                     throw new InvalidOperationException();
                 }
