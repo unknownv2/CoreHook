@@ -179,7 +179,7 @@ namespace CoreHook.CoreLoad
         {
             if (entryPoint != null)
             {
-                LocalHook.Release();
+                //LocalHook.Release();
             }
         }
 
