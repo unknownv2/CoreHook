@@ -212,18 +212,13 @@ namespace CoreHook
                 }
             }
         }
-
-        ~LocalHook()
-        {
-            Dispose();
-        }
     }
 
     /// <summary>
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class LocalHook2<T> : LocalHook, IHook<T> where T : class
+    public class LocalHook<T> : LocalHook, IHook<T> where T : class
     {
         /// <summary>
         /// Delegate used to call the original function by bypassing the detour.
@@ -244,9 +239,9 @@ namespace CoreHook
         /// <param name="detourFunction"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
-        public new static LocalHook2<T> CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
+        public new static LocalHook<T> CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
-            var hook = new LocalHook2<T>
+            var hook = new LocalHook<T>
             {
                 Callback = callback,
                 TargetAddress = targetFunction,
@@ -267,9 +262,9 @@ namespace CoreHook
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
         /// <returns></returns>
-        public new static LocalHook2<T> Create(IntPtr targetFunction, Delegate detourFunction, object callback)
+        public new static LocalHook<T> Create(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
-            var hook = new LocalHook2<T>
+            var hook = new LocalHook<T>
             {
                 Callback = callback,
                 TargetAddress = targetFunction,
@@ -295,7 +290,7 @@ namespace CoreHook
         {
             if (_handle == IntPtr.Zero)
             {
-                throw new ObjectDisposedException(typeof(LocalHook2<T>).FullName);
+                throw new ObjectDisposedException(typeof(LocalHook<T>).FullName);
             }
 
             NativeAPI.DetourIsThreadIntercepted(_handle, threadId, out bool isThreadIntercepted);

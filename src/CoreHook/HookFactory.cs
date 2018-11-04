@@ -39,7 +39,7 @@ namespace CoreHook
         /// <returns></returns>
         public static IHook<T> CreateHook<T>(IntPtr targetFunction, IntPtr detourFunction) where T : class
         {
-            return LocalHook2<T>.CreateUnmanaged(targetFunction, detourFunction, IntPtr.Zero);
+            return LocalHook<T>.CreateUnmanaged(targetFunction, detourFunction, IntPtr.Zero);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace CoreHook
         /// <returns></returns>
         public static IHook<T> CreateHook<T>(IntPtr targetFunction, T detourFunction, object callback = null) where T : class
         {
-            return LocalHook2<T>.Create(targetFunction, detourFunction as Delegate, callback);
+            return LocalHook<T>.Create(targetFunction, detourFunction as Delegate, callback);
         }
     }
 }

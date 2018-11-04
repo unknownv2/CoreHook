@@ -78,7 +78,7 @@ namespace CoreHook
         /// <returns></returns>
         public IHook<T> CreateHook<T>(IntPtr targetFunction, T detourFunction, object callback = null) where T : class
         {
-            return LocalHook2<T>.Create(targetFunction, detourFunction as Delegate, callback);
+            return LocalHook<T>.Create(targetFunction, detourFunction as Delegate, callback);
         }
 
         public void Dispose()
@@ -86,5 +86,4 @@ namespace CoreHook
 
         }
     }
-
 }

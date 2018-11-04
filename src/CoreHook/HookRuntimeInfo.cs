@@ -16,12 +16,12 @@ namespace CoreHook
             NativeAPI.DetourBarrierGetCallback(out IntPtr callback) == NativeAPI.STATUS_SUCCESS;
 
         /// <summary>
-        /// The user callback parameter passed to <see cref="LocalHook2{T}.Create"/>.
+        /// The user callback parameter passed to <see cref="LocalHook{T}.Create"/>.
         /// </summary>
         public static object Callback => Handle?.Callback;
 
         /// <summary>
-        /// The class handle initially returned from <see cref="LocalHook2{T}.Create"/>.
+        /// The class handle initially returned from <see cref="LocalHook{T}.Create"/>.
         /// </summary>
         public static IHook Handle
         {
