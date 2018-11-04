@@ -1,6 +1,6 @@
 # CoreHook
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/unknownv2/CoreHook/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
@@ -207,7 +207,7 @@ Any contributions are all welcome! If you find any problems or want to add featu
 
 ## License
 
-Licensed under the [MIT](https://github.com/unknownv2/CoreHook/blob/master/LICENSE) License.
+Licensed under the [MIT](LICENSE) License.
 
 ## Credits
 
