@@ -1,5 +1,4 @@
-﻿
-using System.IO.Pipes;
+﻿using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using CoreHook.IPC.Platform;
@@ -29,13 +28,13 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
                     identity.User, pipeAccess, accessControl));
  
             }
+
             pipeSecurity.AddAccessRule(
                 new PipeAccessRule(
                     new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), pipeAccess, accessControl)
             );
 
             pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), pipeAccess, accessControl));
-
             pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), pipeAccess, accessControl));
 
             return pipeSecurity;
