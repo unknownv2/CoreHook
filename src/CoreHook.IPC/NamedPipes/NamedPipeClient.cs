@@ -33,11 +33,11 @@ namespace CoreHook.IPC.NamedPipes
         {
             if (_clientStream != null)
             {
-                throw new InvalidOperationException("Client pipe already connected");
+                throw new InvalidPipeOperationException("Client pipe already connected");
             }
             if (_pipeName == null)
             {
-                throw new InvalidOperationException("Client pipe name was not set");
+                throw new InvalidPipeOperationException("Client pipe name was not set");
             }
             try
             {
@@ -69,7 +69,7 @@ namespace CoreHook.IPC.NamedPipes
                 SendRequest(message);
                 return true;
             }
-            catch (BrokenPipeException)
+            catch (InvalidPipeOperationException)
             {
             }
             return false;
@@ -91,7 +91,7 @@ namespace CoreHook.IPC.NamedPipes
             }
             catch (IOException e)
             {
-                throw new BrokenPipeException("Unable to send: " + message, e);
+                throw new InvalidPipeOperationException("Unable to send: " + message, e);
             }
         }
 
@@ -102,13 +102,13 @@ namespace CoreHook.IPC.NamedPipes
                 string response = _reader.ReadLine();
                 if (response == null)
                 {
-                    throw new BrokenPipeException("Unable to read from pipe", null);
+                    throw new InvalidPipeOperationException("Unable to read from pipe", null);
                 }
                 return response;
             }
             catch (IOException e)
             {
-                throw new BrokenPipeException("Unable to read from pipe", e);
+                throw new InvalidPipeOperationException("Unable to read from pipe", e);
             }
         }
 
@@ -124,7 +124,7 @@ namespace CoreHook.IPC.NamedPipes
                 message = NamedPipeMessages.Message.FromString(ReadRawResponse());
                 return true;
             }
-            catch (BrokenPipeException)
+            catch (InvalidPipeOperationException)
             {
                 message = null;
                 return false;
@@ -146,7 +146,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             if (_clientStream == null)
             {
-                throw new InvalidOperationException("There is no connection");
+                throw new InvalidPipeOperationException("There is no connection");
             }
         }
     }
