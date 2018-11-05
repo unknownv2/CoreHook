@@ -66,10 +66,9 @@ namespace CoreHook.Memory.Processes
 
                 if (canWait)
                 {
-                    const int infiniteWait = -1;
                     Interop.Kernel32.WaitForSingleObject(
                         remoteThread,
-                        infiniteWait);
+                        System.Threading.Timeout.Infinite);
                 }
 
                 return argumentsAllocation.Address;

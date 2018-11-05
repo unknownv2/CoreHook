@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.Tests.SimpleHook1
+namespace CoreHook.Tests.SimpleParameterTest
 {
     public class EntryPoint : IEntryPoint
     {

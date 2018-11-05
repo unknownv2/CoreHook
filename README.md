@@ -1,6 +1,6 @@
 # CoreHook
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/unknownv2/CoreHook/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
@@ -17,6 +17,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [Usage](#usage)
     - [Windows](#windows)
 - [Contributing](#contributing)
+- [License](#license)
 - [Credits](#credits)
 
 ## Build status
@@ -203,6 +204,10 @@ You can confirm that symbol support is properly configured by running the [symbo
 ## Contributing
 
 Any contributions are all welcome! If you find any problems or want to add features, don't hesitate to open a new issue or create a pull request.
+
+## License
+
+Licensed under the [MIT](LICENSE) License.
 
 ## Credits
 

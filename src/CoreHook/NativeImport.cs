@@ -362,7 +362,7 @@ namespace CoreHook
 
         private static string ComposeString()
         {
-            return $"{RtlGetLastErrorString()} (Code: {RtlGetLastError()})";
+            return "ERROR";
         }
 
         internal static void Force(int errorCode)
@@ -399,19 +399,6 @@ namespace CoreHook
                 return NativeAPI_x86.RtlGetLastError();
             }
         }
-
-        public static string RtlGetLastErrorString()
-        {
-            if (Is64Bit)
-            {
-                return NativeAPI_x64.RtlGetLastErrorStringCopy();
-            }
-            else
-            {
-                return NativeAPI_x86.RtlGetLastErrorStringCopy();
-            }
-        }
-
 
         public static void DetourUninstallAllHooks()
         {

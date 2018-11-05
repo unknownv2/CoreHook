@@ -113,5 +113,46 @@ namespace CoreHook.Tests.Windows
                 Assert.NotEqual(IntPtr.Zero, hook.HookBypassAddress);
             }
         }
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
+        public delegate uint GetVersionT();
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetVersion();
+
+        [Fact]
+        public void ShouldEnableHookWithProperty()
+        {
+            using (var hook = HookFactory.CreateHook<GetVersionT>(
+                LocalHook.GetProcAddress("kernel32.dll", "GetVersion"),
+                GetVersionDetour, this))
+            {
+                // Enable the hook for all threads
+                hook.Enabled = true;
+                Assert.Equal<uint>(0, GetVersion());
+                Assert.Equal<uint>(0, hook.Target());
+
+                // Disable the hook for all threads
+                hook.Enabled = false;
+                Assert.NotEqual<uint>(0, GetVersion());
+                Assert.NotEqual<uint>(0, hook.Target());
+                Assert.NotEqual<uint>(0, hook.Original());
+
+                // Enable the hook for the current thread
+                hook.ThreadACL.SetInclusiveACL(new int[1]);
+                Assert.Equal<uint>(0, GetVersion());
+                Assert.Equal<uint>(0, hook.Target());
+                Assert.NotEqual<uint>(0, hook.Original());
+                
+                // Disable the hook for the current thread
+                hook.ThreadACL.SetExclusiveACL(new int[1]);
+                Assert.NotEqual<uint>(0, GetVersion());
+                Assert.NotEqual<uint>(0, hook.Target());
+            }
+        }
+        private uint GetVersionDetour()
+        {
+            return 0;
+        }
     }
 }
