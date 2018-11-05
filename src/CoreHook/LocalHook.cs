@@ -87,6 +87,7 @@ namespace CoreHook
             }
         }
 
+        protected LocalHook() { }
         /// <summary>
         /// Get the address for a function located in a module that is loaded in the current process.
         /// </summary>
@@ -112,35 +113,13 @@ namespace CoreHook
             return functionAddress;
         }
 
-        /// <summary>
-        /// Install an unmanaged hook.
-        /// </summary>
-        /// <param name="targetFunction"></param>
-        /// <param name="detourFunction"></param>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public static LocalHook CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
-        {
-            var hook = new LocalHook
-            {
-                Callback = callback,
-                TargetAddress = targetFunction,
-                _handle = Marshal.AllocCoTaskMem(IntPtr.Size)
-            };
-
-            hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
-
-            InstallHook(hook, targetFunction, detourFunction, callback);
-
-            return hook;
-        }
 
         /// <summary>
-        /// Install a managed hook.
+        /// Install a managed hook with a managed delegate for the hook handler.
         /// </summary>
-        /// <param name="targetFunction"></param>
-        /// <param name="detourFunction"></param>
-        /// <param name="callback"></param>
+        /// <param name="targetFunction">The target function to install the detour at.</param>
+        /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
+        /// <param name="callback">A context object that will be available for reference inside the detour.</param>
         /// <returns></returns>
         public static LocalHook Create(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
@@ -154,20 +133,81 @@ namespace CoreHook
 
             hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            InstallHook(hook, targetFunction,
-                   Marshal.GetFunctionPointerForDelegate(hook._detourFunction),
-                   GCHandle.ToIntPtr(hook._selfHandle));
+            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+
+            try
+            {
+                NativeAPI.DetourInstallHook(
+                    targetFunction,
+                    Marshal.GetFunctionPointerForDelegate(hook._detourFunction),
+                    GCHandle.ToIntPtr(hook._selfHandle),
+                    hook._handle);
+            }
+            catch (Exception ex)
+            {
+                Marshal.FreeCoTaskMem(hook._handle);
+                hook._handle = IntPtr.Zero;
+
+                hook._selfHandle.Free();
+
+                throw ex;
+            }
+
+            hook._threadACL = new HookAccessControl(hook._handle);
 
             return hook;
         }
 
         /// <summary>
-        /// Install a hook handler to a target function.
+        /// Install an unmanaged hook using the pointer to a hook handler.
         /// </summary>
-        /// <param name="hook"></param>
-        /// <param name="targetFunction"></param>
-        /// <param name="detourFunction"></param>
-        /// <param name="callback"></param>
+        /// <param name="targetFunction">The target function to install the detour at.</param>
+        /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
+        /// <param name="callback">A context object that will be available for reference inside the detour.</param>
+        /// <returns></returns>
+        public static LocalHook CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
+        {
+            var hook = new LocalHook
+            {
+                Callback = callback,
+                TargetAddress = targetFunction,
+                _handle = Marshal.AllocCoTaskMem(IntPtr.Size)
+            };
+
+            hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
+
+            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+
+            try
+            {
+                NativeAPI.DetourInstallHook(
+                    targetFunction,
+                    detourFunction,
+                    callback,
+                    hook._handle);
+            }
+            catch (Exception ex)
+            {
+                Marshal.FreeCoTaskMem(hook._handle);
+                hook._handle = IntPtr.Zero;
+
+                hook._selfHandle.Free();
+
+                throw ex;
+            }
+
+            hook._threadACL = new HookAccessControl(hook._handle);
+
+            return hook;
+        }
+
+        /// <summary>
+        /// Install a hook handler to a target function using a pointer to a hook handler.
+        /// </summary>
+        /// <param name="hook">The hooking class that manages the detour.</param>
+        /// <param name="targetFunction">The target function to install the detour at.</param>
+        /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
+        /// <param name="callback">A context object that will be available for reference inside the detour.</param>
         protected static void InstallHook(LocalHook hook, IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
             Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
@@ -192,7 +232,9 @@ namespace CoreHook
 
             hook._threadACL = new HookAccessControl(hook._handle);
         }
+
         private bool _disposed = false;
+
         /// <summary>
         /// Dispose the hook and uninstall the detour from the target function.
         /// </summary>
@@ -243,11 +285,11 @@ namespace CoreHook
         public bool EnableForCurrentThread => false;
 
         /// <summary>
-        /// 
+        /// Installs an unmanaged hook using the pointer to a hook handler.
         /// </summary>
-        /// <param name="targetFunction"></param>
-        /// <param name="detourFunction"></param>
-        /// <param name="callback"></param>
+        /// <param name="targetFunction">The target function to install the detour at.</param>
+        /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
+        /// <param name="callback">A context object that will be available for reference inside the detour.</param>
         /// <returns></returns>
         public new static LocalHook<T> CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
@@ -260,13 +302,31 @@ namespace CoreHook
 
             hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            InstallHook(hook, targetFunction, detourFunction, callback);
+            try
+            {
+                NativeAPI.DetourInstallHook(
+                    targetFunction,
+                    detourFunction,
+                    callback,
+                    hook._handle);
+            }
+            catch (Exception ex)
+            {
+                Marshal.FreeCoTaskMem(hook._handle);
+                hook._handle = IntPtr.Zero;
+
+                hook._selfHandle.Free();
+
+                throw ex;
+            }
+
+            hook._threadACL = new HookAccessControl(hook._handle);
 
             return hook;
         }
 
         /// <summary>
-        /// Install a managed hook.
+        /// Install a managed hook with a managed delegate for the hook handler.
         /// </summary>
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
@@ -284,9 +344,27 @@ namespace CoreHook
 
             hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            InstallHook(hook, targetFunction,
-                Marshal.GetFunctionPointerForDelegate(hook._detourFunction),
-                GCHandle.ToIntPtr(hook._selfHandle));
+            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+
+            try
+            {
+                NativeAPI.DetourInstallHook(
+                    targetFunction,
+                    Marshal.GetFunctionPointerForDelegate(hook._detourFunction),
+                    GCHandle.ToIntPtr(hook._selfHandle),
+                    hook._handle);
+            }
+            catch (Exception ex)
+            {
+                Marshal.FreeCoTaskMem(hook._handle);
+                hook._handle = IntPtr.Zero;
+
+                hook._selfHandle.Free();
+
+                throw ex;
+            }
+
+            hook._threadACL = new HookAccessControl(hook._handle);
 
             return hook;
         }
