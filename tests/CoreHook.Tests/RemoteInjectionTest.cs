@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
 using Xunit;
+using CoreHook.Tests.Plugins.Shared;
+using System.Diagnostics;
 
 namespace CoreHook.Tests
 {
-    public class RemoteInjectionTest64
+    [Collection("Sequential")]
+    public class RemoteInjectionTest
     {
         [Fact]
         private void TestRemoteInject64()
@@ -30,27 +33,6 @@ namespace CoreHook.Tests
             Resources.EndProcess(testProcess);
         }
 
-        //[Fact]
-        private void TestTargetAppRemoteInject()
-        {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
-            const string TestMessage = "Berner";
-
-            Resources.InjectDllIntoTarget(Resources.TargetProcess,
-               Resources.GetTestDllPath(
-               TestHookLibrary
-               ),
-               Resources.GetUniquePipeName(),
-               TestMessage);
-
-            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TargetProcess));
-
-            Resources.EndTargetAppProcess();
-        }
-    }
-
-    public class RemoteInjectionTest32
-    {
         [Fact]
         private void TestRemoteInject32()
         {
@@ -73,6 +55,54 @@ namespace CoreHook.Tests
             Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
 
             Resources.EndProcess(testProcess);
+        }
+
+        [Fact]
+        private void TestRemotePluginComplexParameter()
+        {
+            const string TestHookLibrary = "CoreHook.Tests.ComplexParameterTest.dll";
+            const string TestMessage = "Berner";
+
+            var complexParameter = new ComplexParameter
+            {
+                Message = TestMessage,
+                HostProcessId = Process.GetCurrentProcess().Id
+            };
+
+            var testProcess = Resources.StartProcess(Path.Combine(
+                            Environment.ExpandEnvironmentVariables("%Windir%"),
+                            "System32",
+                            "notepad.exe"
+                        ));
+
+            Resources.InjectDllIntoTarget(testProcess,
+               Resources.GetTestDllPath(
+               TestHookLibrary
+               ),
+               Resources.GetUniquePipeName(),
+               complexParameter);
+
+            Assert.Equal(complexParameter.Message, Resources.ReadFromProcess(testProcess));
+            Assert.Equal(complexParameter.HostProcessId.ToString(), Resources.ReadFromProcess(testProcess));
+
+            Resources.EndProcess(testProcess);
+        }
+        //[Fact]
+        private void TestTargetAppRemoteInject()
+        {
+            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestMessage = "Berner";
+
+            Resources.InjectDllIntoTarget(Resources.TargetProcess,
+               Resources.GetTestDllPath(
+               TestHookLibrary
+               ),
+               Resources.GetUniquePipeName(),
+               TestMessage);
+
+            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TargetProcess));
+
+            Resources.EndTargetAppProcess();
         }
     }
 }
