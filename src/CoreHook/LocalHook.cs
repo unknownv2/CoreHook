@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Runtime.ConstrainedExecution;
+
 namespace CoreHook
 {
     /// <summary>
@@ -9,13 +10,14 @@ namespace CoreHook
     public class LocalHook : CriticalFinalizerObject, IHook
     {
         protected IntPtr _handle = IntPtr.Zero;
-        protected Delegate _detourFunction;
-        protected object _threadSafe = new object();
         /// <summary>
         /// ACL used to activate or de-activate a detour for all threads.
         /// </summary>
         protected readonly int[] _defaultThreadACL = new int[0];
+        protected Delegate _detourFunction;
+        protected object _threadSafe = new object();
         protected GCHandle _selfHandle;
+
         protected IHookAccessControl _threadACL;
         /// <summary>
         /// Get the thread ACL handle for this hook.
@@ -88,6 +90,7 @@ namespace CoreHook
         }
 
         protected LocalHook() { }
+
         /// <summary>
         /// Get the address for a function located in a module that is loaded in the current process.
         /// </summary>
@@ -301,6 +304,8 @@ namespace CoreHook
             };
 
             hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
+
+            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
 
             try
             {
