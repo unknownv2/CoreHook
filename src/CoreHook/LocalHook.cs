@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-
+using System.Runtime.ConstrainedExecution;
 namespace CoreHook
 {
     /// <summary>
-    /// 
+    /// Class for creating and managing a function hook.
     /// </summary>
-    public class LocalHook : IHook
+    public class LocalHook : CriticalFinalizerObject, IHook
     {
         protected IntPtr _handle = IntPtr.Zero;
         protected Delegate _detourFunction;
@@ -55,10 +55,13 @@ namespace CoreHook
             }
         }
 
+        /// <summary>
+        /// Address for calling the target function, bypassing the detour function.
+        /// </summary>
         public IntPtr HookBypassAddress => OriginalAddress;
 
         /// <summary>
-        /// 
+        /// Address of the function that is detoured.
         /// </summary>
         public IntPtr TargetAddress { get; protected set; }
 
@@ -189,7 +192,7 @@ namespace CoreHook
 
             hook._threadACL = new HookAccessControl(hook._handle);
         }
-
+        private bool _disposed = false;
         /// <summary>
         /// Dispose the hook and uninstall the detour from the target function.
         /// </summary>
@@ -197,27 +200,34 @@ namespace CoreHook
         {
             lock (_threadSafe)
             {
-                if (_handle != IntPtr.Zero)
+                if (!_disposed && _handle != IntPtr.Zero)
                 {
-                    // Uninstall the detour using it's handle
+                    _disposed = true;
+
+                    // Uninstall the detour
                     NativeAPI.DetourUninstallHook(_handle);
 
                     Marshal.FreeCoTaskMem(_handle);
 
                     _handle = IntPtr.Zero;
-                    Callback = null;
                     _detourFunction = null;
+                    Callback = null;
 
                     _selfHandle.Free();
                 }
             }
         }
+
+        ~LocalHook()
+        {
+            Dispose();
+        }
     }
 
     /// <summary>
-    /// 
+    /// Class for creating and managing a function hook.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">A type representing the target function's delegate or signature.</typeparam>
     public class LocalHook<T> : LocalHook, IHook<T> where T : class
     {
         /// <summary>

@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace CoreHook
 {
     /// <summary>
-    /// 
+    /// Interface for a hooking class that manages installs and uninstalls of function detours.
     /// </summary>
     public interface IHook : IDisposable
     {
@@ -25,6 +24,9 @@ namespace CoreHook
         /// Address for calling the target function, bypassing the detour function.
         /// </summary>
         IntPtr OriginalAddress { get; }
+        /// <summary>
+        /// Address for calling the target function, bypassing the detour function.
+        /// </summary>
         IntPtr HookBypassAddress { get; }
         /// <summary>
         /// Class for managing the list of threads that are detoured.
@@ -33,9 +35,10 @@ namespace CoreHook
     }
 
     /// <summary>
-    /// 
+    /// Interface for a hooking class that manages installs and uninstalls of function detours.
+    /// It requires a defining a function delegate type for the function that is being detoured.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T">A type representing the target function's delegate or signature.</typeparam>
     public interface IHook<T> : IHook where T : class
     { 
         /// <summary>
