@@ -1,4 +1,6 @@
-﻿using Xunit;
+﻿using System;
+using System.IO;
+using Xunit;
 
 namespace CoreHook.Tests
 {
@@ -9,7 +11,12 @@ namespace CoreHook.Tests
         {
             const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
             const string TestMessage = "Berner";
-            var testProcess = Resources.TestProcess;
+
+            var testProcess = Resources.StartProcess(Path.Combine(
+                            Environment.ExpandEnvironmentVariables("%Windir%"),
+                            "System32",
+                            "notepad.exe"
+                        ));
 
             Resources.InjectDllIntoTarget(testProcess,
                Resources.GetTestDllPath(
@@ -20,7 +27,7 @@ namespace CoreHook.Tests
 
             Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
 
-            Resources.EndTestProcess();
+            Resources.EndProcess(testProcess);
         }
 
         //[Fact]
@@ -49,7 +56,12 @@ namespace CoreHook.Tests
         {
             const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
             const string TestMessage = "Berner";
-            var testProcess = Resources.TestProcess2;
+
+            var testProcess = Resources.StartProcess(Path.Combine(
+                            Environment.ExpandEnvironmentVariables("%Windir%"),
+                            "SysWOW64",
+                            "notepad.exe"
+                        ));
 
             Resources.InjectDllIntoTarget(testProcess,
                Resources.GetTestDllPath(
@@ -60,7 +72,7 @@ namespace CoreHook.Tests
 
             Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
 
-            Resources.EndTestProcess2();
+            Resources.EndProcess(testProcess);
         }
     }
 }
