@@ -12,7 +12,7 @@ namespace CoreHook.Tests
         [Fact]
         private void TestRemoteInject64()
         {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
             const string TestMessage = "Berner";
 
             var testProcess = Resources.StartProcess(Path.Combine(
@@ -36,7 +36,7 @@ namespace CoreHook.Tests
         [Fact]
         private void TestRemoteInject32()
         {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
             const string TestMessage = "Berner";
 
             var testProcess = Resources.StartProcess(Path.Combine(
@@ -90,7 +90,7 @@ namespace CoreHook.Tests
         //[Fact]
         private void TestTargetAppRemoteInject()
         {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleHook1.dll";
+            const string TestHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
             const string TestMessage = "Berner";
 
             Resources.InjectDllIntoTarget(Resources.TargetProcess,

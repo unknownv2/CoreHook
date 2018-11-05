@@ -49,7 +49,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests", "tests\Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "plugins", "plugins", "{BFEBEA69-1024-42F8-A2D5-B1B43E6CE719}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleHook1", "tests\plugins\CoreHook.Tests.SimpleHook1\CoreHook.Tests.SimpleHook1.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreHook.Tests.SimpleParameterTest", "tests\plugins\CoreHook.Tests.SimpleParameterTest\CoreHook.Tests.SimpleParameterTest.csproj", "{6210E5FC-5876-4A0C-AACE-12C1BB63CF5A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "target", "target", "{E601DB0A-91DB-45DD-928B-B9CF3BD65026}"
 EndProject
