@@ -1,8 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Xunit;
 using CoreHook.Tests.Plugins.Shared;
-using System;
 
 namespace CoreHook.Tests
 {
