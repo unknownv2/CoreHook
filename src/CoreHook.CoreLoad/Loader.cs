@@ -24,7 +24,7 @@ namespace CoreHook.CoreLoad
         {
             try
             {
-                if (remoteParameters == null || remoteParameters == IntPtr.Zero)
+                if (remoteParameters == IntPtr.Zero)
                 {
                     throw new ArgumentOutOfRangeException(nameof(remoteParameters), 
                         "Remote arguments address was zero");
