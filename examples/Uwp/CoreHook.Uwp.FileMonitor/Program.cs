@@ -39,10 +39,6 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const bool HostVerboseLog = false;
         /// <summary>
-        /// Wait for a debugger to attach to the target process before running any .NET assemblies.
-        /// </summary>
-        private const bool HostWaitForDebugger = false;
-        /// <summary>
         /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>
         private static readonly IPipePlatform PipePlatform = new Pipe.PipePlatform();
@@ -148,8 +144,7 @@ namespace CoreHook.Uwp.FileMonitor
                         HostLibrary = coreRunDll,
                         InjectionPipeName = injectionPipeName,
                         PayloadLibrary = injectionLibrary,
-                        VerboseLog = HostVerboseLog,
-                        WaitForDebugger = HostWaitForDebugger
+                        VerboseLog = HostVerboseLog
                     },
                     PipePlatform,
                     CoreHookPipeName);

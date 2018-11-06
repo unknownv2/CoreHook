@@ -21,9 +21,8 @@ namespace CoreHook.BinaryInjection.BinaryLoader.Serializer
                     // Serialize information about the serialized class 
                     // Data that is passed to the remote function
                     writer.Write(Arguments.Verbose);
-                    writer.Write(Arguments.WaitForDebugger);
                     // Padding for reserved data to align structure to 8 bytes
-                    writer.Write(new byte[6]);
+                    writer.Write(new byte[7]);
                     writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(Arguments.PayloadFileName, Config.MaxPathLength, Config.PathEncoding));
                     writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(Arguments.CoreRootPath, Config.MaxPathLength, Config.PathEncoding));
                     writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(Arguments.CoreLibrariesPath ?? string.Empty, Config.MaxPathLength, Config.PathEncoding));
