@@ -31,7 +31,7 @@ namespace CoreHook.BinaryInjection.BinaryLoader
             _processManager.Execute(
                 functionName.Module,
                 functionName.Function,
-                Binary.StructToByteArray(arguments),
+                MarshallingHelper.StructToByteArray(arguments),
                 false);
         }
 
