@@ -6,7 +6,15 @@ namespace CoreHook
     /// </summary>
     public interface IHookAccessControl
     {
+        /// <summary>
+        /// True if the current thread ACL is exclusive, as described in
+        /// <see cref="SetExclusiveACL"/>.
+        /// </summary>
         bool IsExclusive { get; }
+        /// <summary>
+        /// True if the current thread ACL is inclusive, as described in 
+        /// <see cref="SetInclusiveACL"/>.
+        /// </summary>
         bool IsInclusive { get; }
         /// <summary>
         /// Overwrite the current ACL and set an inclusive list of threads.

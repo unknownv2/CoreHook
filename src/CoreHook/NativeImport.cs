@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook
 {
-    static class NativeAPI_x86
+    internal static class NativeAPI32
     {
         private const string DllName = "corehook32";
 
@@ -166,7 +166,7 @@ namespace CoreHook
             string lpFunction);
     }
 
-    static class NativeAPI_x64
+    internal static class NativeAPI64
     {
         private const string DllName = "corehook64";
 
@@ -392,11 +392,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return NativeAPI_x64.RtlGetLastError();
+                return NativeAPI64.RtlGetLastError();
             }
             else
             {
-                return NativeAPI_x86.RtlGetLastError();
+                return NativeAPI32.RtlGetLastError();
             }
         }
 
@@ -404,11 +404,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                NativeAPI_x64.DetourUninstallAllHooks();
+                NativeAPI64.DetourUninstallAllHooks();
             }
             else
             {
-                NativeAPI_x86.DetourUninstallAllHooks();
+                NativeAPI32.DetourUninstallAllHooks();
             }
         }
 
@@ -420,12 +420,12 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
+                Force(NativeAPI64.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
             }
             else
             {
 
-                Force(NativeAPI_x86.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
+                Force(NativeAPI32.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
             }          
         }
 
@@ -433,11 +433,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourUninstallHook(refHandle));
+                Force(NativeAPI64.DetourUninstallHook(refHandle));
             }
             else
             {
-                Force(NativeAPI_x86.DetourUninstallHook(refHandle));
+                Force(NativeAPI32.DetourUninstallHook(refHandle));
             }
         }
 
@@ -446,11 +446,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourWaitForPendingRemovals());
+                Force(NativeAPI64.DetourWaitForPendingRemovals());
             }
             else
             {
-                Force(NativeAPI_x86.DetourWaitForPendingRemovals());
+                Force(NativeAPI32.DetourWaitForPendingRemovals());
             }
         }
 
@@ -461,11 +461,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourIsThreadIntercepted(handle, threadId, out result));
+                Force(NativeAPI64.DetourIsThreadIntercepted(handle, threadId, out result));
             }
             else
             {
-                Force(NativeAPI_x86.DetourIsThreadIntercepted(handle, threadId, out result));
+                Force(NativeAPI32.DetourIsThreadIntercepted(handle, threadId, out result));
             }
         }
 
@@ -476,11 +476,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetInclusiveACL(threadIdList, threadCount, handle));
+                Force(NativeAPI64.DetourSetInclusiveACL(threadIdList, threadCount, handle));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetInclusiveACL(threadIdList, threadCount, handle));
+                Force(NativeAPI32.DetourSetInclusiveACL(threadIdList, threadCount, handle));
             }
         }
 
@@ -491,11 +491,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetExclusiveACL(threadIdList, threadCount, handle));
+                Force(NativeAPI64.DetourSetExclusiveACL(threadIdList, threadCount, handle));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetExclusiveACL(threadIdList, threadCount, handle));
+                Force(NativeAPI32.DetourSetExclusiveACL(threadIdList, threadCount, handle));
             }
         }
 
@@ -505,11 +505,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
+                Force(NativeAPI64.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
+                Force(NativeAPI32.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
             }
         }
 
@@ -519,11 +519,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
+                Force(NativeAPI64.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
             }
             else
             {
-                Force(NativeAPI_x86.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
+                Force(NativeAPI32.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
             }
         }
 
@@ -532,11 +532,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetCallingModule(out returnValue));
+                Force(NativeAPI64.DetourBarrierGetCallingModule(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetCallingModule(out returnValue));
+                Force(NativeAPI32.DetourBarrierGetCallingModule(out returnValue));
             }
         }
 
@@ -544,11 +544,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return NativeAPI_x64.DetourBarrierGetCallback(out returnValue);
+                return NativeAPI64.DetourBarrierGetCallback(out returnValue);
             }
             else
             {
-                return NativeAPI_x86.DetourBarrierGetCallback(out returnValue);
+                return NativeAPI32.DetourBarrierGetCallback(out returnValue);
             }
         }
 
@@ -556,11 +556,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetReturnAddress(out returnValue));
+                Force(NativeAPI64.DetourBarrierGetReturnAddress(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetReturnAddress(out returnValue));
+                Force(NativeAPI32.DetourBarrierGetReturnAddress(out returnValue));
             }
         }
 
@@ -568,11 +568,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierGetAddressOfReturnAddress(out returnValue));
+                Force(NativeAPI64.DetourBarrierGetAddressOfReturnAddress(out returnValue));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierGetAddressOfReturnAddress(out returnValue));
+                Force(NativeAPI32.DetourBarrierGetAddressOfReturnAddress(out returnValue));
             }
         }
 
@@ -580,11 +580,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierBeginStackTrace(out backup));
+                Force(NativeAPI64.DetourBarrierBeginStackTrace(out backup));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierBeginStackTrace(out backup));
+                Force(NativeAPI32.DetourBarrierBeginStackTrace(out backup));
             }
         }
 
@@ -592,11 +592,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
+                Force(NativeAPI64.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
+                Force(NativeAPI32.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
             }
 
         }
@@ -604,11 +604,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourBarrierEndStackTrace(backup));
+                Force(NativeAPI64.DetourBarrierEndStackTrace(backup));
             }
             else
             {
-                Force(NativeAPI_x86.DetourBarrierEndStackTrace(backup));
+                Force(NativeAPI32.DetourBarrierEndStackTrace(backup));
             }
         }
 
@@ -616,11 +616,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeAPI_x64.DetourGetHookBypassAddress(handle, out address));
+                Force(NativeAPI64.DetourGetHookBypassAddress(handle, out address));
             }
             else
             {
-                Force(NativeAPI_x86.DetourGetHookBypassAddress(handle, out address));
+                Force(NativeAPI32.DetourGetHookBypassAddress(handle, out address));
             }
 
         }
@@ -641,7 +641,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllExA(
+                return (NativeAPI64.DetourCreateProcessWithDllExA(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -657,7 +657,7 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllExA(
+                return (NativeAPI32.DetourCreateProcessWithDllExA(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -688,7 +688,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllExW(
+                return (NativeAPI64.DetourCreateProcessWithDllExW(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -704,7 +704,7 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllExW(
+                return (NativeAPI32.DetourCreateProcessWithDllExW(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -736,7 +736,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllsExA(
+                return (NativeAPI64.DetourCreateProcessWithDllsExA(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -753,7 +753,7 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllsExA(
+                return (NativeAPI32.DetourCreateProcessWithDllsExA(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -786,7 +786,7 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourCreateProcessWithDllsExW(
+                return (NativeAPI64.DetourCreateProcessWithDllsExW(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -803,7 +803,7 @@ namespace CoreHook
             }
             else
             {
-                return (NativeAPI_x86.DetourCreateProcessWithDllsExW(
+                return (NativeAPI32.DetourCreateProcessWithDllsExW(
                         lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
@@ -825,12 +825,12 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                return (NativeAPI_x64.DetourFindFunction(lpModule,
+                return (NativeAPI64.DetourFindFunction(lpModule,
                     lpFunction));
             }
             else
             {
-                return (NativeAPI_x86.DetourFindFunction(lpModule,
+                return (NativeAPI32.DetourFindFunction(lpModule,
                     lpFunction));
             }
         }

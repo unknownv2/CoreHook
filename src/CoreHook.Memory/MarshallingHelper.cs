@@ -2,12 +2,12 @@
 
 namespace CoreHook.Memory
 {
-    public class Binary
+    public static class MarshallingHelper
     {
         public static byte[] StructToByteArray(object obj, int? length = null)
         {
-            var objectLength = Marshal.SizeOf(obj);
-            var arr = new byte[length ?? objectLength];
+            var objectLength = length ?? Marshal.SizeOf(obj);
+            var arr = new byte[objectLength];
 
             var ptr = Marshal.AllocHGlobal(objectLength);
 
