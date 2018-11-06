@@ -38,11 +38,6 @@ namespace CoreHook.ManagedHook.Remote
         /// </summary>
         public bool VerboseLog { get; set; }
         /// <summary>
-        /// Option to enable waiting for a debugger to attach before any 
-        /// .NET Assemblies are loaded by the HostLibrary.
-        /// </summary>
-        public bool WaitForDebugger { get; set; }
-        /// <summary>
         /// Library that resolves dependencies and passes arguments to
         /// the .NET payload Assembly.
         /// </summary>
@@ -136,10 +131,5 @@ namespace CoreHook.ManagedHook.Remote
         /// Option to enable the logging module inside the HostLibrary.
         /// </summary>
         bool VerboseLog { get; set; }
-        /// <summary>
-        /// Option to enable waiting for a debugger to attach before any 
-        /// .NET Assemblies are loaded by the HostLibrary.
-        /// </summary>
-        bool WaitForDebugger { get; set; }
     }
 }

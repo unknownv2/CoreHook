@@ -239,7 +239,6 @@ namespace CoreHook.ManagedHook.Remote
                                             Arguments = new BinaryLoaderArguments
                                             {
                                                 Verbose = remoteHookConfig.VerboseLog,
-                                                WaitForDebugger = remoteHookConfig.WaitForDebugger,
                                                 PayloadFileName = remoteHookConfig.CLRBootstrapLibrary,
                                                 CoreRootPath = remoteHookConfig.CoreCLRPath,
                                                 CoreLibrariesPath = remoteHookConfig.CoreCLRLibrariesPath
