@@ -46,7 +46,7 @@ CoreHook supports application function call interception on various architecture
 | ------------- |:---------------------:|
 | x86           | Windows               |
 | x64           | Windows               |
-| ARM32         | Windows 10 IoT Core   |
+| ARM           | Windows 10 IoT Core   |
 
 ## Tested Platforms
 
@@ -54,7 +54,7 @@ CoreHook supports application function call interception on various architecture
 | ------------------  |:---------------------:|
 | Windows 7 SP1       | x86, x64              |
 | Windows 8.1         | x86, x64              |
-| Windows 10 (Win32)  | x86, x64, ARM32       |
+| Windows 10 (Win32)  | x86, x64, ARM         |
 | Windows 10 (UWP)    | x86, x64              |
 | Windows Server 2008 | x86, x64              |
 | Windows Server 2012 | x86, x64              |
@@ -187,9 +187,8 @@ CoreHook supports symbol name lookup from PDBs to get function addresses with th
 
 Example locations where you can find `dbghelp.dll` and `symsrv.dll` are:
 
-* **C:\Program Files (x86)\Windows Kits\10\Debuggers\x86** (For 32-bit applications)
-* **C:\Program Files (x86)\Windows Kits\10\Debuggers\x64** (For 64-bit applications)
-
+* **%PROGRAMFILES(X86)%\Windows Kits\10\Debuggers\x86** (For 32-bit applications)
+* **%PROGRAMFILES(X86)%\Windows Kits\10\Debuggers\x64** (For 64-bit applications)
 
 An example of what you can set the environment variable `_NT_SYMBOL_PATH` to is:
 
