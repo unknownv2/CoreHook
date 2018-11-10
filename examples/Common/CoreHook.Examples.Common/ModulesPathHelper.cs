@@ -8,7 +8,25 @@ namespace CoreHook.Examples.Common
 {
     public class ModulesPathHelper
     {
-        // info on these environment variables: 
+        /// <summary>
+        /// The name of the .NET Core hosting module for 64-bit processes.
+        /// </summary>
+        private const string CoreHostModule64 = "corerundll64.dll";
+        /// <summary>
+        /// The name of the .NET Core hosting module for 32-bit processes.
+        /// </summary>
+        private const string CoreHostModule32 = "corerundll32.dll";
+
+        /// <summary>
+        /// The name of the native detour module for 64-bit processes.
+        /// </summary>
+        private const string CoreHookingModule64 = "corehook64.dll";
+        /// <summary>
+        /// The name of the native detour module for 32-bit processes.
+        /// </summary>
+        private const string CoreHookingModule32 = "corehook32.dll";
+
+        // For more information o on these environment variables, see: 
         // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
         public static string GetCoreLibrariesPath(bool is64BitProcess)
         {
@@ -86,7 +104,7 @@ namespace CoreHook.Examples.Common
             {
                 Console.WriteLine(is64BitProcess
                     ? "CoreCLR root path was not set for 64-bit processes."
-                    : "CoreCLR root path was not set for 32-bit processes");
+                    : "CoreCLR root path was not set for 32-bit processes.");
                 return false;
             }
             return true;
@@ -114,7 +132,7 @@ namespace CoreHook.Examples.Common
                 // Module that initializes the .NET Core runtime and executes .NET assemblies
                 var coreRunPath = Path.Combine(
                     currentDir,
-                    is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
+                    is64BitProcess ? CoreHostModule64 : CoreHostModule32);
                 if (!File.Exists(coreRunPath))
                 {
                     HandleFileNotFound(coreRunPath);
@@ -123,8 +141,7 @@ namespace CoreHook.Examples.Common
 
                 var corehookPath = Path.Combine(
                     currentDir,
-                    is64BitProcess ? "corehook64.dll" : "corehook32.dll");
-
+                    is64BitProcess ? CoreHookingModule64 : CoreHookingModule32);
                 if (!File.Exists(corehookPath))
                 {
                     HandleFileNotFound(corehookPath);
@@ -173,7 +190,7 @@ namespace CoreHook.Examples.Common
             {
                 // Module  that initializes the .NET Core runtime and executes .NET assemblies
                 coreRunPath = Path.Combine(currentDir,
-                    is64BitProcess ? "corerundll64.dll" : "corerundll32.dll");
+                    is64BitProcess ? CoreHostModule64 : CoreHostModule32);
                 if (!File.Exists(coreRunPath))
                 {
                     HandleFileNotFound(coreRunPath);
@@ -183,7 +200,7 @@ namespace CoreHook.Examples.Common
                 if (GetCoreLoadModulePath(out coreLoadPath))
                 {
                     corehookPath = Path.Combine(currentDir,
-                         is64BitProcess ? "corehook64.dll" : "corehook32.dll");
+                         is64BitProcess ? CoreHookingModule64 : CoreHookingModule32);
                     if (!File.Exists(corehookPath))
                     {
                         HandleFileNotFound(corehookPath);
