@@ -16,7 +16,6 @@ namespace CoreHook.Examples.Common
         /// The name of the .NET Core hosting module for 32-bit processes.
         /// </summary>
         private const string CoreHostModule32 = "corerundll32.dll";
-
         /// <summary>
         /// The name of the native detour module for 64-bit processes.
         /// </summary>
@@ -25,6 +24,11 @@ namespace CoreHook.Examples.Common
         /// The name of the native detour module for 32-bit processes.
         /// </summary>
         private const string CoreHookingModule32 = "corehook32.dll";
+        /// <summary>
+        /// Module that loads and executes the IEntryPoint.Run method of our hook dll.
+        /// It also resolves any dependencies for the CoreHook plugin.
+        /// </summary>
+        private const string CoreLoadModule = "CoreHook.CoreLoad.dll";
 
         // For more information o on these environment variables, see: 
         // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
@@ -67,9 +71,8 @@ namespace CoreHook.Examples.Common
             coreLoadLibrary = null;
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            // Module that loads and executes the IEntryPoint.Run method of our hook dll.
-            // It also resolves any dependencies for the hook dll
-            var coreLoadPath = Path.Combine(currentDir, "CoreHook.CoreLoad.dll");
+
+            var coreLoadPath = Path.Combine(currentDir, CoreLoadModule);
 
             if (!File.Exists(coreLoadPath))
             {
