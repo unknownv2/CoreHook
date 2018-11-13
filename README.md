@@ -126,8 +126,8 @@ $aumidList
 
  **Notes:** There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
 
-### Windows 10 IoT Core (ARM32)
-**There is currently no ARM32 SDK for .NET Core, so you must publish the application and copy it to your device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
+### Windows 10 IoT Core (ARM)
+**There is currently no ARM .NET Core SDK that runs on Windows 10 IoT Core, so you must publish the application from a platform with an SDK and copy it to your IoT Core device. [You can read more about the publishing process here.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
 
 For `Windows 10 IoT Core`, you can publish the application by running the `publish.ps1` [PowerShell script](#publishing-script).
 
