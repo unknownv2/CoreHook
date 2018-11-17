@@ -42,7 +42,7 @@ namespace CoreHook.FileMonitor
         private static void Main(string[] args)
         {
             int targetPID = 0;
-            string targetProgam = string.Empty;
+            string targetProgram = string.Empty;
 
             // Get the process to hook by file path for launching or process id for attaching
             while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
@@ -71,7 +71,7 @@ namespace CoreHook.FileMonitor
                 }
                 else
                 {
-                    targetProgam = args[0];
+                    targetProgram = args[0];
                     break;
                 }
             }
@@ -81,9 +81,9 @@ namespace CoreHook.FileMonitor
             string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
             // Start process and begin dll loading
-            if (!string.IsNullOrWhiteSpace(targetProgam))
+            if (!string.IsNullOrWhiteSpace(targetProgram))
             {
-                CreateAndInjectDll(targetProgam, injectionLibrary);
+                CreateAndInjectDll(targetProgram, injectionLibrary);
             }
             else
             {
@@ -120,7 +120,7 @@ namespace CoreHook.FileMonitor
         /// <param name="injectionLibrary">The CoreHook hooking library to loaded in the target.</param>
         /// <param name="injectionPipeName"></param>
         private static void CreateAndInjectDll(
-            string exePath, 
+            string exePath,
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
@@ -164,7 +164,7 @@ namespace CoreHook.FileMonitor
         /// <param name="injectionLibrary"></param>
         /// <param name="injectionPipeName"></param>
         private static void InjectDllIntoTarget(
-            int processId, 
+            int processId,
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
