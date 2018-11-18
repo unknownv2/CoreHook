@@ -206,7 +206,7 @@ namespace CoreHook.FileMonitor
                   CoreHookPipeName,
                   PipePlatform,
                   session,
-                  typeof(FileMonitorService),
+                  typeof(FileMonitorService2),
                   async (context, next) =>
                   {
                       Console.WriteLine("> {0}", context.Request);

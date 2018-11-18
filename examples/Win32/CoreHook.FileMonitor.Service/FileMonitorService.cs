@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 
@@ -15,6 +16,19 @@ namespace CoreHook.FileMonitor.Service
             {
                 Console.WriteLine(fileName);
             }
+        }
+    }
+
+    public class FileMonitorService2 : CoreHook.FileMonitor.Shared.IFileMonitor
+    {
+        public Task OnCreateFile(string[] fileNames)
+        {
+            foreach (var fileName in fileNames)
+            {
+                Console.WriteLine(fileName);
+            }
+
+            return null;
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
+using StreamJsonRpc;
 
 namespace CoreHook.Examples.Common
 {
@@ -38,9 +40,13 @@ namespace CoreHook.Examples.Common
             Func<RequestContext, Func<Task>, Task> handler)
         {
             var service = new RpcService(session, rpcService, handler);
-
-            Task.Factory.StartNew(() => service.CreateServer(namedPipeName, pipePlatform),
-                TaskCreationOptions.LongRunning);
+            var thread = new Thread(() => service.CreateServer(namedPipeName, pipePlatform))
+            {
+                IsBackground = true,
+            };
+            thread.Start();
+            //Task.Factory.StartNew(() => service.CreateServer(namedPipeName, pipePlatform),
+                //TaskCreationOptions.LongRunning);
 
             return service;
         }
@@ -65,7 +71,7 @@ namespace CoreHook.Examples.Common
             return builder.Build();
         }
 
-        public void HandleConnection(IPC.IConnection connection)
+        public void HandleConnection2(IPC.IConnection connection)
         {
             Console.WriteLine($"Connection received from pipe {_pipeName}");
 
@@ -76,13 +82,32 @@ namespace CoreHook.Examples.Common
             var serverHandler = new StreamRpcServerHandler(host);
 
             serverHandler.DefaultFeatures.Set(_session);
-
+ 
             using (var reader = new ByLineTextMessageReader(pipeServer))
             using (var writer = new ByLineTextMessageWriter(pipeServer))
             using (serverHandler.Attach(reader, writer))
             {
                 // Wait for exit
                 _session.CancellationToken.WaitHandle.WaitOne();
+            }
+        }
+        private StreamJsonRpc.JsonRpc serverRpc;
+        public void HandleConnection(IPC.IConnection connection)
+        {
+            Console.WriteLine($"Connection received from pipe {_pipeName}");
+
+            var pipeServer = connection.ServerStream;
+
+
+            using (pipeServer)
+            {
+                var server = Activator.CreateInstance(_service);
+                this.serverRpc = StreamJsonRpc.JsonRpc.Attach(pipeServer, server);
+                _session.CancellationToken.WaitHandle.WaitOne();
+               // while (true)
+               // {
+                 //  Thread.Sleep(500);
+                //}
             }
         }
     }

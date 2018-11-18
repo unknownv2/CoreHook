@@ -133,10 +133,11 @@ namespace CoreHook.FileMonitor.Hook
             CreateFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
 
-        private async Task RunClientAsync(Stream clientStream)
+        private async Task RunClientAsync2(Stream clientStream)
         {
             await Task.Yield(); // We want this task to run on another thread.
 
+            var clientRpc = StreamJsonRpc.JsonRpc.Attach<Shared.IFileMonitor>(clientStream);
             // Initialize the client connection to the RPC server
             var clientHandler = new StreamRpcClientHandler();
 
@@ -180,5 +181,46 @@ namespace CoreHook.FileMonitor.Hook
                 }
             }
         }
+
+        private async Task RunClientAsync(Stream clientStream)
+        {
+            await Task.Yield(); // We want this task to run on another thread.
+            using (clientStream)
+            {
+                var clientRpc = StreamJsonRpc.JsonRpc.Attach<Shared.IFileMonitor>(clientStream);
+
+                // Create the function hooks after connection to the server.
+                CreateHooks();
+
+                try
+                {
+                    clientRpc.OnCreateFile(new string[] {"TestFile"});
+
+                    while (true)
+                    {
+                        Thread.Sleep(500);
+
+                        if (Queue.Count > 0)
+                        {
+                            string[] package = null;
+
+                            lock (Queue)
+                            {
+                                package = Queue.ToArray();
+
+                                Queue.Clear();
+                            }
+
+                            clientRpc.OnCreateFile(package);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ClientWriteLine(ex.ToString());
+                }
+            }
+        }
+
     }
 }

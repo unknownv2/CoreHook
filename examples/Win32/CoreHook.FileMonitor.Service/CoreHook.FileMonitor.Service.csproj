@@ -19,11 +19,13 @@
   <ItemGroup>
     <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
     <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
+    <PackageReference Include="StreamJsonRpc" Version="1.4.128" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\..\Common\CoreHook.Examples.Common\CoreHook.Examples.Common.csproj" />
+    <ProjectReference Include="..\CoreHook.FileMonitor.Shared\CoreHook.FileMonitor.Shared.csproj" />
   </ItemGroup>
 
 </Project>
