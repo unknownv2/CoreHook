@@ -31,7 +31,7 @@ if ($example -eq 'win32') {
     $ExampleName = 'CoreHook.FileMonitor' 
 }
 if ($example -eq 'uwp') {
-    $ExampleName = 'CoreHook.UWP.FileMonitor' 
+    $ExampleName = 'CoreHook.Uwp.FileMonitor' 
 }
 if ($example -eq 'unix') {
     $ExampleName = 'CoreHook.Unix.FileMonitor'
