@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
@@ -14,6 +15,7 @@ namespace CoreHook.Examples.Common
         private readonly Type _service;
         private string _pipeName;
         private readonly Func<RequestContext, Func<Task>, Task> _handler;
+        private static Thread _rpcServerThread;
 
         private static readonly IJsonRpcContractResolver MyContractResolver = new JsonRpcContractResolver
         {
@@ -31,16 +33,19 @@ namespace CoreHook.Examples.Common
         }
 
         public static RpcService CreateRpcService(
-            string namedPipeName, 
-            IPipePlatform pipePlatform, 
+            string namedPipeName,
+            IPipePlatform pipePlatform,
             ISessionFeature session,
             Type rpcService,
             Func<RequestContext, Func<Task>, Task> handler)
         {
             var service = new RpcService(session, rpcService, handler);
 
-            Task.Factory.StartNew(() => service.CreateServer(namedPipeName, pipePlatform),
-                TaskCreationOptions.LongRunning);
+            _rpcServerThread = new Thread(() => service.CreateServer(namedPipeName, pipePlatform))
+            {
+                IsBackground = true
+            };
+            _rpcServerThread.Start();
 
             return service;
         }
