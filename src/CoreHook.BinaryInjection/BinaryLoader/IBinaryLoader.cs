@@ -46,9 +46,7 @@ namespace CoreHook.BinaryInjection.BinaryLoader
     public class RemoteFunctionCall : IRemoteFunctionCall
     {
         public bool Is64BitProcess { get;}
-
         public IFunctionName FunctionName { get; set; }
-
         public IBinarySerializer Arguments { get; set; }
     }
     public class RemoteManagedFunctionCall: RemoteFunctionCall, IRemoteManagedFunctionCall

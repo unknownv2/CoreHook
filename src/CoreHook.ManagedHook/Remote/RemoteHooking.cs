@@ -55,14 +55,7 @@ namespace CoreHook.ManagedHook.Remote
         /// <returns>Configuration class with system information.</returns>
         private static IBinaryLoaderConfig GetBinaryLoaderConfig()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return new BinaryLoaderConfig();
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("Binary injection");
-            }
+            return new BinaryLoaderConfig();
         }
 
         /// <summary>
@@ -71,14 +64,7 @@ namespace CoreHook.ManagedHook.Remote
         /// <returns>The name of the library function used to start CoreCLR.</returns>
         private static string GetCoreCLRStartFunctionName()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return "StartCoreCLR";
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("Binary injection");
-            }
+            return BinaryLoaderHostConfig.CoreCLRStartFunction;
         }
 
         /// <summary>
@@ -91,14 +77,7 @@ namespace CoreHook.ManagedHook.Remote
         /// </returns>
         private static string GetCoreCLRExecuteManagedFunctionName()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return "ExecuteAssemblyFunction";
-            }
-            else
-            {
-                throw new PlatformNotSupportedException("Binary injection");
-            }
+            return BinaryLoaderHostConfig.CoreCLRExecuteManagedFunction;
         }
 
         /// <summary>
@@ -220,7 +199,7 @@ namespace CoreHook.ManagedHook.Remote
                             passThruStream,
                             injectionPipeName);
 
-                        // Inject the corerundll into the process, start the CoreCLR
+                        // Inject the CoreCLR hosting module into the process, start the CoreCLR
                         // and use the CoreLoad dll to resolve the dependencies of the hooking library
                         // and then call the IEntryPoint.Run method located in the hooking library
                         try

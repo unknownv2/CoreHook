@@ -2,24 +2,18 @@
 
 namespace CoreHook.BinaryInjection.BinaryLoader
 {
+    public sealed partial class BinaryLoaderHostConfig
+    {
+        public static string CoreCLRStartFunction
+            => "StartCoreCLR";
+        public static string CoreCLRExecuteManagedFunction
+            => "ExecuteAssemblyFunction";
+    }
+
     public interface IBinaryLoaderConfig
     {
         int MaxPathLength { get; }
         Encoding PathEncoding { get; }
-
-    }
-    public interface IBinaryLoaderHostConfig
-    {
-        string CoreCLRStartFunction { get; }
-        string CoreCLRExecuteManagedFunction { get; }
-    }
-
-    public sealed partial class BinaryLoaderHostConfig : IBinaryLoaderHostConfig
-    {
-        public string CoreCLRStartFunction
-            => "StartCoreCLR";
-        public string CoreCLRExecuteManagedFunction
-            => "ExecuteAssemblyFunction";
     }
 
     public sealed partial class BinaryLoaderConfig : IBinaryLoaderConfig
