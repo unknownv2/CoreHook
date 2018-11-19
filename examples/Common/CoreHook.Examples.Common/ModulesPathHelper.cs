@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.ManagedHook.Remote;
+using CoreHook.BinaryInjection.ProcessUtils;
+using CoreHook.BinaryInjection.RemoteInjection;
 
 namespace CoreHook.Examples.Common
 {
@@ -48,8 +48,8 @@ namespace CoreHook.Examples.Common
             return !ProcessHelper.IsArchitectureArm() ?
              (
                 is64BitProcess ?
-                Environment.GetEnvironmentVariable("CORE_ROOT_64") :
-                Environment.GetEnvironmentVariable("CORE_ROOT_32")
+                 Environment.GetEnvironmentVariable("CORE_ROOT_64") :
+                 Environment.GetEnvironmentVariable("CORE_ROOT_32")
              )
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
@@ -58,7 +58,6 @@ namespace CoreHook.Examples.Common
         {
             Console.WriteLine($"Cannot find file {Path.GetFileName(path)}");
         }
-
 
         /// <summary>
         /// Get the path of the .NET Assembly that is first loaded by the host 
@@ -71,6 +70,11 @@ namespace CoreHook.Examples.Common
             coreLoadLibrary = null;
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+            if (string.IsNullOrWhiteSpace(currentDir))
+            {
+                return false;
+            }
 
             var coreLoadPath = Path.Combine(currentDir, CoreLoadModule);
 
@@ -93,11 +97,10 @@ namespace CoreHook.Examples.Common
         /// <param name="coreLibsPath">Path to the CoreCLR native modules.</param>
         /// <param name="coreRootPath">Path to the CoreCLR native modules.</param>
         /// <returns>Whether the CoreCLR path was found or not.</returns>
-        public static bool GetCoreCLRRootPath(
+        public static bool GetCoreClrRootPath(
             bool is64BitProcess,
             out string coreLibsPath,
-            out string coreRootPath
-            )
+            out string coreRootPath)
         {
             // Paths to the CoreCLR dlls used to host and execute .NET assemblies 
             coreLibsPath = GetCoreLibrariesPath(is64BitProcess);
@@ -127,7 +130,7 @@ namespace CoreHook.Examples.Common
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            if (GetCoreCLRRootPath(
+            if (!string.IsNullOrWhiteSpace(currentDir) && GetCoreClrRootPath(
                 is64BitProcess,
                 out string coreLibsPath,
                 out string coreRootPath))
@@ -158,8 +161,10 @@ namespace CoreHook.Examples.Common
                     HostLibrary = coreRunPath,
                     DetourLibrary = corehookPath
                 };
+
+                return true;
             }
-            return true;
+            return false;
         }
 
         /// <summary>
@@ -183,10 +188,12 @@ namespace CoreHook.Examples.Common
             coreRunPath = string.Empty;
             coreLoadPath = string.Empty;
             corehookPath = string.Empty;
+            coreLibsPath = string.Empty;
+            coreRootPath = string.Empty;
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            if (GetCoreCLRRootPath(
+            if (!string.IsNullOrWhiteSpace(currentDir) && GetCoreClrRootPath(
                 is64BitProcess,
                 out coreLibsPath,
                 out coreRootPath))

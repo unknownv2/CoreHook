@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using CoreHook.ManagedHook.Remote;
+using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.Memory;
 
 namespace CoreHook.Tests
@@ -167,9 +167,9 @@ namespace CoreHook.Tests
                 out string coreRunDll, out string coreLibrariesPath,
                 out string coreRootPath, out string coreLoadDll, out string coreHookDll))
             {
-                RemoteHooking.Inject(
+                RemoteInjector.Inject(
                     target.Id,
-                    new RemoteHookingConfig
+                    new RemoteInjectorConfig
                     {
                         HostLibrary = coreRunDll,
                         CoreCLRPath = coreRootPath,

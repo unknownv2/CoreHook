@@ -1,5 +1,5 @@
 ﻿
-namespace CoreHook.BinaryInjection.BinaryLoader
+namespace CoreHook.BinaryInjection.Loader
 {
     public class BinaryLoaderArguments : IBinaryLoaderArguments
     {

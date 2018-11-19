@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using CoreHook.BinaryInjection.BinaryLoader.Serializer;
+using CoreHook.BinaryInjection.Loader.Serializer;
 
-namespace CoreHook.BinaryInjection.BinaryLoader
+namespace CoreHook.BinaryInjection.Loader
 {
     public interface IBinaryLoader : IDisposable
     {
         void Load(
-            Process targetProcess,
             string binaryPath,
             IEnumerable<string> dependencies = null,
             string baseDirectory = null);
         void ExecuteRemoteFunction(
-            Process process, 
             IRemoteFunctionCall call);
         void ExecuteRemoteManagedFunction(
-            Process process, 
             IRemoteManagedFunctionCall call);
         IntPtr CopyMemoryTo(
-            Process process,
             byte[] buffer,
             int length);
     }

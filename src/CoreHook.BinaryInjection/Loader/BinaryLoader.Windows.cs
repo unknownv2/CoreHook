@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using CoreHook.BinaryInjection.Loader.Serializer;
 using CoreHook.BinaryInjection.Host;
-using CoreHook.BinaryInjection.BinaryLoader.Serializer;
 using CoreHook.Memory;
 
-namespace CoreHook.BinaryInjection.BinaryLoader
+namespace CoreHook.BinaryInjection.Loader
 {
     public partial class BinaryLoader : IBinaryLoader
     {
@@ -24,7 +23,6 @@ namespace CoreHook.BinaryInjection.BinaryLoader
         /// <param name="functionName">The name of the function to be executed.</param>
         /// <param name="arguments">The class which will be serialized and passed to the function being executed.</param>
         private void ExecuteAssemblyFunctionWithArguments(
-            Process process,
             IFunctionName functionName,
             FunctionCallArguments arguments)
         {
@@ -35,28 +33,26 @@ namespace CoreHook.BinaryInjection.BinaryLoader
                 false);
         }
 
-        private void ExecuteAssemblyWithArguments(Process process, IFunctionName moduleFunction, byte[] arguments)
+        private void ExecuteAssemblyWithArguments(IFunctionName moduleFunction, byte[] arguments)
         {
             _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments);
         }
 
-        public void ExecuteWithArguments(Process process, IFunctionName function, IBinarySerializer arguments)
-            => ExecuteAssemblyWithArguments(process, function, arguments.Serialize());
+        public void ExecuteWithArguments(IFunctionName function, IBinarySerializer arguments)
+            => ExecuteAssemblyWithArguments(function, arguments.Serialize());
 
-        public void ExecuteRemoteFunction(Process process, IRemoteFunctionCall call) 
-            => ExecuteWithArguments(process, call.FunctionName, call.Arguments);
+        public void ExecuteRemoteFunction(IRemoteFunctionCall call) 
+            => ExecuteWithArguments(call.FunctionName, call.Arguments);
 
-        public void ExecuteRemoteManagedFunction(Process process, IRemoteManagedFunctionCall call) 
+        public void ExecuteRemoteManagedFunction(IRemoteManagedFunctionCall call) 
             => ExecuteAssemblyFunctionWithArguments(
-                process, 
                 call.FunctionName, 
                 new FunctionCallArguments(call.ManagedFunction, call.Arguments));
 
-        public IntPtr CopyMemoryTo(Process process, byte[] buffer, int length)
+        public IntPtr CopyMemoryTo(byte[] buffer, int length)
             => _processManager.CopyToProcess(buffer, length);
 
         public void Load(
-            Process targetProcess,
             string binaryPath,
             IEnumerable<string> dependencies = null,
             string baseDirectory = null)

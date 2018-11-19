@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace CoreHook.BinaryInjection.BinaryLoader.Serializer
+namespace CoreHook.BinaryInjection.Loader.Serializer
 {
     public class BinaryLoaderSerializer : IBinarySerializer
     {

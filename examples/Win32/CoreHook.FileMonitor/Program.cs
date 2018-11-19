@@ -3,8 +3,8 @@ using System.IO;
 using System.Reflection;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
-using CoreHook.ManagedHook.ProcessUtils;
-using CoreHook.ManagedHook.Remote;
+using CoreHook.BinaryInjection.ProcessUtils;
+using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.Memory;
 
 namespace CoreHook.FileMonitor
@@ -134,7 +134,7 @@ namespace CoreHook.FileMonitor
                 Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
-                RemoteHooking.CreateAndInject(
+                RemoteInjector.CreateAndInject(
                      new ProcessCreationConfig
                      {
                          ExecutablePath = exePath,
@@ -143,7 +143,7 @@ namespace CoreHook.FileMonitor
                      },
                      config32,
                      config64,
-                     new RemoteHookingConfig
+                     new RemoteInjectorConfig
                      {
                          CLRBootstrapLibrary = coreLoadLibrary,
                          InjectionPipeName = injectionPipeName,
@@ -176,9 +176,9 @@ namespace CoreHook.FileMonitor
                     out string coreRootPath, out string coreLoadDll,
                     out string coreHookDll))
             {
-                RemoteHooking.Inject(
+                RemoteInjector.Inject(
                     processId,
-                    new RemoteHookingConfig
+                    new RemoteInjectorConfig
                     {
                         CoreCLRPath = coreRootPath,
                         CoreCLRLibrariesPath = coreLibrariesPath,

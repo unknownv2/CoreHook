@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace CoreHook.BinaryInjection.BinaryLoader
+namespace CoreHook.BinaryInjection.Loader
 {
     internal static class BinaryLoaderArgumentsHelper
     {

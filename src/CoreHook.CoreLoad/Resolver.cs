@@ -39,10 +39,10 @@ namespace CoreHook.CoreLoad
                 });
 
                 _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
-                
+
                 _loadContext.Resolving += OnResolving;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log($"AssemblyResolver error: {ex}");
             }
@@ -54,11 +54,12 @@ namespace CoreHook.CoreLoad
             {
                 bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
                 // if not matched by exact name or not a default corehook module (which should be matched exactly)
-                if (!matched && !runtime.Name.Contains(CoreHookModuleName)){
+                if (!matched && !runtime.Name.Contains(CoreHookModuleName))
+                {
                     return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
                 };
                 return matched;
-            }     
+            }
 
             Log($"OnResolving: {name}");
 
