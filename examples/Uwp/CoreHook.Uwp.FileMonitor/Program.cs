@@ -34,7 +34,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
         /// <summary>
-        /// Enable verbose logging to the console for the CoreCLR host module corerundll.
+        /// Enable verbose logging to the console for the CoreCLR native host module.
         /// </summary>
         private const bool HostVerboseLog = false;
         /// <summary>
