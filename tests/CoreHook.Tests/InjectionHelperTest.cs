@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
 using CoreHook.IPC.NamedPipes;
-using CoreHook.ManagedHook.Remote;
+using CoreHook.BinaryInjection.RemoteInjection;
 
 namespace CoreHook.Tests
 {

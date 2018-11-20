@@ -12,9 +12,9 @@ namespace CoreHook.CoreLoad
 {
     internal sealed class Resolver : IDisposable
     {
-        private readonly ICompilationAssemblyResolver assemblyResolver;
-        private readonly DependencyContext dependencyContext;
-        private readonly AssemblyLoadContext loadContext;
+        private readonly ICompilationAssemblyResolver _assemblyResolver;
+        private readonly DependencyContext _dependencyContext;
+        private readonly AssemblyLoadContext _loadContext;
 
         private const string CoreHookModuleName = "CoreHook";
 
@@ -28,9 +28,9 @@ namespace CoreHook.CoreLoad
 
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
 
-                dependencyContext = DependencyContext.Load(Assembly);
+                _dependencyContext = DependencyContext.Load(Assembly);
 
-                assemblyResolver = new CompositeCompilationAssemblyResolver
+                _assemblyResolver = new CompositeCompilationAssemblyResolver
                                         (new ICompilationAssemblyResolver[]
                 {
                     new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
@@ -38,11 +38,11 @@ namespace CoreHook.CoreLoad
                     new DependencyModel.Resolution.PackageCompilationAssemblyResolver()
                 });
 
-                loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
+                _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
 
-                loadContext.Resolving += OnResolving;
+                _loadContext.Resolving += OnResolving;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Log($"AssemblyResolver error: {ex}");
             }
@@ -54,18 +54,18 @@ namespace CoreHook.CoreLoad
             {
                 bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
                 // if not matched by exact name or not a default corehook module (which should be matched exactly)
-                if (!matched && !runtime.Name.Contains(CoreHookModuleName)){
+                if (!matched && !runtime.Name.Contains(CoreHookModuleName))
+                {
                     return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
                 };
                 return matched;
-            }     
+            }
 
             Log($"OnResolving: {name}");
 
             try
             {
-                RuntimeLibrary library =
-                    dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatchOrContain);
+                RuntimeLibrary library = _dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatchOrContain);
 
                 if (library != null)
                 {
@@ -79,12 +79,12 @@ namespace CoreHook.CoreLoad
                         library.Serviceable);
 
                     var assemblies = new List<string>();
-                    assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
+                    _assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
 
                     if (assemblies.Count > 0)
                     {
                         Log($"Resolved {assemblies[0]}");
-                        return loadContext.LoadFromAssemblyPath(assemblies[0]);
+                        return _loadContext.LoadFromAssemblyPath(assemblies[0]);
                     }
                     else
                     {
@@ -101,7 +101,7 @@ namespace CoreHook.CoreLoad
 
         public void Dispose()
         {
-            loadContext.Resolving -= OnResolving;
+            _loadContext.Resolving -= OnResolving;
         }
 
         private void Log(string message)

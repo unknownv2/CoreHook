@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace CoreHook.ManagedHook.ProcessUtils
+namespace CoreHook.BinaryInjection.ProcessUtils
 {
     public static class ProcessHelper
     {

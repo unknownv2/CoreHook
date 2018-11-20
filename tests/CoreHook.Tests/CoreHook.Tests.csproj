@@ -35,8 +35,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\examples\Common\CoreHook.Examples.Common\CoreHook.Examples.Common.csproj" />
+    <ProjectReference Include="..\..\src\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
     <ProjectReference Include="..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
-    <ProjectReference Include="..\..\src\CoreHook.ManagedHook\CoreHook.ManagedHook.csproj" />
     <ProjectReference Include="..\..\src\CoreHook\CoreHook.csproj" />
     <ProjectReference Include="..\plugins\CoreHook.Tests.Plugins.Shared\CoreHook.Tests.Plugins.Shared.csproj" />
   </ItemGroup>

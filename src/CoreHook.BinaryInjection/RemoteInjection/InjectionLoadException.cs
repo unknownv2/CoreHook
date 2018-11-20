@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.ManagedHook.Remote
+namespace CoreHook.BinaryInjection.RemoteInjection
 {
     internal class InjectionLoadException : Exception
     {

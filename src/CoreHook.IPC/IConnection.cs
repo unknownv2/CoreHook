@@ -6,7 +6,6 @@ namespace CoreHook.IPC
     {
         NamedPipeServerStream ServerStream { get; }
         bool IsConnected { get; }
-
         string ReadRequest();
         bool TrySendResponse(string message);
     }

@@ -4,7 +4,7 @@ using System.Threading;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 
-namespace CoreHook.ManagedHook.Remote
+namespace CoreHook.BinaryInjection.RemoteInjection
 {
     /// <summary>
     /// Handles notifications from a target process related to the CoreHook boostrapping stage,

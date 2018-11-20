@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.IO;
-using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Reflection;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
-using CoreHook.ManagedHook.Remote;
-using CoreHook.ManagedHook.ProcessUtils;
+using CoreHook.BinaryInjection.RemoteInjection;
+using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.Memory;
 
 namespace CoreHook.Uwp.FileMonitor
@@ -35,7 +34,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
         /// <summary>
-        /// Enable verbose logging to the console for the CoreCLR host module corerundll.
+        /// Enable verbose logging to the console for the CoreCLR native host module.
         /// </summary>
         private const bool HostVerboseLog = false;
         /// <summary>
@@ -133,9 +132,9 @@ namespace CoreHook.Uwp.FileMonitor
                 GrantAllAppPkgsAccessToFile(coreRunDll);
                 GrantAllAppPkgsAccessToFile(corehookPath);
 
-                RemoteHooking.Inject(
+                RemoteInjector.Inject(
                     processId,
-                    new RemoteHookingConfig
+                    new RemoteInjectorConfig
                     {
                         CoreCLRPath = coreRootPath,
                         CoreCLRLibrariesPath = coreLibrariesPath,

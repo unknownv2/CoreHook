@@ -32,8 +32,8 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 ## Features
 * Intercept public API functions such as `CreateFile`
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
-* Supports NuGet package references for the hooking libraries 
-* Write libraries for intercepting API calls that can be ran on multiple architectures
+* Supports NuGet package references for the plugin libraries 
+* Supports multiple architectures for the plugins
 
 For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki).
 

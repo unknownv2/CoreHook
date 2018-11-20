@@ -17,7 +17,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CoreHook.CoreLoad\CoreHook.CoreLoad.csproj" />
+    <ProjectReference Include="..\CoreHook.IPC\CoreHook.IPC.csproj" />
     <ProjectReference Include="..\CoreHook.Memory\CoreHook.Memory.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ProcessUtils\" />
   </ItemGroup>
 
 </Project>

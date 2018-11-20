@@ -12,8 +12,8 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
             GCHandle securityDescriptorHandle,
             Interop.BOOL inheritHandle = Interop.BOOL.FALSE)
         {
-            Interop.Kernel32.SECURITY_ATTRIBUTES securityAttributes = new Interop.Kernel32.SECURITY_ATTRIBUTES();
-            securityAttributes.bInheritHandle = inheritHandle;
+            Interop.Kernel32.SECURITY_ATTRIBUTES securityAttributes =
+                new Interop.Kernel32.SECURITY_ATTRIBUTES {bInheritHandle = inheritHandle};
             securityAttributes.nLength = (uint)Marshal.SizeOf(securityAttributes);
             securityAttributes.lpSecurityDescriptor = securityDescriptorHandle.AddrOfPinnedObject();
             return securityAttributes;
@@ -25,7 +25,6 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
             string pipeName,
             PipeSecurity pipeSecurity)
         {
-
             string fullPipeName = $@"\\{serverName}\{namespaceName}\{pipeName}";
             var securityDescriptor = new CommonSecurityDescriptor(
                 false,
@@ -33,16 +32,11 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
                 pipeSecurity.GetSecurityDescriptorBinaryForm(),
                 0);
 
-            Interop.Kernel32.SECURITY_ATTRIBUTES securityAttributes = new Interop.Kernel32.SECURITY_ATTRIBUTES();
-            GCHandle? securityDescriptorHandle = null;
-            if(securityDescriptor != null)
-            {
-                byte[] securityDescriptorBuffer = new byte[securityDescriptor.BinaryLength];
-                securityDescriptor.GetBinaryForm(securityDescriptorBuffer, 0);
+            byte[] securityDescriptorBuffer = new byte[securityDescriptor.BinaryLength];
+            securityDescriptor.GetBinaryForm(securityDescriptorBuffer, 0);
 
-                securityDescriptorHandle = GCHandle.Alloc(securityDescriptorBuffer, GCHandleType.Pinned);
-                securityAttributes = GetSecurityAttributes(securityDescriptorHandle.Value);
-            }
+            GCHandle? securityDescriptorHandle = GCHandle.Alloc(securityDescriptorBuffer, GCHandleType.Pinned);
+            var securityAttributes = GetSecurityAttributes(securityDescriptorHandle.Value);
 
             if(Interop.Kernel32.WaitNamedPipe(fullPipeName, System.Threading.Timeout.Infinite))
             { 
@@ -62,10 +56,7 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
                 0,
                 ref securityAttributes);
 
-            if (securityDescriptorHandle != null)
-            {
-                securityDescriptorHandle.Value.Free();
-            }
+            securityDescriptorHandle.Value.Free();
 
             if(pipeHandle.IsInvalid)
             {

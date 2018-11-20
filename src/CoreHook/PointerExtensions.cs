@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
+
 namespace CoreHook
 {
-
     /// <summary>
     /// IntPtr extensions for creating delegates from function pointers.
     /// </summary>

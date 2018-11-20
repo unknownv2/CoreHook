@@ -1,5 +1,5 @@
 ﻿
-namespace CoreHook.ManagedHook.Remote
+namespace CoreHook.BinaryInjection.RemoteInjection
 {
     public class ProcessCreationConfig : ICreateProcessConfig
     {
@@ -16,7 +16,7 @@ namespace CoreHook.ManagedHook.Remote
         /// </summary>
         public uint ProcessCreationFlags { get; set; }
     }
-    public class RemoteHookingConfig : ICoreHookConfig, ICoreRunConfig, ICoreRunHostConfig, ICoreRootConfig, ICoreLoadConfig
+    public class RemoteInjectorConfig : ICoreHookConfig, ICoreRunConfig, ICoreRunHostConfig, ICoreRootConfig, ICoreLoadConfig
     {
         /// <summary>
         /// Library that implements function intercept exports for the LocalHook class
@@ -25,7 +25,7 @@ namespace CoreHook.ManagedHook.Remote
         public string DetourLibrary { get; set; }
         /// <summary>
         /// .NET library that is loaded and executed inside the target process
-        /// by the boostrap library after starting the .NET Core runtime.
+        /// by the bootstrap library after starting the .NET Core runtime.
         /// </summary>
         public string PayloadLibrary { get; set; }
         /// <summary>
@@ -54,7 +54,7 @@ namespace CoreHook.ManagedHook.Remote
         public string CoreCLRLibrariesPath { get; set; }
         /// <summary>
         /// The name of the pipe used for notifying the host process
-        /// when the hooking plugin has been succesfully loaded in
+        /// when the hooking plugin has been successfully loaded in
         /// the target process or if the injection process failed.
         /// </summary>
         public string InjectionPipeName { get; set; }
@@ -105,10 +105,9 @@ namespace CoreHook.ManagedHook.Remote
         /// the .NET payload Assembly.
         /// </summary>
         string CLRBootstrapLibrary { get; set; }
-
         /// <summary>
         /// .NET library that is loaded and executed inside the target process
-        /// by the boostrap library after starting the .NET Core runtime.
+        /// by the bootstrap library after starting the .NET Core runtime.
         /// </summary>
         string PayloadLibrary { get; set; }
     }
