@@ -278,12 +278,12 @@ namespace CoreHook
         /// <summary>
         /// Delegate used to call the original function by bypassing the detour.
         /// </summary>
-        public T Original => OriginalAddress.ToDelegate<T>();
+        public T Original => OriginalAddress.ToFunction<T>();
         /// <summary>
         /// Delegate used to call the target function directly,
         /// where any detour that is activated will be called as well.
         /// </summary>
-        public T Target => TargetAddress.ToDelegate<T>();
+        public T Target => TargetAddress.ToFunction<T>();
 
         public bool EnableForCurrentThread => false;
 
