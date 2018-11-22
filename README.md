@@ -15,6 +15,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [Tested Platforms](#tested-platforms)
 - [Dependencies](#dependencies)
 - [Examples](#examples)
+- [Plugin Examples](#examples)
 - [Usage](#usage)
     - [Windows](#windows)
 - [Contributing](#contributing)
@@ -72,6 +73,10 @@ CoreHook supports application function call interception on various architecture
 
  * [FileMonitor - Universal Windows Platform (UWP)](examples/Uwp/CoreHook.Uwp.FileMonitor/) 
  * [FileMonitor - Windows Desktop Applications (Win32)](examples/Win32/CoreHook.FileMonitor)
+
+## Plugin Examples
+
+* [More examples for the plugins can be found in this repository](https://github.com/unknownv2/corehook-plugins)
 
 ## Usage
 
