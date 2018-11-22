@@ -1,6 +1,7 @@
 # CoreHook
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![NuGet](https://img.shields.io/nuget/v/CoreHook.svg)](https://www.nuget.org/packages/CoreHook)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
