@@ -1,6 +1,7 @@
 # CoreHook
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![NuGet](https://img.shields.io/nuget/v/CoreHook.svg)](https://www.nuget.org/packages/CoreHook)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
@@ -14,6 +15,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [Tested Platforms](#tested-platforms)
 - [Dependencies](#dependencies)
 - [Examples](#examples)
+- [Plugin Examples](#plugin-examples)
 - [Usage](#usage)
     - [Windows](#windows)
 - [Contributing](#contributing)
@@ -39,7 +41,7 @@ For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki)
 
 ## Supported Platforms
 
-CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS supported is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
+CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS support is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
 
 
 | Architecture  | Operating System      |
@@ -71,6 +73,10 @@ CoreHook supports application function call interception on various architecture
 
  * [FileMonitor - Universal Windows Platform (UWP)](examples/Uwp/CoreHook.Uwp.FileMonitor/) 
  * [FileMonitor - Windows Desktop Applications (Win32)](examples/Win32/CoreHook.FileMonitor)
+
+## Plugin Examples
+
+* [More examples for the plugins can be found in this repository](https://github.com/unknownv2/corehook-plugins)
 
 ## Usage
 

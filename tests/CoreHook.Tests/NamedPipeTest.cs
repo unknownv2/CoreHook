@@ -20,13 +20,11 @@ namespace CoreHook.Tests
                     receivedMessage = true;
                     connection.TrySendResponse("RandomResponse");
                 }))
+            using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
             {
-                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                if(SendPipeMessage(pipeClient, testMessage))
                 {
-                    if(SendPipeMessage(pipeClient, testMessage))
-                    {
-                        pipeClient.ReadRawResponse();
-                    }
+                    pipeClient.ReadRawResponse();
                 }
             }
             Assert.True(receivedMessage);
@@ -38,23 +36,21 @@ namespace CoreHook.Tests
             string namedPipe = Resources.GetUniquePipeName();
             const string testMessage = "TestMessage";
             bool receivedCorrectMessage = false;
-            
+
             using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
-                (string request, IPC.IConnection connection) =>
-                {
-                    if (request == testMessage)
-                    {
-                        receivedCorrectMessage = true;
-                    }
-                    connection.TrySendResponse(request);
-                }))
+                  (string request, IPC.IConnection connection) =>
+                  {
+                      if (request == testMessage)
+                      {
+                          receivedCorrectMessage = true;
+                      }
+                      connection.TrySendResponse(request);
+                  }))
+            using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
             {
-                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                if (SendPipeMessage(pipeClient, testMessage))
                 {
-                    if (SendPipeMessage(pipeClient, testMessage))
-                    {
-                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage);
-                    }
+                    Assert.Equal(pipeClient.ReadRawResponse(), testMessage);
                 }
             }
             Assert.True(receivedCorrectMessage);
@@ -69,23 +65,18 @@ namespace CoreHook.Tests
             const string testMessage3 = "TestMessage3";
 
             using (CreateServer(namedPipe, new PipePlatformBase(),
-                (string request, IPC.IConnection connection) =>
-                {
-                    connection.TrySendResponse(request);
-                }))
+                  (request, connection) => connection.TrySendResponse(request)))
+            using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
             {
-                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                if (pipeClient.Connect(3000))
                 {
-                    if (pipeClient.Connect(3000))
-                    {
-                        pipeClient.SendRequest(testMessage1);
-                        pipeClient.SendRequest(testMessage2);
-                        pipeClient.SendRequest(testMessage3);
+                    pipeClient.SendRequest(testMessage1);
+                    pipeClient.SendRequest(testMessage2);
+                    pipeClient.SendRequest(testMessage3);
 
-                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage1);
-                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage2);
-                        Assert.Equal(pipeClient.ReadRawResponse(), testMessage3);
-                    }
+                    Assert.Equal(pipeClient.ReadRawResponse(), testMessage1);
+                    Assert.Equal(pipeClient.ReadRawResponse(), testMessage2);
+                    Assert.Equal(pipeClient.ReadRawResponse(), testMessage3);
                 }
             }
         }
@@ -106,13 +97,11 @@ namespace CoreHook.Tests
                     }
                     connection.TrySendResponse("RandomResponse");
                 }))
+            using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
             {
-                using (INamedPipeClient pipeClient = new NamedPipeClient(namedPipe))
+                if (SendPipeMessage(pipeClient, testMessage))
                 {
-                    if (SendPipeMessage(pipeClient, testMessage))
-                    {
-                        Assert.NotEqual(pipeClient.ReadRawResponse(), testMessage);
-                    }
+                    Assert.NotEqual(pipeClient.ReadRawResponse(), testMessage);
                 }
             }
             Assert.True(receivedCorrectMessage);
