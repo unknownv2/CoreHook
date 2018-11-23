@@ -22,21 +22,11 @@ namespace CoreHook.BinaryInjection.Loader
         /// <param name="process">The process the thread will be created and executed in.</param>
         /// <param name="functionName">The name of the function to be executed.</param>
         /// <param name="arguments">The class which will be serialized and passed to the function being executed.</param>
-        private void ExecuteAssemblyFunctionWithArguments(
-            IFunctionName functionName,
-            FunctionCallArguments arguments)
-        {
-            _processManager.Execute(
-                functionName.Module,
-                functionName.Function,
-                MarshallingHelper.StructToByteArray(arguments),
-                false);
-        }
+        private void ExecuteAssemblyFunctionWithArguments(IFunctionName functionName, FunctionCallArguments arguments)
+            => _processManager.Execute(functionName.Module, functionName.Function, MarshallingHelper.StructToByteArray(arguments), false);
 
         private void ExecuteAssemblyWithArguments(IFunctionName moduleFunction, byte[] arguments)
-        {
-            _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments);
-        }
+            => _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments);
 
         public void ExecuteWithArguments(IFunctionName function, IBinarySerializer arguments)
             => ExecuteAssemblyWithArguments(function, arguments.Serialize());
@@ -65,11 +55,9 @@ namespace CoreHook.BinaryInjection.Loader
                     {
                         throw new FileNotFoundException("Binary file not found.", binary);
                     }
-
                     _processManager.InjectBinary(binary);
                 }
             }
-
             _processManager.InjectBinary(binaryPath);
         }
 
