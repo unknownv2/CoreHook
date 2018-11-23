@@ -15,7 +15,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [Tested Platforms](#tested-platforms)
 - [Dependencies](#dependencies)
 - [Examples](#examples)
-- [Plugin Examples](#examples)
+- [Plugin Examples](#plugin-examples)
 - [Usage](#usage)
     - [Windows](#windows)
 - [Contributing](#contributing)
@@ -41,7 +41,7 @@ For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki)
 
 ## Supported Platforms
 
-CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS supported is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
+CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS support is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
 
 
 | Architecture  | Operating System      |
