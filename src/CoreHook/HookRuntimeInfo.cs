@@ -28,7 +28,7 @@ namespace CoreHook
             get
             {
                 NativeAPI.DetourBarrierGetCallback(out IntPtr callback);
-                return callback == IntPtr.Zero ? null : (IHook)GCHandle.FromIntPtr(callback).Target;
+                return callback == IntPtr.Zero ? null : GCHandle.FromIntPtr(callback).Target as IHook;
             }
         }
     }
