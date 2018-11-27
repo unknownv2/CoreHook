@@ -6,17 +6,10 @@ namespace CoreHook.CoreLoad.Data
 {
     internal class ConnectionData<T, U> where T : IRemoteEntryInfo
     {
-        internal enum ConnectionState
-        {
-            Invalid = 0,
-            NoChannel = 1,
-            Valid = int.MaxValue
-        }
-
         /// <summary>
-        /// Gets the state of the current <see cref="ConnectionData"/>.
+        /// Gets the state of the current <see cref="ConnectionData{T,U}"/>.
         /// </summary>
-        internal ConnectionState State { get; private set; }
+        internal PluginInitializationState State { get; private set; }
 
         /// <summary>
         /// Gets the unmanaged data containing the pointer to the memory block containing a class of type <see cref="T"/>;
@@ -27,23 +20,24 @@ namespace CoreHook.CoreLoad.Data
 
         private ConnectionData()
         {
-            State = ConnectionState.Invalid;
+            State = PluginInitializationState.Invalid;
             RemoteInfo = default(U);
             UnmanagedInfo = default(T);
         }
 
         /// <summary>
-        /// Loads <see cref="ConnectionData"/> from the <see cref="IntPtr"/> specified.
+        /// Loads <see cref="ConnectionData{T,U}"/> from the <see cref="IntPtr"/> specified
+        /// in <paramref name="unmanagedInfoPointer"/>.
         /// </summary>
-        /// <param name="unmanagedInfoPointer"></param>
-        /// <param name="formatter"></param>
+        /// <param name="unmanagedInfoPointer">Pointer to the user arguments data.</param>
+        /// <param name="formatter">Deserializer for the user arguments data.</param>
         public static ConnectionData<T, U> LoadData(
             IntPtr unmanagedInfoPointer,
             IUserDataFormatter formatter)
         {
             var data = new ConnectionData<T, U>
             {
-                State = ConnectionState.Valid,
+                State = PluginInitializationState.Valid,
                 UnmanagedInfo = (T)Activator.CreateInstance(typeof(T))
             };
             try
@@ -58,6 +52,7 @@ namespace CoreHook.CoreLoad.Data
             }
             catch (Exception exception)
             {
+                data.State = PluginInitializationState.Invalid;
                 Debug.WriteLine(exception.ToString());
             }
             return data;

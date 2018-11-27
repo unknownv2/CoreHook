@@ -37,7 +37,9 @@ namespace CoreHook.Memory.Processes
         /// <param name="canWait">We can wait for the thread to exit and then deallocate any memory
         /// we allocated or return immediately and deallocate the memory in a separate call.</param>
         public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
-            => ExecuteFuntion(module, function, arguments, canWait);
+        {
+            return ExecuteFuntion(module, function, arguments, canWait);
+        }
 
         private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool canWait = true)
         {
