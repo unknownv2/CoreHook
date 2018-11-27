@@ -19,7 +19,7 @@ namespace CoreHook
             // Debug assertion that T is a Delegate type
             System.Diagnostics.Debug.Assert(typeof(Delegate).IsAssignableFrom(typeof(T)));
 
-            return (T)(object)Marshal.GetDelegateForFunctionPointer(function, typeof(T));
+            return Marshal.GetDelegateForFunctionPointer<T>(function);
         }
     }
 }
