@@ -112,25 +112,6 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        public NamedPipeMessages.IMessage ReadResponse()
-        {
-            return NamedPipeMessages.Message.FromString(ReadRawResponse());
-        }
-
-        public bool TryReadResponse(out NamedPipeMessages.IMessage message)
-        {
-            try
-            {
-                message = NamedPipeMessages.Message.FromString(ReadRawResponse());
-                return true;
-            }
-            catch (InvalidPipeOperationException)
-            {
-                message = null;
-                return false;
-            }
-        }
-
         public void Dispose()
         {
             ValidateConnection();
