@@ -19,28 +19,30 @@ namespace CoreHook.BinaryInjection.Loader
         /// <summary>
         ///  Execute a function in a process in a new thread with a <see cref="FunctionCallArguments" /> argument
         /// </summary>
-        /// <param name="process">The process the thread will be created and executed in.</param>
         /// <param name="functionName">The name of the function to be executed.</param>
         /// <param name="arguments">The class which will be serialized and passed to the function being executed.</param>
         private void ExecuteAssemblyFunctionWithArguments(IFunctionName functionName, FunctionCallArguments arguments)
-            => _processManager.Execute(functionName.Module, functionName.Function, MarshallingHelper.StructToByteArray(arguments), false);
+        {
+            _processManager.Execute(functionName.Module, functionName.Function,
+                MarshallingHelper.StructToByteArray(arguments), false);
+        }
 
-        private void ExecuteAssemblyWithArguments(IFunctionName moduleFunction, byte[] arguments)
-            => _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments);
+        private void ExecuteAssemblyWithArguments(IFunctionName moduleFunction, byte[] arguments) => 
+            _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments);
 
-        public void ExecuteWithArguments(IFunctionName function, IBinarySerializer arguments)
-            => ExecuteAssemblyWithArguments(function, arguments.Serialize());
+        public void ExecuteWithArguments(IFunctionName function, IBinarySerializer arguments) => 
+            ExecuteAssemblyWithArguments(function, arguments.Serialize());
 
-        public void ExecuteRemoteFunction(IRemoteFunctionCall call) 
-            => ExecuteWithArguments(call.FunctionName, call.Arguments);
+        public void ExecuteRemoteFunction(IRemoteFunctionCall call) => 
+            ExecuteWithArguments(call.FunctionName, call.Arguments);
 
-        public void ExecuteRemoteManagedFunction(IRemoteManagedFunctionCall call) 
-            => ExecuteAssemblyFunctionWithArguments(
-                call.FunctionName, 
+        public void ExecuteRemoteManagedFunction(IRemoteManagedFunctionCall call) => 
+            ExecuteAssemblyFunctionWithArguments(
+                call.FunctionName,
                 new FunctionCallArguments(call.ManagedFunction, call.Arguments));
 
-        public IntPtr CopyMemoryTo(byte[] buffer, int length)
-            => _processManager.CopyToProcess(buffer, length);
+        public IntPtr CopyMemoryTo(byte[] buffer, int length) => 
+            _processManager.CopyToProcess(buffer, length);
 
         public void Load(
             string binaryPath,
@@ -62,25 +64,30 @@ namespace CoreHook.BinaryInjection.Loader
         }
 
         #region IDisposable Support
-        private bool disposedValue = false;
+        private bool _disposedValue = false;
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
                     _processManager.Dispose();
                 }
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
+        ~BinaryLoader()
+        {
+            Dispose(false);
+        }
         #endregion
     }
 }
