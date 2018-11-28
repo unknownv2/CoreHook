@@ -44,23 +44,36 @@ namespace CoreHook.Tests.Windows
             }
         }
 
+
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
+        public delegate uint GetTickCountDelegate();
+        [DllImport("kernel32.dll")]
+        public static extern uint GetTickCount();
+        private bool _getTickCountCalled;
+
+        private uint Detour_GetTickCount()
+        {
+            _getTickCountCalled = true;
+            return 0;
+        }
+
         [Fact]
         public void DetourIsBypassedByOriginalFunction()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
-                new BeepDelegate(BeepHook),
+                LocalHook.GetProcAddress("kernel32.dll", "GetTickCount"),
+                new GetTickCountDelegate(Detour_GetTickCount),
                 this))
             {
-                _beepHookCalled = false;
+                _getTickCountCalled = false;
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
+                GetTickCountDelegate getTickCount = hook.HookBypassAddress.ToFunction<GetTickCountDelegate>();
 
-                Assert.True(beep(100, 100));
+                Assert.NotEqual<uint>(0, getTickCount());
 
-                Assert.False(_beepHookCalled);
+                Assert.False(_getTickCountCalled);
             }
         }
 
@@ -82,7 +95,7 @@ namespace CoreHook.Tests.Windows
 
                 _beepHookCalled = false;
 
-                BeepDelegate beep = (BeepDelegate)Marshal.GetDelegateForFunctionPointer(hook.HookBypassAddress, typeof(BeepDelegate));
+                BeepDelegate beep = hook.HookBypassAddress.ToFunction<BeepDelegate>();
 
                 Assert.True(beep(100, 100));
 
@@ -115,7 +128,7 @@ namespace CoreHook.Tests.Windows
         }
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
-        public delegate uint GetVersionT();
+        public delegate uint GetVersionDelegate();
 
         [DllImport("kernel32.dll")]
         public static extern uint GetVersion();
@@ -123,7 +136,7 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void ShouldEnableHookWithProperty()
         {
-            using (var hook = HookFactory.CreateHook<GetVersionT>(
+            using (var hook = HookFactory.CreateHook<GetVersionDelegate>(
                 LocalHook.GetProcAddress("kernel32.dll", "GetVersion"),
                 GetVersionDetour, this))
             {
@@ -154,5 +167,6 @@ namespace CoreHook.Tests.Windows
         {
             return 0;
         }
+  
     }
 }
