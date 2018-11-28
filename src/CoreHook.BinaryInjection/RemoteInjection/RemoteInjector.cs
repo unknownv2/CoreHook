@@ -235,7 +235,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                 binaryLoader.ExecuteRemoteManagedFunction(
                                     new RemoteManagedFunctionCall
                                     {
-                                        ManagedFunction = CoreHookLoaderDelegate,
+                                        ManagedFunctionDelegate = CoreHookLoaderDelegate,
                                         FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetCoreCLRExecuteManagedFunctionName() },
                                         Arguments = new RemoteFunctionArgumentsSerializer
                                         {

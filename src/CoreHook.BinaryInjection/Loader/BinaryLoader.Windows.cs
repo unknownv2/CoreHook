@@ -39,7 +39,7 @@ namespace CoreHook.BinaryInjection.Loader
         public void ExecuteRemoteManagedFunction(IRemoteManagedFunctionCall call) => 
             ExecuteAssemblyFunctionWithArguments(
                 call.FunctionName,
-                new FunctionCallArguments(call.ManagedFunction, call.Arguments));
+                new FunctionCallArguments(call.ManagedFunctionDelegate, call.Arguments));
 
         public IntPtr CopyMemoryTo(byte[] buffer, int length) => 
             _processManager.CopyToProcess(buffer, length);
