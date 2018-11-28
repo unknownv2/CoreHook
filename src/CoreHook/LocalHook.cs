@@ -252,6 +252,7 @@ namespace CoreHook
                     // Uninstall the detour
                     NativeAPI.DetourUninstallHook(_handle);
 
+                    // Release the detour's resources
                     Marshal.FreeCoTaskMem(_handle);
 
                     _handle = IntPtr.Zero;

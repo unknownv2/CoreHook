@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.IO;
 using CoreHook.CoreLoad.Data;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.CoreLoad
@@ -17,9 +18,21 @@ namespace CoreHook.CoreLoad
 
     public class Loader
     {
+        /// <summary>
+        /// The interface implemented by each plugin that we initialize.
+        /// </summary>
         private const string EntryPointInterface = "CoreHook.IEntryPoint";
+        /// <summary>
+        /// The name of the first method called in each plugin after initializing the class.
+        /// </summary>
         private const string EntryPointMethodName = "Run";
 
+        /// <summary>
+        /// Initialize the plugin dependencies and execute its entry point.
+        /// </summary>
+        /// <param name="remoteParameters">Parameters containing the plugin to load
+        /// and the parameters to pass to it's entry point.</param>
+        /// <returns></returns>
         public static int Load(IntPtr remoteParameters)
         {
             try
@@ -36,7 +49,8 @@ namespace CoreHook.CoreLoad
                         remoteParameters, remoteInfoFormatter
                     );
 
-                var resolver = new Resolver(connection.RemoteInfo.UserLibrary);
+                var resolver = new Resolver(
+                    connection.RemoteInfo.UserLibrary);
 
                 var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
 
@@ -45,13 +59,16 @@ namespace CoreHook.CoreLoad
                 {
                     paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
                 }
+              
+                DeserializeParameters(paramArray, remoteInfoFormatter);
 
-                // Execute the plugin's entry point and pass in the user arguments 
+                // Execute the plugin library's entry point and pass in the user arguments.
                 LoadUserLibrary(
-                    resolver.Assembly, 
-                    paramArray, 
-                    connection.RemoteInfo.ChannelName,
-                    remoteInfoFormatter);
+                    resolver.Assembly,
+                    paramArray,
+                    connection.RemoteInfo.ChannelName);
+
+                return (int)connection.State;
             }
             catch(ArgumentOutOfRangeException outOfRangeEx)
             {
@@ -62,13 +79,16 @@ namespace CoreHook.CoreLoad
             {
                 Log(exception.ToString());
             }
-            return 0;
+            return (int)PluginInitializationState.Invalid;
         }
 
-        private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName, IUserDataFormatter formatter)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="paramArray"></param>
+        /// <param name="formatter"></param>
+        private static void DeserializeParameters(object[] paramArray, IUserDataFormatter formatter)
         {
-            Type entryPoint = FindEntryPoint(assembly);
-
             for (int i = 1; i < paramArray.Length; ++i)
             {
                 using (Stream ms = new MemoryStream((byte[])paramArray[i]))
@@ -76,6 +96,17 @@ namespace CoreHook.CoreLoad
                     paramArray[i] = formatter.Deserialize<object>(ms);
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <param name="paramArray"></param>
+        /// <param name="helperPipeName"></param>
+        private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
+        {
+            Type entryPoint = FindEntryPoint(assembly);
 
             MethodInfo runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
             if(runMethod == null)
@@ -103,6 +134,11 @@ namespace CoreHook.CoreLoad
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
         private static Type FindEntryPoint(Assembly assembly)
         {
             var exportedTypes = assembly.GetExportedTypes();
@@ -116,13 +152,19 @@ namespace CoreHook.CoreLoad
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="objectType"></param>
+        /// <param name="methodName"></param>
+        /// <param name="paramArray"></param>
+        /// <returns></returns>
         private static MethodInfo FindMatchingMethod(Type objectType, string methodName, object[] paramArray)
         {
             var methods = objectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
             foreach (var method in methods)
             {
-                if (method.Name == methodName
-                    && (paramArray == null || MethodMatchesParameters(method, paramArray)))
+                if (method.Name == methodName && (paramArray == null || MethodMatchesParameters(method, paramArray)))
                 {
                     return method;
                 }
@@ -130,6 +172,12 @@ namespace CoreHook.CoreLoad
             return null;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="method"></param>
+        /// <param name="paramArray"></param>
+        /// <returns></returns>
         private static bool MethodMatchesParameters(MethodBase method, object[] paramArray)
         {
             var parameters = method.GetParameters();
@@ -137,15 +185,23 @@ namespace CoreHook.CoreLoad
             {
                 return false;
             }
-
-            for (int i = 0; i < paramArray.Length; ++i)
+            
+            for (var i = 0; i < paramArray.Length; ++i)
             {
                 if (!parameters[i].ParameterType.IsInstanceOfType(paramArray[i]))
+                {
                     return false;
+                }
             }
             return true;
         }
 
+        /// <summary>
+        /// Invoke a class constructor with a list of parameters.
+        /// </summary>
+        /// <param name="objectType">The type who's constructor is called.</param>
+        /// <param name="parameters">The parameters to pass to the class constructor.</param>
+        /// <returns>The instance returned from calling the constructor.</returns>
         private static object InitializeInstance(Type objectType, object[] parameters)
         {
             var constructors = objectType.GetConstructors();
@@ -159,13 +215,20 @@ namespace CoreHook.CoreLoad
             return null;
         }
 
+        /// <summary>
+        /// Notify the injecting process when injection has completed successfully
+        /// and the plugin is about to be executed.
+        /// </summary>
+        /// <param name="pipeName">The notification pipe created by the remote process.</param>
+        /// <param name="pid">The process ID to send in the notification message.</param>
+        /// <returns>True if the injection completion notification was sent successfully.</returns>
         private static bool SendInjectionComplete(string pipeName, int pid)
         {
             using (var pipeClient = new NamedPipeClient(pipeName))
             {
                 if (pipeClient.Connect())
                 {
-                    var request = new NamedPipeMessages.InjectionCompleteNotification(pid, true);
+                    var request = new InjectionCompleteNotification(pid, true);
                     if (pipeClient.TrySendRequest(request.CreateMessage()))
                     {
                         return true;

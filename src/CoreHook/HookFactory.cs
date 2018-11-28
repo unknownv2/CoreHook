@@ -16,7 +16,7 @@ namespace CoreHook
         /// <returns></returns>
         public static IHook CreateHook(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
-            return LocalHook.Create(targetFunction, detourFunction as Delegate, callback);
+            return LocalHook.Create(targetFunction, detourFunction, callback);
         }
 
         /// <summary>

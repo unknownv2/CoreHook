@@ -39,7 +39,7 @@ namespace CoreHook
     /// It requires a defining a function delegate type for the function that is being detoured.
     /// </summary>
     /// <typeparam name="T">A type representing the target function's delegate or signature.</typeparam>
-    public interface IHook<T> : IHook where T : class
+    public interface IHook<out T> : IHook where T : class
     { 
         /// <summary>
         /// The original function address, called to bypass the detour.

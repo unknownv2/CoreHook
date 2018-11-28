@@ -138,9 +138,9 @@ namespace CoreHook.Memory.Processes
             IntPtr pfCreateProcessA);
     }
 
-    public static class NativeAPI
+    public static class NativeApi
     {
-        public readonly static bool Is64Bit = IntPtr.Size == 8;
+        public static readonly bool Is64Bit = IntPtr.Size == 8;
  
         public static bool DetourCreateProcessWithDllExA(
             string lpApplicationName,

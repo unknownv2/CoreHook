@@ -6,8 +6,8 @@ namespace CoreHook.Memory
 {
     public class ManagedProcess : IProcess
     {
-        public Process ProcessHandle { get; private set; }
-        public SafeProcessHandle SafeHandle { get; private set; }
+        public Process ProcessHandle { get; }
+        public SafeProcessHandle SafeHandle { get; }
 
         private const int DefaultProcessAccess =
                 Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
@@ -24,7 +24,7 @@ namespace CoreHook.Memory
 
         public ManagedProcess(int processId, int access)
         {
-            SafeHandle = GetProcessHandle(processId, access = DefaultProcessAccess);
+            SafeHandle = GetProcessHandle(processId, access);
         }
 
         private SafeProcessHandle GetProcessHandle(int processId, int access)

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.BinaryInjection.RemoteInjection;
 
@@ -18,7 +19,7 @@ namespace CoreHook.Tests
             var InjectionHelperPipeName = "InjectionHelperPipeTest";
 
             InjectionHelper.BeginInjection(_targetProcessId);
-            using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
+            using (InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
             {
                 try
                 {
@@ -42,7 +43,7 @@ namespace CoreHook.Tests
             var InjectionHelperPipeName = "InjectionHelperFailedPipeTest";
 
             InjectionHelper.BeginInjection(_targetProcessId);
-            using (var pipeServer = InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
+            using (InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
             {
                 try
                 {
@@ -61,7 +62,7 @@ namespace CoreHook.Tests
             {
                 if (pipeClient.Connect())
                 {
-                    var request = new NamedPipeMessages.InjectionCompleteNotification(pid, true);
+                    var request = new InjectionCompleteNotification(pid, true);
                     if (pipeClient.TrySendRequest(request.CreateMessage()))
                     {
                         return true;

@@ -1,25 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 
 namespace CoreHook.BinaryInjection.RemoteInjection
 {
     /// <summary>
-    /// Handles notifications from a target process related to the CoreHook boostrapping stage,
+    /// Handles notifications from a target process related to the CoreHook bootstrapping stage,
     /// which is handled by the CoreLoad module. The host process should either receive 
     /// a message about that the CoreHook plugin was successfully loaded or throw an
     /// exception after a certain amount of time when no message has been received.
     /// </summary>
     public class InjectionHelper
     {
-        private class InjectionWait
-        {
-            public Mutex ThreadLock = new Mutex(false);
-            public ManualResetEvent Completion = new ManualResetEvent(false);
-            public Exception Error = null;
-        }
+        private static readonly SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
 
         public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
@@ -33,20 +28,19 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                 throw new InvalidOperationException("Pipe connection was broken while handling request");
             }
 
-            var message = NamedPipeMessages.Message.FromString(request);
+            var message = Message.FromString(request);
 
             switch (message.Header)
             {
-                case NamedPipeMessages.InjectionCompleteNotification.InjectionComplete:
-                    var msg = new NamedPipeMessages.InjectionCompleteNotification(message.Body);
-                    var reqData = msg.RequestData;
+                case InjectionCompleteNotification.InjectionComplete:
+                    var reqData = new InjectionCompleteNotification(message.Body).RequestData;
                     if (reqData.Completed)
                     {
-                        InjectionCompleted(reqData.PID);
+                        InjectionCompleted(reqData.ProcessId);
                     }
                     else
                     {
-                        throw new InjectionLoadException($"Injection into process {reqData.PID} failed.");
+                        throw new InjectionLoadException($"Injection into process {reqData.ProcessId} failed.");
                     }
                     break;
                 default:
@@ -54,19 +48,17 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
         }
 
-        private static SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
-
-        public static void BeginInjection(int targetPID)
+        public static void BeginInjection(int targetProcessId)
         {
             InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                if (!InjectionList.TryGetValue(targetPID, out waitInfo))
+                if (!InjectionList.TryGetValue(targetProcessId, out waitInfo))
                 {
                     waitInfo = new InjectionWait();
 
-                    InjectionList.Add(targetPID, waitInfo);
+                    InjectionList.Add(targetProcessId, waitInfo);
                 }
             }
 
@@ -76,35 +68,35 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
             lock (InjectionList)
             {
-                if (!InjectionList.ContainsKey(targetPID))
+                if (!InjectionList.ContainsKey(targetProcessId))
                 {
-                    InjectionList.Add(targetPID, waitInfo);
+                    InjectionList.Add(targetProcessId, waitInfo);
                 }
             }
         }
 
-        public static void EndInjection(int targetPID)
+        public static void EndInjection(int targetProcessId)
         {
             lock (InjectionList)
             {
-                InjectionList[targetPID].ThreadLock.ReleaseMutex();
+                InjectionList[targetProcessId].ThreadLock.ReleaseMutex();
 
-                InjectionList.Remove(targetPID);
+                InjectionList.Remove(targetProcessId);
             }
         }
 
-        public static void WaitForInjection(int targetPID, int timeOutMs = 20000)
+        public static void WaitForInjection(int targetProcessId, int timeOutMs = 20000)
         {
             InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                waitInfo = InjectionList[targetPID];
+                waitInfo = InjectionList[targetProcessId];
             }
 
             if (!waitInfo.Completion.WaitOne(timeOutMs, false))
             {
-                InjectionException(targetPID, new TimeoutException("Unable to wait for injection completion."));
+                InjectionException(targetProcessId, new TimeoutException("Unable to wait for injection completion."));
             }
 
             if (waitInfo.Error != null)
@@ -113,26 +105,26 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
         }
 
-        public static void InjectionException(int clientPID, Exception e)
+        public static void InjectionException(int remoteProcessId, Exception e)
         {
             InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                waitInfo = InjectionList[clientPID];
+                waitInfo = InjectionList[remoteProcessId];
             }
 
             waitInfo.Error = e;
             waitInfo.Completion.Set();
         }
 
-        public static void InjectionCompleted(int clientPID)
+        public static void InjectionCompleted(int remoteProcessId)
         {
             InjectionWait waitInfo;
 
             lock (InjectionList)
             {
-                waitInfo = InjectionList[clientPID];
+                waitInfo = InjectionList[remoteProcessId];
             }
 
             waitInfo.Error = null;

@@ -10,17 +10,17 @@ namespace CoreHook.CoreLoad.Data
     {
         private readonly IFormatter _formatter;
 
-        public UserDataBinaryFormatter()
+        public UserDataBinaryFormatter(IFormatter formatter = null)
         {
-            _formatter = new BinaryFormatter
+            _formatter = formatter ?? GetDefaultFormatter();
+        }
+
+        private IFormatter GetDefaultFormatter()
+        {
+            return new BinaryFormatter
             {
                 Binder = new AllowAllAssemblyVersionsDeserializationBinder()
             };
-        }
-
-        public UserDataBinaryFormatter(IFormatter formatter)
-        {
-            _formatter = formatter;
         }
 
         public T Deserialize<T>(Stream stream)
@@ -59,10 +59,8 @@ namespace CoreHook.CoreLoad.Data
             {
                 return info;
             }
-            else
-            {
-                throw new InvalidCastException($"Deserialized data was not of type {nameof(T)}");
-            }
+
+            throw new InvalidCastException($"Deserialized data was not of type {nameof(T)}");
         }
 
         public void Serialize(Stream serializationStream, object graph)
