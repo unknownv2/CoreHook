@@ -8,7 +8,7 @@ namespace CoreHook.IPC.Messages
 
         public int ProcessId { get; set; }
 
-        public InjectionCompleteMessage(int processId, bool didComplete)
+        public InjectionCompleteMessage(bool didComplete, int processId)
         {
             Completed = didComplete;
             ProcessId = processId;
@@ -38,7 +38,7 @@ namespace CoreHook.IPC.Messages
                 throw new InvalidOperationException($"Invalid complete message. Expected bool for didComplete, got: {dataParts[1]} from message: '{body}'");
             }
 
-            return new InjectionCompleteMessage(processId, didComplete);
+            return new InjectionCompleteMessage(didComplete, processId);
         }
 
         public override string ToMessage()

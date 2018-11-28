@@ -14,7 +14,7 @@ namespace CoreHook.IPC.Messages
 
         public InjectionCompleteNotification(int processId, bool didComplete)
         {
-            RequestData = new InjectionCompleteMessage(processId, didComplete);
+            RequestData = new InjectionCompleteMessage(didComplete, processId);
         }
 
         public Message CreateMessage()
