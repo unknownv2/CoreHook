@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 
@@ -33,12 +34,12 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                 throw new InvalidOperationException("Pipe connection was broken while handling request");
             }
 
-            var message = NamedPipeMessages.Message.FromString(request);
+            var message = IPC.Messages.Message.FromString(request);
 
             switch (message.Header)
             {
-                case NamedPipeMessages.InjectionCompleteNotification.InjectionComplete:
-                    var msg = new NamedPipeMessages.InjectionCompleteNotification(message.Body);
+                case InjectionCompleteNotification.InjectionComplete:
+                    var msg = new InjectionCompleteNotification(message.Body);
                     var reqData = msg.RequestData;
                     if (reqData.Completed)
                     {

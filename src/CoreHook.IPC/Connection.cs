@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.IO.Pipes;
-using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.IPC
 {
@@ -23,11 +22,6 @@ namespace CoreHook.IPC
         }
 
         public bool IsConnected => !_isStopping() && ServerStream.IsConnected;
-
-        public NamedPipeMessages.IMessage ReadMessage()
-        {
-            return NamedPipeMessages.Message.FromString(ReadRequest());
-        }
 
         public string ReadRequest()
         {
@@ -54,11 +48,6 @@ namespace CoreHook.IPC
             {
                 return false;
             }
-        }
-
-        public bool TrySendResponse(NamedPipeMessages.Message message)
-        {
-            return TrySendResponse(message.ToString());
         }
     }
 }

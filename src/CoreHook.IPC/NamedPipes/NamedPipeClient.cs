@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
+using CoreHook.IPC.Messages;
 
 namespace CoreHook.IPC.NamedPipes
 {
@@ -62,7 +63,7 @@ namespace CoreHook.IPC.NamedPipes
             return true;
         }
 
-        public bool TrySendRequest(NamedPipeMessages.Message message)
+        public bool TrySendRequest(Message message)
         {
             try
             {
@@ -75,7 +76,7 @@ namespace CoreHook.IPC.NamedPipes
             return false;
         }
 
-        public void SendRequest(NamedPipeMessages.Message message)
+        public void SendRequest(Message message)
         {
             SendRequest(message.ToString());
         }

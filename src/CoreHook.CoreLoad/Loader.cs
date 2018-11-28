@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.IO;
 using CoreHook.CoreLoad.Data;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.CoreLoad
@@ -227,7 +228,7 @@ namespace CoreHook.CoreLoad
             {
                 if (pipeClient.Connect())
                 {
-                    var request = new NamedPipeMessages.InjectionCompleteNotification(pid, true);
+                    var request = new InjectionCompleteNotification(pid, true);
                     if (pipeClient.TrySendRequest(request.CreateMessage()))
                     {
                         return true;
