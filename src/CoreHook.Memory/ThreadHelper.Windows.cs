@@ -198,7 +198,9 @@ namespace CoreHook.Memory
             {
                 reader.BaseStream.Position = 0x10;
 
-                var ordinalBase = reader.ReadInt32();
+                // Read Ordinal Base
+                reader.ReadInt32();
+
                 var addressTableEntryCount = reader.ReadUInt32();
                 var namePointerTableEntryCount = reader.ReadUInt32();
                 var exportAddressTableRva = reader.ReadUInt32() - exportTableRva;
@@ -209,7 +211,7 @@ namespace CoreHook.Memory
 
                 var functionAddress = IntPtr.Zero;
 
-                for(int x = 0; x < namePointerTableEntryCount; ++x)
+                for(var x = 0; x < namePointerTableEntryCount; ++x)
                 {
                     reader.BaseStream.Position = exportNamePointerTableRva + (x * 4);
 
@@ -245,7 +247,7 @@ namespace CoreHook.Memory
         {
             var stringBuilder = new StringBuilder();
 
-            char character = '\0';
+            char character;
             while((character = reader.ReadChar()) != '\0')
             {
                 stringBuilder.Append(character);

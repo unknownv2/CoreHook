@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-
+﻿
 namespace CoreHook.Memory
 {
     public class MemoryAllocation : MemoryRegion, IMemoryAllocation
