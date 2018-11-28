@@ -156,8 +156,8 @@ namespace CoreHook.Examples.Common
 
                 corehookConfig = new CoreHookNativeConfig
                 {
-                    CoreCLRLibrariesPath = coreLibsPath,
-                    CoreCLRPath = coreRootPath,
+                    ClrLibrariesPath = coreLibsPath,
+                    ClrRootPath = coreRootPath,
                     HostLibrary = coreRunPath,
                     DetourLibrary = corehookPath
                 };

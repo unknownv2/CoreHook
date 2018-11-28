@@ -145,7 +145,7 @@ namespace CoreHook.FileMonitor
                      config64,
                      new RemoteInjectorConfig
                      {
-                         CLRBootstrapLibrary = coreLoadLibrary,
+                         ClrBootstrapLibrary = coreLoadLibrary,
                          InjectionPipeName = injectionPipeName,
                          PayloadLibrary = injectionLibrary,
                          VerboseLog = HostVerboseLog
@@ -169,23 +169,19 @@ namespace CoreHook.FileMonitor
             string injectionPipeName = InjectionPipeName)
         {
             ValidateFilePath(injectionLibrary);
-
+            
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     ProcessHelper.GetProcessById(processId).Is64Bit(),
-                    out string coreRunDll, out string coreLibrariesPath,
-                    out string coreRootPath, out string coreLoadDll,
-                    out string coreHookDll))
+                    out CoreHookNativeConfig nativeConfig) &&
+                Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
+                    out string coreLoadLibrary))
             {
                 RemoteInjector.Inject(
                     processId,
-                    new RemoteInjectorConfig
+                    new RemoteInjectorConfig(nativeConfig)
                     {
-                        CoreCLRPath = coreRootPath,
-                        CoreCLRLibrariesPath = coreLibrariesPath,
-                        CLRBootstrapLibrary = coreLoadDll,
-                        DetourLibrary = coreHookDll,
-                        HostLibrary = coreRunDll,
                         InjectionPipeName = injectionPipeName,
+                        ClrBootstrapLibrary = coreLoadLibrary,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog
                     },

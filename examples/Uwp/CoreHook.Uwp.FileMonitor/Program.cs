@@ -123,25 +123,21 @@ namespace CoreHook.Uwp.FileMonitor
             string injectionPipeName = InjectionPipeName)
         {
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                ProcessHelper.GetProcessById(processId).Is64Bit(),
-                out string coreRunDll, out string coreLibrariesPath, 
-                out string coreRootPath, out string coreLoadDll,
-                out string corehookPath))
+                    ProcessHelper.GetProcessById(processId).Is64Bit(),
+                    out CoreHookNativeConfig nativeConfig) &&
+                Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
+                    out string coreLoadLibrary))
             {
                 // Make sure the native dll modules can be accessed by the UWP application
-                GrantAllAppPkgsAccessToFile(coreRunDll);
-                GrantAllAppPkgsAccessToFile(corehookPath);
+                GrantAllAppPkgsAccessToFile(nativeConfig.HostLibrary);
+                GrantAllAppPkgsAccessToFile(nativeConfig.DetourLibrary);
 
                 RemoteInjector.Inject(
                     processId,
-                    new RemoteInjectorConfig
+                    new RemoteInjectorConfig(nativeConfig)
                     {
-                        CoreCLRPath = coreRootPath,
-                        CoreCLRLibrariesPath = coreLibrariesPath,
-                        CLRBootstrapLibrary = coreLoadDll,
-                        DetourLibrary = corehookPath,
-                        HostLibrary = coreRunDll,
                         InjectionPipeName = injectionPipeName,
+                        ClrBootstrapLibrary = coreLoadLibrary,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog
                     },

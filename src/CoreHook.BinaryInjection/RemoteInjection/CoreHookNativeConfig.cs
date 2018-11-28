@@ -20,11 +20,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// Directory path which contains the main CoreCLR modules for hosting the runtime
         /// such as CoreCLR and clrjit libraries.
         /// </summary>
-        public string CoreCLRPath { get; set; }
+        public string ClrRootPath { get; set; }
         /// <summary>
         /// Directory path which contains the CoreCLR Assembly reference
         /// runtime libraries such as System.Private.CoreLib.dll.
         /// </summary>
-        public string CoreCLRLibrariesPath { get; set; }
+        public string ClrLibrariesPath { get; set; }
     }
 }

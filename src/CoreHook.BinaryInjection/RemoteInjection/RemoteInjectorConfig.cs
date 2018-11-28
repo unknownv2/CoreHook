@@ -16,12 +16,22 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// Library that resolves dependencies and passes arguments to
         /// the .NET payload Assembly.
         /// </summary>
-        public string CLRBootstrapLibrary { get; set; }
+        public string ClrBootstrapLibrary { get; set; }
         /// <summary>
         /// The name of the pipe used for notifying the host process
         /// when the hooking plugin has been successfully loaded in
         /// the target process or if the injection process failed.
         /// </summary>
         public string InjectionPipeName { get; set; }
+
+        public RemoteInjectorConfig() { }
+
+        public RemoteInjectorConfig(CoreHookNativeConfig nativeConfig)
+        {
+            ClrLibrariesPath = nativeConfig.ClrLibrariesPath;
+            ClrRootPath = nativeConfig.ClrRootPath;
+            HostLibrary = nativeConfig.HostLibrary;
+            DetourLibrary = nativeConfig.DetourLibrary;
+        }
     }
 }
