@@ -4,7 +4,6 @@ using Xunit;
 
 namespace CoreHook.Tests.Windows
 {
-    [Collection("Sequential")]
     public class LocalHookTest
     {
         [DllImport("kernel32.dll", SetLastError = true)]
@@ -123,12 +122,21 @@ namespace CoreHook.Tests.Windows
                 this));
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        private delegate bool QueryPerformanceCounterDelegate(out long performanceCount);
+
+        private bool Detour_QueryPerformanceCounter(out long performanceCount)
+        {
+            performanceCount = 0;
+            return false;
+        }
+
         [Fact]
         public void TestInvalidDetourCallback()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
-                new BeepDelegate(BeepHook),
+                LocalHook.GetProcAddress("kernel32.dll", "QueryPerformanceCounter"),
+                new QueryPerformanceCounterDelegate(Detour_QueryPerformanceCounter),
                 null))
             {    
                 Assert.Null(hook.Callback);
