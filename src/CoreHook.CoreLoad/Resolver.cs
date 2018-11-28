@@ -57,7 +57,7 @@ namespace CoreHook.CoreLoad
                 if (!matched && !runtime.Name.Contains(CoreHookModuleName))
                 {
                     return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
-                };
+                }
                 return matched;
             }
 
@@ -104,7 +104,7 @@ namespace CoreHook.CoreLoad
             _loadContext.Resolving -= OnResolving;
         }
 
-        private void Log(string message)
+        private static void Log(string message)
         {
             Debug.WriteLine(message);
         }
