@@ -44,7 +44,6 @@ namespace CoreHook.Tests.Windows
             }
         }
 
-
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         public delegate uint GetTickCountDelegate();
         [DllImport("kernel32.dll")]
@@ -77,29 +76,41 @@ namespace CoreHook.Tests.Windows
             }
         }
 
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
+        public delegate long GetTickCount64Delegate();
+        [DllImport("kernel32.dll")]
+        public static extern long GetTickCount64();
+        private bool _getTickCount64Called;
+
+        private long Detour_GetTickCount64()
+        {
+            _getTickCount64Called = true;
+            return 0;
+        }
+
         [Fact]
         public void DetourCanBeBypassedAfterDetourCall()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
-                new BeepDelegate(BeepHook),
+                LocalHook.GetProcAddress("kernel32.dll", "GetTickCount64"),
+                new GetTickCount64Delegate(Detour_GetTickCount64),
                 this))
             {
-                _beepHookCalled = false;
+                _getTickCount64Called = false;
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                Assert.False(Beep(100, 100));
+                Assert.Equal(0, GetTickCount64());
 
-                Assert.True(_beepHookCalled);
+                Assert.True(_getTickCount64Called);
 
-                _beepHookCalled = false;
+                _getTickCount64Called = false;
 
-                BeepDelegate beep = hook.HookBypassAddress.ToFunction<BeepDelegate>();
+                GetTickCount64Delegate getTickCount64 = hook.HookBypassAddress.ToFunction<GetTickCount64Delegate>();
 
-                Assert.True(beep(100, 100));
+                Assert.NotEqual(0, getTickCount64());
 
-                Assert.False(_beepHookCalled);
+                Assert.False(_getTickCount64Called);
             }
         }
 
