@@ -172,9 +172,9 @@ namespace CoreHook.Tests
                     new RemoteInjectorConfig
                     {
                         HostLibrary = coreRunDll,
-                        CoreCLRPath = coreRootPath,
-                        CoreCLRLibrariesPath = coreLibrariesPath,
-                        CLRBootstrapLibrary = coreLoadDll,
+                        ClrRootPath = coreRootPath,
+                        ClrLibrariesPath = coreLibrariesPath,
+                        ClrBootstrapLibrary = coreLoadDll,
                         DetourLibrary = coreHookDll,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = false,
