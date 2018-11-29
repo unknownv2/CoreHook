@@ -186,7 +186,6 @@ namespace CoreHook.Tests.Windows
         private uint GetVersionDetour()
         {
             return 0;
-        }
-  
+        }  
     }
 }
