@@ -128,14 +128,14 @@ namespace CoreHook.FileMonitor
             ValidateFilePath(injectionLibrary);
 
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                    false, out CoreHookNativeConfig config32) &&
+                    false, out NativeModulesConfiguration config32) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                    true, out CoreHookNativeConfig config64) &&
+                    true, out NativeModulesConfiguration config64) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
                 RemoteInjector.CreateAndInject(
-                     new ProcessCreationConfig
+                     new ProcessCreationConfiguration
                      {
                          ExecutablePath = exePath,
                          CommandLine = null,
@@ -143,7 +143,7 @@ namespace CoreHook.FileMonitor
                      },
                      config32,
                      config64,
-                     new RemoteInjectorConfig
+                     new RemoteInjectorConfiguration
                      {
                          ClrBootstrapLibrary = coreLoadLibrary,
                          InjectionPipeName = injectionPipeName,
@@ -172,13 +172,13 @@ namespace CoreHook.FileMonitor
             
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     ProcessHelper.GetProcessById(processId).Is64Bit(),
-                    out CoreHookNativeConfig nativeConfig) &&
+                    out NativeModulesConfiguration nativeConfig) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
                 RemoteInjector.Inject(
                     processId,
-                    new RemoteInjectorConfig(nativeConfig)
+                    new RemoteInjectorConfiguration(nativeConfig)
                     {
                         InjectionPipeName = injectionPipeName,
                         ClrBootstrapLibrary = coreLoadLibrary,

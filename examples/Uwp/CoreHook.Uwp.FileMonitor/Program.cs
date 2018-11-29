@@ -124,7 +124,7 @@ namespace CoreHook.Uwp.FileMonitor
         {
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     ProcessHelper.GetProcessById(processId).Is64Bit(),
-                    out CoreHookNativeConfig nativeConfig) &&
+                    out NativeModulesConfiguration nativeConfig) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
@@ -134,7 +134,7 @@ namespace CoreHook.Uwp.FileMonitor
 
                 RemoteInjector.Inject(
                     processId,
-                    new RemoteInjectorConfig(nativeConfig)
+                    new RemoteInjectorConfiguration(nativeConfig)
                     {
                         InjectionPipeName = injectionPipeName,
                         ClrBootstrapLibrary = coreLoadLibrary,
