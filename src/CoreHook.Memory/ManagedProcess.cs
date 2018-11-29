@@ -25,6 +25,7 @@ namespace CoreHook.Memory
         public ManagedProcess(int processId, int access)
         {
             SafeHandle = GetProcessHandle(processId, access);
+            ProcessHandle = Process.GetProcessById(processId);
         }
 
         private SafeProcessHandle GetProcessHandle(int processId, int access)
