@@ -26,12 +26,12 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
         public RemoteInjectorConfiguration() { }
 
-        public RemoteInjectorConfiguration(NativeModulesConfiguration nativeConfiguration)
+        public RemoteInjectorConfiguration(NativeModulesConfiguration nativeConfig)
         {
-            ClrLibrariesPath = nativeConfiguration.ClrLibrariesPath;
-            ClrRootPath = nativeConfiguration.ClrRootPath;
-            HostLibrary = nativeConfiguration.HostLibrary;
-            DetourLibrary = nativeConfiguration.DetourLibrary;
+            ClrLibrariesPath = nativeConfig.ClrLibrariesPath;
+            ClrRootPath = nativeConfig.ClrRootPath;
+            HostLibrary = nativeConfig.HostLibrary;
+            DetourLibrary = nativeConfig.DetourLibrary;
         }
     }
 }

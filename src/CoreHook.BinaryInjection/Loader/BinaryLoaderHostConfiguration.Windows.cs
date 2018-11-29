@@ -1,7 +1,7 @@
 ﻿
 namespace CoreHook.BinaryInjection.Loader
 {
-    public sealed partial class BinaryLoaderHostConfig
+    public sealed partial class BinaryLoaderHostConfiguration
     {
         public static string ClrStartFunction
             => "StartCoreCLR";

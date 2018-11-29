@@ -49,13 +49,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// Retrieve system information such as string path encoding and max path length.
         /// </summary>
         /// <returns>Configuration class with system information.</returns>
-        private static IBinaryLoaderConfig GetBinaryLoaderConfig() => new BinaryLoaderConfig();
+        private static IBinaryLoaderConfiguration GetBinaryLoaderConfig() => new BinaryLoaderConfiguration();
 
         /// <summary>
         /// Get the name of the function that starts CoreCLR in a target process
         /// </summary>
         /// <returns>The name of the library function used to start CoreCLR.</returns>
-        private static string GetClrStartFunctionName() => BinaryLoaderHostConfig.ClrStartFunction;
+        private static string GetClrStartFunctionName() => BinaryLoaderHostConfiguration.ClrStartFunction;
 
         /// <summary>
         /// Get the name of a function that executes a single function inside
@@ -65,7 +65,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <returns>The name of the library function used to execute the .NET
         /// Bootstrapping module, CoreLoad.
         /// </returns>
-        private static string GetClrExecuteManagedFunctionName() => BinaryLoaderHostConfig.ClrExecuteManagedFunction;
+        private static string GetClrExecuteManagedFunctionName() => BinaryLoaderHostConfiguration.ClrExecuteManagedFunction;
 
         /// <summary>
         /// Create a process, inject the .NET Core runtime into it and load a .NET assembly.
