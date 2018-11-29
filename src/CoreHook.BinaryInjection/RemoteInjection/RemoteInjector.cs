@@ -70,7 +70,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <summary>
         /// Create a process, inject the .NET Core runtime into it and load a .NET assembly.
         /// </summary>
-        /// <param name="processConfig"></param>
+        /// <param name="processConfig">Arguments used for starting the new process.</param>
         /// <param name="nativeModulesConfig32">Native modules required for starting CoreCLR in 32-bit applications.</param>
         /// <param name="nativeModulesConfig64">Native modules required for starting CoreCLR in 64-bit applications.</param>
         /// <param name="remoteInjectorConfig">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
