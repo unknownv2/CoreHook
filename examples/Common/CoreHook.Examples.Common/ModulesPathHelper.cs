@@ -120,13 +120,13 @@ namespace CoreHook.Examples.Common
         /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process
         /// </summary>
         /// <param name="is64BitProcess">Flag for determining which native modules to load into the target process</param>
-        /// <param name="corehookConfig">Configuration class containing paths to the native modules used by CoreHook.</param>
+        /// <param name="nativeModulesConfig">Configuration class containing paths to the native modules used by CoreHook.</param>
         /// <returns>Returns whether all required paths and modules have been found.</returns>
         public static bool GetCoreLoadPaths(
             bool is64BitProcess,
-            out CoreHookNativeConfig corehookConfig)
+            out NativeModulesConfiguration nativeModulesConfig)
         {
-            corehookConfig = null;
+            nativeModulesConfig = null;
 
             string currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -154,7 +154,7 @@ namespace CoreHook.Examples.Common
                     return false;
                 }
 
-                corehookConfig = new CoreHookNativeConfig
+                nativeModulesConfig = new NativeModulesConfiguration
                 {
                     ClrLibrariesPath = coreLibsPath,
                     ClrRootPath = coreRootPath,

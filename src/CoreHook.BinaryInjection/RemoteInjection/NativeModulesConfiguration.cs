@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CoreHook.BinaryInjection.RemoteInjection
 {
-    public class CoreHookNativeConfig
+    public class NativeModulesConfiguration
     {
         /// <summary>
         /// Library that initializes the .NET Core runtime (CoreCLR) and allows

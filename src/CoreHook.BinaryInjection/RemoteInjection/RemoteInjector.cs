@@ -71,17 +71,17 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// Create a process, inject the .NET Core runtime into it and load a .NET assembly.
         /// </summary>
         /// <param name="processConfig"></param>
-        /// <param name="config32">Native modules required for starting CoreCLR in 32-bit applications.</param>
-        /// <param name="config64">Native modules required for starting CoreCLR in 64-bit applications.</param>
+        /// <param name="nativeModulesConfig32">Native modules required for starting CoreCLR in 32-bit applications.</param>
+        /// <param name="nativeModulesConfig64">Native modules required for starting CoreCLR in 64-bit applications.</param>
         /// <param name="remoteInjectorConfig">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
         /// <param name="pipePlatform">Class for creating pipes for communication with the target process.</param>
         /// <param name="createdProcessId">Process ID of the newly created process.</param>
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
         public static void CreateAndInject(
-            ProcessCreationConfig processConfig,
-            CoreHookNativeConfig config32,
-            CoreHookNativeConfig config64,
-            RemoteInjectorConfig remoteInjectorConfig,
+            ProcessCreationConfiguration processConfig,
+            NativeModulesConfiguration nativeModulesConfig32,
+            NativeModulesConfiguration nativeModulesConfig64,
+            RemoteInjectorConfiguration remoteInjectorConfig,
             IPipePlatform pipePlatform,
             out int createdProcessId,
             params object[] passThruArguments
@@ -94,12 +94,12 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                     $"Failed to start the executable at {processConfig.ExecutablePath}");
             }
 
-            var config = process.Is64Bit() ? config64 : config32;
+            var nativeModulesConfig = process.Is64Bit() ? nativeModulesConfig64 : nativeModulesConfig32;
             
-            remoteInjectorConfig.HostLibrary = config.HostLibrary;
-            remoteInjectorConfig.ClrRootPath = config.ClrRootPath;
-            remoteInjectorConfig.ClrLibrariesPath = config.ClrLibrariesPath;
-            remoteInjectorConfig.DetourLibrary = config.DetourLibrary;
+            remoteInjectorConfig.HostLibrary = nativeModulesConfig.HostLibrary;
+            remoteInjectorConfig.ClrRootPath = nativeModulesConfig.ClrRootPath;
+            remoteInjectorConfig.ClrLibrariesPath = nativeModulesConfig.ClrLibrariesPath;
+            remoteInjectorConfig.DetourLibrary = nativeModulesConfig.DetourLibrary;
 
             Inject(
                 GetCurrentProcessId(),
@@ -120,7 +120,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
         public static void Inject(
             int targetProcessId,
-            RemoteInjectorConfig remoteInjectorConfig,
+            RemoteInjectorConfiguration remoteInjectorConfig,
             IPipePlatform pipePlatform,
             params object[] passThruArguments)
         {
@@ -171,7 +171,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         public static void Inject(
             int localProcessId,
             int targetProcessId,
-            RemoteInjectorConfig remoteInjectorConfig,
+            RemoteInjectorConfiguration remoteInjectorConfig,
             IPipePlatform pipePlatform,
             params object[] passThruArguments)
         {

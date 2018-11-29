@@ -164,13 +164,13 @@ namespace CoreHook.Tests
             )
         {
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                    target.Is64Bit(), out CoreHookNativeConfig nativeConfig) &&
+                    target.Is64Bit(), out NativeModulesConfiguration nativeConfig) &&
                 Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
                     out string coreLoadLibrary))
             {
                 RemoteInjector.Inject(
                     target.Id,
-                    new RemoteInjectorConfig(nativeConfig)
+                    new RemoteInjectorConfiguration(nativeConfig)
                     {
                         InjectionPipeName = injectionPipeName,
                         ClrBootstrapLibrary = coreLoadLibrary,

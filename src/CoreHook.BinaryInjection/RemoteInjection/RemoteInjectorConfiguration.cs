@@ -1,7 +1,7 @@
 ﻿
 namespace CoreHook.BinaryInjection.RemoteInjection
 {
-    public class RemoteInjectorConfig : CoreHookNativeConfig
+    public class RemoteInjectorConfiguration : NativeModulesConfiguration
     {
         /// <summary>
         /// .NET library that is loaded and executed inside the target process
@@ -24,14 +24,14 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// </summary>
         public string InjectionPipeName { get; set; }
 
-        public RemoteInjectorConfig() { }
+        public RemoteInjectorConfiguration() { }
 
-        public RemoteInjectorConfig(CoreHookNativeConfig nativeConfig)
+        public RemoteInjectorConfiguration(NativeModulesConfiguration nativeConfiguration)
         {
-            ClrLibrariesPath = nativeConfig.ClrLibrariesPath;
-            ClrRootPath = nativeConfig.ClrRootPath;
-            HostLibrary = nativeConfig.HostLibrary;
-            DetourLibrary = nativeConfig.DetourLibrary;
+            ClrLibrariesPath = nativeConfiguration.ClrLibrariesPath;
+            ClrRootPath = nativeConfiguration.ClrRootPath;
+            HostLibrary = nativeConfiguration.HostLibrary;
+            DetourLibrary = nativeConfiguration.DetourLibrary;
         }
     }
 }
