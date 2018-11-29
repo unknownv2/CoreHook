@@ -4,7 +4,7 @@ namespace CoreHook.CoreLoad.Data
 {
     interface IRemoteEntryInfo : IContext
     {
-        int HostPID { get; }
+        int HostProcessId { get; }
         IntPtr UserData { get; }
         int UserDataSize { get; }
     }
