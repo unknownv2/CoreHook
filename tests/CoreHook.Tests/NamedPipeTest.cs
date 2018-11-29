@@ -37,7 +37,7 @@ namespace CoreHook.Tests
             const string testMessage = "TestMessage";
             bool receivedCorrectMessage = false;
 
-            using (var pipeServer = CreateServer(namedPipe, new PipePlatformBase(),
+            using (CreateServer(namedPipe, new PipePlatformBase(),
                   (string request, IPC.IConnection connection) =>
                   {
                       if (request == testMessage)
