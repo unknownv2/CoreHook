@@ -5,22 +5,18 @@ using CoreHook.BinaryInjection.Loader.Serializer;
 
 namespace CoreHook.BinaryInjection.Host
 {
-    [StructLayout(LayoutKind.Explicit)]
+    [StructLayout(LayoutKind.Sequential)]
     public partial struct FunctionCallArguments
     {
-        [FieldOffset(0)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMaxWide)]
         public byte[] Assembly;
 
-        [FieldOffset(512)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMaxWide)]
         public byte[] Class;
 
-        [FieldOffset(1024)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = FunctionNameMaxWide)]
         public byte[] Function;
 
-        [FieldOffset(1536)]
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = BinaryArgumentsSize)]
         public byte[] Arguments;
 

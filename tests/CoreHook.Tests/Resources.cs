@@ -163,22 +163,19 @@ namespace CoreHook.Tests
             params object[] remoteArguments
             )
         {
-            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(target.Is64Bit(),
-                out string coreRunDll, out string coreLibrariesPath,
-                out string coreRootPath, out string coreLoadDll, out string coreHookDll))
+            if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
+                    target.Is64Bit(), out NativeModulesConfiguration nativeConfig) &&
+                Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
+                    out string coreLoadLibrary))
             {
                 RemoteInjector.Inject(
                     target.Id,
-                    new RemoteInjectorConfig
+                    new RemoteInjectorConfiguration(nativeConfig)
                     {
-                        HostLibrary = coreRunDll,
-                        CoreCLRPath = coreRootPath,
-                        CoreCLRLibrariesPath = coreLibrariesPath,
-                        CLRBootstrapLibrary = coreLoadDll,
-                        DetourLibrary = coreHookDll,
+                        InjectionPipeName = injectionPipeName,
+                        ClrBootstrapLibrary = coreLoadLibrary,
                         PayloadLibrary = injectionLibrary,
-                        VerboseLog = false,
-                        InjectionPipeName = injectionPipeName
+                        VerboseLog = false
                     },
                     new PipePlatformBase(),
                     remoteArguments);

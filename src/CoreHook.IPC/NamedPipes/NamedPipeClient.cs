@@ -48,7 +48,8 @@ namespace CoreHook.IPC.NamedPipes
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous,
                     TokenImpersonationLevel.Impersonation);
-                    _clientStream.Connect(timeoutMilliseconds);
+
+                _clientStream.Connect(timeoutMilliseconds);
             }
             catch (TimeoutException)
             {
@@ -58,8 +59,10 @@ namespace CoreHook.IPC.NamedPipes
             {
                 return false;
             }
+
             _reader = new StreamReader(_clientStream);
             _writer = new StreamWriter(_clientStream);
+
             return true;
         }
 
@@ -112,6 +115,13 @@ namespace CoreHook.IPC.NamedPipes
                 throw new InvalidPipeOperationException("Unable to read from pipe", e);
             }
         }
+        private void ValidateConnection()
+        {
+            if (_clientStream == null)
+            {
+                throw new InvalidPipeOperationException("There is no connection");
+            }
+        }
 
         public void Dispose()
         {
@@ -122,14 +132,6 @@ namespace CoreHook.IPC.NamedPipes
 
             _reader = null;
             _writer = null;
-        }
-
-        private void ValidateConnection()
-        {
-            if (_clientStream == null)
-            {
-                throw new InvalidPipeOperationException("There is no connection");
-            }
         }
     }
 }

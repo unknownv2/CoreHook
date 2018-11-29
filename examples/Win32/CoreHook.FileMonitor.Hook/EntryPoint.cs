@@ -19,14 +19,17 @@ namespace CoreHook.FileMonitor.Hook
         {
             // Use camelcase for RPC method names.
             NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-            // Use camelcase for the property names in parameter value objects
+            // Use camelcase for the property names in parameter value objects.
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        private Queue<string> Queue = new Queue<string>();
+        private readonly Queue<string> _queue = new Queue<string>();
 
-        private LocalHook CreateFileHook;
+        private LocalHook _createFileHook;
 
+        // The number of arguments in the constructor and Run method
+        // must be equal to the number passed during injection
+        // in the FileMonitor application.
         public EntryPoint(IContext context, string arg1) { }
 
         public void Run(IContext context, string pipeName)
@@ -55,7 +58,7 @@ namespace CoreHook.FileMonitor.Hook
             CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
-        delegate IntPtr DCreateFile(
+        delegate IntPtr DelCreateFile(
             string fileName,
             uint desiredAccess,
             uint shareMode,
@@ -78,7 +81,7 @@ namespace CoreHook.FileMonitor.Hook
             IntPtr templateFile);
 
 
-        // Intercepts all file accesses and stores the requested filenames to a Queue
+        // Intercepts all file accesses and stores the requested filenames to a Queue.
         private static IntPtr CreateFile_Hooked(
             string fileName,
             uint desiredAccess,
@@ -96,9 +99,9 @@ namespace CoreHook.FileMonitor.Hook
                 EntryPoint This = (EntryPoint)HookRuntimeInfo.Callback;
                 if (This != null)
                 {
-                    lock (This.Queue)
+                    lock (This._queue)
                     {
-                        This.Queue.Enqueue(fileName);
+                        This._queue.Enqueue(fileName);
                     }
                 }
             }
@@ -121,23 +124,23 @@ namespace CoreHook.FileMonitor.Hook
 
         private void CreateHooks()
         {
-            string[] functionName = new string[] { "kernel32.dll", "CreateFileW" };
+            string[] functionName = { "kernel32.dll", "CreateFileW" };
 
             ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
-            CreateFileHook = LocalHook.Create(
+            _createFileHook = LocalHook.Create(
                 LocalHook.GetProcAddress(functionName[0], functionName[1]),
-                new DCreateFile(CreateFile_Hooked),
+                new DelCreateFile(CreateFile_Hooked),
                 this);
 
-            CreateFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _createFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
 
         private async Task RunClientAsync(Stream clientStream)
         {
             await Task.Yield(); // We want this task to run on another thread.
 
-            // Initialize the client connection to the RPC server
+            // Initialize the client connection to the RPC server.
             var clientHandler = new StreamRpcClientHandler();
 
             using (var reader = new ByLineTextMessageReader(clientStream))
@@ -160,15 +163,15 @@ namespace CoreHook.FileMonitor.Hook
                     {
                         Thread.Sleep(500);
 
-                        if (Queue.Count > 0)
+                        if (_queue.Count > 0)
                         {
                             string[] package = null;
 
-                            lock (Queue)
+                            lock (_queue)
                             {
-                                package = Queue.ToArray();
+                                package = _queue.ToArray();
 
-                                Queue.Clear();
+                                _queue.Clear();
                             }
                             await proxy.OnCreateFile(package);
                         }

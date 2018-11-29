@@ -4,13 +4,13 @@ namespace CoreHook.BinaryInjection.Loader.Serializer
 {
     public class BinaryLoaderSerializer : IBinarySerializer
     {
-        public IBinaryLoaderArguments Arguments { get; set; }
-        public IBinaryLoaderConfig Config { get; }
+        public IBinaryLoaderArguments LoaderArguments { get; set; }
+        public IBinaryLoaderConfiguration LoaderConfig { get; }
 
-        public BinaryLoaderSerializer(IBinaryLoaderConfig config, IBinaryLoaderArguments arguments)
+        public BinaryLoaderSerializer(IBinaryLoaderConfiguration loaderConfig, IBinaryLoaderArguments loaderArguments)
         {
-            Config = config;
-            Arguments = arguments;
+            LoaderConfig = loaderConfig;
+            LoaderArguments = loaderArguments;
         }
 
         public byte[] Serialize()
@@ -19,12 +19,12 @@ namespace CoreHook.BinaryInjection.Loader.Serializer
             using (var writer = new BinaryWriter(ms))
             {
                 // Data that is passed to the remote function
-                writer.Write(Arguments.Verbose);
+                writer.Write(LoaderArguments.Verbose);
                 // Padding for reserved data to align structure to 8 bytes
                 writer.Write(new byte[7]);
-                writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(Arguments.PayloadFileName, Config.MaxPathLength, Config.PathEncoding));
-                writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(Arguments.CoreRootPath, Config.MaxPathLength, Config.PathEncoding));
-                writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(Arguments.CoreLibrariesPath ?? string.Empty, Config.MaxPathLength, Config.PathEncoding));
+                writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(LoaderArguments.PayloadFileName, LoaderConfig.MaxPathLength, LoaderConfig.PathEncoding));
+                writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(LoaderArguments.CoreRootPath, LoaderConfig.MaxPathLength, LoaderConfig.PathEncoding));
+                writer.Write(BinaryLoaderArgumentsHelper.GetPathArray(LoaderArguments.CoreLibrariesPath ?? string.Empty, LoaderConfig.MaxPathLength, LoaderConfig.PathEncoding));
 
                 return ms.ToArray();
             }

@@ -329,7 +329,7 @@ namespace CoreHook
 
     public static class NativeAPI
     {
-        public readonly static bool Is64Bit = IntPtr.Size == 8;
+        public static readonly bool Is64Bit = IntPtr.Size == 8;
 
         [DllImport("kernel32.dll")]
         public static extern short RtlCaptureStackBackTrace(

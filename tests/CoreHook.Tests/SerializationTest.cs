@@ -16,7 +16,7 @@ namespace CoreHook.Tests
         {
             ManagedRemoteInfo remoteInfo = null;
 
-            Assert.Throws< ArgumentNullException>(
+            Assert.Throws<ArgumentNullException>(
                 () => new BinaryFormatter().Serialize(new MemoryStream(), remoteInfo));
         }
 

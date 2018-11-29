@@ -30,7 +30,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// <summary>
         /// The name of the pipe used for notifying the host process
         /// if the hooking plugin has been loaded successfully in
-        /// the target process or if loading failed. 
+        /// the target process or if loading failed.
         /// </summary>
         private const string InjectionPipeName = "UwpCoreHookInjection";
         /// <summary>
@@ -51,7 +51,7 @@ namespace CoreHook.Uwp.FileMonitor
             int targetPID = 0;
             string targetApp = string.Empty;
 
-            // Load the parameter
+            // Get the process to hook by Application User Model Id for launching or process id for attaching.
             while ((args.Length != 1) || !int.TryParse(args[0], out targetPID))
             {
                 if (targetPID > 0)
@@ -94,54 +94,50 @@ namespace CoreHook.Uwp.FileMonitor
             }
 
             // Grant read+execute permissions on the binary files
-            // we are injecting into the UWP application
+            // we are injecting into the UWP application.
             GrantAllAppPkgsAccessToDir(currentDir);
             GrantAllAppPkgsAccessToDir(Path.GetDirectoryName(injectionLibrary));
 
-            // Start the target process and begin dll loading
+            // Start the target application and begin plugin loading.
             if (!string.IsNullOrEmpty(targetApp))
             {
                 targetPID = LaunchAppxPackageForPid(targetApp);
             }
 
-            // Inject the FileMonitor.Hook dll into the process
+            // Inject the FileMonitor.Hook dll into the process.
             InjectDllIntoTarget(targetPID, injectionLibrary);
 
-            // Start the RPC server for handling requests from the hooked app
+            // Start the RPC server for handling requests from the hooked app.
             StartListener();
         }
         /// <summary>
         /// Inject and load the CoreHook hooking module <paramref name="injectionLibrary"/>
         /// in the existing created process referenced by <paramref name="processId"/>.
         /// </summary>
-        /// <param name="processId"></param>
-        /// <param name="injectionLibrary"></param>
-        /// <param name="injectionPipeName"></param>
+        /// <param name="processId">The target process ID to inject and load plugin into.</param>
+        /// <param name="injectionLibrary">The path of the plugin that is loaded into the target process.</param>
+        /// <param name="injectionPipeName">The pipe name which receives messages during the plugin initialization stage.</param>
         private static void InjectDllIntoTarget(
             int processId, 
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
-                ProcessHelper.GetProcessById(processId).Is64Bit(),
-                out string coreRunDll, out string coreLibrariesPath, 
-                out string coreRootPath, out string coreLoadDll,
-                out string corehookPath))
+                    ProcessHelper.GetProcessById(processId).Is64Bit(),
+                    out NativeModulesConfiguration nativeConfig) &&
+                Examples.Common.ModulesPathHelper.GetCoreLoadModulePath(
+                    out string coreLoadLibrary))
             {
                 // Make sure the native dll modules can be accessed by the UWP application
-                GrantAllAppPkgsAccessToFile(coreRunDll);
-                GrantAllAppPkgsAccessToFile(corehookPath);
+                GrantAllAppPkgsAccessToFile(nativeConfig.HostLibrary);
+                GrantAllAppPkgsAccessToFile(nativeConfig.DetourLibrary);
 
                 RemoteInjector.Inject(
                     processId,
-                    new RemoteInjectorConfig
+                    new RemoteInjectorConfiguration(nativeConfig)
                     {
-                        CoreCLRPath = coreRootPath,
-                        CoreCLRLibrariesPath = coreLibrariesPath,
-                        CLRBootstrapLibrary = coreLoadDll,
-                        DetourLibrary = corehookPath,
-                        HostLibrary = coreRunDll,
                         InjectionPipeName = injectionPipeName,
+                        ClrBootstrapLibrary = coreLoadLibrary,
                         PayloadLibrary = injectionLibrary,
                         VerboseLog = HostVerboseLog
                     },
@@ -176,8 +172,8 @@ namespace CoreHook.Uwp.FileMonitor
         }
 
         /// <summary>
-        /// Grant ALL_APPLICATION_PACKAGES permissions to binary and 
-        /// configuration files in <paramref name="directoryPath"/>.
+        /// Grant ALL_APPLICATION_PACKAGES permissions to binary
+        /// and configuration files in <paramref name="directoryPath"/>.
         /// </summary>
         /// <param name="directoryPath">Directory containing application files.</param>
         private static void GrantAllAppPkgsAccessToDir(string directoryPath)
@@ -278,7 +274,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// Launch a Universal Windows Platform (UWP) application on Windows 10.
         /// </summary>
         /// <param name="appName">The Application User Model Id (AUMID) to start.</param>
-        /// <returns></returns>
+        /// <returns>The process ID of the application started or 0 if launching failed.</returns>
         private static int LaunchAppxPackageForPid(string appName)
         {
             var appActiveManager = new ApplicationActivationManager();

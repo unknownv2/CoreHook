@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
+﻿
 namespace CoreHook.BinaryInjection.ProcessUtils
 {
-    public class ProcessCreationConfig
+    public class ProcessCreationConfiguration
     {
         /// <summary>
         /// Filepath to an executable program on the system that is to be launched.

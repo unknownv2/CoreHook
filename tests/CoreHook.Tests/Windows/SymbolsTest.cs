@@ -51,7 +51,7 @@ namespace CoreHook.Tests.Windows
 
         private bool _internalAddAtomCalled;
         private bool _internalFindAtomCalled;
-        private bool _AddAtomCalled;
+        private bool _addAtomCalled;
 
         // Windows max file system path string size
         private const int MaxPathLength = 260;
@@ -65,7 +65,7 @@ namespace CoreHook.Tests.Windows
         }
         private ushort AddAtomHook(string atomName)
         {
-            _AddAtomCalled = true;
+            _addAtomCalled = true;
 
             return AddAtomW(atomName);
         }
@@ -140,14 +140,14 @@ namespace CoreHook.Tests.Windows
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 _internalAddAtomCalled = false;
-                _AddAtomCalled = false;
+                _addAtomCalled = false;
 
                 string atomName = "TestLocalAtomName";
                 ushort atomId = AddAtomW(atomName);
 
                 Assert.NotEqual(0, atomId);
                 Assert.True(_internalAddAtomCalled);
-                Assert.True(_AddAtomCalled);
+                Assert.True(_addAtomCalled);
 
                 StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
                 uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
@@ -185,14 +185,14 @@ namespace CoreHook.Tests.Windows
                         typeof(InternalAddAtomDelegate));
 
                 _internalAddAtomCalled = false;
-                _AddAtomCalled = false;
+                _addAtomCalled = false;
 
                 string atomName = "TestLocalAtomName";
                 ushort atomId = AddAtomW(atomName);
 
                 Assert.NotEqual(0, atomId);
                 Assert.True(_internalAddAtomCalled);
-                Assert.True(_AddAtomCalled);
+                Assert.True(_addAtomCalled);
 
                 StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
                 uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);

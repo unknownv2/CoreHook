@@ -44,10 +44,7 @@ namespace CoreHook.BinaryInjection.Loader
         public IntPtr CopyMemoryTo(byte[] buffer, int length) => 
             _processManager.CopyToProcess(buffer, length);
 
-        public void Load(
-            string binaryPath,
-            IEnumerable<string> dependencies = null,
-            string baseDirectory = null)
+        public void Load(string binaryPath, IEnumerable<string> dependencies = null, string baseDirectory = null)
         {
             if (dependencies != null)
             {

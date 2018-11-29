@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using CoreHook.BinaryInjection.Loader;
 using CoreHook.BinaryInjection.Loader.Serializer;
 using CoreHook.BinaryInjection.Host;
@@ -50,13 +49,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// Retrieve system information such as string path encoding and max path length.
         /// </summary>
         /// <returns>Configuration class with system information.</returns>
-        private static IBinaryLoaderConfig GetBinaryLoaderConfig() => new BinaryLoaderConfig();
+        private static IBinaryLoaderConfiguration GetBinaryLoaderConfig() => new BinaryLoaderConfiguration();
 
         /// <summary>
         /// Get the name of the function that starts CoreCLR in a target process
         /// </summary>
         /// <returns>The name of the library function used to start CoreCLR.</returns>
-        private static string GetCoreCLRStartFunctionName() => BinaryLoaderHostConfig.CoreCLRStartFunction;
+        private static string GetClrStartFunctionName() => BinaryLoaderHostConfiguration.ClrStartFunction;
 
         /// <summary>
         /// Get the name of a function that executes a single function inside
@@ -66,23 +65,23 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <returns>The name of the library function used to execute the .NET
         /// Bootstrapping module, CoreLoad.
         /// </returns>
-        private static string GetCoreCLRExecuteManagedFunctionName() => BinaryLoaderHostConfig.CoreCLRExecuteManagedFunction;
+        private static string GetClrExecuteManagedFunctionName() => BinaryLoaderHostConfiguration.ClrExecuteManagedFunction;
 
         /// <summary>
         /// Create a process, inject the .NET Core runtime into it and load a .NET assembly.
         /// </summary>
-        /// <param name="processConfig"></param>
-        /// <param name="config32">Native modules required for starting CoreCLR in 32-bit applications.</param>
-        /// <param name="config64">Native modules required for starting CoreCLR in 64-bit applications.</param>
+        /// <param name="processConfig">Arguments used for starting the new process.</param>
+        /// <param name="nativeModulesConfig32">Native modules required for starting CoreCLR in 32-bit applications.</param>
+        /// <param name="nativeModulesConfig64">Native modules required for starting CoreCLR in 64-bit applications.</param>
         /// <param name="remoteInjectorConfig">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
         /// <param name="pipePlatform">Class for creating pipes for communication with the target process.</param>
         /// <param name="createdProcessId">Process ID of the newly created process.</param>
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
         public static void CreateAndInject(
-            ProcessCreationConfig processConfig,
-            CoreHookNativeConfig config32,
-            CoreHookNativeConfig config64,
-            RemoteInjectorConfig remoteInjectorConfig,
+            ProcessCreationConfiguration processConfig,
+            NativeModulesConfiguration nativeModulesConfig32,
+            NativeModulesConfiguration nativeModulesConfig64,
+            RemoteInjectorConfiguration remoteInjectorConfig,
             IPipePlatform pipePlatform,
             out int createdProcessId,
             params object[] passThruArguments
@@ -95,14 +94,14 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                     $"Failed to start the executable at {processConfig.ExecutablePath}");
             }
 
-            var config = process.Is64Bit() ? config64 : config32;
+            var nativeModulesConfig = process.Is64Bit() ? nativeModulesConfig64 : nativeModulesConfig32;
             
-            remoteInjectorConfig.HostLibrary = config.HostLibrary;
-            remoteInjectorConfig.CoreCLRPath = config.CoreCLRPath;
-            remoteInjectorConfig.CoreCLRLibrariesPath = config.CoreCLRLibrariesPath;
-            remoteInjectorConfig.DetourLibrary = config.DetourLibrary;
+            remoteInjectorConfig.HostLibrary = nativeModulesConfig.HostLibrary;
+            remoteInjectorConfig.ClrRootPath = nativeModulesConfig.ClrRootPath;
+            remoteInjectorConfig.ClrLibrariesPath = nativeModulesConfig.ClrLibrariesPath;
+            remoteInjectorConfig.DetourLibrary = nativeModulesConfig.DetourLibrary;
 
-            InjectEx(
+            Inject(
                 GetCurrentProcessId(),
                 process.Id,
                 remoteInjectorConfig,
@@ -121,11 +120,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
         public static void Inject(
             int targetProcessId,
-            RemoteInjectorConfig remoteInjectorConfig,
+            RemoteInjectorConfiguration remoteInjectorConfig,
             IPipePlatform pipePlatform,
             params object[] passThruArguments)
         {
-            InjectEx(
+            Inject(
                 GetCurrentProcessId(),
                 targetProcessId,
                 remoteInjectorConfig,
@@ -144,7 +143,6 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         {
             var remoteInfo = new ManagedRemoteInfo { HostPID = localProcessId };
 
-            //var format = new BinaryFormatter();
             var arguments = new List<object>();
             if (passThruArguments != null)
             {
@@ -170,10 +168,10 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <param name="remoteInjectorConfig">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
         /// <param name="pipePlatform">Class for creating pipes for communication with the target process.</param>
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
-        public static void InjectEx(
+        public static void Inject(
             int localProcessId,
             int targetProcessId,
-            RemoteInjectorConfig remoteInjectorConfig,
+            RemoteInjectorConfiguration remoteInjectorConfig,
             IPipePlatform pipePlatform,
             params object[] passThruArguments)
         {
@@ -224,11 +222,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                             new BinaryLoaderArguments
                                             {
                                                 Verbose = remoteInjectorConfig.VerboseLog,
-                                                PayloadFileName = remoteInjectorConfig.CLRBootstrapLibrary,
-                                                CoreRootPath = remoteInjectorConfig.CoreCLRPath,
-                                                CoreLibrariesPath = remoteInjectorConfig.CoreCLRLibrariesPath
+                                                PayloadFileName = remoteInjectorConfig.ClrBootstrapLibrary,
+                                                CoreRootPath = remoteInjectorConfig.ClrRootPath,
+                                                CoreLibrariesPath = remoteInjectorConfig.ClrLibrariesPath
                                             }),
-                                        FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetCoreCLRStartFunctionName() },
+                                        FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrStartFunctionName() },
                                     });
 
                                 // Execute a .NET function in the remote process now that CoreCLR is started
@@ -236,7 +234,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                     new RemoteManagedFunctionCall
                                     {
                                         ManagedFunctionDelegate = CoreHookLoaderDelegate,
-                                        FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetCoreCLRExecuteManagedFunctionName() },
+                                        FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() },
                                         Arguments = new RemoteFunctionArgumentsSerializer
                                         {
                                             Is64BitProcess = process.Is64Bit(),
