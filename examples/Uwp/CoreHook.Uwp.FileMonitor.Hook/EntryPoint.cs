@@ -23,10 +23,13 @@ namespace CoreHook.Uwp.FileMonitor.Hook
             ParameterValueConverter = new CamelCaseJsonValueConverter()
         };
 
-        Queue<string> Queue = new Queue<string>();
+        private readonly Queue<string> _queue = new Queue<string>();
 
-        LocalHook CreateFileHook;
+        private LocalHook _createFileHook;
 
+        // The number of arguments in the constructor and Run method
+        // must be equal to the number passed during injection
+        // in the FileMonitor application.
         public EntryPoint(IContext context, string arg1) { }
 
         public void Run(IContext context, string pipeName)
@@ -43,7 +46,7 @@ namespace CoreHook.Uwp.FileMonitor.Hook
 
         private static void ClientWriteLine(string msg) => Debug.WriteLine(msg);
 
-        public void StartClient(string pipeName)
+        private void StartClient(string pipeName)
         {
             var clientTask = RunClientAsync(NamedPipeClient.CreatePipeStream(pipeName));
 
@@ -54,7 +57,7 @@ namespace CoreHook.Uwp.FileMonitor.Hook
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
-        delegate IntPtr DCreateFile2(
+        delegate IntPtr DelCreateFile2(
             string fileName,
             uint desiredAccess,
             uint shareMode,
@@ -87,9 +90,9 @@ namespace CoreHook.Uwp.FileMonitor.Hook
                 EntryPoint This = (EntryPoint)HookRuntimeInfo.Callback;
                 if (This != null)
                 {
-                    lock (This.Queue)
+                    lock (This._queue)
                     {
-                        This.Queue.Enqueue(fileName);
+                        This._queue.Enqueue(fileName);
                     }
                 }
             }
@@ -109,21 +112,22 @@ namespace CoreHook.Uwp.FileMonitor.Hook
 
         private void CreateHooks()
         {
-            string[] functionName = new string[] { "kernelbase.dll", "CreateFile2" };
+            string[] functionName = { "kernelbase.dll", "CreateFile2" };
             ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
-            CreateFileHook = LocalHook.Create(
+            _createFileHook = LocalHook.Create(
                 LocalHook.GetProcAddress(functionName[0], functionName[1]),
-                new DCreateFile2(CreateFile2_Hooked),
+                new DelCreateFile2(CreateFile2_Hooked),
                 this);
 
-            CreateFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
+            _createFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
         }
 
         private async Task RunClientAsync(Stream clientStream)
         {
             await Task.Yield(); // We want this task to run on another thread.
 
+            // Initialize the client connection to the RPC server.
             var clientHandler = new StreamRpcClientHandler();
 
             using (var reader = new ByLineTextMessageReader(clientStream))
@@ -137,6 +141,7 @@ namespace CoreHook.Uwp.FileMonitor.Hook
 
                 var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));
 
+                // Create the function hooks after connection to the server.
                 CreateHooks();
 
                 try
@@ -145,15 +150,15 @@ namespace CoreHook.Uwp.FileMonitor.Hook
                     {
                         Thread.Sleep(500);
 
-                        if (Queue.Count > 0)
+                        if (_queue.Count > 0)
                         {
                             string[] package = null;
 
-                            lock (Queue)
+                            lock (_queue)
                             {
-                                package = Queue.ToArray();
+                                package = _queue.ToArray();
 
-                                Queue.Clear();
+                                _queue.Clear();
                             }
                             await proxy.OnCreateFile(package);
                         }
