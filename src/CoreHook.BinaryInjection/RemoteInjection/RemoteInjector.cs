@@ -101,7 +101,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             remoteInjectorConfig.ClrLibrariesPath = config.ClrLibrariesPath;
             remoteInjectorConfig.DetourLibrary = config.DetourLibrary;
 
-            InjectEx(
+            Inject(
                 GetCurrentProcessId(),
                 process.Id,
                 remoteInjectorConfig,
@@ -124,7 +124,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             IPipePlatform pipePlatform,
             params object[] passThruArguments)
         {
-            InjectEx(
+            Inject(
                 GetCurrentProcessId(),
                 targetProcessId,
                 remoteInjectorConfig,
@@ -168,7 +168,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <param name="remoteInjectorConfig">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
         /// <param name="pipePlatform">Class for creating pipes for communication with the target process.</param>
         /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
-        public static void InjectEx(
+        public static void Inject(
             int localProcessId,
             int targetProcessId,
             RemoteInjectorConfig remoteInjectorConfig,
