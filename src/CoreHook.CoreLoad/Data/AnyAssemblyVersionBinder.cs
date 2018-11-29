@@ -10,16 +10,16 @@ namespace CoreHook.CoreLoad.Data
     /// 
     /// A custom DeserializationBinder works around this (see http://spazzarama.com/2009/06/25/binary-deserialize-unable-to-find-assembly/)
     /// </summary>
-    internal sealed class AllowAllAssemblyVersionsDeserializationBinder : SerializationBinder
+    internal sealed class AnyAssemblyVersionBinder : SerializationBinder
     {
         private readonly Assembly _assembly;
 
-        public AllowAllAssemblyVersionsDeserializationBinder()
+        public AnyAssemblyVersionBinder()
             : this(Assembly.GetExecutingAssembly())
         {
         }
 
-        public AllowAllAssemblyVersionsDeserializationBinder(Assembly assembly)
+        public AnyAssemblyVersionBinder(Assembly assembly)
         {
             _assembly = assembly;
         }

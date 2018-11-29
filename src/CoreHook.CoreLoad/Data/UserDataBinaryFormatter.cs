@@ -19,7 +19,7 @@ namespace CoreHook.CoreLoad.Data
         {
             return new BinaryFormatter
             {
-                Binder = new AllowAllAssemblyVersionsDeserializationBinder()
+                Binder = new AnyAssemblyVersionBinder()
             };
         }
 
