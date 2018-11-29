@@ -44,7 +44,7 @@ namespace CoreHook.FileMonitor
             int targetPID = 0;
             string targetProgram = string.Empty;
 
-            // Get the process to hook by file path for launching or process id for attaching
+            // Get the process to hook by file path for launching or process id for attaching.
             while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
             {
                 if (targetPID > 0)
@@ -80,25 +80,25 @@ namespace CoreHook.FileMonitor
 
             string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
 
-            // Start process and begin dll loading
+            // Start process and begin dll loading.
             if (!string.IsNullOrWhiteSpace(targetProgram))
             {
                 CreateAndInjectDll(targetProgram, injectionLibrary);
             }
             else
             {
-                // Inject FileMonitor dll into process
+                // Inject FileMonitor dll into process.
                 InjectDllIntoTarget(targetPID, injectionLibrary);
             }
 
-            // Start the RPC server for handling requests from the hooked program
+            // Start the RPC server for handling requests from the hooked program.
             StartListener();
         }
 
         /// <summary>
-        /// Check if a file path is valid, otherwise throw an exception
+        /// Check if a file path is valid, otherwise throw an exception.
         /// </summary>
-        /// <param name="filePath">Path to a file or directory to validate</param>
+        /// <param name="filePath">Path to a file or directory to validate.</param>
         private static void ValidateFilePath(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath))
@@ -117,8 +117,8 @@ namespace CoreHook.FileMonitor
         /// in the newly created process.
         /// </summary>
         /// <param name="exePath">The path to the application to be launched.</param>
-        /// <param name="injectionLibrary">The CoreHook hooking library to loaded in the target.</param>
-        /// <param name="injectionPipeName"></param>
+        /// <param name="injectionLibrary">The path of the plugin to be loaded in the target process.</param>
+        /// <param name="injectionPipeName">The pipe name which receives messages during the plugin initialization stage.</param>
         private static void CreateAndInjectDll(
             string exePath,
             string injectionLibrary,
@@ -160,9 +160,9 @@ namespace CoreHook.FileMonitor
         /// Inject and load the CoreHook hooking module <paramref name="injectionLibrary"/>
         /// in the existing created process referenced by <paramref name="processId"/>.
         /// </summary>
-        /// <param name="processId"></param>
-        /// <param name="injectionLibrary"></param>
-        /// <param name="injectionPipeName"></param>
+        /// <param name="processId">The target process ID to inject and load plugin into.</param>
+        /// <param name="injectionLibrary">The path of the plugin that is loaded into the target process.</param>
+        /// <param name="injectionPipeName">The pipe name which receives messages during the plugin initialization stage.</param>
         private static void InjectDllIntoTarget(
             int processId,
             string injectionLibrary,
