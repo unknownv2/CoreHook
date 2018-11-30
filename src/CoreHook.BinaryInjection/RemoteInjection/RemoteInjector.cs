@@ -93,13 +93,9 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                 throw new InvalidOperationException(
                     $"Failed to start the executable at {processConfig.ExecutablePath}");
             }
-
-            var nativeModulesConfig = process.Is64Bit() ? nativeModulesConfig64 : nativeModulesConfig32;
             
-            remoteInjectorConfig.HostLibrary = nativeModulesConfig.HostLibrary;
-            remoteInjectorConfig.ClrRootPath = nativeModulesConfig.ClrRootPath;
-            remoteInjectorConfig.ClrLibrariesPath = nativeModulesConfig.ClrLibrariesPath;
-            remoteInjectorConfig.DetourLibrary = nativeModulesConfig.DetourLibrary;
+            remoteInjectorConfig.SetNativeConfig(
+                process.Is64Bit() ? nativeModulesConfig64 : nativeModulesConfig32);
 
             Inject(
                 GetCurrentProcessId(),
@@ -135,13 +131,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="localProcessId">The process ID of the local process that is injecting into another remote process.</param>
+        /// <param name="processId">The process ID of the local process that is injecting into another remote process.</param>
         /// <param name="formatter">Serializer for the user arguments passed to the plugin.</param>
         /// <param name="passThruArguments">The arguments passed to the plugin during initialization.</param>
         /// <returns></returns>
-        private static ManagedRemoteInfo CreateRemoteInfo(int localProcessId, IUserDataFormatter formatter, params object[] passThruArguments)
+        private static ManagedRemoteInfo CreateRemoteInfo(int processId, IUserDataFormatter formatter, params object[] passThruArguments)
         {
-            var remoteInfo = new ManagedRemoteInfo { HostPID = localProcessId };
+            var remoteInfo = new ManagedRemoteInfo { RemoteProcessId = processId };
 
             var arguments = new List<object>();
             if (passThruArguments != null)
@@ -167,7 +163,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <param name="targetProcessId">The process ID of the process to inject the .NET assembly into.</param>
         /// <param name="remoteInjectorConfig">Configuration settings for starting CoreCLR and executing .NET assemblies.</param>
         /// <param name="pipePlatform">Class for creating pipes for communication with the target process.</param>
-        /// <param name="passThruArguments">Arguments passed to the .NET hooking library in the target process.</param>
+        /// <param name="passThruArguments">Arguments passed to the .NET hooking plugin once it is loaded in the target process.</param>
         public static void Inject(
             int localProcessId,
             int targetProcessId,

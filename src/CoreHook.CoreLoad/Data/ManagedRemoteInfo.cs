@@ -9,6 +9,6 @@ namespace CoreHook.CoreLoad.Data
         public object[] UserParams;
         public string UserLibrary;
         public string UserLibraryName;
-        public int HostPID;
+        public int RemoteProcessId;
     }
 }

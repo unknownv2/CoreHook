@@ -28,6 +28,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
         public RemoteInjectorConfiguration(NativeModulesConfiguration nativeConfig)
         {
+            SetNativeConfig(nativeConfig);
+        }
+
+        public void SetNativeConfig(NativeModulesConfiguration nativeConfig)
+        {
             ClrLibrariesPath = nativeConfig.ClrLibrariesPath;
             ClrRootPath = nativeConfig.ClrRootPath;
             HostLibrary = nativeConfig.HostLibrary;
