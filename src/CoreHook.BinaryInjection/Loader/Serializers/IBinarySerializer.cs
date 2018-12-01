@@ -1,5 +1,5 @@
 ﻿
-namespace CoreHook.BinaryInjection.Loader.Serializer
+namespace CoreHook.BinaryInjection.Loader.Serializers
 {
     public interface IBinarySerializer
     {

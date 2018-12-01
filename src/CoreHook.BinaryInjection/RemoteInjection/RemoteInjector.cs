@@ -5,7 +5,6 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.BinaryInjection.Loader;
-using CoreHook.BinaryInjection.Loader.Serializer;
 using CoreHook.CoreLoad.Data;
 using CoreHook.IPC.Platform;
 using CoreHook.Memory;
