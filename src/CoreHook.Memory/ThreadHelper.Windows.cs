@@ -38,12 +38,14 @@ namespace CoreHook.Memory
 
         private static IntPtr GetModuleFunctionAddress(SafeProcessHandle processHandle, IntPtr moduleHandle, string functionName)
         {
+            const int ImageDirectoryEntryExport = 0;
+
             Interop.Kernel32.NtModuleInfo moduleInfo = GetModuleInfo(processHandle, moduleHandle);
 
-            DataDirectory exportDirectory = ReadExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), 0);
+            ImageDataDirectory exportDirectory = ReadExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntryExport);
 
             var exportTable = new byte[exportDirectory.Size];
-            var exportTableAddress = moduleInfo.BaseOfDll + (int)exportDirectory.Rva;
+            var exportTableAddress = moduleInfo.BaseOfDll + (int)exportDirectory.VirtualAddress;
             if (!Interop.Kernel32.ReadProcessMemory(
                 processHandle,
                 exportTableAddress,
@@ -55,7 +57,7 @@ namespace CoreHook.Memory
             }
 
             return new IntPtr(moduleInfo.BaseOfDll.ToInt64() +
-                GetAddressFromExportTable(exportTable, exportDirectory.Rva, functionName).ToInt64());
+                GetAddressFromExportTable(exportTable, exportDirectory.VirtualAddress, functionName).ToInt64());
         }
 
         private static byte[] ReadPage(SafeProcessHandle processHandle, IntPtr pageAddress)
@@ -151,7 +153,7 @@ namespace CoreHook.Memory
             return moduleHandles;
         }
 
-        private static DataDirectory ReadExportDataDirectory(byte[] programHeader, int index)
+        private static ImageDataDirectory ReadExportDataDirectory(byte[] programHeader, int directoryEntry)
         {
             using (var reader = new BinaryReader(new MemoryStream(programHeader)))
             {
@@ -181,14 +183,14 @@ namespace CoreHook.Memory
                         throw new InvalidOperationException("Portable executable header not supported");
                 }
 
-                reader.BaseStream.Position += (index * 8);
+                reader.BaseStream.Position += (directoryEntry * 8);
 
-                var rva = reader.ReadUInt32();
+                var virtualAddress = reader.ReadUInt32();
                 var size = reader.ReadUInt32();
 
                 reader.Close();
 
-                return new DataDirectory(rva, size);
+                return new ImageDataDirectory(virtualAddress, size);
             }
         }
 
@@ -256,14 +258,14 @@ namespace CoreHook.Memory
             return stringBuilder.ToString();
         }
 
-        internal struct DataDirectory
+        internal struct ImageDataDirectory
         {
-            internal readonly uint Rva;
+            internal readonly uint VirtualAddress;
             internal readonly uint Size;
 
-            internal DataDirectory(uint rva, uint size)
+            internal ImageDataDirectory(uint virtualAddress, uint size)
             {
-                Rva = rva;
+                VirtualAddress = virtualAddress;
                 Size = size;
             }
         }
