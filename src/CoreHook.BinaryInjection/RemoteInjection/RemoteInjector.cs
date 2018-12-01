@@ -5,11 +5,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.BinaryInjection.Loader;
+using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.CoreLoad.Data;
 using CoreHook.IPC.Platform;
 using CoreHook.Memory;
 using CoreHook.Memory.Processes;
-using CoreHook.BinaryInjection.ProcessUtils;
 using static CoreHook.BinaryInjection.ProcessUtils.ProcessHelper;
 
 namespace CoreHook.BinaryInjection.RemoteInjection

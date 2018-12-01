@@ -1,5 +1,4 @@
-﻿using System.Text;
-
+﻿
 namespace CoreHook.BinaryInjection.Loader
 {
     internal static class PathArgumentsHelper

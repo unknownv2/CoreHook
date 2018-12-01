@@ -1,5 +1,5 @@
-﻿using CoreHook.IPC.Platform;
-using System.IO.Pipes;
+﻿using System.IO.Pipes;
+using CoreHook.IPC.Platform;
 
 namespace CoreHook.FileMonitor
 {
