@@ -235,12 +235,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                         }),
                                     FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() }
                                 }, false);
+
                                 InjectionHelper.WaitForInjection(targetProcessId);
                             }
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine(ex.ToString());
+                            Console.WriteLine(ex.ToString());
                         }
                     }
                 }
@@ -256,13 +257,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// The <paramref name="remoteInfo"/> holds information such as what hooking module to load.
         /// </summary>
         /// <param name="remoteInfo">The configuration that is serialized and passed to CoreLoad.</param>
-        /// <param name="serializer">Serializes the <paramref name="remoteInfo"/> data.</param>
+        /// <param name="userDataFormatter">Serializes the <paramref name="remoteInfo"/> data.</param>
         /// <param name="pluginPath">The plugin to be loaded and executed in the target process.</param>
         /// <param name="argumentsStream">The stream that holds the the serialized <paramref name="remoteInfo"/> class.</param>
         /// <param name="injectionPipeName">The pipe name used for notifying the host process that the hook plugin has been loaded in the target process.</param>
         private static void PrepareInjection(
             ManagedRemoteInfo remoteInfo,
-            IUserDataFormatter serializer,
+            IUserDataFormatter userDataFormatter,
             string pluginPath,
             MemoryStream argumentsStream,
             string injectionPipeName)
@@ -290,7 +291,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
             remoteInfo.ChannelName = injectionPipeName;
 
-            serializer.Serialize(argumentsStream, remoteInfo);
+            userDataFormatter.Serialize(argumentsStream, remoteInfo);
         }
     }
 }
