@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using CoreHook.Memory;
 
 namespace CoreHook.BinaryInjection.Loader
@@ -26,6 +24,10 @@ namespace CoreHook.BinaryInjection.Loader
         {
             _threadCreator.ExecuteRemoteFunction(call, waitForThreadExit);
         }
+        public IntPtr CopyMemory(byte[] buffer, int length)
+        {
+            return _processManager.CopyToProcess(buffer, length);
+        }
 
         private bool _disposedValue = false;
 
@@ -39,11 +41,6 @@ namespace CoreHook.BinaryInjection.Loader
                 }
                 _disposedValue = true;
             }
-        }
-
-        public IntPtr CopyMemory(byte[] buffer, int length)
-        {
-           return _processManager.CopyToProcess(buffer, length);
         }
 
         public void Dispose()
