@@ -38,11 +38,10 @@ namespace CoreHook.Memory
 
         private static IntPtr GetModuleFunctionAddress(SafeProcessHandle processHandle, IntPtr moduleHandle, string functionName)
         {
-            const int ImageDirectoryEntryExport = 0;
-
             Interop.Kernel32.NtModuleInfo moduleInfo = GetModuleInfo(processHandle, moduleHandle);
 
-            ImageDataDirectory exportDirectory = ReadExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntryExport);
+            ImageDataDirectory exportDirectory = 
+                ReadExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntry.ImageDirectoryEntryExport);
 
             var exportTable = new byte[exportDirectory.Size];
             var exportTableAddress = moduleInfo.BaseOfDll + (int)exportDirectory.VirtualAddress;
@@ -153,7 +152,7 @@ namespace CoreHook.Memory
             return moduleHandles;
         }
 
-        private static ImageDataDirectory ReadExportDataDirectory(byte[] programHeader, int directoryEntry)
+        private static ImageDataDirectory ReadExportDataDirectory(byte[] programHeader, ImageDirectoryEntry directoryEntry)
         {
             using (var reader = new BinaryReader(new MemoryStream(programHeader)))
             {
@@ -183,7 +182,7 @@ namespace CoreHook.Memory
                         throw new InvalidOperationException("Portable executable header not supported");
                 }
 
-                reader.BaseStream.Position += (directoryEntry * 8);
+                reader.BaseStream.Position += ((int)directoryEntry * 8);
 
                 var virtualAddress = reader.ReadUInt32();
                 var size = reader.ReadUInt32();
@@ -268,6 +267,25 @@ namespace CoreHook.Memory
                 VirtualAddress = virtualAddress;
                 Size = size;
             }
+        }
+
+        internal enum ImageDirectoryEntry
+        {
+            ImageDirectoryEntryExport = 0,
+            ImageDirectoryEntryImport,
+            ImageDirectoryEntryResource,
+            ImageDirectoryEntryException,
+            ImageDirectoryEntrySecurity,
+            ImageDirectoryEntryBaseReloc,
+            ImageDirectoryEntryDebug,
+            ImageDirectoryEntryArchitecture,
+            ImageDirectoryEntryGlobalPtr,
+            ImageDirectoryEntryTls,
+            ImageDirectoryEntryLoadConfig,
+            ImageDirectoryEntryBoundImport,
+            ImageDirectoryEntryIat,
+            ImageDirectoryEntryDelayImport,
+            ImageDirectoryEntryCOMDescriptor
         }
     }
 }
