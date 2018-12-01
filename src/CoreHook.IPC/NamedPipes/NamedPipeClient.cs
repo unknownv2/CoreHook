@@ -30,7 +30,7 @@ namespace CoreHook.IPC.NamedPipes
             return client.Connect() ? client.PipeStream : null;
         }
 
-        public bool Connect(int timeoutMilliseconds = 5000)
+        public bool Connect(int timeoutMilliseconds = 10000)
         {
             if (_clientStream != null)
             {

@@ -5,11 +5,11 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
+using CoreHook.IPC.NamedPipes;
 using JsonRpc.DynamicProxy.Client;
 using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
-using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.Uwp.FileMonitor.Hook
 {
