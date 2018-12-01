@@ -29,28 +29,18 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                 methodName: "Load");
 
         /// <summary>
-        /// Retrieve the class used to load binary modules in a process.
+        /// Retrieve the class used to load the CoreHook bootstrapping modules into a process.
         /// </summary>
         /// <param name="process">The target process.</param>
-        /// <returns>The class that handles binary handling.</returns>
-        private static IBinaryLoader GetBinaryLoader(Process process)
+        /// <returns>The class that handles module loading into a process.</returns>
+        private static IAssemblyLoader CreateAssemblyLoader(Process process)
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new BinaryLoader(
-                    new ProcessManager(new ManagedProcess(process)));
+                return new AssemblyLoader(new ProcessManager(new ManagedProcess(process)));
             }
-            throw new PlatformNotSupportedException("Binary injection");
+            throw new PlatformNotSupportedException("Assembly module loading");
         }
-        private static IProcessManager CreateProcessManager(Process process)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                return new ProcessManager(new ManagedProcess(process));
-            }
-            throw new PlatformNotSupportedException("Binary injection");
-        }
-
         /// <summary>
         /// Retrieve system information such as string path encoding and max path length.
         /// </summary>
@@ -189,13 +179,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                 try
                 {
                     var remoteInfoFormatter = new UserDataBinaryFormatter();
-                    // Initialize the arguments passed to the CoreHook plugin
+                    // Initialize the arguments passed to the CoreHook plugin.
                     var remoteInfo = CreateRemoteInfo(localProcessId, remoteInfoFormatter, passThruArguments);
 
                     using (var passThruStream = new MemoryStream())
                     {
                         // Serialize the plugin information such as the DLL path
-                        // and the plugin arguments, which are copied to the remote process
+                        // and the plugin arguments, which are copied to the remote process.
                         PrepareInjection(
                             remoteInfo,
                             remoteInfoFormatter,
@@ -205,22 +195,24 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
                         // Inject the CoreCLR hosting module into the process, start the CoreCLR
                         // and use the CoreLoad dll to resolve the dependencies of the hooking library
-                        // and then call the IEntryPoint.Run method located in the hooking library
+                        // and then call the IEntryPoint.Run method located in the hooking library.
                         try
                         {
                             var process = GetProcessById(targetProcessId);
                             var length = (int)passThruStream.Length;
 
-                            using (var binaryLoader = GetBinaryLoader(process))
+                            using (var assemblyLoader = CreateAssemblyLoader(process))
                             {
-                                // Load the CoreCLR hosting module in the remote process,
-                                // along with the native function detour module for CoreHook
-                                binaryLoader.Load(remoteInjectorConfig.HostLibrary, new[] { remoteInjectorConfig.DetourLibrary });
-                                // Initialize CoreCLR in the remote process using the native CoreCLR hosting module
-                                binaryLoader.ExecuteRemoteFunction(
+                                var pathConfig = GetPathConfig();
+                                // Load the CoreCLR hosting module in the remote process.
+                                assemblyLoader.LoadModule(remoteInjectorConfig.HostLibrary);
+                                // Load the function detour module into remote process.
+                                assemblyLoader.LoadModule(remoteInjectorConfig.DetourLibrary);
+                                // Initialize CoreCLR in the remote process using the native CoreCLR hosting module.
+                                assemblyLoader.CreateThread(
                                     new RemoteFunctionCall
                                     {
-                                        Arguments = new HostArgumentsSerializer(GetPathConfig(),
+                                        Arguments = new HostArgumentsSerializer(pathConfig,
                                             new HostArguments
                                             {
                                                 Verbose = remoteInjectorConfig.VerboseLog,
@@ -231,20 +223,20 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                         FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrStartFunctionName() },
                                     });
 
-                                // Execute a .NET function in the remote process now that CoreCLR is started
-                                binaryLoader.ExecuteRemoteManagedFunction(
-                                    new RemoteManagedFunctionCall
-                                    {
-                                        ManagedFunctionDelegate = CoreHookLoaderDelegate,
-                                        FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() },
-                                        Arguments = new RemoteFunctionArgumentsSerializer
+                                // Execute a .NET function in the remote process now that CoreCLR is started.
+                                assemblyLoader.CreateThread(new RemoteFunctionCall
+                                {
+                                    Arguments = new AssemblyFunctionArguments(
+                                        pathConfig,
+                                        CoreHookLoaderDelegate,
+                                        new RemoteFunctionArgumentsSerializer
                                         {
                                             Is64BitProcess = process.Is64Bit(),
-                                            UserData = binaryLoader.CopyMemoryTo(passThruStream.GetBuffer(), length),
+                                            UserData = assemblyLoader.CopyMemory(passThruStream.GetBuffer(), length),
                                             UserDataSize = length
-                                        }
-                                    });
-
+                                        }),
+                                    FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() }
+                                }, false);
                                 InjectionHelper.WaitForInjection(targetProcessId);
                             }
                         }

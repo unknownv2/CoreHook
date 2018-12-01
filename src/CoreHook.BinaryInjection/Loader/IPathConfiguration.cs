@@ -2,9 +2,8 @@
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    public interface IPathConfiguration
+    public interface IPathConfiguration : IPathEncodingConfiguration
     {
         int MaxPathLength { get; }
-        Encoding PathEncoding { get; }
     }
 }

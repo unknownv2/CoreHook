@@ -6,5 +6,6 @@ namespace CoreHook.BinaryInjection.Loader
     {
         public int MaxPathLength => 260;
         public Encoding PathEncoding => Encoding.Unicode;
+        public char PaddingCharacter => '\0';
     }
 }
