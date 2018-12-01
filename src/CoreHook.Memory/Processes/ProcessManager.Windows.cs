@@ -33,21 +33,21 @@ namespace CoreHook.Memory.Processes
         /// <param name="module">The name of the module containing the desired function.</param>
         /// <param name="function">The name of the exported function we will call.</param>
         /// <param name="arguments">Serialized arguments for passing to the module function.</param>
-        /// <param name="canWait">We can wait for the thread to exit and then deallocate any memory
+        /// <param name="waitForThreadExit">We can wait for the thread to exit and then deallocate any memory
         /// we allocated or return immediately and deallocate the memory in a separate call.</param>
-        public IntPtr Execute(string module, string function, byte[] arguments, bool canWait = true)
+        public IntPtr Execute(string module, string function, byte[] arguments, bool waitForThreadExit = true)
         {
-            return ExecuteFuntion(module, function, arguments, canWait);
+            return ExecuteFuntion(module, function, arguments, waitForThreadExit);
         }
 
-        private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool canWait = true)
+        private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool waitForThreadExit = true)
         {
             SafeWaitHandle remoteThread = null;
 
             var argumentsAllocation =
                 _memoryManager.Allocate(
                     arguments.Length,
-                    MemoryProtectionType.ReadWrite, !canWait);
+                    MemoryProtectionType.ReadWrite, !waitForThreadExit);
 
             if (argumentsAllocation.Address == IntPtr.Zero)
             {
@@ -62,10 +62,10 @@ namespace CoreHook.Memory.Processes
 
                 // Execute the function call in a new thread
                 remoteThread = ThreadHelper.CreateRemoteThread(processHandle,
-                    ThreadHelper.GetProcAddress(processHandle, module, function), 
+                    ThreadHelper.GetProcAddress(processHandle, module, function),
                     argumentsAllocation.Address);
 
-                if (canWait)
+                if (waitForThreadExit)
                 {
                     Interop.Kernel32.WaitForSingleObject(
                         remoteThread,
@@ -77,7 +77,7 @@ namespace CoreHook.Memory.Processes
             finally
             {
                 remoteThread?.Dispose();
-                if (canWait)
+                if (waitForThreadExit)
                 {
                     _memoryManager.Deallocate(argumentsAllocation);
                 }
