@@ -2,9 +2,9 @@
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    public interface IPathEncodingConfiguration
+    public interface IStringEncodingConfiguration
     {
-        Encoding PathEncoding { get; }
+        Encoding Encoding { get; }
         char PaddingCharacter { get; }
     }
 }

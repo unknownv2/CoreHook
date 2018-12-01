@@ -1,8 +1,7 @@
-﻿using System.Text;
-
+﻿
 namespace CoreHook.BinaryInjection.Loader
 {
-    public interface IPathConfiguration : IPathEncodingConfiguration
+    public interface IPathConfiguration : IStringEncodingConfiguration
     {
         int MaxPathLength { get; }
     }

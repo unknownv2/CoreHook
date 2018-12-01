@@ -4,9 +4,9 @@ namespace CoreHook.BinaryInjection.Loader
 {
     internal static class PathArgumentsHelper
     {
-        public static byte[] GetPathArray(string path, int pathLength, Encoding encoding)
+        internal static byte[] GetPathArray(string path, IPathConfiguration pathConfig, int? pathLength = null)
         {
-            return encoding.GetBytes(path.PadRight(pathLength, paddingChar: '\0'));
+            return pathConfig.Encoding.GetBytes(path.PadRight(pathLength ?? pathConfig.MaxPathLength, pathConfig.PaddingCharacter));
         }
     }
 }

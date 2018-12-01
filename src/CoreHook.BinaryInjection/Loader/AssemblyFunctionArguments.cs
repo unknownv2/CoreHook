@@ -8,17 +8,24 @@ namespace CoreHook.BinaryInjection.Loader
     {
         private readonly IAssemblyDelegate _assemblyDelegate;
         private readonly IBinarySerializer _arguments;
-        private readonly IPathEncodingConfiguration _pathConfiguration;
+        private readonly IStringEncodingConfiguration _stringEncodingConfig;
+
         private const int FunctionNameMax = 256;
 
         public AssemblyFunctionArguments(
-            IPathEncodingConfiguration pathConfig,
+            IStringEncodingConfiguration stringEncodingConfig,
             IAssemblyDelegate assemblyDelegate,
             IBinarySerializer arguments)
         {
             _assemblyDelegate = assemblyDelegate ?? throw new ArgumentNullException(nameof(assemblyDelegate));
             _arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
-            _pathConfiguration = pathConfig ?? throw new ArgumentNullException(nameof(pathConfig));
+            _stringEncodingConfig = stringEncodingConfig ?? throw new ArgumentNullException(nameof(stringEncodingConfig));
+        }
+
+        private byte[] FormatDelegateString(string name)
+        {
+            return _stringEncodingConfig.Encoding.GetBytes(
+                name.PadRight(FunctionNameMax, _stringEncodingConfig.PaddingCharacter));
         }
 
         public byte[] Serialize()
@@ -27,17 +34,11 @@ namespace CoreHook.BinaryInjection.Loader
             using (var writer = new BinaryWriter(ms))
             {
                 // Format the assembly delegate name.
-                writer.Write(_pathConfiguration.PathEncoding.GetBytes(
-                    _assemblyDelegate.AssemblyName.PadRight(
-                        FunctionNameMax, _pathConfiguration.PaddingCharacter)));
+                writer.Write(FormatDelegateString(_assemblyDelegate.AssemblyName));
 
-                writer.Write(_pathConfiguration.PathEncoding.GetBytes(
-                    $"{_assemblyDelegate.AssemblyName}.{_assemblyDelegate.TypeName}".PadRight(
-                        FunctionNameMax, _pathConfiguration.PaddingCharacter)));
+                writer.Write(FormatDelegateString($"{_assemblyDelegate.AssemblyName}.{_assemblyDelegate.TypeName}"));
 
-                writer.Write(_pathConfiguration.PathEncoding.GetBytes(
-                    _assemblyDelegate.MethodName.PadRight(
-                        FunctionNameMax, _pathConfiguration.PaddingCharacter)));
+                writer.Write(FormatDelegateString(_assemblyDelegate.MethodName));
 
                 // Serialize the assembly delegate's arguments.
                 writer.Write(_arguments.Serialize());

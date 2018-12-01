@@ -13,7 +13,7 @@ namespace CoreHook.BinaryInjection.Loader
 
         internal AssemblyLoader(IProcessManager processManager)
         {
-            _processManager = processManager;
+            _processManager = processManager ?? throw new ArgumentNullException(nameof(processManager));
             _moduleInjector = new ModuleInjector(processManager);
             _threadCreator = new RemoteThreadCreator(processManager);
         }
@@ -24,6 +24,7 @@ namespace CoreHook.BinaryInjection.Loader
         {
             _threadCreator.ExecuteRemoteFunction(call, waitForThreadExit);
         }
+
         public IntPtr CopyMemory(byte[] buffer, int length)
         {
             return _processManager.CopyToProcess(buffer, length);
