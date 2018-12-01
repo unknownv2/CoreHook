@@ -11,14 +11,6 @@ namespace CoreHook.BinaryInjection.Loader
         private readonly IPathEncodingConfiguration _pathConfiguration;
         private const int FunctionNameMax = 256;
 
-        public byte[] Assembly;
-
-        public byte[] Class;
-
-        public byte[] Function;
-
-        public byte[] Arguments;
-
         public AssemblyFunctionArguments(
             IPathEncodingConfiguration pathConfig,
             IAssemblyDelegate assemblyDelegate,
@@ -34,17 +26,21 @@ namespace CoreHook.BinaryInjection.Loader
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
             {
-                Assembly = _pathConfiguration.PathEncoding.GetBytes(_assemblyDelegate.AssemblyName.PadRight(FunctionNameMax, _pathConfiguration.PaddingCharacter));
-                Class = _pathConfiguration.PathEncoding.GetBytes($"{_assemblyDelegate.AssemblyName}.{_assemblyDelegate.TypeName}".PadRight(FunctionNameMax, _pathConfiguration.PaddingCharacter));
-                Function = _pathConfiguration.PathEncoding.GetBytes(_assemblyDelegate.MethodName.PadRight(FunctionNameMax, _pathConfiguration.PaddingCharacter));
+                // Format the assembly delegate name.
+                writer.Write(_pathConfiguration.PathEncoding.GetBytes(
+                    _assemblyDelegate.AssemblyName.PadRight(
+                        FunctionNameMax, _pathConfiguration.PaddingCharacter)));
 
-                Arguments = _arguments.Serialize();
+                writer.Write(_pathConfiguration.PathEncoding.GetBytes(
+                    $"{_assemblyDelegate.AssemblyName}.{_assemblyDelegate.TypeName}".PadRight(
+                        FunctionNameMax, _pathConfiguration.PaddingCharacter)));
 
-                writer.Write(Assembly);
-                writer.Write(Class);
-                writer.Write(Function);
+                writer.Write(_pathConfiguration.PathEncoding.GetBytes(
+                    _assemblyDelegate.MethodName.PadRight(
+                        FunctionNameMax, _pathConfiguration.PaddingCharacter)));
 
-                writer.Write(Arguments);
+                // Serialize the assembly delegate's arguments.
+                writer.Write(_arguments.Serialize());
 
                 return ms.ToArray();
             }
