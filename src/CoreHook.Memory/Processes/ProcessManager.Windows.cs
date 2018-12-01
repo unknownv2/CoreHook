@@ -11,10 +11,10 @@ namespace CoreHook.Memory.Processes
         private readonly IMemoryManager _memoryManager;
         private readonly IProcess _process;
 
-        public ProcessManager(IProcess process, IMemoryManager memoryManager)
+        public ProcessManager(IProcess process)
         {
             _process = process;
-            _memoryManager = memoryManager;
+            _memoryManager = new MemoryManager(process);
         }
 
         public void InjectBinary(string modulePath)

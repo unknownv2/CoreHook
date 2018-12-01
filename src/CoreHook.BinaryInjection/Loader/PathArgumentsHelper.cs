@@ -2,7 +2,7 @@
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    internal static class BinaryLoaderArgumentsHelper
+    internal static class PathArgumentsHelper
     {
         public static byte[] GetPathArray(string path, int pathLength, Encoding encoding)
         {

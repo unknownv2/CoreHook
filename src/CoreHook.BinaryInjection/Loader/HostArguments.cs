@@ -1,7 +1,7 @@
 ﻿
 namespace CoreHook.BinaryInjection.Loader
 {
-    public class BinaryLoaderArguments : IBinaryLoaderArguments
+    public class HostArguments : IHostArguments
     {
         public bool Verbose { get; set; }
         public string PayloadFileName { get; set; }
