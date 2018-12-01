@@ -45,7 +45,6 @@ namespace CoreHook.Memory
 
                 return !processIsWow64;
             }
-
         }
     }
 }
