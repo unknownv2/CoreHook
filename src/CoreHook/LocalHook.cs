@@ -9,16 +9,21 @@ namespace CoreHook
     /// </summary>
     public class LocalHook : CriticalFinalizerObject, IHook
     {
-        protected IntPtr _handle = IntPtr.Zero;
+        protected IntPtr Handle = IntPtr.Zero;
+
         /// <summary>
         /// ACL used to activate or de-activate a detour for all threads.
         /// </summary>
-        protected readonly int[] _defaultThreadACL = new int[0];
-        protected Delegate _detourFunction;
-        protected object _threadSafe = new object();
-        protected GCHandle _selfHandle;
+        protected readonly int[] DefaultThreadAcl = new int[0];
 
-        protected IHookAccessControl _threadACL;
+        protected Delegate DetourFunction;
+
+        protected object ThreadSafe = new object();
+
+        protected GCHandle SelfHandle;
+
+        protected IHookAccessControl AccessControl;
+
         /// <summary>
         /// Get the thread ACL handle for this hook.
         /// </summary>
@@ -26,14 +31,15 @@ namespace CoreHook
         {
             get
             {
-                if (_handle == IntPtr.Zero)
+                if (Handle == IntPtr.Zero)
                 {
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
                 }
 
-                return _threadACL;
+                return AccessControl;
             }
         }
+
         /// <summary>
         /// Context object passed in during detour creation to <see cref="LocalHook.Create"/>
         /// </summary>
@@ -47,12 +53,12 @@ namespace CoreHook
         {
             get
             {
-                if (_handle == IntPtr.Zero)
+                if (Handle == IntPtr.Zero)
                 {
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
                 }
 
-                NativeAPI.DetourGetHookBypassAddress(_handle, out IntPtr targetFunctionAddress);
+                NativeAPI.DetourGetHookBypassAddress(Handle, out IntPtr targetFunctionAddress);
                 return targetFunctionAddress;
             }
         }
@@ -79,11 +85,11 @@ namespace CoreHook
             {
                 if (value)
                 {
-                    ThreadACL.SetExclusiveACL(_defaultThreadACL);
+                    ThreadACL.SetExclusiveACL(DefaultThreadAcl);
                 }
                 else
                 {
-                    ThreadACL.SetInclusiveACL(_defaultThreadACL);
+                    ThreadACL.SetInclusiveACL(DefaultThreadAcl);
                 }
                 _enabled = value;
             }
@@ -116,7 +122,6 @@ namespace CoreHook
             return functionAddress;
         }
 
-
         /// <summary>
         /// Install a managed hook with a managed delegate for the hook handler.
         /// </summary>
@@ -130,33 +135,33 @@ namespace CoreHook
             {
                 Callback = callback,
                 TargetAddress = targetFunction,
-                _detourFunction = detourFunction,
-                _handle = Marshal.AllocCoTaskMem(IntPtr.Size)
+                DetourFunction = detourFunction,
+                Handle = Marshal.AllocCoTaskMem(IntPtr.Size)
             };
 
-            hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
+            hook.SelfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(hook.Handle, IntPtr.Zero);
 
             try
             {
                 NativeAPI.DetourInstallHook(
                     targetFunction,
-                    Marshal.GetFunctionPointerForDelegate(hook._detourFunction),
-                    GCHandle.ToIntPtr(hook._selfHandle),
-                    hook._handle);
+                    Marshal.GetFunctionPointerForDelegate(hook.DetourFunction),
+                    GCHandle.ToIntPtr(hook.SelfHandle),
+                    hook.Handle);
             }
             catch (Exception ex)
             {
-                Marshal.FreeCoTaskMem(hook._handle);
-                hook._handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(hook.Handle);
+                hook.Handle = IntPtr.Zero;
 
-                hook._selfHandle.Free();
+                hook.SelfHandle.Free();
 
                 throw ex;
             }
 
-            hook._threadACL = new HookAccessControl(hook._handle);
+            hook.AccessControl = new HookAccessControl(hook.Handle);
 
             return hook;
         }
@@ -174,12 +179,12 @@ namespace CoreHook
             {
                 Callback = callback,
                 TargetAddress = targetFunction,
-                _handle = Marshal.AllocCoTaskMem(IntPtr.Size)
+                Handle = Marshal.AllocCoTaskMem(IntPtr.Size)
             };
 
-            hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
+            hook.SelfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(hook.Handle, IntPtr.Zero);
 
             try
             {
@@ -187,19 +192,19 @@ namespace CoreHook
                     targetFunction,
                     detourFunction,
                     callback,
-                    hook._handle);
+                    hook.Handle);
             }
             catch (Exception ex)
             {
-                Marshal.FreeCoTaskMem(hook._handle);
-                hook._handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(hook.Handle);
+                hook.Handle = IntPtr.Zero;
 
-                hook._selfHandle.Free();
+                hook.SelfHandle.Free();
 
                 throw ex;
             }
 
-            hook._threadACL = new HookAccessControl(hook._handle);
+            hook.AccessControl = new HookAccessControl(hook.Handle);
 
             return hook;
         }
@@ -213,7 +218,7 @@ namespace CoreHook
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
         protected static void InstallHook(LocalHook hook, IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
-            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(hook.Handle, IntPtr.Zero);
 
             try
             {
@@ -221,19 +226,19 @@ namespace CoreHook
                     targetFunction,
                     detourFunction,
                     callback,
-                    hook._handle);
+                    hook.Handle);
             }
             catch (Exception ex)
             {
-                Marshal.FreeCoTaskMem(hook._handle);
-                hook._handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(hook.Handle);
+                hook.Handle = IntPtr.Zero;
 
-                hook._selfHandle.Free();
+                hook.SelfHandle.Free();
 
                 throw ex;
             }
 
-            hook._threadACL = new HookAccessControl(hook._handle);
+            hook.AccessControl = new HookAccessControl(hook.Handle);
         }
 
         private bool _disposed = false;
@@ -243,23 +248,23 @@ namespace CoreHook
         /// </summary>
         public void Dispose()
         {
-            lock (_threadSafe)
+            lock (ThreadSafe)
             {
-                if (!_disposed && _handle != IntPtr.Zero)
+                if (!_disposed && Handle != IntPtr.Zero)
                 {
                     _disposed = true;
 
                     // Uninstall the detour
-                    NativeAPI.DetourUninstallHook(_handle);
+                    NativeAPI.DetourUninstallHook(Handle);
 
                     // Release the detour's resources
-                    Marshal.FreeCoTaskMem(_handle);
+                    Marshal.FreeCoTaskMem(Handle);
 
-                    _handle = IntPtr.Zero;
-                    _detourFunction = null;
+                    Handle = IntPtr.Zero;
+                    DetourFunction = null;
                     Callback = null;
 
-                    _selfHandle.Free();
+                    SelfHandle.Free();
                 }
             }
         }
@@ -280,6 +285,7 @@ namespace CoreHook
         /// Delegate used to call the original function by bypassing the detour.
         /// </summary>
         public T Original => OriginalAddress.ToFunction<T>();
+
         /// <summary>
         /// Delegate used to call the target function directly,
         /// where any detour that is activated will be called as well.
@@ -301,12 +307,12 @@ namespace CoreHook
             {
                 Callback = callback,
                 TargetAddress = targetFunction,
-                _handle = Marshal.AllocCoTaskMem(IntPtr.Size)
+                Handle = Marshal.AllocCoTaskMem(IntPtr.Size)
             };
 
-            hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
+            hook.SelfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(hook.Handle, IntPtr.Zero);
 
             try
             {
@@ -314,19 +320,19 @@ namespace CoreHook
                     targetFunction,
                     detourFunction,
                     callback,
-                    hook._handle);
+                    hook.Handle);
             }
             catch (Exception ex)
             {
-                Marshal.FreeCoTaskMem(hook._handle);
-                hook._handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(hook.Handle);
+                hook.Handle = IntPtr.Zero;
 
-                hook._selfHandle.Free();
+                hook.SelfHandle.Free();
 
                 throw ex;
             }
 
-            hook._threadACL = new HookAccessControl(hook._handle);
+            hook.AccessControl = new HookAccessControl(hook.Handle);
 
             return hook;
         }
@@ -344,33 +350,33 @@ namespace CoreHook
             {
                 Callback = callback,
                 TargetAddress = targetFunction,
-                _detourFunction = detourFunction,
-                _handle = Marshal.AllocCoTaskMem(IntPtr.Size)
+                DetourFunction = detourFunction,
+                Handle = Marshal.AllocCoTaskMem(IntPtr.Size)
             };
 
-            hook._selfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
+            hook.SelfHandle = GCHandle.Alloc(hook, GCHandleType.Weak);
 
-            Marshal.WriteIntPtr(hook._handle, IntPtr.Zero);
+            Marshal.WriteIntPtr(hook.Handle, IntPtr.Zero);
 
             try
             {
                 NativeAPI.DetourInstallHook(
                     targetFunction,
-                    Marshal.GetFunctionPointerForDelegate(hook._detourFunction),
-                    GCHandle.ToIntPtr(hook._selfHandle),
-                    hook._handle);
+                    Marshal.GetFunctionPointerForDelegate(hook.DetourFunction),
+                    GCHandle.ToIntPtr(hook.SelfHandle),
+                    hook.Handle);
             }
             catch (Exception ex)
             {
-                Marshal.FreeCoTaskMem(hook._handle);
-                hook._handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(hook.Handle);
+                hook.Handle = IntPtr.Zero;
 
-                hook._selfHandle.Free();
+                hook.SelfHandle.Free();
 
                 throw ex;
             }
 
-            hook._threadACL = new HookAccessControl(hook._handle);
+            hook.AccessControl = new HookAccessControl(hook.Handle);
 
             return hook;
         }
@@ -382,12 +388,12 @@ namespace CoreHook
         /// <returns>True if the thread is intercepted.</returns>
         public bool IsThreadIntercepted(int threadId)
         {
-            if (_handle == IntPtr.Zero)
+            if (Handle == IntPtr.Zero)
             {
                 throw new ObjectDisposedException(typeof(LocalHook<T>).FullName);
             }
 
-            NativeAPI.DetourIsThreadIntercepted(_handle, threadId, out bool isThreadIntercepted);
+            NativeAPI.DetourIsThreadIntercepted(Handle, threadId, out bool isThreadIntercepted);
 
             return isThreadIntercepted;
         }
