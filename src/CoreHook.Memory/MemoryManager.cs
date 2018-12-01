@@ -14,7 +14,7 @@ namespace CoreHook.Memory
 
           public MemoryManager(IProcess process)
         {
-            _process = process;
+            _process = process ?? throw new ArgumentNullException(nameof(process));
             MemoryAllocations = new List<IMemoryAllocation>();
         }
 

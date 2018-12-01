@@ -5,6 +5,8 @@ namespace CoreHook.Memory
     {
         public int Size { get; set; }
         public bool IsFree => IsDisposed;
+        public bool IsDisposed { get; private set; }
+        public bool MusBeDisposed { get; set; }
 
         internal MemoryAllocation(IProcess process, int size,
             uint protection, bool mustBeDisposed = true)
@@ -15,9 +17,6 @@ namespace CoreHook.Memory
             MusBeDisposed = mustBeDisposed;
             IsDisposed = false;
         }
-
-        public bool IsDisposed { get; private set; }
-        public bool MusBeDisposed { get; set; }
 
         public void Dispose()
         {

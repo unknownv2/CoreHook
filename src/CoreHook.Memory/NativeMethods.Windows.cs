@@ -8,7 +8,7 @@ namespace CoreHook.Memory
         [StructLayout(LayoutKind.Sequential)]
         public class StartupInfo
         {
-            public int cb = 0;
+            public int cb;
             public IntPtr lpReserved = IntPtr.Zero;
             public IntPtr lpDesktop = IntPtr.Zero; // MUST be Zero
             public IntPtr lpTitle = IntPtr.Zero;
@@ -29,7 +29,7 @@ namespace CoreHook.Memory
 
             public StartupInfo()
             {
-                this.cb = Marshal.SizeOf(this);
+                cb = Marshal.SizeOf(this);
             }
         }
 
