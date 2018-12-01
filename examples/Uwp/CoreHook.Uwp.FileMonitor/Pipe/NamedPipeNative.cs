@@ -1,8 +1,8 @@
-﻿using Microsoft.Win32.SafeHandles;
-using System;
+﻿using System;
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
+using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Uwp.FileMonitor.Pipe
 {

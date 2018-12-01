@@ -4,10 +4,10 @@ using System.IO;
 using System.Security.AccessControl;
 using System.Security.Principal;
 using System.Reflection;
-using CoreHook.FileMonitor.Service;
-using CoreHook.IPC.Platform;
 using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.BinaryInjection.ProcessUtils;
+using CoreHook.FileMonitor.Service;
+using CoreHook.IPC.Platform;
 using CoreHook.Memory;
 
 namespace CoreHook.Uwp.FileMonitor
