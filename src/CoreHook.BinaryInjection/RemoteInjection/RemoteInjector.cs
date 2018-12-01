@@ -212,7 +212,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                 assemblyLoader.CreateThread(
                                     new RemoteFunctionCall
                                     {
-                                        Arguments = new HostArgumentsSerializer(pathConfig,
+                                        Arguments = new HostFunctionArguments(pathConfig,
                                             new HostArguments
                                             {
                                                 Verbose = remoteInjectorConfig.VerboseLog,
@@ -229,7 +229,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                     Arguments = new AssemblyFunctionArguments(
                                         pathConfig,
                                         CoreHookLoaderDelegate,
-                                        new RemoteFunctionArgumentsSerializer
+                                        new RemoteFunctionArguments
                                         {
                                             Is64BitProcess = process.Is64Bit(),
                                             UserData = assemblyLoader.CopyMemory(passThruStream.GetBuffer(), length),

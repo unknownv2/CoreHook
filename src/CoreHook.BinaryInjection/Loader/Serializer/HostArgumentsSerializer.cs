@@ -2,12 +2,12 @@
 
 namespace CoreHook.BinaryInjection.Loader.Serializer
 {
-    public class HostArgumentsSerializer : IBinarySerializer
+    public class HostFunctionArguments : IBinarySerializer
     {
         public IHostArguments LoaderArguments { get; set; }
         public IPathConfiguration LoaderConfig { get; }
 
-        public HostArgumentsSerializer(IPathConfiguration loaderConfig, IHostArguments loaderArguments)
+        public HostFunctionArguments(IPathConfiguration loaderConfig, IHostArguments loaderArguments)
         {
             LoaderConfig = loaderConfig;
             LoaderArguments = loaderArguments;
