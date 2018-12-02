@@ -1,9 +1,9 @@
 ﻿using System.IO;
-using CoreHook.BinaryInjection.Loader.Serializers;
+using CoreHook.BinaryInjection.Loader.Serialization;
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    public class HostFunctionArguments : IBinarySerializer
+    public class HostFunctionArguments : ISerializableObject
     {
         public IHostArguments LoaderArguments { get; set; }
         public IPathConfiguration LoaderConfig { get; }
@@ -24,12 +24,9 @@ namespace CoreHook.BinaryInjection.Loader
                 // Padding for reserved data to align structure to 8 bytes.
                 writer.Write(new byte[7]);
                 // Write the paths used for hosting the CLR.
-                writer.Write(PathArgumentsHelper.GetPathArray(
-                        LoaderArguments.PayloadFileName, LoaderConfig));
-                writer.Write(PathArgumentsHelper.GetPathArray(
-                        LoaderArguments.CoreRootPath, LoaderConfig));
-                writer.Write(PathArgumentsHelper.GetPathArray(
-                        LoaderArguments.CoreLibrariesPath ?? string.Empty, LoaderConfig));
+                writer.Write(PathArgumentsHelper.GetPathArray(LoaderArguments.PayloadFileName, LoaderConfig));
+                writer.Write(PathArgumentsHelper.GetPathArray(LoaderArguments.CoreRootPath, LoaderConfig));
+                writer.Write(PathArgumentsHelper.GetPathArray(LoaderArguments.CoreLibrariesPath ?? string.Empty, LoaderConfig));
 
                 return ms.ToArray();
             }
