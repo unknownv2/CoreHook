@@ -72,7 +72,7 @@ namespace CoreHook.Examples.Common
 
         public void HandleConnection(IPC.IConnection connection)
         {
-            Console.WriteLine($"Connection received from pipe {_pipeName}");
+            Console.WriteLine($"Connection received from pipe {_pipeName}.");
 
             var pipeServer = connection.ServerStream;
 

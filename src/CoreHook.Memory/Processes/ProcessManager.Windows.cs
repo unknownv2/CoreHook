@@ -101,9 +101,6 @@ namespace CoreHook.Memory.Processes
             GC.SuppressFinalize(this);
         }
 
-        ~ProcessManager()
-        {
-            Dispose();
-        }
+        ~ProcessManager() => Dispose();
     }
 }
