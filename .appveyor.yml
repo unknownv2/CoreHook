@@ -8,7 +8,6 @@ environment:
 test: off
 image:
   - Visual Studio 2017
-  - Ubuntu
 skip_commits:
   files:
     - '**/*.md'
