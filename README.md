@@ -218,7 +218,7 @@ Licensed under the [MIT](LICENSE) License.
 
 A lot of this project is based on the work of others who were willing to share their knowledge.
 
-* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - The original developers of the EasyHook project which this one would not be possible without. 
+* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - For the EasyHook library.
 * [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and the [.NET Core Plugins project](https://github.com/natemcmaster/DotNetCorePlugins).
-* [dotnet Team](https://github.com/dotnet) - For the DependecyModel project.
+* [dotnet Team](https://github.com/dotnet) - For the DependencyModel project.
 * [ZenLulz (Jämes Ménétrey)](https://github.com/ZenLulz/MemorySharp) - For the MemorySharp library.
