@@ -3,7 +3,6 @@ using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
 using CoreHook.IPC.Handlers;
-using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes
 {

@@ -1,5 +1,4 @@
 ﻿using CoreHook.IPC.Messages;
-using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.Handlers
 {

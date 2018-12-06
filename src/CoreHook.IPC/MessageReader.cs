@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using CoreHook.IPC.Messages;
-using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC
 {
