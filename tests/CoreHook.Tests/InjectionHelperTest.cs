@@ -2,9 +2,11 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
+using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
-using CoreHook.BinaryInjection.RemoteInjection;
+using CoreHook.IPC;
+using CoreHook.IPC.Platform;
 
 namespace CoreHook.Tests
 {
@@ -19,7 +21,7 @@ namespace CoreHook.Tests
             var InjectionHelperPipeName = "InjectionHelperPipeTest";
 
             InjectionHelper.BeginInjection(_targetProcessId);
-            using (InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
+            using (InjectionHelper.CreateServer(InjectionHelperPipeName, GetPipePlatform()))
             {
                 try
                 {
@@ -43,7 +45,7 @@ namespace CoreHook.Tests
             var InjectionHelperPipeName = "InjectionHelperFailedPipeTest";
 
             InjectionHelper.BeginInjection(_targetProcessId);
-            using (InjectionHelper.CreateServer(InjectionHelperPipeName, new PipePlatformBase()))
+            using (InjectionHelper.CreateServer(InjectionHelperPipeName, GetPipePlatform()))
             {
                 try
                 {
@@ -58,18 +60,25 @@ namespace CoreHook.Tests
 
         private static bool SendInjectionComplete(string pipeName, int pid)
         {
-            using (NamedPipeClient pipeClient = new NamedPipeClient(pipeName))
+            using (INamedPipeClient pipeClient = new NamedPipeClient(pipeName))
             {
-                if (pipeClient.Connect())
+                if (pipeClient.Connect(2000))
                 {
-                    var request = new InjectionCompleteNotification(pid, true);
-                    if (pipeClient.TrySendRequest(request.CreateMessage()))
-                    {
-                        return true;
-                    }
+                    return SendPipeMessage(pipeClient.MessageHandler,
+                        InjectionCompleteNotification.CreateMessage(pid, true));
                 }
             }
             return false;
+        }
+
+        private static IPipePlatform GetPipePlatform()
+        {
+            return new PipePlatformBase();
+        }
+
+        private static bool SendPipeMessage(IMessageWriter writer, IMessage message)
+        {
+            return writer.TryWrite(message);
         }
     }
 }
