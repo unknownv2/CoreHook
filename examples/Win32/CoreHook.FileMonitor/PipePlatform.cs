@@ -5,16 +5,16 @@ namespace CoreHook.FileMonitor
 {
     public class PipePlatform : IPipePlatform
     {
-        public NamedPipeServerStream CreatePipeByName(string pipeName)
+        public NamedPipeServerStream CreatePipeByName(string pipeName, string serverName)
         {
             return new NamedPipeServerStream(
-             pipeName,
-             PipeDirection.InOut,
-             NamedPipeServerStream.MaxAllowedServerInstances,
-             PipeTransmissionMode.Byte,
-             PipeOptions.Asynchronous,
-             65536,
-             65536
+                 pipeName,
+                 PipeDirection.InOut,
+                 1,
+                 PipeTransmissionMode.Byte,
+                 PipeOptions.Asynchronous,
+                 65536,
+                 65536
              );
         }
     }
