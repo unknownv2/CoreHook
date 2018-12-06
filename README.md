@@ -179,11 +179,6 @@ For example, the command
 
 will create a folder called `Publish/win32/win10-arm/` containing the `CoreHook.FileMonitor` example.
 
-```ps
-.\publish -example uwp -runtime win10-arm64
-```
-will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.Uwp.FileMonitor` example.
-
 
 ### Windows Symbol Support
 
@@ -219,6 +214,6 @@ Licensed under the [MIT](LICENSE) License.
 A lot of this project is based on the work of others who were willing to share their knowledge.
 
 * [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - For the EasyHook library.
-* [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and the [.NET Core Plugins project](https://github.com/natemcmaster/DotNetCorePlugins).
 * [dotnet Team](https://github.com/dotnet) - For the DependencyModel project.
+* [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and the [.NET Core Plugins project](https://github.com/natemcmaster/DotNetCorePlugins).
 * [ZenLulz (Jämes Ménétrey)](https://github.com/ZenLulz/MemorySharp) - For the MemorySharp library.
