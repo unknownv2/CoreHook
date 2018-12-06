@@ -19,10 +19,10 @@ namespace CoreHook.Tests
             bool receivedMessage = false;
 
             using (CreateServer(namedPipe, GetPipePlatform(),
-                (string request, IConnection connection) =>
+                (IMessage request, ITransportChannel channel) =>
                 {
                     receivedMessage = true;
-                    SendResponse(connection, "RandomResponse");
+                    SendPipeMessage(channel.MessageHandler, "RandomResponse");
                 }))
             using (INamedPipeClient pipeClient = CreateClient(namedPipe))
             {
@@ -67,7 +67,7 @@ namespace CoreHook.Tests
             const string testMessage3 = "TestMessage3";
 
             using (CreateServer(namedPipe, GetPipePlatform(),
-                  (request, connection) => SendResponse(connection, request)))
+                  (request, channel) => SendPipeMessage(channel.MessageHandler, request)))
             using (INamedPipeClient pipeClient = CreateClient(namedPipe))
             {
                 if (pipeClient.Connect(3000))
@@ -89,16 +89,13 @@ namespace CoreHook.Tests
         {
             string namedPipe = Resources.GetUniquePipeName();
             const string testMessage = "TestMessage";
-            bool receivedCorrectMessage = false;
 
             using (CreateServer(namedPipe, GetPipePlatform(),
-                (string request, IConnection connection) =>
+                (message, channel) =>
                 {
-                    if (request == testMessage)
-                    {
-                        receivedCorrectMessage = true;
-                    }
-                    new MessageWriter(connection).Write("RandomResponse");
+                    var receivedMessage = message.ToString();
+                    Assert.Equal(receivedMessage, testMessage);
+                    SendPipeMessage(channel.MessageHandler, "RandomResponse");
                 }))
             using (INamedPipeClient pipeClient = CreateClient(namedPipe))
             {
@@ -107,7 +104,6 @@ namespace CoreHook.Tests
                     Assert.NotEqual(ReadMessageToString(pipeClient), testMessage);
                 }
             }
-            Assert.True(receivedCorrectMessage);
         }
 
         [Fact]
@@ -137,15 +133,7 @@ namespace CoreHook.Tests
             return new NamedPipeClient(pipeName);
         }
 
-        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IConnection> handleRequest)
-        {
-            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
-        }
         private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IMessage, ITransportChannel> handleRequest)
-        {
-            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
-        }
-        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<string, IConnection> handleRequest)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
         }
@@ -167,11 +155,6 @@ namespace CoreHook.Tests
         private static bool SendPipeMessage(IMessageHandler messageHandler, IMessage message)
         {
             return messageHandler.TryWrite(message);
-        }
-
-        private static void SendResponse(IConnection connection, string message)
-        {
-            new MessageWriter(connection).Write(message);
         }
 
         private static string ReadMessageToString(IMessageHandler messageHandler)

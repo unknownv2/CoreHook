@@ -16,7 +16,6 @@ namespace CoreHook.IPC.NamedPipes
 
         private const int MaxPipeNameLength = 250;
      
-        private readonly Action<IConnection> _handleConnection;
         private readonly Action<ITransportChannel> _handleTransportConnection;
 
         private readonly string _pipeName;
@@ -25,61 +24,12 @@ namespace CoreHook.IPC.NamedPipes
         private bool _connectionStopped;
         private NamedPipeServerStream _listeningPipe;
 
-        private NamedPipeServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
-        {
-            _pipeName = pipeName;
-            _platform = platform;
-            _handleConnection = handleConnection;
-            _connectionStopped = false;
-        }
-
         private NamedPipeServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleTransportConnection)
         {
             _pipeName = pipeName;
             _platform = platform;
             _handleTransportConnection = handleTransportConnection;
             _connectionStopped = false;
-        }
-
-        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<IConnection> handleConnection)
-        {
-            if (pipeName.Length > MaxPipeNameLength)
-            {
-                throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
-            }
-
-            var pipeServer = new NamedPipeServer(pipeName, platform, handleConnection);
-            pipeServer.OpenListeningPipe();
-            return pipeServer;
-        }
-
-        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<string, IConnection> handleRequest)
-        {
-            if (pipeName.Length > MaxPipeNameLength)
-            {
-                throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
-            }
-
-            var pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleConnection(connection, handleRequest));
-            pipeServer.OpenListeningPipe();
-            return pipeServer;
-        }
-
-        private static void HandleConnection(IConnection connection, Action<string, IConnection> handleRequest)
-        {
-            if (connection.IsConnected)
-            {
-                var reader = new MessageReader(connection);
-                while (connection.IsConnected)
-                {
-                    string request = reader.Read().ToString();
-                    if (request == null || !connection.IsConnected)
-                    {
-                        break;
-                    }
-                    handleRequest(request, connection);
-                }
-            }
         }
 
         public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
@@ -104,23 +54,6 @@ namespace CoreHook.IPC.NamedPipes
             var pipeServer = new NamedPipeServer(pipeName, platform, handleRequest);
             pipeServer.OpenListeningPipe();
             return pipeServer;
-        }
-
-        private static void HandleConnection(IConnection connection, Action<IMessage, IConnection> handleRequest)
-        {
-            if (connection.IsConnected)
-            {
-                var reader = new MessageReader(connection);
-                while (connection.IsConnected)
-                {
-                    var message = reader.Read();
-                    if (message == null || !connection.IsConnected)
-                    {
-                        break;
-                    }
-                    handleRequest(message, connection);
-                }
-            }
         }
 
         private static void HandleTransportConnection(ITransportChannel channel, Action<IMessage, ITransportChannel> handleRequest)
@@ -153,7 +86,7 @@ namespace CoreHook.IPC.NamedPipes
             }
             catch (Exception e)
             {
-                LogError("OpenListeningPipe caught unhandled exception", e);
+                LogError("OpenListeningPipe: unhandled exception", e);
             }
         }
 
@@ -183,7 +116,7 @@ namespace CoreHook.IPC.NamedPipes
                     connectionBroken = true;
                     if (!_connectionStopped)
                     {
-                        LogError($"OnNewConnection caught IOException for pipe: {_pipeName}", e);
+                        LogError($"OnNewConnection: IOException for pipe: {_pipeName}", e);
                     }
                 }
                 catch (ObjectDisposedException)
@@ -195,27 +128,19 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 catch (Exception e)
                 {
-                    LogError("OnNewConnection caught unhandled exception", e);
+                    LogError("OnNewConnection: unhandled exception", e);
                 }
                 if (!_connectionStopped && !connectionBroken)
                 {
-                    //new Thread(OpenListeningPipe).Start();
                     try
                     {
                         Connection = new PipeConnection(pipe, () => _connectionStopped);
                         MessageHandler = new MessageHandler(Connection);
-                        if (_handleTransportConnection != null)
-                        {
-                            _handleTransportConnection(this);
-                        }
-                        else
-                        {
-                            _handleConnection(Connection);
-                        }
+                        _handleTransportConnection?.Invoke(this);
                     }
                     catch (Exception e)
                     {
-                        LogError("Unhandled exception in connection handler", e);
+                        LogError("Unhandled exception during server initialization", e);
                     }
                 }
             }

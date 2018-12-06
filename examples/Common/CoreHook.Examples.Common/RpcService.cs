@@ -92,25 +92,5 @@ namespace CoreHook.Examples.Common
                 _session.CancellationToken.WaitHandle.WaitOne();
             }
         }
-        public void HandleConnection(IConnection connection)
-        {
-            Console.WriteLine($"Connection received from pipe {_pipeName}.");
-
-            var serverStream = connection.Stream;
-
-            IJsonRpcServiceHost host = BuildServiceHost(_service);
-
-            var serverHandler = new StreamRpcServerHandler(host);
-
-            serverHandler.DefaultFeatures.Set(_session);
-
-            using (var reader = new ByLineTextMessageReader(serverStream))
-            using (var writer = new ByLineTextMessageWriter(serverStream))
-            using (serverHandler.Attach(reader, writer))
-            {
-                // Wait for exit
-                _session.CancellationToken.WaitHandle.WaitOne();
-            }
-        }
     }
 }
