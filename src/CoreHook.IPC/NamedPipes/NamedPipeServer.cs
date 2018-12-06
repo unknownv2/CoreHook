@@ -59,17 +59,15 @@ namespace CoreHook.IPC.NamedPipes
         private static void HandleTransportConnection(ITransportChannel channel, Action<IMessage, ITransportChannel> handleRequest)
         {
             var connection = channel.Connection;
-            if (connection.IsConnected)
+
+            while (connection.IsConnected)
             {
-                while (channel.Connection.IsConnected)
+                var message = channel.MessageHandler.Read();
+                if (message == null || !connection.IsConnected)
                 {
-                    var message = channel.MessageHandler.Read();
-                    if (message == null || !connection.IsConnected)
-                    {
-                        break;
-                    }
-                    handleRequest(message, channel);
+                    break;
                 }
+                handleRequest(message, channel);
             }
         }
 
