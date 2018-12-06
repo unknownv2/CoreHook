@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CoreHook.IPC;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
+using CoreHook.IPC.Transport;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
@@ -53,7 +55,7 @@ namespace CoreHook.Examples.Common
         private INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             _pipeName = namedPipeName;
-            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleConnection);
+            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleTransportConnection);
         }
 
         public IJsonRpcServiceHost BuildServiceHost(Type service)
@@ -70,11 +72,11 @@ namespace CoreHook.Examples.Common
             return builder.Build();
         }
 
-        public void HandleConnection(IPC.IConnection connection)
+        public void HandleTransportConnection(ITransportChannel channel)
         {
             Console.WriteLine($"Connection received from pipe {_pipeName}.");
 
-            var pipeServer = connection.ServerStream;
+            var serverStream = channel.Connection.Stream;
 
             IJsonRpcServiceHost host = BuildServiceHost(_service);
 
@@ -82,8 +84,28 @@ namespace CoreHook.Examples.Common
 
             serverHandler.DefaultFeatures.Set(_session);
 
-            using (var reader = new ByLineTextMessageReader(pipeServer))
-            using (var writer = new ByLineTextMessageWriter(pipeServer))
+            using (var reader = new ByLineTextMessageReader(serverStream))
+            using (var writer = new ByLineTextMessageWriter(serverStream))
+            using (serverHandler.Attach(reader, writer))
+            {
+                // Wait for exit
+                _session.CancellationToken.WaitHandle.WaitOne();
+            }
+        }
+        public void HandleConnection(IConnection connection)
+        {
+            Console.WriteLine($"Connection received from pipe {_pipeName}.");
+
+            var serverStream = connection.Stream;
+
+            IJsonRpcServiceHost host = BuildServiceHost(_service);
+
+            var serverHandler = new StreamRpcServerHandler(host);
+
+            serverHandler.DefaultFeatures.Set(_session);
+
+            using (var reader = new ByLineTextMessageReader(serverStream))
+            using (var writer = new ByLineTextMessageWriter(serverStream))
             using (serverHandler.Attach(reader, writer))
             {
                 // Wait for exit
