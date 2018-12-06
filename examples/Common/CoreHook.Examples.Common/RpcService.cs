@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CoreHook.IPC;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 using CoreHook.IPC.Transport;
