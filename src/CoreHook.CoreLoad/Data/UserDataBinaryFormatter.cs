@@ -15,7 +15,7 @@ namespace CoreHook.CoreLoad.Data
             _formatter = formatter ?? GetDefaultFormatter();
         }
 
-        private IFormatter GetDefaultFormatter()
+        private static IFormatter GetDefaultFormatter()
         {
             return new BinaryFormatter
             {

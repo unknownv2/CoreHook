@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.IO;
 using CoreHook.CoreLoad.Data;
+using CoreHook.IPC;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 
@@ -43,32 +44,36 @@ namespace CoreHook.CoreLoad
                         "Remote arguments address was zero");
                 }
 
+                // Extract the plugin initialization information
+                // from the remote host loader arguments.
                 var remoteInfoFormatter = new UserDataBinaryFormatter();
-                var connection =
-                    ConnectionData<RemoteEntryInfo, ManagedRemoteInfo>.LoadData(
+
+                var pluginConfig =
+                    PluginConfiguration<RemoteEntryInfo, ManagedRemoteInfo>.LoadData(
                         remoteParameters, remoteInfoFormatter
                     );
 
-                var resolver = new Resolver(
-                    connection.RemoteInfo.UserLibrary);
+                var resolver = new DependencyResolver(
+                    pluginConfig.RemoteInfo.UserLibrary);
+                
+                // Construct the parameter array passed to the plugin initialization function.
+                var pluginParameters = new object[1 + pluginConfig.RemoteInfo.UserParams.Length];
 
-                var paramArray = new object[1 + connection.RemoteInfo.UserParams.Length];
-
-                paramArray[0] = connection.UnmanagedInfo;
-                for (int i = 0; i < connection.RemoteInfo.UserParams.Length; ++i)
+                pluginParameters[0] = pluginConfig.UnmanagedInfo;
+                for (var i = 0; i < pluginConfig.RemoteInfo.UserParams.Length; ++i)
                 {
-                    paramArray[i + 1] = connection.RemoteInfo.UserParams[i];
+                    pluginParameters[i + 1] = pluginConfig.RemoteInfo.UserParams[i];
                 }
               
-                DeserializeParameters(paramArray, remoteInfoFormatter);
+                DeserializeParameters(pluginParameters, remoteInfoFormatter);
 
                 // Execute the plugin library's entry point and pass in the user arguments.
-                LoadUserLibrary(
+                pluginConfig.State = LoadPlugin(
                     resolver.Assembly,
-                    paramArray,
-                    connection.RemoteInfo.ChannelName);
+                    pluginParameters,
+                    pluginConfig.RemoteInfo.ChannelName);
 
-                return (int)connection.State;
+                return (int)pluginConfig.State;
             }
             catch(ArgumentOutOfRangeException outOfRangeEx)
             {
@@ -79,7 +84,7 @@ namespace CoreHook.CoreLoad
             {
                 Log(exception.ToString());
             }
-            return (int)PluginInitializationState.Invalid;
+            return (int)PluginInitializationState.Failed;
         }
 
         /// <summary>
@@ -104,7 +109,7 @@ namespace CoreHook.CoreLoad
         /// <param name="assembly"></param>
         /// <param name="paramArray"></param>
         /// <param name="helperPipeName"></param>
-        private static void LoadUserLibrary(Assembly assembly, object[] paramArray, string helperPipeName)
+        private static PluginInitializationState LoadPlugin(Assembly assembly, object[] paramArray, string helperPipeName)
         {
             Type entryPoint = FindEntryPoint(assembly);
 
@@ -120,18 +125,22 @@ namespace CoreHook.CoreLoad
                 throw new MissingMethodException($"Failed to find the constructor {entryPoint.Name} in {assembly.FullName}");
             }
 
-            SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id);
-            try
+            if (NotificationHelper.SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id))
             {
-                // Execute the CoreHook plugin entry point
-                runMethod.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
-                                           BindingFlags.InvokeMethod, null, paramArray, null);
-  
+                try
+                {
+                    // Execute the CoreHook plugin entry point
+                    runMethod.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
+                                               BindingFlags.InvokeMethod, null, paramArray, null);
+
+                }
+                finally
+                {
+                    Release(entryPoint);
+                }
+                return PluginInitializationState.Initialized;
             }
-            finally
-            {
-                Release(entryPoint);
-            }
+            return PluginInitializationState.Failed;
         }
 
         /// <summary>
@@ -215,28 +224,6 @@ namespace CoreHook.CoreLoad
             return null;
         }
 
-        /// <summary>
-        /// Notify the injecting process when injection has completed successfully
-        /// and the plugin is about to be executed.
-        /// </summary>
-        /// <param name="pipeName">The notification pipe created by the remote process.</param>
-        /// <param name="pid">The process ID to send in the notification message.</param>
-        /// <returns>True if the injection completion notification was sent successfully.</returns>
-        private static bool SendInjectionComplete(string pipeName, int pid)
-        {
-            using (var pipeClient = new NamedPipeClient(pipeName))
-            {
-                if (pipeClient.Connect())
-                {
-                    var request = new InjectionCompleteNotification(pid, true);
-                    if (pipeClient.TrySendRequest(request.CreateMessage()))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
 
         private static void Release(Type entryPoint)
         {
