@@ -1,6 +1,5 @@
 ﻿using System;
 using Xunit;
-using CoreHook.IPC;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
