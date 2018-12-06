@@ -41,6 +41,7 @@ namespace CoreHook.IPC.Messages
             }
             return result;
         }
+
         public override string ToMessage()
         {
             return ToString();

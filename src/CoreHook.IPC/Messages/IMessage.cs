@@ -5,6 +5,5 @@ namespace CoreHook.IPC.Messages
     {
         string Header { get; }
         string Body { get; }
-        string ToMessage();
     }
 }
