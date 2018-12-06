@@ -1,12 +1,10 @@
-﻿using System.IO.Pipes;
+﻿using System.IO;
 
 namespace CoreHook.IPC
 {
     public interface IConnection
     {
-        NamedPipeServerStream ServerStream { get; }
+        Stream Stream { get; }
         bool IsConnected { get; }
-        string ReadRequest();
-        bool TrySendResponse(string message);
     }
 }
