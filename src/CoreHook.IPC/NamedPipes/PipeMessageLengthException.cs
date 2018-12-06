@@ -8,6 +8,5 @@ namespace CoreHook.IPC.NamedPipes
             : base($"The message from pipe ({pipeName}) exceeded the max length allowed ({maxMessageLength}))")
         {
         }
-        
     }
 }
