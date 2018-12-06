@@ -1,13 +1,10 @@
 ﻿using System;
-using System.IO.Pipes;
+using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public interface INamedPipeClient : IDisposable
+    public interface INamedPipeClient : ITransportChannel, IDisposable
     {
-        PipeStream PipeStream { get; }
-        bool Connect(int timeOutMilliseconds);
-        void SendRequest(string request);
-        string ReadRawResponse();
+        bool Connect(int timeOutMilliseconds = 10000);
     }
 }

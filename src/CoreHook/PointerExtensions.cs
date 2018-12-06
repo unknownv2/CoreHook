@@ -16,7 +16,7 @@ namespace CoreHook
         /// <returns>The callable delegate method at <paramref name="function"/>.</returns>
         public static T ToFunction<T>(this IntPtr function) where T : class
         {
-            // Debug assertion that T is a Delegate type
+            // Verify that T is a Delegate type.
             System.Diagnostics.Debug.Assert(typeof(Delegate).IsAssignableFrom(typeof(T)));
 
             return Marshal.GetDelegateForFunctionPointer<T>(function);

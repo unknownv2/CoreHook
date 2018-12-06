@@ -2,10 +2,10 @@
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    interface IAssemblyLoader : IDisposable
+    public interface IAssemblyLoader : IDisposable
     {
         void LoadModule(string path);
-        void CreateThread(IRemoteFunctionCall call, bool waitForThreadExit = true);
         IntPtr CopyMemory(byte[] buffer, int length);
+        void CreateThread(IRemoteFunctionCall call, bool waitForThreadExit = true);
     }
 }

@@ -17,9 +17,19 @@ namespace CoreHook.IPC.Messages
             RequestData = new InjectionCompleteMessage(didComplete, processId);
         }
 
-        public Message CreateMessage()
+        public IMessage CreateMessage()
         {
             return new Message(InjectionComplete, RequestData.ToMessage());
+        }
+
+        public static IMessage CreateMessage(int processId, bool didComplete)
+        {
+            return new InjectionCompleteNotification(processId, didComplete).CreateMessage();
+        }
+
+        public static InjectionCompleteMessage ParseMessage(IMessage message)
+        {
+            return InjectionCompleteMessage.FromBody(message.Body);
         }
     }
 }

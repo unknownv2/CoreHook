@@ -39,6 +39,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
             throw new PlatformNotSupportedException("Assembly module loading");
         }
+
         /// <summary>
         /// Retrieve system information such as string path encoding and max path length.
         /// </summary>
@@ -184,7 +185,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                     {
                         // Serialize the plugin information such as the DLL path
                         // and the plugin arguments, which are copied to the remote process.
-                        PrepareInjection(
+                        CreatePluginArguments(
                             remoteInfo,
                             remoteInfoFormatter,
                             remoteInjectorConfig.PayloadLibrary,
@@ -261,11 +262,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// <param name="pluginPath">The plugin to be loaded and executed in the target process.</param>
         /// <param name="argumentsStream">The stream that holds the the serialized <paramref name="remoteInfo"/> class.</param>
         /// <param name="injectionPipeName">The pipe name used for notifying the host process that the hook plugin has been loaded in the target process.</param>
-        private static void PrepareInjection(
+        private static void CreatePluginArguments(
             ManagedRemoteInfo remoteInfo,
             IUserDataFormatter userDataFormatter,
             string pluginPath,
-            MemoryStream argumentsStream,
+            Stream argumentsStream,
             string injectionPipeName)
         {
             if (string.IsNullOrWhiteSpace(pluginPath))

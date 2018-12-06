@@ -1,25 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.IO.Pipes;
 using CoreHook.IPC.Platform;
-using System.IO;
-using System.IO.Pipes;
 
 namespace CoreHook.Tests
 {
     public class PipePlatformBase : IPipePlatform
     {
-        public NamedPipeServerStream CreatePipeByName(string pipeName)
+        public NamedPipeServerStream CreatePipeByName(string pipeName, string serverName)
         {
             return new NamedPipeServerStream(
-             pipeName,
-             PipeDirection.InOut,
-             NamedPipeServerStream.MaxAllowedServerInstances,
-             PipeTransmissionMode.Byte,
-             PipeOptions.Asynchronous,
-             65536,
-             65536
-             );
+                pipeName,
+                PipeDirection.InOut,
+                1,
+                PipeTransmissionMode.Byte,
+                PipeOptions.Asynchronous,
+                65536,
+                65536
+            );
         }
     }
 }

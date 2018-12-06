@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace CoreHook.BinaryInjection.RemoteInjection
 {
-    internal class InjectionWait
+    internal class InjectionState
     {
         public readonly Mutex ThreadLock = new Mutex(false);
         public readonly ManualResetEvent Completion = new ManualResetEvent(false);

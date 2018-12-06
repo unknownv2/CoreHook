@@ -50,9 +50,6 @@ namespace CoreHook.BinaryInjection.Loader
             GC.SuppressFinalize(this);
         }
 
-        ~AssemblyLoader()
-        {
-            Dispose();
-        }
+        ~AssemblyLoader() => Dispose();
     }
 }

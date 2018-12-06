@@ -1,10 +1,10 @@
-﻿using CoreHook.BinaryInjection.Loader.Serializers;
+﻿using CoreHook.BinaryInjection.Loader.Serialization;
 
 namespace CoreHook.BinaryInjection.Loader
 {
     public interface IRemoteFunctionCall
     {
         IFunctionName FunctionName { get; }
-        IBinarySerializer Arguments { get; }
+        ISerializableObject Arguments { get; }
     }
 }

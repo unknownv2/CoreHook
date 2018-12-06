@@ -4,12 +4,12 @@ using System.Diagnostics;
 
 namespace CoreHook.CoreLoad.Data
 {
-    internal class ConnectionData<T, U> where T : IRemoteEntryInfo
+    internal class PluginConfiguration<T, U> where T : IRemoteEntryInfo
     {
         /// <summary>
-        /// Gets the state of the current <see cref="ConnectionData{T,U}"/>.
+        /// Gets the state of the current <see cref="PluginConfiguration{T,U}"/>.
         /// </summary>
-        internal PluginInitializationState State { get; private set; }
+        internal PluginInitializationState State { get; set; }
 
         /// <summary>
         /// Gets the unmanaged data containing the pointer to the memory block containing a class of type <see cref="T"/>;
@@ -18,26 +18,26 @@ namespace CoreHook.CoreLoad.Data
 
         internal U RemoteInfo { get; private set; }
 
-        private ConnectionData()
+        private PluginConfiguration()
         {
-            State = PluginInitializationState.Invalid;
+            State = PluginInitializationState.Failed;
             RemoteInfo = default(U);
             UnmanagedInfo = default(T);
         }
 
         /// <summary>
-        /// Loads <see cref="ConnectionData{T,U}"/> from the <see cref="IntPtr"/> specified
+        /// Loads <see cref="PluginConfiguration{T,U}"/> from the <see cref="IntPtr"/> specified
         /// in <paramref name="unmanagedInfoPointer"/>.
         /// </summary>
         /// <param name="unmanagedInfoPointer">Pointer to the user arguments data.</param>
         /// <param name="formatter">Deserializer for the user arguments data.</param>
-        public static ConnectionData<T, U> LoadData(
+        public static PluginConfiguration<T, U> LoadData(
             IntPtr unmanagedInfoPointer,
             IUserDataFormatter formatter)
         {
-            var data = new ConnectionData<T, U>
+            var data = new PluginConfiguration<T, U>
             {
-                State = PluginInitializationState.Valid,
+                State = PluginInitializationState.Loading,
                 UnmanagedInfo = (T)Activator.CreateInstance(typeof(T))
             };
             try
@@ -52,7 +52,7 @@ namespace CoreHook.CoreLoad.Data
             }
             catch (Exception exception)
             {
-                data.State = PluginInitializationState.Invalid;
+                data.State = PluginInitializationState.Failed;
                 Debug.WriteLine(exception.ToString());
             }
             return data;

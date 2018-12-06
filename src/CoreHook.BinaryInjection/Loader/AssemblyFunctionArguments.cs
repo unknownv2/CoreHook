@@ -1,13 +1,13 @@
 ﻿using System;
 using System.IO;
-using CoreHook.BinaryInjection.Loader.Serializers;
+using CoreHook.BinaryInjection.Loader.Serialization;
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    public class AssemblyFunctionArguments : IBinarySerializer
+    public class AssemblyFunctionArguments : ISerializableObject
     {
         private readonly IAssemblyDelegate _assemblyDelegate;
-        private readonly IBinarySerializer _arguments;
+        private readonly ISerializableObject _arguments;
         private readonly IStringEncodingConfiguration _stringEncodingConfig;
 
         private const int FunctionNameMax = 256;
@@ -15,7 +15,7 @@ namespace CoreHook.BinaryInjection.Loader
         public AssemblyFunctionArguments(
             IStringEncodingConfiguration stringEncodingConfig,
             IAssemblyDelegate assemblyDelegate,
-            IBinarySerializer arguments)
+            ISerializableObject arguments)
         {
             _assemblyDelegate = assemblyDelegate ?? throw new ArgumentNullException(nameof(assemblyDelegate));
             _arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));

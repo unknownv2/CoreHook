@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
-using CoreHook.BinaryInjection.Loader.Serializers;
+using CoreHook.BinaryInjection.Loader.Serialization;
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    public class RemoteFunctionArguments : IBinarySerializer
+    public class RemoteFunctionArguments : ISerializableObject
     {
         public bool Is64BitProcess;
         public IntPtr UserData;

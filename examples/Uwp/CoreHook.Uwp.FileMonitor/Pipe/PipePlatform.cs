@@ -41,11 +41,12 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
         /// <summary>
         /// Create a named pipe server that allows communicating with UWP applications.
         /// </summary>
-        /// <param name="pipeName">The name of the server pipe to create.</param>
+        /// <param name="pipeName">The name of the pipe to create.</param>
+        /// <param name="serverName">The name of the remote computer, or "." to specify the local computer.</param>
         /// <returns>The named pipe used for communicating with UWP applications.</returns>
-        public NamedPipeServerStream CreatePipeByName(string pipeName)
+        public NamedPipeServerStream CreatePipeByName(string pipeName, string serverName = ".")
         {
-            return NamedPipeNative.CreateNamedServerPipe(".", "pipe", pipeName, CreateUwpPipeSecurity());
+            return NamedPipeNative.CreateNamedServerPipe(serverName, "pipe", pipeName, CreateUwpPipeSecurity());
         }
     }
 }

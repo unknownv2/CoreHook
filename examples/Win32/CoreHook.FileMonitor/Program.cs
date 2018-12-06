@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-using CoreHook.FileMonitor.Service;
-using CoreHook.IPC.Platform;
 using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.BinaryInjection.RemoteInjection;
+using CoreHook.FileMonitor.Service;
+using CoreHook.IPC.Platform;
 using CoreHook.Memory;
 
 namespace CoreHook.FileMonitor
@@ -27,7 +27,7 @@ namespace CoreHook.FileMonitor
         /// <summary>
         /// The name of the pipe used for notifying the host process
         /// if the hooking plugin has been loaded successfully in
-        /// the target process or if loading failed. 
+        /// the target process or if loading failed.
         /// </summary>
         private const string InjectionPipeName = "CoreHookInjection";
         /// <summary>
@@ -41,17 +41,17 @@ namespace CoreHook.FileMonitor
 
         private static void Main(string[] args)
         {
-            int targetPID = 0;
+            int targetProcessId = 0;
             string targetProgram = string.Empty;
 
-            // Get the process to hook by file path for launching or process id for attaching.
-            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID) || !File.Exists(args[0]))
+            // Get the process to hook by file path for launching or process id for loading into.
+            while ((args.Length != 1) || !ParseProcessId(args[0], out targetProcessId) || !FindOnPath(args[0]))
             {
-                if (targetPID > 0)
+                if (targetProcessId > 0)
                 {
                     break;
                 }
-                if (args.Length != 1 || !File.Exists(args[0]))
+                if (args.Length != 1 || !FindOnPath(args[0]))
                 {
                     Console.WriteLine();
                     Console.WriteLine("Usage: FileMonitor %PID%");
@@ -88,11 +88,58 @@ namespace CoreHook.FileMonitor
             else
             {
                 // Inject FileMonitor dll into process.
-                InjectDllIntoTarget(targetPID, injectionLibrary);
+                InjectDllIntoTarget(targetProcessId, injectionLibrary);
             }
 
             // Start the RPC server for handling requests from the hooked program.
             StartListener();
+        }
+
+        /// <summary>
+        /// Get an existing process ID by value or by name.
+        /// </summary>
+        /// <param name="targetProgram">The ID or name of a process to lookup.</param>
+        /// <param name="processId">The ID of the process if found.</param>
+        /// <returns>True if there is an existing process with the specified ID or name.</returns>
+        private static bool ParseProcessId(string targetProgram, out int processId)
+        {
+            if (!int.TryParse(targetProgram, out processId))
+            {
+                var process = ProcessHelper.GetProcessByName(targetProgram);
+                if (process != null)
+                {
+                    processId = process.Id;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Check if an application exists on the path.
+        /// </summary>
+        /// <param name="targetProgram">The program name, such as "notepad.exe".</param>
+        /// <returns>True of the program is found on the path.</returns>
+        private static bool FindOnPath(string targetProgram)
+        {
+            if (File.Exists(targetProgram))
+            {
+                return true;
+            }
+            
+            var path = Environment.GetEnvironmentVariable("PATH");
+            if (!string.IsNullOrWhiteSpace(path))
+            {
+                foreach (var pathDir in path.Split(";"))
+                {
+                    var programPath = Path.Combine(pathDir, targetProgram);
+                    if (File.Exists(programPath))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -124,7 +171,7 @@ namespace CoreHook.FileMonitor
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
-            ValidateFilePath(exePath);
+            //ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
 
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(

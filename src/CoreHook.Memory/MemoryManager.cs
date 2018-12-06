@@ -63,9 +63,6 @@ namespace CoreHook.Memory
             GC.SuppressFinalize(this);
         }
 
-        ~MemoryManager()
-        {
-            Dispose();
-        }
+        ~MemoryManager() => Dispose();
     }
 }

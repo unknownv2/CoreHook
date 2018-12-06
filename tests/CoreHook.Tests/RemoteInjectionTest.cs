@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using Xunit;
 using CoreHook.Tests.Plugins.Shared;
-using System.Diagnostics;
 
 namespace CoreHook.Tests
 {
@@ -32,6 +32,11 @@ namespace CoreHook.Tests
 
             Resources.EndProcess(testProcess);
         }
+    }
+
+    [Collection("Sequential")]
+    public class RemoteInjectionTest32
+    {
 
         [Fact]
         private void TestRemoteInject32()
@@ -56,7 +61,11 @@ namespace CoreHook.Tests
 
             Resources.EndProcess(testProcess);
         }
+    }
 
+    [Collection("Sequential")]
+    public class RemoteInjectionTestComplex
+    {
         [Fact]
         private void TestRemotePluginComplexParameter()
         {
@@ -86,23 +95,6 @@ namespace CoreHook.Tests
             Assert.Equal(complexParameter.HostProcessId.ToString(), Resources.ReadFromProcess(testProcess));
 
             Resources.EndProcess(testProcess);
-        }
-        //[Fact]
-        private void TestTargetAppRemoteInject()
-        {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
-            const string TestMessage = "Berner";
-
-            Resources.InjectDllIntoTarget(Resources.TargetProcess,
-               Resources.GetTestDllPath(
-               TestHookLibrary
-               ),
-               Resources.GetUniquePipeName(),
-               TestMessage);
-
-            Assert.Equal(TestMessage, Resources.ReadFromProcess(Resources.TargetProcess));
-
-            Resources.EndTargetAppProcess();
         }
     }
 }

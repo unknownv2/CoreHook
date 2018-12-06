@@ -1,7 +1,7 @@
 ﻿
 namespace CoreHook.BinaryInjection.Loader
 {
-    interface IModuleInjector
+    public interface IModuleInjector
     {
         void Inject(string path);
     }

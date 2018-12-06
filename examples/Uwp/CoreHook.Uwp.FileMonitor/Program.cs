@@ -44,17 +44,17 @@ namespace CoreHook.Uwp.FileMonitor
         /// <summary>
         /// Security Identifier representing ALL_APPLICATION_PACKAGES permission.
         /// </summary>
-        private static readonly SecurityIdentifier AllAppPkgsSid = new SecurityIdentifier("S-1-15-2-1");
+        private static readonly SecurityIdentifier AllAppPackagesSid = new SecurityIdentifier("S-1-15-2-1");
 
         private static void Main(string[] args)
         {
-            int targetPID = 0;
+            int targetProcessId = 0;
             string targetApp = string.Empty;
 
             // Get the process to hook by Application User Model Id for launching or process id for attaching.
-            while ((args.Length != 1) || !int.TryParse(args[0], out targetPID))
+            while ((args.Length != 1) || !int.TryParse(args[0], out targetProcessId))
             {
-                if (targetPID > 0)
+                if (targetProcessId > 0)
                 {
                     break;
                 }
@@ -95,17 +95,17 @@ namespace CoreHook.Uwp.FileMonitor
 
             // Grant read+execute permissions on the binary files
             // we are injecting into the UWP application.
-            GrantAllAppPkgsAccessToDir(currentDir);
-            GrantAllAppPkgsAccessToDir(Path.GetDirectoryName(injectionLibrary));
+            GrantAllAppPackagesAccessToDir(currentDir);
+            GrantAllAppPackagesAccessToDir(Path.GetDirectoryName(injectionLibrary));
 
             // Start the target application and begin plugin loading.
             if (!string.IsNullOrEmpty(targetApp))
             {
-                targetPID = LaunchAppxPackageForPid(targetApp);
+                targetProcessId = LaunchAppxPackage(targetApp);
             }
 
             // Inject the FileMonitor.Hook dll into the process.
-            InjectDllIntoTarget(targetPID, injectionLibrary);
+            InjectDllIntoTarget(targetProcessId, injectionLibrary);
 
             // Start the RPC server for handling requests from the hooked app.
             StartListener();
@@ -129,8 +129,8 @@ namespace CoreHook.Uwp.FileMonitor
                     out string coreLoadLibrary))
             {
                 // Make sure the native dll modules can be accessed by the UWP application
-                GrantAllAppPkgsAccessToFile(nativeConfig.HostLibrary);
-                GrantAllAppPkgsAccessToFile(nativeConfig.DetourLibrary);
+                GrantAllAppPackagesAccessToFile(nativeConfig.HostLibrary);
+                GrantAllAppPackagesAccessToFile(nativeConfig.DetourLibrary);
 
                 RemoteInjector.Inject(
                     processId,
@@ -176,19 +176,19 @@ namespace CoreHook.Uwp.FileMonitor
         /// and configuration files in <paramref name="directoryPath"/>.
         /// </summary>
         /// <param name="directoryPath">Directory containing application files.</param>
-        private static void GrantAllAppPkgsAccessToDir(string directoryPath)
+        private static void GrantAllAppPackagesAccessToDir(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
             {
                 return;
             }
 
-            GrantAllAppPkgsAccessToFolder(directoryPath);
+            GrantAllAppPackagesAccessToFolder(directoryPath);
             foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".json") || name.EndsWith(".dll") || name.EndsWith(".pdb")))
             {
                 GrantFolderRecursive(filePath, directoryPath);
-                GrantAllAppPkgsAccessToFile(filePath);
+                GrantAllAppPackagesAccessToFile(filePath);
             }
         }
 
@@ -196,22 +196,23 @@ namespace CoreHook.Uwp.FileMonitor
         /// Grant ALL_APPLICATION_PACKAGES permissions to the Symbol Cache directory <paramref name="directoryPath"/>.
         /// </summary>
         /// <param name="directoryPath">A directory containing Windows symbols (.PDB files).</param>
-        private static void GrantAllAppPkgsAccessToSymCacheDir(string directoryPath)
+        private static void GrantAllAppPackagesAccessToSymCacheDir(string directoryPath)
         {
             if (!Directory.Exists(directoryPath))
             {
                 return;
             }
 
-            GrantAllAppPkgsAccessToFolder(directoryPath);
+            GrantAllAppPackagesAccessToFolder(directoryPath);
 
             foreach (var filePath in Directory.GetFiles(directoryPath, "*.*", SearchOption.AllDirectories)
                     .Where(name => name.EndsWith(".pdb")))
             {
                 GrantFolderRecursive(filePath, directoryPath);
-                GrantAllAppPkgsAccessToFile(filePath);
+                GrantAllAppPackagesAccessToFile(filePath);
             }
         }
+
         /// <summary>
         /// Grant ALL_APPLICATION_PACKAGES permissions to a directory and its subdirectories.
         /// </summary>
@@ -221,7 +222,7 @@ namespace CoreHook.Uwp.FileMonitor
         {
             while((path = Path.GetDirectoryName(path)) != rootDirectory)
             {
-                GrantAllAppPkgsAccessToFolder(path);
+                GrantAllAppPackagesAccessToFolder(path);
             }
         }
 
@@ -229,14 +230,14 @@ namespace CoreHook.Uwp.FileMonitor
         /// Grant ALL_APPLICATION_PACKAGES permissions to a file at <paramref name="fileName"/>.
         /// </summary>
         /// <param name="fileName">The file to be granted ALL_APPLICATION_PACKAGES permissions.</param>
-        private static void GrantAllAppPkgsAccessToFile(string fileName)
+        private static void GrantAllAppPackagesAccessToFile(string fileName)
         {
             try
             {
                 var fileInfo = new FileInfo(fileName);
                 FileSecurity acl = fileInfo.GetAccessControl();
 
-                var rule = new FileSystemAccessRule(AllAppPkgsSid,
+                var rule = new FileSystemAccessRule(AllAppPackagesSid,
                                FileSystemRights.ReadAndExecute, AccessControlType.Allow);
                 acl.SetAccessRule(rule);
 
@@ -251,14 +252,14 @@ namespace CoreHook.Uwp.FileMonitor
         /// Grant ALL_APPLICATION_PACKAGES permissions to a directory at <paramref name="folderPath"/>.
         /// </summary>
         /// <param name="folderPath">The directory to be granted ALL_APPLICATION_PACKAGES permissions.</param>
-        private static void GrantAllAppPkgsAccessToFolder(string folderPath)
+        private static void GrantAllAppPackagesAccessToFolder(string folderPath)
         {
             try
             {
                 var dirInfo = new DirectoryInfo(folderPath);
                 DirectorySecurity acl = dirInfo.GetAccessControl(AccessControlSections.Access);
 
-                var rule = new FileSystemAccessRule(AllAppPkgsSid,
+                var rule = new FileSystemAccessRule(AllAppPackagesSid,
                                FileSystemRights.ReadAndExecute, AccessControlType.Allow);
   
                 acl.SetAccessRule(rule);
@@ -275,17 +276,16 @@ namespace CoreHook.Uwp.FileMonitor
         /// </summary>
         /// <param name="appName">The Application User Model Id (AUMID) to start.</param>
         /// <returns>The process ID of the application started or 0 if launching failed.</returns>
-        private static int LaunchAppxPackageForPid(string appName)
+        private static int LaunchAppxPackage(string appName)
         {
             var appActiveManager = new ApplicationActivationManager();
-            uint pid;
 
             try
             {
                 // PackageFamilyName + {Applications.Application.Id}, inside AppxManifest.xml
-                appActiveManager.ActivateApplication(appName, null, ActivateOptions.None, out pid);
+                appActiveManager.ActivateApplication(appName, null, ActivateOptions.None, out var processId);
 
-                return (int)pid;
+                return (int)processId;
             }
             catch
             {

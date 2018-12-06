@@ -27,7 +27,7 @@ namespace CoreHook.Tests.Windows
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
-        private static extern ushort FindAtomW(ushort nAtom);
+        private static extern ushort FindAtomW(string lpString);
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
@@ -82,10 +82,7 @@ namespace CoreHook.Tests.Windows
                 new InternalAddAtomDelegate(InternalAddAtomHook),
                 this))
             {
-                InternalAddAtomFunction = (InternalAddAtomDelegate)
-                            Marshal.GetDelegateForFunctionPointer(
-                                hook.HookBypassAddress,
-                                typeof(InternalAddAtomDelegate));
+                InternalAddAtomFunction = hook.HookBypassAddress.ToFunction<InternalAddAtomDelegate>();
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
@@ -132,10 +129,7 @@ namespace CoreHook.Tests.Windows
             {
 
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
-                InternalAddAtomFunction = (InternalAddAtomDelegate)
-                        Marshal.GetDelegateForFunctionPointer(
-                            internalAddAtomFuncAddress,
-                            typeof(InternalAddAtomDelegate));
+                InternalAddAtomFunction = hookInternal.HookBypassAddress.ToFunction<InternalAddAtomDelegate>();
 
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
@@ -179,10 +173,7 @@ namespace CoreHook.Tests.Windows
 
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                InternalAddAtomFunction = (InternalAddAtomDelegate)
-                    Marshal.GetDelegateForFunctionPointer(
-                        hookInternal.HookBypassAddress,
-                        typeof(InternalAddAtomDelegate));
+                InternalAddAtomFunction = hookInternal.HookBypassAddress.ToFunction<InternalAddAtomDelegate>();
 
                 _internalAddAtomCalled = false;
                 _addAtomCalled = false;
@@ -207,6 +198,40 @@ namespace CoreHook.Tests.Windows
                 Assert.Equal<ushort>(0, DeleteAtom(atomId));
             }
         }
+
+        [Fact]
+        public void DetourApiAndInternalFunctionUsingInterfaceBypassAddress()
+        {
+            using (var hookInternal = HookFactory.CreateHook<InternalFindAtom>(
+                LocalHook.GetProcAddress("kernel32.dll", "InternalFindAtom"),
+                InternalFindAtom_Hook,
+                this))
+            {
+                hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
+            
+                InternalFindAtomFunction = hookInternal.Original;
+
+                _internalFindAtomCalled = false;
+
+                string atomName = "TestLocalAtomName";
+                ushort atomId = AddAtomW(atomName);
+
+                ushort foundAtomId = FindAtomW(atomName);
+
+                Assert.NotEqual(0, atomId);
+                Assert.True(_internalFindAtomCalled);
+                Assert.Equal(atomId, foundAtomId);
+
+                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+            }
+        }
+
+        ushort InternalFindAtom_Hook(bool local, bool unicode, string atomName)
+        {
+            _internalFindAtomCalled = true;
+            return InternalFindAtomFunction(local, unicode, atomName);
+        }
+
 #endif
         private delegate ulong GetCurrentNlsCacheDelegate();
 
@@ -248,10 +273,7 @@ namespace CoreHook.Tests.Windows
                 this))
             {
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
-                GetCurrentNlsCacheFunction = (GetCurrentNlsCacheDelegate)
-                    Marshal.GetDelegateForFunctionPointer(
-                        hook.HookBypassAddress,
-                        typeof(GetCurrentNlsCacheDelegate));
+                GetCurrentNlsCacheFunction = hook.HookBypassAddress.ToFunction<GetCurrentNlsCacheDelegate>();
 
                 string stringA = "HelloWorld";
                 string stringB = "Hello";

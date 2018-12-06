@@ -1,9 +1,12 @@
-﻿
+﻿using System;
+
 namespace CoreHook.CoreLoad.Data
 {
+    [Flags]
     internal enum PluginInitializationState
     {
-        Invalid = 0,
-        Valid = int.MaxValue
+        Failed = 0,
+        Loading = 1,
+        Initialized = int.MaxValue
     }
 }

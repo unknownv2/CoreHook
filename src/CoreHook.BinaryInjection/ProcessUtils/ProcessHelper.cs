@@ -10,18 +10,29 @@ namespace CoreHook.BinaryInjection.ProcessUtils
         {
             return Process.GetProcessesByName(processName);
         }
+
         public static Process GetProcessById(int processId)
         {
             return Process.GetProcessById(processId);
         }
+
         public static Process GetProcessByName(string processName)
         {
-            return GetProcessListByName(processName).First();
+            try
+            {
+                return GetProcessListByName(processName).First();
+            }
+            catch
+            {
+                return null;
+            }
         }
+
         public static int GetCurrentProcessId()
         {
             return Process.GetCurrentProcess().Id;
         }
+
         public static bool IsArchitectureArm()
         {
             var arch = RuntimeInformation.ProcessArchitecture;

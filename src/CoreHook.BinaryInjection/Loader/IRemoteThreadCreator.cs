@@ -1,7 +1,7 @@
 ﻿
 namespace CoreHook.BinaryInjection.Loader
 {
-    interface IRemoteThreadCreator
+    public interface IRemoteThreadCreator
     {
         void ExecuteRemoteFunction(IRemoteFunctionCall call, bool waitForThreadExit);
     }

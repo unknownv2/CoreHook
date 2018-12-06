@@ -26,7 +26,7 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 
 | Build server    | Platform           | Build status                                                                                                                                                                    |
 | --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| AppVeyor        | Linux, Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook)                                    |
+| AppVeyor        | Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook)                                    |
 | Azure Pipelines | Linux, Windows     | [![Build Status](https://unknowndev.visualstudio.com/CoreHook/_apis/build/status/CoreHook/CoreHook)](https://unknowndev.visualstudio.com/CoreHook/_build/latest?definitionId=2) |
 | Travis CI       | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                                                         |
 
@@ -84,24 +84,24 @@ CoreHook supports application function call interception on various architecture
 
 First, set the environment variables for the `x86` and `x64` applications to the installation folder of your desired dotnet runtime. 
 
-Using the `.NET Core 2.1` runtime as an example (validate the paths if you have another installation directory or drive):
+Using the `.NET Core 2.2` runtime as an example (validate the paths if you have another installation directory or drive):
 
- * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.6` for `32-bit` applications.
+ * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0` for `32-bit` applications.
  
- * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.6` for `64-bit` applications.
+ * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0` for `64-bit` applications.
 
 You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or the next program you open, such as Visual Studio:
 
 ```ps
-setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.6"
-setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.6"
+setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0"
+setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0"
 ```
 
 Or set them for the current command prompt session with:
 
 ```
-set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.1.6
-set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.1.6
+set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0
+set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0
 ```
 
 Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dotnet build` to build the library and the examples.
@@ -179,11 +179,6 @@ For example, the command
 
 will create a folder called `Publish/win32/win10-arm/` containing the `CoreHook.FileMonitor` example.
 
-```ps
-.\publish -example uwp -runtime win10-arm64
-```
-will create a folder called `Publish/uwp/win10-arm64/` containing the `CoreHook.Uwp.FileMonitor` example.
-
 
 ### Windows Symbol Support
 
@@ -218,7 +213,7 @@ Licensed under the [MIT](LICENSE) License.
 
 A lot of this project is based on the work of others who were willing to share their knowledge.
 
-* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - The original developers of the EasyHook project which this one would not be possible without. A large amount of code in CoreHook is borrowed from their great work, going from C# all the way to assembly code. 
-* [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and other great tools he has created, such as the [.NET Core Plugins](https://github.com/natemcmaster/DotNetCorePlugins).
-* [dotnet Team](https://github.com/dotnet) - For great strides in innovation and constantly working on improving the .NET Core framework. Code from the open-source .NET Core framework was used in this project and is really helpful in the development process. 
+* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - For the EasyHook library.
+* [dotnet Team](https://github.com/dotnet) - For the DependencyModel project.
+* [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and the [.NET Core Plugins project](https://github.com/natemcmaster/DotNetCorePlugins).
 * [ZenLulz (Jämes Ménétrey)](https://github.com/ZenLulz/MemorySharp) - For the MemorySharp library.

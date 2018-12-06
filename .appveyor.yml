@@ -1,4 +1,5 @@
 ﻿build_script:
+  - ps: iwr https://get.dot.net/v1/dotnet-install.ps1 -out dotnet-install.ps1; ./dotnet-install.ps1 -Version 2.2.100
   - ps: .\build.ps1 -ci
 environment:
   global:
@@ -7,7 +8,6 @@ environment:
 test: off
 image:
   - Visual Studio 2017
-  - Ubuntu
 skip_commits:
   files:
     - '**/*.md'

@@ -10,7 +10,11 @@ using Microsoft.Extensions.DependencyModel.Resolution;
 
 namespace CoreHook.CoreLoad
 {
-    internal sealed class Resolver : IDisposable
+    /// <summary>
+    /// Resolves assembly dependencies for the plugins during initialization,
+    /// such as NuGet packages dependencies.
+    /// </summary>
+    internal sealed class DependencyResolver : IDisposable
     {
         private readonly ICompilationAssemblyResolver _assemblyResolver;
         private readonly DependencyContext _dependencyContext;
@@ -20,7 +24,7 @@ namespace CoreHook.CoreLoad
 
         public Assembly Assembly { get; }
 
-        public Resolver(string path)
+        public DependencyResolver(string path)
         {
             try
             {

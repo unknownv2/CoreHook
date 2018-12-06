@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using CoreHook.IPC;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
+using CoreHook.IPC.Transport;
 
 namespace CoreHook.BinaryInjection.RemoteInjection
 {
@@ -14,14 +16,52 @@ namespace CoreHook.BinaryInjection.RemoteInjection
     /// </summary>
     public class InjectionHelper
     {
-        private static readonly SortedList<int, InjectionWait> InjectionList = new SortedList<int, InjectionWait>();
+        private static readonly SortedList<int, InjectionState> InjectionList = new SortedList<int, InjectionState>();
 
         public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
-            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleRequest);
+            return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleMessage);
+        }
+        private static void HandleMessage(IMessage message, ITransportChannel channel)
+        {
+            switch (message.Header)
+            {
+                case InjectionCompleteNotification.InjectionComplete:
+                    var messageData = InjectionCompleteNotification.ParseMessage(message);
+                    if (messageData.Completed)
+                    {
+                        InjectionCompleted(messageData.ProcessId);
+                    }
+                    else
+                    {
+                        throw new InjectionLoadException($"Injection into process {messageData.ProcessId} failed.");
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException($"Message type {message.Header} is not supported");
+            }
+        }
+        private static void HandleMessage(IMessage message, IConnection connection)
+        {
+            switch (message.Header)
+            {
+                case InjectionCompleteNotification.InjectionComplete:
+                    var reqData = new InjectionCompleteNotification(message.Body).RequestData;
+                    if (reqData.Completed)
+                    {
+                        InjectionCompleted(reqData.ProcessId);
+                    }
+                    else
+                    {
+                        throw new InjectionLoadException($"Injection into process {reqData.ProcessId} failed.");
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException($"Message type {message.Header} is not supported");
+            }
         }
 
-        private static void HandleRequest(string request, IPC.IConnection connection)
+        private static void HandleRequest(string request, IConnection connection)
         {
             if(!connection.IsConnected)
             {
@@ -50,13 +90,13 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
         public static void BeginInjection(int targetProcessId)
         {
-            InjectionWait waitInfo;
+            InjectionState waitInfo;
 
             lock (InjectionList)
             {
                 if (!InjectionList.TryGetValue(targetProcessId, out waitInfo))
                 {
-                    waitInfo = new InjectionWait();
+                    waitInfo = new InjectionState();
 
                     InjectionList.Add(targetProcessId, waitInfo);
                 }
@@ -85,9 +125,22 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
         }
 
+        public static void InjectionCompleted(int remoteProcessId)
+        {
+            InjectionState waitInfo;
+
+            lock (InjectionList)
+            {
+                waitInfo = InjectionList[remoteProcessId];
+            }
+
+            waitInfo.Error = null;
+            waitInfo.Completion.Set();
+        }
+
         public static void WaitForInjection(int targetProcessId, int timeOutMs = 20000)
         {
-            InjectionWait waitInfo;
+            InjectionState waitInfo;
 
             lock (InjectionList)
             {
@@ -96,7 +149,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
             if (!waitInfo.Completion.WaitOne(timeOutMs, false))
             {
-                InjectionException(targetProcessId, new TimeoutException("Unable to wait for injection completion."));
+                HandleException(targetProcessId, new TimeoutException("Unable to wait for injection completion."));
             }
 
             if (waitInfo.Error != null)
@@ -105,9 +158,9 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
         }
 
-        public static void InjectionException(int remoteProcessId, Exception e)
+        private static void HandleException(int remoteProcessId, Exception e)
         {
-            InjectionWait waitInfo;
+            InjectionState waitInfo;
 
             lock (InjectionList)
             {
@@ -115,19 +168,6 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
 
             waitInfo.Error = e;
-            waitInfo.Completion.Set();
-        }
-
-        public static void InjectionCompleted(int remoteProcessId)
-        {
-            InjectionWait waitInfo;
-
-            lock (InjectionList)
-            {
-                waitInfo = InjectionList[remoteProcessId];
-            }
-
-            waitInfo.Error = null;
             waitInfo.Completion.Set();
         }
     }
