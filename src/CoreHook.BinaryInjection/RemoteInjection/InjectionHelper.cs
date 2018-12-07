@@ -17,7 +17,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
     {
         private static readonly SortedList<int, InjectionState> InjectionList = new SortedList<int, InjectionState>();
 
-        public static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
+        public static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleMessage);
         }
