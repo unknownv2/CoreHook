@@ -84,7 +84,7 @@ namespace CoreHook.IPC.NamedPipes
             }
             catch (Exception e)
             {
-                LogError("Unhandled exception during server start", e);
+                Log("Unhandled exception during server start", e);
             }
         }
 
@@ -114,7 +114,7 @@ namespace CoreHook.IPC.NamedPipes
                     connectionBroken = true;
                     if (!_connectionStopped)
                     {
-                        LogError($"Pipe {_pipeName} broken with: ", e);
+                        Log($"Pipe {_pipeName} broken with: ", e);
                     }
                 }
                 catch (ObjectDisposedException)
@@ -126,7 +126,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 catch (Exception e)
                 {
-                    LogError("Unhandled exception during connection initialization", e);
+                    Log("Unhandled exception during connection initialization", e);
                 }
                 if (!_connectionStopped && !connectionBroken)
                 {
@@ -139,7 +139,7 @@ namespace CoreHook.IPC.NamedPipes
                     }
                     catch (Exception e)
                     {
-                        LogError("Unhandled exception during message transport initialization", e);
+                        Log("Unhandled exception during message transport initialization", e);
                     }
                 }
             }
@@ -149,7 +149,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        private static void LogError(string message, Exception e)
+        private static void Log(string message, Exception e)
         {
             Console.WriteLine(message);
             Console.WriteLine(e);
