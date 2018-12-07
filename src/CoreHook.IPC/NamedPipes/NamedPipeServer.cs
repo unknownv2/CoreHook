@@ -9,7 +9,7 @@ using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public class NamedPipeServer : INamedPipeServer
+    public class NamedPipeServer : INamedPipe
     {
         public IConnection Connection { get; private set; }
         public IMessageHandler MessageHandler { get; private set; }
@@ -31,7 +31,7 @@ namespace CoreHook.IPC.NamedPipes
             _connectionStopped = false;
         }
 
-        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
+        public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
@@ -39,11 +39,11 @@ namespace CoreHook.IPC.NamedPipes
             }
 
             var pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
-            pipeServer.Start();
+            pipeServer.Connect();
             return pipeServer;
         }
 
-        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
+        public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
@@ -51,7 +51,7 @@ namespace CoreHook.IPC.NamedPipes
             }
 
             var pipeServer = new NamedPipeServer(pipeName, platform, handleRequest);
-            pipeServer.Start();
+            pipeServer.Connect();
             return pipeServer;
         }
 
@@ -70,7 +70,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        public void Start()
+        public bool Connect()
         {
             try
             {
@@ -81,11 +81,15 @@ namespace CoreHook.IPC.NamedPipes
 
                 _pipe = _platform.CreatePipeByName(_pipeName);
                 _pipe.BeginWaitForConnection(OnConnection, _pipe);
+
+                return true;
             }
             catch (Exception e)
             {
                 Log("Unhandled exception during server start", e);
             }
+
+            return false;
         }
 
         private void OnConnection(IAsyncResult ar)
