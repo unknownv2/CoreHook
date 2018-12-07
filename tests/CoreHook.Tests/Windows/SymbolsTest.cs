@@ -8,7 +8,6 @@ namespace CoreHook.Tests.Windows
     [Collection("Sequential")]
     public class SymbolsTest
     {
-#if WIN64
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
@@ -232,7 +231,6 @@ namespace CoreHook.Tests.Windows
             return InternalFindAtomFunction(local, unicode, atomName);
         }
 
-#endif
         private delegate ulong GetCurrentNlsCacheDelegate();
 
         private GetCurrentNlsCacheDelegate GetCurrentNlsCacheFunction;
