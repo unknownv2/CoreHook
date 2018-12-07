@@ -18,12 +18,12 @@ namespace CoreHook.Tests
             bool receivedMessage = false;
 
             using (CreateServer(namedPipe, GetPipePlatform(),
-                (IMessage request, ITransportChannel channel) =>
+                (request, channel) =>
                 {
                     receivedMessage = true;
                     SendPipeMessage(channel.MessageHandler, "RandomResponse");
                 }))
-            using (INamedPipeClient pipeClient = CreateClient(namedPipe))
+            using (var pipeClient = CreateClient(namedPipe))
             {
                 if(SendPipeMessage(pipeClient, testMessage))
                 {
@@ -39,14 +39,13 @@ namespace CoreHook.Tests
             string namedPipe = Resources.GetUniquePipeName();
             const string testMessage = "TestMessage";
 
-            using (var server = CreateServer(namedPipe, GetPipePlatform(),
-                (IMessage message, ITransportChannel channel) =>
+            using (CreateServer(namedPipe, GetPipePlatform(),
+                (message, channel) =>
                 {
-                    var receivedMessage = message.ToString();
-                    Assert.Equal(receivedMessage, testMessage);
+                    Assert.Equal(message.ToString(), testMessage);
                     channel.MessageHandler.Write(Message.FromString(testMessage));
                 }))
-            using (INamedPipeClient pipeClient = CreateClient(namedPipe))
+            using (var pipeClient = CreateClient(namedPipe))
             {
                 if (SendPipeMessage(pipeClient, testMessage))
                 {
@@ -67,9 +66,9 @@ namespace CoreHook.Tests
 
             using (CreateServer(namedPipe, GetPipePlatform(),
                   (request, channel) => SendPipeMessage(channel.MessageHandler, request)))
-            using (INamedPipeClient pipeClient = CreateClient(namedPipe))
+            using (var pipeClient = CreateClient(namedPipe))
             {
-                if (pipeClient.Connect(3000))
+                if (pipeClient.Connect())
                 {
                     var messageHandler = pipeClient.MessageHandler;
                     Assert.True(SendPipeMessage(messageHandler, testMessage1));
@@ -92,11 +91,10 @@ namespace CoreHook.Tests
             using (CreateServer(namedPipe, GetPipePlatform(),
                 (message, channel) =>
                 {
-                    var receivedMessage = message.ToString();
-                    Assert.Equal(receivedMessage, testMessage);
+                    Assert.Equal(message.ToString(), testMessage);
                     SendPipeMessage(channel.MessageHandler, "RandomResponse");
                 }))
-            using (INamedPipeClient pipeClient = CreateClient(namedPipe))
+            using (var pipeClient = CreateClient(namedPipe))
             {
                 if (SendPipeMessage(pipeClient, testMessage))
                 {
@@ -104,42 +102,25 @@ namespace CoreHook.Tests
                 }
             }
         }
-
-        [Fact]
-        private void ShouldNotConnectToServer()
-        {
-            string clientNamedPipe = Resources.GetUniquePipeName();
-            bool connected = false;
    
-            using (INamedPipeClient pipeClient = CreateClient(clientNamedPipe))
-            {
-                if(pipeClient.Connect(1000))
-                {
-                    connected = true;
-                }
-            }
-            
-            Assert.False(connected);
-        }
-
         private static IPipePlatform GetPipePlatform()
         {
             return new PipePlatformBase();
         }
 
-        private static INamedPipeClient CreateClient(string pipeName)
+        private static INamedPipe CreateClient(string pipeName)
         {
             return new NamedPipeClient(pipeName);
         }
 
-        private static INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IMessage, ITransportChannel> handleRequest)
+        private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IMessage, ITransportChannel> handleRequest)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
         }
         
-        private static bool SendPipeMessage(INamedPipeClient pipeClient, string message)
+        private static bool SendPipeMessage(INamedPipe pipeClient, string message)
         {
-            if (pipeClient.Connect(3000))
+            if (pipeClient.Connect())
             {
                 return pipeClient.MessageHandler.TryWrite(Message.FromString(message));
             }
@@ -166,12 +147,12 @@ namespace CoreHook.Tests
             return messageHandler.Read();
         }
 
-        private static IMessage ReadMessage(INamedPipeClient pipeClient)
+        private static IMessage ReadMessage(INamedPipe pipeClient)
         {
             return ReadMessage(pipeClient.MessageHandler);
         }
 
-        private static string ReadMessageToString(INamedPipeClient pipeClient)
+        private static string ReadMessageToString(INamedPipe pipeClient)
         {
             return ReadMessageToString(pipeClient.MessageHandler);
         }

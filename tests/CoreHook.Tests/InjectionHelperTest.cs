@@ -60,15 +60,20 @@ namespace CoreHook.Tests
 
         private static bool SendInjectionComplete(string pipeName, int pid)
         {
-            using (INamedPipeClient pipeClient = new NamedPipeClient(pipeName))
+            using (var pipeClient = CreateClient(pipeName))
             {
-                if (pipeClient.Connect(2000))
+                if (pipeClient.Connect())
                 {
                     return SendPipeMessage(pipeClient.MessageHandler,
                         InjectionCompleteNotification.CreateMessage(pid, true));
                 }
             }
             return false;
+        }
+
+        private static INamedPipe CreateClient(string pipeName)
+        {
+            return new NamedPipeClient(pipeName);
         }
 
         private static IPipePlatform GetPipePlatform()
