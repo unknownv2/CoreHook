@@ -17,7 +17,7 @@ namespace CoreHook.Tests
             ManagedRemoteInfo remoteInfo = null;
 
             Assert.Throws<ArgumentNullException>(
-                () => new BinaryFormatter().Serialize(new MemoryStream(), remoteInfo));
+                () => CreateDefaultFormatter().Serialize(new MemoryStream(), remoteInfo));
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace CoreHook.Tests
             ManagedRemoteInfo remoteInfo = new ManagedRemoteInfo();
 
             Assert.Throws<ArgumentNullException>(
-                () => new BinaryFormatter().Serialize(memoryStream, remoteInfo));
+                () => CreateDefaultFormatter().Serialize(memoryStream, remoteInfo));
         }
 
         [Fact]
@@ -35,13 +35,12 @@ namespace CoreHook.Tests
         {
             var memoryStream = new MemoryStream();
             var remoteInfo = new ManagedRemoteInfo();
-            var binaryFormatter = new BinaryFormatter();
+            var binaryFormatter = CreateDefaultFormatter();
             binaryFormatter.Serialize(memoryStream, remoteInfo);
 
             memoryStream.Position = 0;
-            object deserializedRemoteInfo = binaryFormatter.Deserialize(memoryStream);
 
-            Assert.NotNull(deserializedRemoteInfo);
+            Assert.NotNull(binaryFormatter.Deserialize<ManagedRemoteInfo>(memoryStream));
         }
 
         [Fact]
@@ -49,11 +48,11 @@ namespace CoreHook.Tests
         {
             var memoryStream = new MemoryStream();
             var remoteInfo = new ManagedRemoteInfo();
-            var binaryFormatter = new BinaryFormatter();
+            var binaryFormatter = CreateDefaultFormatter();
             binaryFormatter.Serialize(memoryStream, remoteInfo);
 
             memoryStream.Position = 0;
-            object deserializedRemoteInfo = binaryFormatter.Deserialize(memoryStream);
+            var deserializedRemoteInfo = binaryFormatter.Deserialize<ManagedRemoteInfo>(memoryStream);
 
             Assert.NotNull(deserializedRemoteInfo);
             Assert.IsType(typeof(ManagedRemoteInfo), deserializedRemoteInfo);
@@ -68,15 +67,20 @@ namespace CoreHook.Tests
             {
                 ChannelName = channelName
             };
-            var binaryFormatter = new BinaryFormatter();
+            var binaryFormatter = CreateDefaultFormatter();
             binaryFormatter.Serialize(memoryStream, remoteInfo);
 
             memoryStream.Position = 0;
-            object deserializedRemoteInfo = binaryFormatter.Deserialize(memoryStream);
+            var deserializedRemoteInfo = binaryFormatter.Deserialize<ManagedRemoteInfo>(memoryStream);
 
             Assert.NotNull(deserializedRemoteInfo);
             Assert.IsType(typeof(ManagedRemoteInfo), deserializedRemoteInfo);
-            Assert.Equal(channelName, ((ManagedRemoteInfo)deserializedRemoteInfo).ChannelName);
+            Assert.Equal(channelName, deserializedRemoteInfo.ChannelName);
+        }
+
+        private static IUserDataFormatter CreateDefaultFormatter()
+        {
+            return new UserDataBinaryFormatter();
         }
     }
 }
