@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Reflection;
 using System.IO;
+using System.Reflection;
 using CoreHook.CoreLoad.Data;
-using CoreHook.IPC;
-using CoreHook.IPC.Messages;
-using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.CoreLoad
 {
@@ -53,7 +50,7 @@ namespace CoreHook.CoreLoad
                         remoteParameters, remoteInfoFormatter
                     );
 
-                var resolver = new DependencyResolver(
+                IDependencyResolver resolver = CreateDependencyResolver(
                     pluginConfig.RemoteInfo.UserLibrary);
                 
                 // Construct the parameter array passed to the plugin initialization function.
@@ -150,8 +147,8 @@ namespace CoreHook.CoreLoad
         /// <returns></returns>
         private static Type FindEntryPoint(Assembly assembly)
         {
-            var exportedTypes = assembly.GetExportedTypes();
-            foreach (TypeInfo type in exportedTypes)
+            Type[] exportedTypes = assembly.GetExportedTypes();
+            foreach (var type in exportedTypes)
             {
                 if (type.GetInterface(EntryPointInterface) != null)
                 {
@@ -224,13 +221,22 @@ namespace CoreHook.CoreLoad
             return null;
         }
 
-
         private static void Release(Type entryPoint)
         {
             if (entryPoint != null)
             {
                 //LocalHook.Release();
             }
+        }
+
+        /// <summary>
+        /// Initialize a class that resolves an assembly's dependencies.
+        /// </summary>
+        /// <param name="assemblyPath">The file path of the assembly.</param>
+        /// <returns>An assembly dependency resolver.</returns>
+        private static IDependencyResolver CreateDependencyResolver(string assemblyPath)
+        {
+            return new DependencyResolver(assemblyPath);
         }
 
         private static void Log(string message)
