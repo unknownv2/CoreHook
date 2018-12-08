@@ -51,7 +51,7 @@ namespace CoreHook.Examples.Common
             return service;
         }
 
-        private INamedPipeServer CreateServer(string namedPipeName, IPipePlatform pipePlatform)
+        private INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             _pipeName = namedPipeName;
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleTransportConnection);

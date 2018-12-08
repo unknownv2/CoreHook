@@ -30,7 +30,7 @@ namespace CoreHook.CoreLoad
             return writer.TryWrite(InjectionCompleteNotification.CreateMessage(processId, true));
         }
 
-        private static INamedPipeClient CreateClient(string pipeName)
+        private static INamedPipe CreateClient(string pipeName)
         {
             return new NamedPipeClient(pipeName);
         }

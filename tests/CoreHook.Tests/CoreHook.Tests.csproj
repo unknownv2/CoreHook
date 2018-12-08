@@ -10,7 +10,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>$(OutputDir)</OutputPath>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE;WIN64</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>

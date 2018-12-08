@@ -14,7 +14,7 @@ namespace CoreHook.CoreLoad
     /// Resolves assembly dependencies for the plugins during initialization,
     /// such as NuGet packages dependencies.
     /// </summary>
-    internal sealed class DependencyResolver : IDisposable
+    internal sealed class DependencyResolver : IDependencyResolver
     {
         private readonly ICompilationAssemblyResolver _assemblyResolver;
         private readonly DependencyContext _dependencyContext;

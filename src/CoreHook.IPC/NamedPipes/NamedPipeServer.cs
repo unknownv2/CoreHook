@@ -9,7 +9,7 @@ using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public class NamedPipeServer : INamedPipeServer
+    public class NamedPipeServer : INamedPipe
     {
         public IConnection Connection { get; private set; }
         public IMessageHandler MessageHandler { get; private set; }
@@ -17,12 +17,11 @@ namespace CoreHook.IPC.NamedPipes
         private const int MaxPipeNameLength = 250;
      
         private readonly Action<ITransportChannel> _handleTransportConnection;
+        private bool _connectionStopped;
 
         private readonly string _pipeName;
         private readonly IPipePlatform _platform;
-
-        private bool _connectionStopped;
-        private NamedPipeServerStream _listeningPipe;
+        private NamedPipeServerStream _pipe;
 
         private NamedPipeServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleTransportConnection)
         {
@@ -32,7 +31,7 @@ namespace CoreHook.IPC.NamedPipes
             _connectionStopped = false;
         }
 
-        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
+        public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
@@ -40,11 +39,11 @@ namespace CoreHook.IPC.NamedPipes
             }
 
             var pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
-            pipeServer.OpenListeningPipe();
+            pipeServer.Connect();
             return pipeServer;
         }
 
-        public static INamedPipeServer StartNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
+        public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
@@ -52,7 +51,7 @@ namespace CoreHook.IPC.NamedPipes
             }
 
             var pipeServer = new NamedPipeServer(pipeName, platform, handleRequest);
-            pipeServer.OpenListeningPipe();
+            pipeServer.Connect();
             return pipeServer;
         }
 
@@ -71,24 +70,29 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        public void OpenListeningPipe()
+        public bool Connect()
         {
             try
             {
-                if (_listeningPipe != null)
+                if (_pipe != null)
                 {
-                    throw new InvalidOperationException("There is already a pipe listening for a connection");
+                    throw new InvalidOperationException("Pipe server already started");
                 }
-                _listeningPipe = _platform.CreatePipeByName(_pipeName);
-                _listeningPipe.BeginWaitForConnection(OnNewConnection, _listeningPipe);
+
+                _pipe = _platform.CreatePipeByName(_pipeName);
+                _pipe.BeginWaitForConnection(OnConnection, _pipe);
+
+                return true;
             }
             catch (Exception e)
             {
-                LogError("OpenListeningPipe: unhandled exception", e);
+                Log("Unhandled exception during server start", e);
             }
+
+            return false;
         }
 
-        private void OnNewConnection(IAsyncResult ar)
+        private void OnConnection(IAsyncResult ar)
         {
             // Check if we should be accepting any new connections.
             if (_connectionStopped)
@@ -96,7 +100,7 @@ namespace CoreHook.IPC.NamedPipes
                 return;
             }
 
-            _listeningPipe = null;
+            _pipe = null;
             var connectionBroken = false;
             if (!(ar.AsyncState is NamedPipeServerStream pipe))
             {
@@ -114,7 +118,7 @@ namespace CoreHook.IPC.NamedPipes
                     connectionBroken = true;
                     if (!_connectionStopped)
                     {
-                        LogError($"OnNewConnection: IOException for pipe: {_pipeName}", e);
+                        Log($"Pipe {_pipeName} broken with: ", e);
                     }
                 }
                 catch (ObjectDisposedException)
@@ -126,7 +130,7 @@ namespace CoreHook.IPC.NamedPipes
                 }
                 catch (Exception e)
                 {
-                    LogError("OnNewConnection: unhandled exception", e);
+                    Log("Unhandled exception during connection initialization", e);
                 }
                 if (!_connectionStopped && !connectionBroken)
                 {
@@ -134,11 +138,12 @@ namespace CoreHook.IPC.NamedPipes
                     {
                         Connection = new PipeConnection(pipe, () => _connectionStopped);
                         MessageHandler = new MessageHandler(Connection);
+
                         _handleTransportConnection?.Invoke(this);
                     }
                     catch (Exception e)
                     {
-                        LogError("Unhandled exception during server initialization", e);
+                        Log("Unhandled exception during message transport initialization", e);
                     }
                 }
             }
@@ -148,7 +153,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
-        private static void LogError(string message, Exception e)
+        private static void Log(string message, Exception e)
         {
             Console.WriteLine(message);
             Console.WriteLine(e);
@@ -158,7 +163,7 @@ namespace CoreHook.IPC.NamedPipes
         {
             _connectionStopped = true;
 
-            NamedPipeServerStream pipe = Interlocked.Exchange(ref _listeningPipe, null);
+            NamedPipeServerStream pipe = Interlocked.Exchange(ref _pipe, null);
             pipe?.Dispose();
         }
     }

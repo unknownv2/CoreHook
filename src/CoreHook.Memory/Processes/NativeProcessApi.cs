@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace CoreHook.Memory.Processes
 {
-    static class NativeApi32
+    internal static class NativeApi32
     {
         private const string DllName = "corehook32.dll";
 
@@ -71,7 +71,7 @@ namespace CoreHook.Memory.Processes
             IntPtr pfCreateProcessA);
     }
 
-    static class NativeApi64
+    internal static class NativeApi64
     {
         private const string DllName = "corehook64.dll";
 
@@ -138,7 +138,7 @@ namespace CoreHook.Memory.Processes
             IntPtr pfCreateProcessA);
     }
 
-    public static class NativeApi
+    internal static class NativeProcessApi
     {
         public static readonly bool Is64Bit = IntPtr.Size == 8;
  
@@ -158,7 +158,7 @@ namespace CoreHook.Memory.Processes
         {
             if (Is64Bit)
             {
-                return (NativeApi64.DetourCreateProcessWithDllExA(lpApplicationName,
+                return NativeApi64.DetourCreateProcessWithDllExA(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -169,11 +169,11 @@ namespace CoreHook.Memory.Processes
                         ref lpStartupInfo,
                         out lpProcessInformation,
                         lpDllName,
-                        pfCreateProcessA));
+                        pfCreateProcessA);
             }
             else
             {
-                return (NativeApi32.DetourCreateProcessWithDllExA(lpApplicationName,
+                return NativeApi32.DetourCreateProcessWithDllExA(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -184,7 +184,7 @@ namespace CoreHook.Memory.Processes
                         ref lpStartupInfo,
                         out lpProcessInformation,
                         lpDllName,
-                        pfCreateProcessA));
+                        pfCreateProcessA);
             }
         }
 
@@ -204,7 +204,7 @@ namespace CoreHook.Memory.Processes
         {
             if (Is64Bit)
             {
-                return (NativeApi64.DetourCreateProcessWithDllExW(lpApplicationName,
+                return NativeApi64.DetourCreateProcessWithDllExW(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -215,11 +215,11 @@ namespace CoreHook.Memory.Processes
                         ref lpStartupInfo,
                         out lpProcessInformation,
                         lpDllName,
-                        pfCreateProcessW));
+                        pfCreateProcessW);
             }
             else
             {
-                return (NativeApi32.DetourCreateProcessWithDllExW(lpApplicationName,
+                return NativeApi32.DetourCreateProcessWithDllExW(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -230,7 +230,7 @@ namespace CoreHook.Memory.Processes
                         ref lpStartupInfo,
                         out lpProcessInformation,
                         lpDllName,
-                        pfCreateProcessW));
+                        pfCreateProcessW);
             }
         }
 
@@ -251,7 +251,7 @@ namespace CoreHook.Memory.Processes
         {
             if (Is64Bit)
             {
-                return (NativeApi64.DetourCreateProcessWithDllsExA(lpApplicationName,
+                return NativeApi64.DetourCreateProcessWithDllsExA(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -263,11 +263,11 @@ namespace CoreHook.Memory.Processes
                         out lpProcessInformation,
                         nDlls,
                         rlpDlls,
-                        pfCreateProcessA));
+                        pfCreateProcessA);
             }
             else
             {
-                return (NativeApi32.DetourCreateProcessWithDllsExA(lpApplicationName,
+                return NativeApi32.DetourCreateProcessWithDllsExA(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -279,7 +279,7 @@ namespace CoreHook.Memory.Processes
                         out lpProcessInformation,
                         nDlls,
                         rlpDlls,
-                        pfCreateProcessA));
+                        pfCreateProcessA);
             }
         }
 
@@ -300,7 +300,7 @@ namespace CoreHook.Memory.Processes
         {
             if (Is64Bit)
             {
-                return (NativeApi64.DetourCreateProcessWithDllsExW(lpApplicationName,
+                return NativeApi64.DetourCreateProcessWithDllsExW(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -312,11 +312,11 @@ namespace CoreHook.Memory.Processes
                         out lpProcessInformation,
                         nDlls,
                         rlpDlls,
-                        pfCreateProcessW));
+                        pfCreateProcessW);
             }
             else
             {
-                return (NativeApi32.DetourCreateProcessWithDllsExW(lpApplicationName,
+                return NativeApi32.DetourCreateProcessWithDllsExW(lpApplicationName,
                         lpCommandLine,
                         lpProcessAttributes,
                         lpThreadAttributes,
@@ -328,7 +328,7 @@ namespace CoreHook.Memory.Processes
                         out lpProcessInformation,
                         nDlls,
                         rlpDlls,
-                        pfCreateProcessW));
+                        pfCreateProcessW);
             }
         }
     }

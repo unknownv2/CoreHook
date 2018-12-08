@@ -3,8 +3,8 @@ using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes
 {
-    public interface INamedPipeServer : ITransportChannel, IDisposable
+    public interface INamedPipe : ITransportChannel, IDisposable
     {
-
+        bool Connect();
     }
 }
