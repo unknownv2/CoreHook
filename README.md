@@ -209,11 +209,4 @@ Any contributions are all welcome! If you find any problems or want to add featu
 
 Licensed under the [MIT](LICENSE) License.
 
-## Credits
-
-A lot of this project is based on the work of others who were willing to share their knowledge.
-
-* [Christoph Husse and Justin Stenning](https://github.com/EasyHook/EasyHook/blob/master/LICENSE) - For the EasyHook library.
-* [dotnet Team](https://github.com/dotnet) - For the DependencyModel project.
-* [Nate McMaster](https://github.com/natemcmaster) - For the build and publishing PowerShell scripts and the [.NET Core Plugins project](https://github.com/natemcmaster/DotNetCorePlugins).
-* [ZenLulz (Jämes Ménétrey)](https://github.com/ZenLulz/MemorySharp) - For the MemorySharp library.
+## [Credits](/CREDITS.md)
