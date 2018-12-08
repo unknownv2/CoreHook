@@ -39,5 +39,5 @@ function exec([string]$_cmd) {
     }
 }
 
-exec dotnet build --configuration $Configuration '-warnaserror:CS1591' @MSBuildArgs
+exec dotnet build --configuration $Configuration @MSBuildArgs
 
