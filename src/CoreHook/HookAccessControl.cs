@@ -5,7 +5,7 @@ namespace CoreHook
     /// <summary>
     /// Class used for managing the thread ACL of a hook.
     /// </summary>
-    public class HookAccessControl : IHookAccessControl
+    internal class HookAccessControl : IHookAccessControl
     {
         private static readonly int[] DefaultThreadACL = new int[0];
 
@@ -17,7 +17,7 @@ namespace CoreHook
 
         private int[] _acl = DefaultThreadACL;
 
-        public HookAccessControl(IntPtr handle)
+        internal HookAccessControl(IntPtr handle)
         {
             IsExclusive = handle == IntPtr.Zero;
             _handle = handle;
