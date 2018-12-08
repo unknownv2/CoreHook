@@ -15,25 +15,30 @@ namespace CoreHook.FileMonitor
         /// The pipe name the FileMonitor RPC service communicates over between processes.
         /// </summary>
         private const string CoreHookPipeName = "CoreHook";
+
         /// <summary>
         /// The directory containing the CoreHook modules to be loaded in the target process.
         /// </summary>
         private const string HookLibraryDirName = "Hook";
+
         /// <summary>
         /// The library to be injected into the target process and executed
         /// using the EntryPoint's 'Run' Method.
         /// </summary>
         private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
+
         /// <summary>
         /// The name of the pipe used for notifying the host process
         /// if the hooking plugin has been loaded successfully in
         /// the target process or if loading failed.
         /// </summary>
         private const string InjectionPipeName = "CoreHookInjection";
+
         /// <summary>
         /// Enable verbose logging to the console for the CoreCLR hosting module.
         /// </summary>
         private const bool HostVerboseLog = false;
+
         /// <summary>
         /// Class that handles creating a named pipe server for communicating with the target process.
         /// </summary>

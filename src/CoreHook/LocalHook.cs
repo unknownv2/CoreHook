@@ -128,7 +128,7 @@ namespace CoreHook
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public static LocalHook Create(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
             var hook = new LocalHook
@@ -172,7 +172,7 @@ namespace CoreHook
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public static LocalHook CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
             var hook = new LocalHook
@@ -269,6 +269,9 @@ namespace CoreHook
             }
         }
 
+        /// <summary>
+        /// Ensure the function hook is uninstalled and any held resources are freed.
+        /// </summary>
         ~LocalHook()
         {
             Dispose();
@@ -292,15 +295,13 @@ namespace CoreHook
         /// </summary>
         public T Target => TargetAddress.ToFunction<T>();
 
-        public bool EnableForCurrentThread => false;
-
         /// <summary>
         /// Installs an unmanaged hook using the pointer to a hook handler.
         /// </summary>
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public new static LocalHook<T> CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
             var hook = new LocalHook<T>
@@ -343,7 +344,7 @@ namespace CoreHook
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public new static LocalHook<T> Create(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
             var hook = new LocalHook<T>
