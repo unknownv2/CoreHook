@@ -13,7 +13,7 @@ namespace CoreHook
         /// True if the current method was called from a detoured function.
         /// </summary>
         public static bool IsHandlerContext =>
-            NativeAPI.DetourBarrierGetCallback(out IntPtr _) == NativeAPI.STATUS_SUCCESS;
+            NativeApi.DetourBarrierGetCallback(out IntPtr _) == NativeApi.StatusSuccess;
 
         /// <summary>
         /// The user callback parameter passed to the hook class during creation.
@@ -28,7 +28,7 @@ namespace CoreHook
         {
             get
             {
-                NativeAPI.DetourBarrierGetCallback(out IntPtr callback);
+                NativeApi.DetourBarrierGetCallback(out IntPtr callback);
                 return callback == IntPtr.Zero ? null : GCHandle.FromIntPtr(callback).Target as IHook;
             }
         }

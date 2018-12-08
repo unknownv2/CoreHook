@@ -3,7 +3,7 @@
 namespace CoreHook
 {
     /// <summary>
-    /// Class for creating managed and unmanaged hooks.
+    /// Factory for creating managed and unmanaged hooks.
     /// </summary>
     public static class HookFactory
     {
@@ -20,7 +20,7 @@ namespace CoreHook
         }
 
         /// <summary>
-        ///  Create an unmanaged hook.
+        /// Create an unmanaged hook.
         /// </summary>
         /// <param name="targetFunction">The target function address that will be detoured.</param>
         /// <param name="detourFunction">The detour function that will be called instead of the function at <paramref name="targetFunction"/>.</param>
@@ -31,7 +31,7 @@ namespace CoreHook
         }
 
         /// <summary>
-        /// Create an unmanaged hook
+        /// Create an unmanaged hook.
         /// </summary>
         /// <typeparam name="T">The delegate type representing the detoured function signature.</typeparam>
         /// <param name="targetFunction">The target function address that will be detoured.</param>

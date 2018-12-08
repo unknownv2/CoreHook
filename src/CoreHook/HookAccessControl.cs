@@ -37,11 +37,11 @@ namespace CoreHook
 
             if (_handle == IntPtr.Zero)
             {
-                NativeAPI.DetourSetGlobalExclusiveACL(_acl, _acl.Length);
+                NativeApi.DetourSetGlobalExclusiveACL(_acl, _acl.Length);
             }
             else
             {
-                NativeAPI.DetourSetExclusiveACL(_acl, _acl.Length, _handle);
+                NativeApi.DetourSetExclusiveACL(_acl, _acl.Length, _handle);
             }
         }
 
@@ -59,11 +59,11 @@ namespace CoreHook
 
             if (_handle == IntPtr.Zero)
             {
-                NativeAPI.DetourSetGlobalInclusiveACL(_acl, _acl.Length);
+                NativeApi.DetourSetGlobalInclusiveACL(_acl, _acl.Length);
             }
             else
             {
-                NativeAPI.DetourSetInclusiveACL(_acl, _acl.Length, _handle);
+                NativeApi.DetourSetInclusiveACL(_acl, _acl.Length, _handle);
             }
         }
 

@@ -58,7 +58,7 @@ namespace CoreHook
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
                 }
 
-                NativeAPI.DetourGetHookBypassAddress(Handle, out IntPtr targetFunctionAddress);
+                NativeApi.DetourGetHookBypassAddress(Handle, out IntPtr targetFunctionAddress);
                 return targetFunctionAddress;
             }
         }
@@ -114,7 +114,7 @@ namespace CoreHook
                 throw new ArgumentNullException(function);
             }
 
-            IntPtr functionAddress = NativeAPI.DetourFindFunction(module, function);
+            IntPtr functionAddress = NativeApi.DetourFindFunction(module, function);
             if (functionAddress == IntPtr.Zero)
             {
                 throw new MissingMethodException($"The function {function} in module {module} was not found.");
@@ -145,7 +145,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     Marshal.GetFunctionPointerForDelegate(hook.DetourFunction),
                     GCHandle.ToIntPtr(hook.SelfHandle),
@@ -188,7 +188,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     detourFunction,
                     callback,
@@ -222,7 +222,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     detourFunction,
                     callback,
@@ -255,7 +255,7 @@ namespace CoreHook
                     _disposed = true;
 
                     // Uninstall the detour
-                    NativeAPI.DetourUninstallHook(Handle);
+                    NativeApi.DetourUninstallHook(Handle);
 
                     // Release the detour's resources
                     Marshal.FreeCoTaskMem(Handle);
@@ -317,7 +317,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     detourFunction,
                     callback,
@@ -361,7 +361,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     Marshal.GetFunctionPointerForDelegate(hook.DetourFunction),
                     GCHandle.ToIntPtr(hook.SelfHandle),
@@ -394,7 +394,7 @@ namespace CoreHook
                 throw new ObjectDisposedException(typeof(LocalHook<T>).FullName);
             }
 
-            NativeAPI.DetourIsThreadIntercepted(Handle, threadId, out bool isThreadIntercepted);
+            NativeApi.DetourIsThreadIntercepted(Handle, threadId, out bool isThreadIntercepted);
 
             return isThreadIntercepted;
         }
