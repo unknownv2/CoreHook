@@ -1,0 +1,27 @@
+<Project>
+
+<Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup Condition="'$(Configuration)' != ''">
+    <Authors>Thierry Bizimungu</Authors>
+    <Product>CoreHook</Product>
+    <Version>1.0.3</Version>
+    <PackageProjectUrl>https://github.com/unknownv2/CoreHook</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/unknownv2/CoreHook.git</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/unknownv2/CoreHook/blob/master/LICENSE</PackageLicenseUrl>
+    <Copyright>Copyright (c) 2018 Thierry Bizimungu</Copyright>  
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <RepositoryType>git</RepositoryType>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <DebugType>portable</DebugType>
+    <IsPackable>true</IsPackable>
+    <IncludeSymbols>true</IncludeSymbols>
+    <IncludeSource>true</IncludeSource>
+    <Description>A library that simplifies intercepting application function calls using managed code and the .NET Core runtime.</Description>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+
+</Project>
