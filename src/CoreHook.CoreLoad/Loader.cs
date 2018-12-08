@@ -85,10 +85,10 @@ namespace CoreHook.CoreLoad
         }
 
         /// <summary>
-        /// 
+        /// Extract serialized parameters from a stream into a parameter list.
         /// </summary>
-        /// <param name="paramArray"></param>
-        /// <param name="formatter"></param>
+        /// <param name="paramArray">The list to store the extracted parameters to.</param>
+        /// <param name="formatter">Extracts serialized objects into their original type.</param>
         private static void DeserializeParameters(object[] paramArray, IUserDataFormatter formatter)
         {
             for (int i = 1; i < paramArray.Length; ++i)
@@ -101,11 +101,11 @@ namespace CoreHook.CoreLoad
         }
 
         /// <summary>
-        /// 
+        /// Find the entry point of the plugin module, initialize it, and execute its Run method.
         /// </summary>
-        /// <param name="assembly"></param>
-        /// <param name="paramArray"></param>
-        /// <param name="helperPipeName"></param>
+        /// <param name="assembly">The plugin assembly containing the entry point.</param>
+        /// <param name="paramArray">The parameters passed to the plugin Run method.</param>
+        /// <param name="helperPipeName">Pipe name used to notify the host about the state of the plugin initialization.</param>
         private static PluginInitializationState LoadPlugin(Assembly assembly, object[] paramArray, string helperPipeName)
         {
             Type entryPoint = FindEntryPoint(assembly);
@@ -131,9 +131,9 @@ namespace CoreHook.CoreLoad
                                                BindingFlags.InvokeMethod, null, paramArray, null);
 
                 }
-                finally
+                catch
                 {
-                    Release(entryPoint);
+                    
                 }
                 return PluginInitializationState.Initialized;
             }
@@ -141,10 +141,10 @@ namespace CoreHook.CoreLoad
         }
 
         /// <summary>
-        /// 
+        /// Find the CoreHook entry point in the plugin module.
         /// </summary>
-        /// <param name="assembly"></param>
-        /// <returns></returns>
+        /// <param name="assembly">The plugin module.</param>
+        /// <returns>The CoreHook plugin entry point.</returns>
         private static Type FindEntryPoint(Assembly assembly)
         {
             Type[] exportedTypes = assembly.GetExportedTypes();
@@ -159,12 +159,12 @@ namespace CoreHook.CoreLoad
         }
 
         /// <summary>
-        /// 
+        /// Find a method from a type based on the name and parameters.
         /// </summary>
-        /// <param name="objectType"></param>
-        /// <param name="methodName"></param>
-        /// <param name="paramArray"></param>
-        /// <returns></returns>
+        /// <param name="objectType">The type containing the method to search for.</param>
+        /// <param name="methodName">The name of the type's method.</param>
+        /// <param name="paramArray">The parameters for the method.</param>
+        /// <returns>Information about the matched method.</returns>
         private static MethodInfo FindMatchingMethod(Type objectType, string methodName, object[] paramArray)
         {
             var methods = objectType.GetMethods(BindingFlags.Public | BindingFlags.Instance);
@@ -179,11 +179,11 @@ namespace CoreHook.CoreLoad
         }
 
         /// <summary>
-        /// 
+        /// Determine if a method's parameters match a list of user-defined parameters.
         /// </summary>
-        /// <param name="method"></param>
-        /// <param name="paramArray"></param>
-        /// <returns></returns>
+        /// <param name="method">The method to examine.</param>
+        /// <param name="paramArray">The list of parameters that the method should have.</param>
+        /// <returns>True of the list of expected parameters matches the method's parameters.</returns>
         private static bool MethodMatchesParameters(MethodBase method, object[] paramArray)
         {
             var parameters = method.GetParameters();
@@ -221,14 +221,6 @@ namespace CoreHook.CoreLoad
             return null;
         }
 
-        private static void Release(Type entryPoint)
-        {
-            if (entryPoint != null)
-            {
-                //LocalHook.Release();
-            }
-        }
-
         /// <summary>
         /// Initialize a class that resolves an assembly's dependencies.
         /// </summary>
@@ -239,6 +231,10 @@ namespace CoreHook.CoreLoad
             return new DependencyResolver(assemblyPath);
         }
 
+        /// <summary>
+        /// Log a message.
+        /// </summary>
+        /// <param name="message">The information to log.</param>
         private static void Log(string message)
         {
             Debug.WriteLine(message);
