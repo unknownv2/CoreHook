@@ -176,7 +176,6 @@ namespace CoreHook.FileMonitor
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
-            //ValidateFilePath(exePath);
             ValidateFilePath(injectionLibrary);
 
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
