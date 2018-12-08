@@ -3,6 +3,7 @@
 <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
 
   <PropertyGroup Condition="'$(Configuration)' != ''">
+    <DocumentationFile>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/$(MSBuildProjectName).xml</DocumentationFile>
     <Authors>Thierry Bizimungu</Authors>
     <Product>CoreHook</Product>
     <Version>1.0.3</Version>
