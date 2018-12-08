@@ -7,7 +7,7 @@ namespace CoreHook
     /// </summary>
     internal class HookAccessControl : IHookAccessControl
     {
-        private static readonly int[] DefaultThreadACL = new int[0];
+        private static readonly int[] DefaultThreadAcl = new int[0];
 
         public bool IsExclusive { get; private set; }
 
@@ -15,7 +15,7 @@ namespace CoreHook
 
         private readonly IntPtr _handle;
 
-        private int[] _acl = DefaultThreadACL;
+        private int[] _acl = DefaultThreadAcl;
 
         internal HookAccessControl(IntPtr handle)
         {
@@ -33,7 +33,7 @@ namespace CoreHook
         {
             IsExclusive = true;
 
-            _acl = acl == null ? DefaultThreadACL : (int[])acl.Clone();
+            _acl = acl == null ? DefaultThreadAcl : (int[])acl.Clone();
 
             if (_handle == IntPtr.Zero)
             {
@@ -55,7 +55,7 @@ namespace CoreHook
         {
             IsExclusive = false;
 
-            _acl = acl == null ? DefaultThreadACL : (int[])acl.Clone();
+            _acl = acl == null ? DefaultThreadAcl : (int[])acl.Clone();
 
             if (_handle == IntPtr.Zero)
             {

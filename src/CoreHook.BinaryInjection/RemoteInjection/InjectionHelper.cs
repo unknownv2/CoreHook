@@ -38,7 +38,9 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                     }
                     break;
                 default:
+                {
                     throw new InvalidOperationException($"Message type {message.Header} is not supported");
+                }
             }
         }
 

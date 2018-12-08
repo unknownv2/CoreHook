@@ -300,8 +300,14 @@ namespace CoreHook
             string lpFunction);
     }
 
+    /// <summary>
+    /// APIs for calling into the native detouring module.
+    /// </summary>
     public static class NativeApi
     {
+        /// <summary>
+        /// Determine if the current application is 32 or 64 bit.
+        /// </summary>
         public static readonly bool Is64Bit = IntPtr.Size == 8;
 
         internal const int StatusSuccess = 0;
