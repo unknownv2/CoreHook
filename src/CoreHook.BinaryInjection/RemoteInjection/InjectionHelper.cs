@@ -15,13 +15,24 @@ namespace CoreHook.BinaryInjection.RemoteInjection
     /// </summary>
     public class InjectionHelper
     {
-        private static readonly SortedList<int, InjectionState> InjectionList = new SortedList<int, InjectionState>();
+        private static readonly SortedList<int, InjectionState> ProcessList = new SortedList<int, InjectionState>();
 
+        /// <summary>
+        /// Create a named pipe server for awaiting messages.
+        /// </summary>
+        /// <param name="namedPipeName">The name of the server pipe.</param>
+        /// <param name="pipePlatform">A class that creates a pipe instance.</param>
+        /// <returns>The named pipe server.</returns>
         public static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleMessage);
         }
 
+        /// <summary>
+        /// Process a message received by the server.
+        /// </summary>
+        /// <param name="message">The message to process.</param>
+        /// <param name="channel">The server communication channel.</param>
         private static void HandleMessage(IMessage message, ITransportChannel channel)
         {
             switch (message.Header)
@@ -44,17 +55,21 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
         }
 
+        /// <summary>
+        /// Start the process for awaiting a notification from a remote process.
+        /// </summary>
+        /// <param name="targetProcessId">The remote process ID we expect the notification from.</param>
         public static void BeginInjection(int targetProcessId)
         {
             InjectionState state;
 
-            lock (InjectionList)
+            lock (ProcessList)
             {
-                if (!InjectionList.TryGetValue(targetProcessId, out state))
+                if (!ProcessList.TryGetValue(targetProcessId, out state))
                 {
                     state = new InjectionState();
 
-                    InjectionList.Add(targetProcessId, state);
+                    ProcessList.Add(targetProcessId, state);
                 }
             }
 
@@ -62,45 +77,58 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             state.Error = null;
             state.Completion.Reset();
 
-            lock (InjectionList)
+            lock (ProcessList)
             {
-                if (!InjectionList.ContainsKey(targetProcessId))
+                if (!ProcessList.ContainsKey(targetProcessId))
                 {
-                    InjectionList.Add(targetProcessId, state);
+                    ProcessList.Add(targetProcessId, state);
                 }
             }
         }
 
+        /// <summary>
+        /// Remove a process ID from a list we use to wait for remote notifications.
+        /// </summary>
+        /// <param name="targetProcessId">The remote process ID we expect the notification from.</param>
         public static void EndInjection(int targetProcessId)
         {
-            lock (InjectionList)
+            lock (ProcessList)
             {
-                InjectionList[targetProcessId].ThreadLock.ReleaseMutex();
+                ProcessList[targetProcessId].ThreadLock.ReleaseMutex();
 
-                InjectionList.Remove(targetProcessId);
+                ProcessList.Remove(targetProcessId);
             }
         }
 
+        /// <summary>
+        /// Complete the wait for a notification.
+        /// </summary>
+        /// <param name="remoteProcessId">The remote process ID we expect the notification from.</param>
         public static void InjectionCompleted(int remoteProcessId)
         {
             InjectionState state;
 
-            lock (InjectionList)
+            lock (ProcessList)
             {
-                state = InjectionList[remoteProcessId];
+                state = ProcessList[remoteProcessId];
             }
 
             state.Error = null;
             state.Completion.Set();
         }
 
+        /// <summary>
+        /// Block the current thread and wait to until we receive a signal from a remote process to continue.
+        /// </summary>
+        /// <param name="targetProcessId">The remote process ID we expect the notification from.</param>
+        /// <param name="timeOutMilliseconds">The time in milliseconds to wait for the notification message.</param>
         public static void WaitForInjection(int targetProcessId, int timeOutMilliseconds = 20000)
         {
             InjectionState state;
 
-            lock (InjectionList)
+            lock (ProcessList)
             {
-                state = InjectionList[targetProcessId];
+                state = ProcessList[targetProcessId];
             }
 
             if (!state.Completion.WaitOne(timeOutMilliseconds, false))
@@ -114,13 +142,20 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
         }
 
+        /// <summary>
+        /// Handle any errors that occur during the wait for the injection complete notification.
+        /// If an error occurs, then save it and complete the notification wait so the host program
+        /// can continue the execution of the thread being blocked.
+        /// </summary>
+        /// <param name="remoteProcessId">The process ID we expect a notification from.</param>
+        /// <param name="e">The error that occured during the wait.</param>
         private static void HandleException(int remoteProcessId, Exception e)
         {
             InjectionState state;
 
-            lock (InjectionList)
+            lock (ProcessList)
             {
-                state = InjectionList[remoteProcessId];
+                state = ProcessList[remoteProcessId];
             }
 
             state.Error = e;
