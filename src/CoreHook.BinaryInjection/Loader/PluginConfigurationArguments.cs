@@ -4,7 +4,12 @@ using CoreHook.BinaryInjection.Loader.Serialization;
 
 namespace CoreHook.BinaryInjection.Loader
 {
-    public class RemoteFunctionArguments : ISerializableObject
+    /// <summary>
+    /// Manages the arguments passed to the plugin loader.
+    /// The loader transforms the arguments into 
+    /// a managed configuration class and initializes the plugin.
+    /// </summary>
+    public class PluginConfigurationArguments : ISerializableObject
     {
         public bool Is64BitProcess;
         public IntPtr UserData;
@@ -15,8 +20,8 @@ namespace CoreHook.BinaryInjection.Loader
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
             {
-                // serialize information about the serialized class 
-                // data that is passed to the remote function
+                // Serialize information about the serialized class 
+                // data that is passed to the remote function.
                 if (Is64BitProcess)
                 {
                     writer.Write(UserData.ToInt64());
@@ -26,7 +31,7 @@ namespace CoreHook.BinaryInjection.Loader
                 {
                     writer.Write(UserData.ToInt32());
                     writer.Write(UserDataSize);
-                    // add padding to fill the whole buffer
+                    // Add padding to fill the whole buffer.
                     writer.Write(new byte[4]);
                 }
                 return ms.ToArray();
