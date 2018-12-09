@@ -9,28 +9,34 @@ namespace CoreHook.BinaryInjection.Loader
     /// The loader transforms the arguments into 
     /// a managed configuration class and initializes the plugin.
     /// </summary>
-    public class PluginConfigurationArguments : ISerializableObject
+    internal class PluginConfigurationArguments : ISerializableObject
     {
-        public bool Is64BitProcess;
-        public IntPtr UserData;
-        public int UserDataSize;
+        private readonly bool _is64BitProcess;
+        private readonly IntPtr _userData;
+        private readonly int _userDataSize;
+
+        internal PluginConfigurationArguments(bool is64BitProcess, IntPtr userData, int userDataSize)
+        {
+            _is64BitProcess = is64BitProcess;
+            _userData = userData;
+            _userDataSize = userDataSize;
+        }
 
         public byte[] Serialize()
         {
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
             {
-                // Serialize information about the serialized class 
-                // data that is passed to the remote function.
-                if (Is64BitProcess)
+                // Store the address and size of the serialized plugin arguments.
+                if (_is64BitProcess)
                 {
-                    writer.Write(UserData.ToInt64());
-                    writer.Write(UserDataSize);
+                    writer.Write(_userData.ToInt64());
+                    writer.Write(_userDataSize);
                 }
                 else
                 {
-                    writer.Write(UserData.ToInt32());
-                    writer.Write(UserDataSize);
+                    writer.Write(_userData.ToInt32());
+                    writer.Write(_userDataSize);
                     // Add padding to fill the whole buffer.
                     writer.Write(new byte[4]);
                 }

@@ -198,7 +198,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                         try
                         {
                             var process = GetProcessById(targetProcessId);
-                            var length = (int)pluginArgumentsStream.Length;
+                            var pluginArgumentsLength = (int)pluginArgumentsStream.Length;
 
                             using (var assemblyLoader = CreateAssemblyLoader(process))
                             {
@@ -228,12 +228,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                     Arguments = new AssemblyFunctionArguments(
                                         pathConfig,
                                         CoreHookLoaderDelegate,
-                                        new PluginConfigurationArguments
-                                        {
-                                            Is64BitProcess = process.Is64Bit(),
-                                            UserData = assemblyLoader.CopyMemory(pluginArgumentsStream.GetBuffer(), length),
-                                            UserDataSize = length
-                                        }),
+                                        new PluginConfigurationArguments(
+                                            process.Is64Bit(),
+                                            assemblyLoader.CopyMemory(pluginArgumentsStream.GetBuffer(), pluginArgumentsLength),
+                                            pluginArgumentsLength)
+                                        ),
                                     FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() }
                                 }, false);
 
