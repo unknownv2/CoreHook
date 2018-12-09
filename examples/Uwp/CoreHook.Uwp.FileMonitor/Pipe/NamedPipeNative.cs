@@ -50,7 +50,7 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
                 fullPipeName,
                 Interop.Kernel32.PipeOptions.PIPE_ACCESS_DUPLEX | Interop.Kernel32.FileOperations.FILE_FLAG_OVERLAPPED,
                 Interop.Kernel32.PipeOptions.PIPE_TYPE_BYTE | Interop.Kernel32.PipeOptions.PIPE_READMODE_BYTE,
-                255,
+                1,
                 65536,
                 65536,
                 0,

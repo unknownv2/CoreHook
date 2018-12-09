@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project>
+
   <PropertyGroup Condition="'$(Configuration)' != ''">
     <ConfigurationGroup Condition="$(Configuration.EndsWith('Debug'))">Debug</ConfigurationGroup>
     <ConfigurationGroup Condition="$(Configuration.EndsWith('Release'))">Release</ConfigurationGroup>
@@ -8,24 +8,7 @@
     <CommonPath>$(SourceDir)Common\src</CommonPath>
     <BinDir Condition="'$(BinDir)'==''">$(ProjectDir)Build/bin/</BinDir>
     <DefaultTargetFramework>netcoreapp2.2</DefaultTargetFramework>
-    <OutputDir>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/</OutputDir> 
-
-    <Authors>Thierry Bizimungu</Authors>
-    <Product>CoreHook</Product>
-    <Version>1.0.2</Version>
-    <PackageProjectUrl>https://github.com/unknownv2/CoreHook</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/unknownv2/CoreHook.git</RepositoryUrl>
-    <PackageLicenseUrl>https://github.com/unknownv2/CoreHook/blob/master/LICENSE</PackageLicenseUrl>
-    <Copyright>Copyright (c) 2018 Thierry Bizimungu</Copyright>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <RepositoryType>git</RepositoryType>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <DebugType>portable</DebugType>
-    <IsPackable>false</IsPackable>
-    <IncludeSymbols>true</IncludeSymbols>
-    <IncludeSource>true</IncludeSource>    
-    <Description>A library that simplifies intercepting application function calls using managed code and the .NET Core runtime.</Description>  
-
+    <OutputDir>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/</OutputDir>
   </PropertyGroup>
+
 </Project>

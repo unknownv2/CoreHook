@@ -56,7 +56,7 @@ namespace CoreHook.Memory
                 new UIntPtr(0),
                 Interop.Kernel32.FreeType.Release))
             {
-                throw new Win32Exception($"Failed to free the memory region at {address:X16}.");
+                throw new Win32Exception($"Failed to free the memory region at {address.ToInt64():X16}.");
             }
         }
     }

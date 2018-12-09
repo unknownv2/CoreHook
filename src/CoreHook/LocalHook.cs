@@ -58,7 +58,7 @@ namespace CoreHook
                     throw new ObjectDisposedException(typeof(LocalHook).FullName);
                 }
 
-                NativeAPI.DetourGetHookBypassAddress(Handle, out IntPtr targetFunctionAddress);
+                NativeApi.DetourGetHookBypassAddress(Handle, out IntPtr targetFunctionAddress);
                 return targetFunctionAddress;
             }
         }
@@ -114,7 +114,7 @@ namespace CoreHook
                 throw new ArgumentNullException(function);
             }
 
-            IntPtr functionAddress = NativeAPI.DetourFindFunction(module, function);
+            IntPtr functionAddress = NativeApi.DetourFindFunction(module, function);
             if (functionAddress == IntPtr.Zero)
             {
                 throw new MissingMethodException($"The function {function} in module {module} was not found.");
@@ -128,7 +128,7 @@ namespace CoreHook
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public static LocalHook Create(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
             var hook = new LocalHook
@@ -145,7 +145,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     Marshal.GetFunctionPointerForDelegate(hook.DetourFunction),
                     GCHandle.ToIntPtr(hook.SelfHandle),
@@ -172,7 +172,7 @@ namespace CoreHook
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public static LocalHook CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
             var hook = new LocalHook
@@ -188,7 +188,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     detourFunction,
                     callback,
@@ -222,7 +222,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     detourFunction,
                     callback,
@@ -255,7 +255,7 @@ namespace CoreHook
                     _disposed = true;
 
                     // Uninstall the detour
-                    NativeAPI.DetourUninstallHook(Handle);
+                    NativeApi.DetourUninstallHook(Handle);
 
                     // Release the detour's resources
                     Marshal.FreeCoTaskMem(Handle);
@@ -269,6 +269,9 @@ namespace CoreHook
             }
         }
 
+        /// <summary>
+        /// Ensure the function hook is uninstalled and any held resources are freed.
+        /// </summary>
         ~LocalHook()
         {
             Dispose();
@@ -292,15 +295,13 @@ namespace CoreHook
         /// </summary>
         public T Target => TargetAddress.ToFunction<T>();
 
-        public bool EnableForCurrentThread => false;
-
         /// <summary>
         /// Installs an unmanaged hook using the pointer to a hook handler.
         /// </summary>
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public new static LocalHook<T> CreateUnmanaged(IntPtr targetFunction, IntPtr detourFunction, IntPtr callback)
         {
             var hook = new LocalHook<T>
@@ -316,7 +317,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     detourFunction,
                     callback,
@@ -343,7 +344,7 @@ namespace CoreHook
         /// <param name="targetFunction">The target function to install the detour at.</param>
         /// <param name="detourFunction">The hook handler which intercepts the target function.</param>
         /// <param name="callback">A context object that will be available for reference inside the detour.</param>
-        /// <returns></returns>
+        /// <returns>The handle to the function hook.</returns>
         public new static LocalHook<T> Create(IntPtr targetFunction, Delegate detourFunction, object callback)
         {
             var hook = new LocalHook<T>
@@ -360,7 +361,7 @@ namespace CoreHook
 
             try
             {
-                NativeAPI.DetourInstallHook(
+                NativeApi.DetourInstallHook(
                     targetFunction,
                     Marshal.GetFunctionPointerForDelegate(hook.DetourFunction),
                     GCHandle.ToIntPtr(hook.SelfHandle),
@@ -393,7 +394,7 @@ namespace CoreHook
                 throw new ObjectDisposedException(typeof(LocalHook<T>).FullName);
             }
 
-            NativeAPI.DetourIsThreadIntercepted(Handle, threadId, out bool isThreadIntercepted);
+            NativeApi.DetourIsThreadIntercepted(Handle, threadId, out bool isThreadIntercepted);
 
             return isThreadIntercepted;
         }

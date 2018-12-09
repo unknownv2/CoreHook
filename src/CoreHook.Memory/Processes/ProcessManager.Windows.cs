@@ -19,7 +19,7 @@ namespace CoreHook.Memory.Processes
 
         public void InjectBinary(string modulePath)
         {
-            ExecuteFuntion(Path.Combine(
+            ExecuteFunction(Path.Combine(
                              Environment.ExpandEnvironmentVariables("%Windir%"),
                              "System32",
                              "kernel32.dll"),
@@ -37,10 +37,10 @@ namespace CoreHook.Memory.Processes
         /// we allocated or return immediately and deallocate the memory in a separate call.</param>
         public IntPtr Execute(string module, string function, byte[] arguments, bool waitForThreadExit = true)
         {
-            return ExecuteFuntion(module, function, arguments, waitForThreadExit);
+            return ExecuteFunction(module, function, arguments, waitForThreadExit);
         }
 
-        private IntPtr ExecuteFuntion(string module, string function, byte[] arguments, bool waitForThreadExit = true)
+        private IntPtr ExecuteFunction(string module, string function, byte[] arguments, bool waitForThreadExit = true)
         {
             SafeWaitHandle remoteThread = null;
 
@@ -87,12 +87,12 @@ namespace CoreHook.Memory.Processes
         public IntPtr CopyToProcess(byte[] data, int? size)
         {
             int dataLen = size ?? data.Length;
-            IntPtr remoteAllocAddr = _memoryManager.Allocate(dataLen, 
+            IntPtr allocationAddress = _memoryManager.Allocate(dataLen, 
                 MemoryProtectionType.ReadWrite).Address;
 
-            _memoryManager.WriteMemory(remoteAllocAddr.ToInt64(), data);
+            _memoryManager.WriteMemory(allocationAddress.ToInt64(), data);
  
-            return remoteAllocAddr;
+            return allocationAddress;
         }
 
         public void Dispose()

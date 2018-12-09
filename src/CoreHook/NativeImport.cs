@@ -29,12 +29,6 @@ namespace CoreHook
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourWaitForPendingRemovals();
 
-
-        /*
-            Setup the ACLs after hook installation. Please note that every
-            hook starts suspended. You will have to set a proper ACL to
-            make it active!
-        */
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
@@ -67,13 +61,6 @@ namespace CoreHook
                     IntPtr handle,
                     int threadId,
                     out bool result);
-
-        /*
-            The following barrier methods are meant to be used in hook handlers only!
-
-            They will all fail with STATUS_NOT_SUPPORTED if called outside a
-            valid hook handler...
-        */
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourBarrierGetCallback(out IntPtr returnValue);
@@ -191,12 +178,7 @@ namespace CoreHook
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourWaitForPendingRemovals();
-        
-        /*
-            Setup the ACLs after hook installation. Please note that every
-            hook starts suspended. You will have to set a proper ACL to
-            make it active!
-        */
+       
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourSetInclusiveACL(
                     [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)]
@@ -230,16 +212,8 @@ namespace CoreHook
                     int threadId,
                     out bool result);
 
-        /*
-            The following barrier methods are meant to be used in hook handlers only!
-
-            They will all fail with STATUS_NOT_SUPPORTED if called outside a
-            valid hook handler...
-        */
-
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourBarrierGetCallback(out IntPtr returnValue);
-
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourBarrierGetReturnAddress(out IntPtr returnValue);
@@ -258,7 +232,6 @@ namespace CoreHook
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern int DetourBarrierGetCallingModule(out IntPtr returnValue);
-
           
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode)]
         public static extern int DetourGetHookBypassAddress(IntPtr handle, out IntPtr address);
@@ -327,76 +300,30 @@ namespace CoreHook
             string lpFunction);
     }
 
-    public static class NativeAPI
+    /// <summary>
+    /// APIs for calling into the native detouring module.
+    /// </summary>
+    public static class NativeApi
     {
+        /// <summary>
+        /// Determine if the current application is 32 or 64 bit.
+        /// </summary>
         public static readonly bool Is64Bit = IntPtr.Size == 8;
 
-        [DllImport("kernel32.dll")]
-        public static extern short RtlCaptureStackBackTrace(
-            int framesToSkip,
-            int framesToCapture,
-            IntPtr backTrace,
-            IntPtr backTraceHash);
+        internal const int StatusSuccess = 0;
 
-        public const int STATUS_SUCCESS = unchecked((int)0);
-        public const int STATUS_INVALID_PARAMETER = unchecked((int)0xC000000DL);
-        public const int STATUS_INVALID_PARAMETER_1 = unchecked((int)0xC00000EFL);
-        public const int STATUS_INVALID_PARAMETER_2 = unchecked((int)0xC00000F0L);
-        public const int STATUS_INVALID_PARAMETER_3 = unchecked((int)0xC00000F1L);
-        public const int STATUS_INVALID_PARAMETER_4 = unchecked((int)0xC00000F2L);
-        public const int STATUS_INVALID_PARAMETER_5 = unchecked((int)0xC00000F3L);
-        public const int STATUS_NOT_SUPPORTED = unchecked((int)0xC00000BBL);
-
-        public const int STATUS_INTERNAL_ERROR = unchecked((int)0xC00000E5L);
-        public const int STATUS_INSUFFICIENT_RESOURCES = unchecked((int)0xC000009AL);
-        public const int STATUS_BUFFER_TOO_SMALL = unchecked((int)0xC0000023L);
-        public const int STATUS_NO_MEMORY = unchecked((int)0xC0000017L);
-        public const int STATUS_WOW_ASSERTION = unchecked((int)0xC0009898L);
-        public const int STATUS_ACCESS_DENIED = unchecked((int)0xC0000022L);
-
-        private static bool IsArchitectureArm()
-        {
-            var arch = RuntimeInformation.ProcessArchitecture;
-            return arch == Architecture.Arm || arch == Architecture.Arm64;
-        }
-
-        private static string ComposeString()
-        {
-            return "ERROR";
-        }
-
-        internal static void Force(int errorCode)
+        internal static void HandleErrorCode(int errorCode)
         {
             switch (errorCode)
             {
-                case STATUS_SUCCESS: return;
-                case STATUS_INVALID_PARAMETER: throw new ArgumentException("STATUS_INVALID_PARAMETER: " + ComposeString());
-                case STATUS_INVALID_PARAMETER_1: throw new ArgumentException("STATUS_INVALID_PARAMETER_1: " + ComposeString());
-                case STATUS_INVALID_PARAMETER_2: throw new ArgumentException("STATUS_INVALID_PARAMETER_2: " + ComposeString());
-                case STATUS_INVALID_PARAMETER_3: throw new ArgumentException("STATUS_INVALID_PARAMETER_3: " + ComposeString());
-                case STATUS_INVALID_PARAMETER_4: throw new ArgumentException("STATUS_INVALID_PARAMETER_4: " + ComposeString());
-                case STATUS_INVALID_PARAMETER_5: throw new ArgumentException("STATUS_INVALID_PARAMETER_5: " + ComposeString());
-                case STATUS_NOT_SUPPORTED: throw new NotSupportedException("STATUS_NOT_SUPPORTED: " + ComposeString());
-                case STATUS_INTERNAL_ERROR: throw new ApplicationException("STATUS_INTERNAL_ERROR: " + ComposeString());
-                case STATUS_INSUFFICIENT_RESOURCES: throw new InsufficientMemoryException("STATUS_INSUFFICIENT_RESOURCES: " + ComposeString());
-                case STATUS_BUFFER_TOO_SMALL: throw new ArgumentException("STATUS_BUFFER_TOO_SMALL: " + ComposeString());
-                case STATUS_NO_MEMORY: throw new OutOfMemoryException("STATUS_NO_MEMORY: " + ComposeString());
-                case STATUS_WOW_ASSERTION: throw new OutOfMemoryException("STATUS_WOW_ASSERTION: " + ComposeString());
-                case STATUS_ACCESS_DENIED: throw new AccessViolationException("STATUS_ACCESS_DENIED: " + ComposeString());
-
-                default: throw new ApplicationException("Unknown error code (" + errorCode + "): " + ComposeString());
-            }
-        }
-
-        public static int RtlGetLastError()
-        {
-            if (Is64Bit)
-            {
-                return NativeApi64.RtlGetLastError();
-            }
-            else
-            {
-                return NativeApi32.RtlGetLastError();
+                case StatusSuccess:
+                {
+                    return;
+                }
+                default:
+                {
+                    throw new ApplicationException($"Unknown error {errorCode}.");
+                }
             }
         }
 
@@ -420,12 +347,12 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
+                HandleErrorCode(NativeApi64.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
             }
             else
             {
 
-                Force(NativeApi32.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
+                HandleErrorCode(NativeApi32.DetourInstallHook(entryPoint, hookProcedure, callback, handle));
             }
         }
 
@@ -433,11 +360,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourUninstallHook(refHandle));
+                HandleErrorCode(NativeApi64.DetourUninstallHook(refHandle));
             }
             else
             {
-                Force(NativeApi32.DetourUninstallHook(refHandle));
+                HandleErrorCode(NativeApi32.DetourUninstallHook(refHandle));
             }
         }
 
@@ -446,11 +373,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourWaitForPendingRemovals());
+                HandleErrorCode(NativeApi64.DetourWaitForPendingRemovals());
             }
             else
             {
-                Force(NativeApi32.DetourWaitForPendingRemovals());
+                HandleErrorCode(NativeApi32.DetourWaitForPendingRemovals());
             }
         }
 
@@ -461,11 +388,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourIsThreadIntercepted(handle, threadId, out result));
+                HandleErrorCode(NativeApi64.DetourIsThreadIntercepted(handle, threadId, out result));
             }
             else
             {
-                Force(NativeApi32.DetourIsThreadIntercepted(handle, threadId, out result));
+                HandleErrorCode(NativeApi32.DetourIsThreadIntercepted(handle, threadId, out result));
             }
         }
 
@@ -476,11 +403,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourSetInclusiveACL(threadIdList, threadCount, handle));
+                HandleErrorCode(NativeApi64.DetourSetInclusiveACL(threadIdList, threadCount, handle));
             }
             else
             {
-                Force(NativeApi32.DetourSetInclusiveACL(threadIdList, threadCount, handle));
+                HandleErrorCode(NativeApi32.DetourSetInclusiveACL(threadIdList, threadCount, handle));
             }
         }
 
@@ -491,11 +418,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourSetExclusiveACL(threadIdList, threadCount, handle));
+                HandleErrorCode(NativeApi64.DetourSetExclusiveACL(threadIdList, threadCount, handle));
             }
             else
             {
-                Force(NativeApi32.DetourSetExclusiveACL(threadIdList, threadCount, handle));
+                HandleErrorCode(NativeApi32.DetourSetExclusiveACL(threadIdList, threadCount, handle));
             }
         }
 
@@ -505,11 +432,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
+                HandleErrorCode(NativeApi64.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
             }
             else
             {
-                Force(NativeApi32.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
+                HandleErrorCode(NativeApi32.DetourSetGlobalInclusiveACL(threadIdList, threadCount));
             }
         }
 
@@ -519,11 +446,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
+                HandleErrorCode(NativeApi64.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
             }
             else
             {
-                Force(NativeApi32.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
+                HandleErrorCode(NativeApi32.DetourSetGlobalExclusiveACL(threadIdList, threadCount));
             }
         }
 
@@ -532,11 +459,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourBarrierGetCallingModule(out returnValue));
+                HandleErrorCode(NativeApi64.DetourBarrierGetCallingModule(out returnValue));
             }
             else
             {
-                Force(NativeApi32.DetourBarrierGetCallingModule(out returnValue));
+                HandleErrorCode(NativeApi32.DetourBarrierGetCallingModule(out returnValue));
             }
         }
 
@@ -556,11 +483,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourBarrierGetReturnAddress(out returnValue));
+                HandleErrorCode(NativeApi64.DetourBarrierGetReturnAddress(out returnValue));
             }
             else
             {
-                Force(NativeApi32.DetourBarrierGetReturnAddress(out returnValue));
+                HandleErrorCode(NativeApi32.DetourBarrierGetReturnAddress(out returnValue));
             }
         }
 
@@ -568,11 +495,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourBarrierGetAddressOfReturnAddress(out returnValue));
+                HandleErrorCode(NativeApi64.DetourBarrierGetAddressOfReturnAddress(out returnValue));
             }
             else
             {
-                Force(NativeApi32.DetourBarrierGetAddressOfReturnAddress(out returnValue));
+                HandleErrorCode(NativeApi32.DetourBarrierGetAddressOfReturnAddress(out returnValue));
             }
         }
 
@@ -580,11 +507,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourBarrierBeginStackTrace(out backup));
+                HandleErrorCode(NativeApi64.DetourBarrierBeginStackTrace(out backup));
             }
             else
             {
-                Force(NativeApi32.DetourBarrierBeginStackTrace(out backup));
+                HandleErrorCode(NativeApi32.DetourBarrierBeginStackTrace(out backup));
             }
         }
 
@@ -592,11 +519,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
+                HandleErrorCode(NativeApi64.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
             }
             else
             {
-                Force(NativeApi32.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
+                HandleErrorCode(NativeApi32.DetourBarrierCallStackTrace(backup, maxCount, out outMaxCount));
             }
 
         }
@@ -604,11 +531,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourBarrierEndStackTrace(backup));
+                HandleErrorCode(NativeApi64.DetourBarrierEndStackTrace(backup));
             }
             else
             {
-                Force(NativeApi32.DetourBarrierEndStackTrace(backup));
+                HandleErrorCode(NativeApi32.DetourBarrierEndStackTrace(backup));
             }
         }
 
@@ -616,11 +543,11 @@ namespace CoreHook
         {
             if (Is64Bit)
             {
-                Force(NativeApi64.DetourGetHookBypassAddress(handle, out address));
+                HandleErrorCode(NativeApi64.DetourGetHookBypassAddress(handle, out address));
             }
             else
             {
-                Force(NativeApi32.DetourGetHookBypassAddress(handle, out address));
+                HandleErrorCode(NativeApi32.DetourGetHookBypassAddress(handle, out address));
             }
 
         }

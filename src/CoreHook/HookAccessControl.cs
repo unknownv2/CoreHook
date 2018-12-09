@@ -5,9 +5,9 @@ namespace CoreHook
     /// <summary>
     /// Class used for managing the thread ACL of a hook.
     /// </summary>
-    public class HookAccessControl : IHookAccessControl
+    internal class HookAccessControl : IHookAccessControl
     {
-        private static readonly int[] DefaultThreadACL = new int[0];
+        private static readonly int[] DefaultThreadAcl = new int[0];
 
         public bool IsExclusive { get; private set; }
 
@@ -15,9 +15,9 @@ namespace CoreHook
 
         private readonly IntPtr _handle;
 
-        private int[] _acl = DefaultThreadACL;
+        private int[] _acl = DefaultThreadAcl;
 
-        public HookAccessControl(IntPtr handle)
+        internal HookAccessControl(IntPtr handle)
         {
             IsExclusive = handle == IntPtr.Zero;
             _handle = handle;
@@ -33,15 +33,15 @@ namespace CoreHook
         {
             IsExclusive = true;
 
-            _acl = acl == null ? DefaultThreadACL : (int[])acl.Clone();
+            _acl = acl == null ? DefaultThreadAcl : (int[])acl.Clone();
 
             if (_handle == IntPtr.Zero)
             {
-                NativeAPI.DetourSetGlobalExclusiveACL(_acl, _acl.Length);
+                NativeApi.DetourSetGlobalExclusiveACL(_acl, _acl.Length);
             }
             else
             {
-                NativeAPI.DetourSetExclusiveACL(_acl, _acl.Length, _handle);
+                NativeApi.DetourSetExclusiveACL(_acl, _acl.Length, _handle);
             }
         }
 
@@ -55,15 +55,15 @@ namespace CoreHook
         {
             IsExclusive = false;
 
-            _acl = acl == null ? DefaultThreadACL : (int[])acl.Clone();
+            _acl = acl == null ? DefaultThreadAcl : (int[])acl.Clone();
 
             if (_handle == IntPtr.Zero)
             {
-                NativeAPI.DetourSetGlobalInclusiveACL(_acl, _acl.Length);
+                NativeApi.DetourSetGlobalInclusiveACL(_acl, _acl.Length);
             }
             else
             {
-                NativeAPI.DetourSetInclusiveACL(_acl, _acl.Length, _handle);
+                NativeApi.DetourSetInclusiveACL(_acl, _acl.Length, _handle);
             }
         }
 

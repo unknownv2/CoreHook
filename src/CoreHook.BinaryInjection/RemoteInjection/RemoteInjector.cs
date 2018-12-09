@@ -17,8 +17,8 @@ namespace CoreHook.BinaryInjection.RemoteInjection
     public static class RemoteInjector
     {
         /// <summary>
-        /// The .NET Assembly class that loads the .NET hooking library, resolves any references, and executes
-        /// the hooking library IEntryPoint.Run method.
+        /// The .NET Assembly class that loads the .NET plugin, resolves any references, and executes
+        /// the IEntryPoint.Run method for that plugin.
         /// </summary>
         private static readonly IAssemblyDelegate CoreHookLoaderDelegate =
                 new AssemblyDelegate(
@@ -181,7 +181,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                     // Initialize the arguments passed to the CoreHook plugin.
                     var remoteInfo = CreateRemoteInfo(localProcessId, remoteInfoFormatter, passThruArguments);
 
-                    using (var passThruStream = new MemoryStream())
+                    using (var pluginArgumentsStream = new MemoryStream())
                     {
                         // Serialize the plugin information such as the DLL path
                         // and the plugin arguments, which are copied to the remote process.
@@ -189,7 +189,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                             remoteInfo,
                             remoteInfoFormatter,
                             remoteInjectorConfig.PayloadLibrary,
-                            passThruStream,
+                            pluginArgumentsStream,
                             remoteInjectorConfig.InjectionPipeName);
 
                         // Inject the CoreCLR hosting module into the process, start the CoreCLR
@@ -198,7 +198,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                         try
                         {
                             var process = GetProcessById(targetProcessId);
-                            var length = (int)passThruStream.Length;
+                            var pluginArgumentsLength = (int)pluginArgumentsStream.Length;
 
                             using (var assemblyLoader = CreateAssemblyLoader(process))
                             {
@@ -228,12 +228,11 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                     Arguments = new AssemblyFunctionArguments(
                                         pathConfig,
                                         CoreHookLoaderDelegate,
-                                        new RemoteFunctionArguments
-                                        {
-                                            Is64BitProcess = process.Is64Bit(),
-                                            UserData = assemblyLoader.CopyMemory(passThruStream.GetBuffer(), length),
-                                            UserDataSize = length
-                                        }),
+                                        new PluginConfigurationArguments(
+                                            process.Is64Bit(),
+                                            assemblyLoader.CopyMemory(pluginArgumentsStream.GetBuffer(), pluginArgumentsLength),
+                                            pluginArgumentsLength)
+                                        ),
                                     FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() }
                                 }, false);
 
