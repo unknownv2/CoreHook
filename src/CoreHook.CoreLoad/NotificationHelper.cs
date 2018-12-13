@@ -4,8 +4,16 @@ using CoreHook.IPC.NamedPipes;
 
 namespace CoreHook.CoreLoad
 {
-    internal static class NotificationHelper
+    internal class NotificationHelper
     {
+        private readonly INamedPipe _pipe;
+
+        internal NotificationHelper(string pipeName)
+        {
+            _pipe = CreateClient(pipeName);
+            _pipe.Connect();
+        }
+
         /// <summary>
         /// Notify the injecting process when injection has completed successfully
         /// and the plugin is about to be executed.
@@ -24,6 +32,22 @@ namespace CoreHook.CoreLoad
             }
             return false;
         }
+        internal static bool SendLogMessage(string pipeName, string message, LogLevel level = LogLevel.Info)
+        {
+            using (var pipeClient = CreateClient(pipeName))
+            {
+                if (pipeClient.Connect())
+                {
+                    return SendLogMessage(pipeClient.MessageHandler, level, message);
+                }
+            }
+            return false;
+        }
+
+        internal bool SendInjectionComplete(int processId)
+        {
+            return SendInjectionComplete(_pipe.MessageHandler, processId);
+        }
 
         private static bool SendInjectionComplete(IMessageWriter writer, int processId)
         {
@@ -33,6 +57,16 @@ namespace CoreHook.CoreLoad
         private static INamedPipe CreateClient(string pipeName)
         {
             return new NamedPipeClient(pipeName);
+        }
+
+        private static bool SendLogMessage(IMessageWriter writer, LogLevel level, string message)
+        {
+            return writer.TryWrite(LogMessageNotification.CreateMessage(level, message));
+        }
+
+        internal bool Log(string message, LogLevel level = LogLevel.Info)
+        {
+            return SendLogMessage(_pipe.MessageHandler, level, message);
         }
     }
 }

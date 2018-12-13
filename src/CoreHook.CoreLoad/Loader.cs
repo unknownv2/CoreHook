@@ -3,17 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using CoreHook.CoreLoad.Data;
+using CoreHook.IPC.Messages;
 
 namespace CoreHook.CoreLoad
 {
-    /*
-     * Dependencies for CoreLoad:
-     
-     * Newtonsoft.Json.dll
-     * Microsoft.Extensions.DependencyModel.dll
-     * Microsoft.DotNet.PlatformAbstractions.dll
-    */
-
     public class Loader
     {
         /// <summary>
@@ -30,7 +23,7 @@ namespace CoreHook.CoreLoad
         /// </summary>
         /// <param name="remoteParameters">Parameters containing the plugin to load
         /// and the parameters to pass to it's entry point.</param>
-        /// <returns></returns>
+        /// <returns>A status code representing the plugin initialization state.</returns>
         public static int Load(IntPtr remoteParameters)
         {
             try
@@ -50,25 +43,36 @@ namespace CoreHook.CoreLoad
                         remoteParameters, remoteInfoFormatter
                     );
 
+                // Start the IPC message notifier with a connection to the host application.
+                var hostNotifier = new NotificationHelper(pluginConfig.RemoteInfo.ChannelName);
+
+                hostNotifier.Log($"Initializing plugin: {pluginConfig.RemoteInfo.UserLibrary}.");
+
                 IDependencyResolver resolver = CreateDependencyResolver(
                     pluginConfig.RemoteInfo.UserLibrary);
                 
                 // Construct the parameter array passed to the plugin initialization function.
                 var pluginParameters = new object[1 + pluginConfig.RemoteInfo.UserParams.Length];
 
+                hostNotifier.Log($"Initializing plugin with {pluginParameters.Length} parameters(s).");
+
                 pluginParameters[0] = pluginConfig.UnmanagedInfo;
                 for (var i = 0; i < pluginConfig.RemoteInfo.UserParams.Length; ++i)
                 {
                     pluginParameters[i + 1] = pluginConfig.RemoteInfo.UserParams[i];
                 }
-              
+
+                hostNotifier.Log("Deserializing parameters.");
+
                 DeserializeParameters(pluginParameters, remoteInfoFormatter);
+
+                hostNotifier.Log("Successfully deserialized parameters.");
 
                 // Execute the plugin library's entry point and pass in the user arguments.
                 pluginConfig.State = LoadPlugin(
                     resolver.Assembly,
                     pluginParameters,
-                    pluginConfig.RemoteInfo.ChannelName);
+                    hostNotifier);
 
                 return (int)pluginConfig.State;
             }
@@ -105,24 +109,30 @@ namespace CoreHook.CoreLoad
         /// </summary>
         /// <param name="assembly">The plugin assembly containing the entry point.</param>
         /// <param name="paramArray">The parameters passed to the plugin Run method.</param>
-        /// <param name="helperPipeName">Pipe name used to notify the host about the state of the plugin initialization.</param>
-        private static PluginInitializationState LoadPlugin(Assembly assembly, object[] paramArray, string helperPipeName)
+        /// <param name="hostNotifier">Used to notify the host about the state of the plugin initialization.</param>
+        private static PluginInitializationState LoadPlugin(Assembly assembly, object[] paramArray, NotificationHelper hostNotifier)
         {
             Type entryPoint = FindEntryPoint(assembly);
-
+    
             MethodInfo runMethod = FindMatchingMethod(entryPoint, EntryPointMethodName, paramArray);
             if(runMethod == null)
             {
-                throw new MissingMethodException($"Failed to find the function 'Run' in {assembly.FullName}");
+                Log(hostNotifier,
+                    new MissingMethodException(
+                        $"Failed to find the 'Run' function with {paramArray.Length} parameter(s) in {assembly.FullName}."));
             }
+            hostNotifier.Log("Found entry point, initializing plugin class.");
 
             var instance = InitializeInstance(entryPoint, paramArray);
             if (instance == null)
             {
-                throw new MissingMethodException($"Failed to find the constructor {entryPoint.Name} in {assembly.FullName}");
+                Log(hostNotifier,
+                    new MissingMethodException(
+                        $"Failed to find the constructor {entryPoint.Name} in {assembly.FullName}"));
             }
+            hostNotifier.Log("Plugin successfully initialized. Executing the plugin entry point.");
 
-            if (NotificationHelper.SendInjectionComplete(helperPipeName, Process.GetCurrentProcess().Id))
+            if (hostNotifier.SendInjectionComplete(Process.GetCurrentProcess().Id))
             {
                 try
                 {
@@ -133,7 +143,6 @@ namespace CoreHook.CoreLoad
                 }
                 catch
                 {
-                    
                 }
                 return PluginInitializationState.Initialized;
             }
@@ -238,6 +247,17 @@ namespace CoreHook.CoreLoad
         private static void Log(string message)
         {
             Debug.WriteLine(message);
+        }
+
+        /// <summary>
+        /// Send a exception message to the host and then throw the exception in the current application.
+        /// </summary>
+        /// <param name="notifier">Communication helper to send messages to the host application.</param>
+        /// <param name="e">The exception that occurred.</param>
+        private static void Log(NotificationHelper notifier, Exception e)
+        {
+            notifier.Log(e.Message, LogLevel.Error);
+            throw e;
         }
     }
 }
