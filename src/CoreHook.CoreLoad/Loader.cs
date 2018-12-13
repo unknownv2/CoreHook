@@ -54,7 +54,7 @@ namespace CoreHook.CoreLoad
                 // Construct the parameter array passed to the plugin initialization function.
                 var pluginParameters = new object[1 + pluginConfig.RemoteInfo.UserParams.Length];
 
-                hostNotifier.Log($"Initializing plugin with {pluginParameters.Length} parameters(s).");
+                hostNotifier.Log($"Initializing plugin with {pluginParameters.Length} parameter(s).");
 
                 pluginParameters[0] = pluginConfig.UnmanagedInfo;
                 for (var i = 0; i < pluginConfig.RemoteInfo.UserParams.Length; ++i)
