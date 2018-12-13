@@ -17,8 +17,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessW);
 
@@ -32,11 +32,10 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessA);
-
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall)]
         public static extern bool DetourCreateProcessWithDllsExW(
@@ -48,8 +47,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW);
@@ -64,8 +63,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessA);
@@ -85,8 +84,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessW);
 
@@ -100,8 +99,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessA);
 
@@ -115,8 +114,8 @@ namespace CoreHook.Memory.Processes
               uint dwCreationFlags,
               IntPtr lpEnvironment,
               string lpCurrentDirectory,
-              ref NativeMethods.StartupInfo lpStartupInfo,
-              out NativeMethods.ProcessInformation lpProcessInformation,
+              ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+              out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
               uint nDlls,
               IntPtr rlpDlls,
               IntPtr pfCreateProcessW);
@@ -131,8 +130,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessA);
@@ -151,8 +150,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessA)
         {
@@ -197,8 +196,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             string lpDllName,
             IntPtr pfCreateProcessW)
         {
@@ -243,8 +242,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessA)
@@ -292,8 +291,8 @@ namespace CoreHook.Memory.Processes
             uint dwCreationFlags,
             IntPtr lpEnvironment,
             string lpCurrentDirectory,
-            ref NativeMethods.StartupInfo lpStartupInfo,
-            out NativeMethods.ProcessInformation lpProcessInformation,
+            ref Interop.Kernel32.STARTUPINFO lpStartupInfo,
+            out Interop.Kernel32.PROCESS_INFORMATION lpProcessInformation,
             uint nDlls,
             IntPtr rlpDlls,
             IntPtr pfCreateProcessW)

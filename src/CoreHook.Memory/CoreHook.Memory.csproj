@@ -20,18 +20,24 @@
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\Interop.BOOL.cs">
+      <Link>Common\Interop\Windows\Interop.BOOL.cs</Link>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
       <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\advapi32\Interop.ProcessOptions.cs">
       <Link>Common\Interop\Windows\advapi32\Interop.ProcessOptions.cs</Link>
     </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs</Link>
-    </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CloseHandle.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.CloseHandle.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateProcess.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.CreateProcess.cs</Link>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs</Link>
     </Compile>
@@ -44,6 +50,9 @@
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.ReadProcessMemory.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.ReadProcessMemory.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.SECURITY_ATTRIBUTES.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.SECURITY_ATTRIBUTES.cs</Link>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.VirtualAllocEx.cs</Link>
     </Compile>
