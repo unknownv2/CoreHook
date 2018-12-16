@@ -45,12 +45,12 @@ namespace CoreHook.CoreLoad
 
                 // Start the IPC message notifier with a connection to the host application.
                 var hostNotifier = new NotificationHelper(pluginConfig.RemoteInfo.ChannelName);
-
+                
                 hostNotifier.Log($"Initializing plugin: {pluginConfig.RemoteInfo.UserLibrary}.");
 
                 IDependencyResolver resolver = CreateDependencyResolver(
                     pluginConfig.RemoteInfo.UserLibrary);
-                
+
                 // Construct the parameter array passed to the plugin initialization function.
                 var pluginParameters = new object[1 + pluginConfig.RemoteInfo.UserParams.Length];
 
@@ -121,6 +121,7 @@ namespace CoreHook.CoreLoad
                     new MissingMethodException(
                         $"Failed to find the 'Run' function with {paramArray.Length} parameter(s) in {assembly.FullName}."));
             }
+
             hostNotifier.Log("Found entry point, initializing plugin class.");
 
             var instance = InitializeInstance(entryPoint, paramArray);
@@ -134,12 +135,14 @@ namespace CoreHook.CoreLoad
 
             if (hostNotifier.SendInjectionComplete(Process.GetCurrentProcess().Id))
             {
+                // Close the plugin loading message channel.
+                hostNotifier.Dispose();
+
                 try
                 {
-                    // Execute the CoreHook plugin entry point
+                    // Execute the plugin 'Run' entry point.
                     runMethod.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
                                                BindingFlags.InvokeMethod, null, paramArray, null);
-
                 }
                 catch
                 {
