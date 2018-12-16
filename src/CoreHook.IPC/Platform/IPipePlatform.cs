@@ -3,7 +3,7 @@
 namespace CoreHook.IPC.Platform
 {
     /// <summary>
-    /// Interface for implementing the creation of named pipe server by name.
+    /// Interface for implementing the creation of named pipe server.
     /// </summary>
     public interface IPipePlatform
     {

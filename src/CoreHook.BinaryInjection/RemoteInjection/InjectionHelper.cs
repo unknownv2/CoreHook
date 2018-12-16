@@ -48,6 +48,10 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                         throw new InjectionLoadException($"Injection into process {messageData.ProcessId} failed.");
                     }
                     break;
+                case LogMessageNotification.Message:
+                    var logMessageData = LogMessageNotification.ParseMessage(message);
+                    Log($"{logMessageData.Level}: {logMessageData.Message}");
+                    break;
                 default:
                 {
                     throw new InvalidOperationException($"Message type {message.Header} is not supported");
@@ -160,6 +164,15 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
             state.Error = e;
             state.Completion.Set();
+        }
+
+        /// <summary>
+        /// Log a message.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        private static void Log(string message)
+        {
+            Console.WriteLine(message);
         }
     }
 }

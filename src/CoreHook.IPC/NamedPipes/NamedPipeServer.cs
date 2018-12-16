@@ -62,7 +62,9 @@ namespace CoreHook.IPC.NamedPipes
             while (connection.IsConnected)
             {
                 var message = channel.MessageHandler.Read();
-                if (message == null || !connection.IsConnected)
+                if (message == null ||
+                    (message.Header == null && message.Body == null) ||
+                    !connection.IsConnected)
                 {
                     break;
                 }
