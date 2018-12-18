@@ -69,4 +69,7 @@
       <Link>Common\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs</Link>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Bleak" Version="1.2.2" />
+  </ItemGroup>
 </Project>

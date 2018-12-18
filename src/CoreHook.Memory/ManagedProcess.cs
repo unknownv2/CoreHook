@@ -8,6 +8,7 @@ namespace CoreHook.Memory
     {
         public Process ProcessHandle { get; }
         public SafeProcessHandle SafeHandle { get; }
+        public int ProcessId { get; }
 
         private const int DefaultProcessAccess =
                 Interop.Advapi32.ProcessOptions.PROCESS_CREATE_THREAD |
@@ -20,12 +21,14 @@ namespace CoreHook.Memory
         {
             ProcessHandle = process;
             SafeHandle = GetProcessHandle(process.Id, access);
+            ProcessId = process.Id;
         }
 
         public ManagedProcess(int processId, int access)
         {
             SafeHandle = GetProcessHandle(processId, access);
             ProcessHandle = Process.GetProcessById(processId);
+            ProcessId = processId;
         }
 
         private SafeProcessHandle GetProcessHandle(int processId, int access)

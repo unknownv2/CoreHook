@@ -1,30 +1,39 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
-using System.Text;
 using Microsoft.Win32.SafeHandles;
+using Bleak;
 
 namespace CoreHook.Memory.Processes
 {
-    public sealed partial class ProcessManager : IProcessManager
+    public sealed class ProcessManager : IProcessManager
     {
         private readonly IMemoryManager _memoryManager;
         private readonly IProcess _process;
 
+        private readonly Injector _injector;
+        
         public ProcessManager(IProcess process)
         {
             _process = process;
             _memoryManager = new MemoryManager(process);
+            
+            // Initialise an injector
+            
+            _injector = new Injector();
         }
-
+        
         public void InjectBinary(string modulePath)
         {
-            ExecuteFunction(Path.Combine(
-                             Environment.ExpandEnvironmentVariables("%Windir%"),
-                             "System32",
-                             "kernel32.dll"),
-                             "LoadLibraryW",
-                             Encoding.Unicode.GetBytes(modulePath + "\0"));
+            // Ensure the module path is valid
+
+            if (string.IsNullOrWhiteSpace(modulePath))
+            {
+                throw new ArgumentException("Module path was invalid");
+            }
+            
+            // Inject the dll using the manual map method
+            
+            _injector.ManualMap(modulePath, _process.ProcessId);
         }
 
         /// <summary>
@@ -41,7 +50,7 @@ namespace CoreHook.Memory.Processes
         }
 
         private IntPtr ExecuteFunction(string module, string function, byte[] arguments, bool waitForThreadExit = true)
-        {
+        {            
             SafeWaitHandle remoteThread = null;
 
             var argumentsAllocation =
