@@ -82,26 +82,80 @@ CoreHook supports application function call interception on various architecture
 
 ### Windows
 
-First, set the environment variables for the `x86` and `x64` applications to the installation folder of your desired dotnet runtime. 
+The native hosting module requires either a global `dotnet.runtimeconfig.json` file or a `CoreHook.CoreLoad.runtimeconfig.json` file (located next to `CoreHook.CoreLoad.dll` in the CoreHook output directory) to initialize CoreCLR. The `runtimeconfig` file must contain the framework information to be hosted in the target application.
+You can find an example of the configuration file in your .NET Core SDK installation directory, such as `C:\Program Files\dotnet\sdk\2.2.100\dotnet.runtimeconfig.json`.
 
-Using the `.NET Core 2.2` runtime as an example (validate the paths if you have another installation directory or drive):
+An example of the `runtimeconfig.json` configuration file is:
+```json
+{
+  "runtimeOptions": {
+    "tfm": "netcoreapp2.2",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "2.2.0"
+    }
+  }
+}
+```
 
- * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0` for `32-bit` applications.
+You can also set additional probing paths for the host module to search for dependencies such as NuGet packages with a `CoreHook.CoreLoad.runtimeconfig.dev.json` file.
+
+```json
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\Thierry\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\Thierry\\.nuget\\packages",
+      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+    ]
+  }
+}
+```
+
+To use CoreHook, first create a `dotnet.runtimeconfig.json` file and save it to a folder. This will be the global configuration file that will be used by CoreHook to initialize the runtime in the target processs. In this example, our file is at `C:\CoreHook\dotnet.runtimeconfig.json`.
+
+The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies.
+
+**Either replace `user_name` with your local computer account name or modify the paths to point to where your NuGet packages are installed.**
+
+```json
+{
+  "runtimeOptions": {
+    "tfm": "netcoreapp2.2",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "2.2.0"
+    },
+    "additionalProbingPaths": [
+      "C:\\Users\\user_name\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\user_name\\.nuget\\packages",
+      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+    ]
+  }
+}
+```
+
+
+
+Set the environment variables for the `x86` and `x64` applications to the directory of the runtime configuration file. This allows you to have different configuration files for the runtime for `32-bit` and `64-bit` applications.
+
+For example (validate the paths if you have another installation directory or drive):
+
+ * Set `CORE_ROOT_32` to `C:\CoreHook` for `32-bit` applications.
  
- * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0` for `64-bit` applications.
+ * Set `CORE_ROOT_64` to `C:\CoreHook` for `64-bit` applications.
 
-You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or the next program you open, such as Visual Studio:
 
 ```ps
-setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0"
-setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0"
+setx CORE_ROOT_64 "C:\CoreHook"
+setx CORE_ROOT_32 "C:\CoreHook"
 ```
 
 Or set them for the current command prompt session with:
 
 ```
-set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0
-set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0
+set CORE_ROOT_64=C:\CoreHook
+set CORE_ROOT_32=C:\CoreHook
 ```
 
 Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dotnet build` to build the library and the examples.
