@@ -83,7 +83,6 @@ CoreHook supports application function call interception on various architecture
 ### Windows
 
 The native hosting module requires either a global `dotnet.runtimeconfig.json` file or a `CoreHook.CoreLoad.runtimeconfig.json` file (located next to `CoreHook.CoreLoad.dll` in the CoreHook output directory) to initialize CoreCLR. The `runtimeconfig` file must contain the framework information to be hosted in the target application.
-You can find an example of the configuration file in your .NET Core SDK installation directory, such as `C:\Program Files\dotnet\sdk\2.2.100\dotnet.runtimeconfig.json`.
 
 An example of the `runtimeconfig.json` configuration file is:
 ```json
@@ -116,7 +115,7 @@ To use CoreHook, first create a `dotnet.runtimeconfig.json` file and save it to 
 
 The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies.
 
-**Either replace `user_name` with your local computer account name or modify the paths to point to where your NuGet packages are installed.**
+**Notice: Either replace `user_name` with your local computer user name or modify the paths to point to where your NuGet packages are installed.**
 
 ```json
 {
@@ -135,11 +134,9 @@ The runtime configuration file should look like the one below, where `additional
 }
 ```
 
-
-
 Set the environment variables for the `x86` and `x64` applications to the directory of the runtime configuration file. This allows you to have different configuration files for the runtime for `32-bit` and `64-bit` applications.
 
-For example (validate the paths if you have another installation directory or drive):
+For example (if you saved the file another installation directory or drive, make sure to use that path):
 
  * Set `CORE_ROOT_32` to `C:\CoreHook` for `32-bit` applications.
  
