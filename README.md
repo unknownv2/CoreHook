@@ -157,7 +157,7 @@ set CORE_ROOT_32=C:\CoreHook
 
 Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dotnet build` to build the library and the examples.
 
-Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
+Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `coreload32.dll (X86, ARM)` and/or `coreload64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
 
@@ -192,7 +192,7 @@ For `Windows 10 IoT Core`, you can publish the application by running the `publi
 .\publish -example win32 -runtime win-arm
 ```
 
-Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the application directory structure should look like this:
+Make sure to also copy the `coreload32.dll` and the `corehook32.dll` to the directory of the program. For example, the application directory structure should look like this:
 
 ```
 [+]Publish\win32\win-arm\
@@ -205,7 +205,7 @@ Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the di
     [-] CoreHook.FileMonitor.dll
     [-] CoreHook.FileMonitor.exe
     [-] corehook32.dll
-    [-] corerundll32.dll
+    [-] coreload32.dll
     ...
 ```
 
