@@ -57,7 +57,6 @@ function exec([string]$_cmd) {
     }
 }
 
-exec dotnet publish $ExampleDir --configuration $Configuration -r $runtime -o $ExampleOutputDir '-warnaserror:CS1591'
-exec dotnet publish $ExampleHookDir --configuration $Configuration -r $runtime -o $ExampleHookOutputDir '-warnaserror:CS1591'
-
+exec dotnet publish $ExampleDir --configuration $Configuration -r $runtime -o $ExampleOutputDir
+exec dotnet publish $ExampleHookDir --configuration $Configuration -r $runtime -o $ExampleHookOutputDir
 
