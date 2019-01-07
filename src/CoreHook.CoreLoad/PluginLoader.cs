@@ -7,7 +7,7 @@ using CoreHook.IPC.Messages;
 
 namespace CoreHook.CoreLoad
 {
-    public class Loader
+    public class PluginLoader
     {
         /// <summary>
         /// The interface implemented by each plugin that we initialize.

@@ -23,7 +23,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         private static readonly IAssemblyDelegate CoreHookLoaderDelegate =
                 new AssemblyDelegate(
                 assemblyName: "CoreHook.CoreLoad",
-                typeName: "Loader",
+                typeName: "PluginLoader",
                 methodName: "Load");
 
         /// <summary>
