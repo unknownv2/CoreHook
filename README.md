@@ -1,7 +1,7 @@
 # CoreHook
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NuGet](https://img.shields.io/nuget/v/CoreHook.svg)](https://www.nuget.org/packages/CoreHook)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![NuGet](https://img.shields.io/nuget/v/CoreHook.svg?style=flat-square&colorB=f97356)](https://www.nuget.org/packages/CoreHook)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
@@ -29,7 +29,6 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 | AppVeyor        | Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook)                                    |
 | Azure Pipelines | Linux, Windows     | [![Build Status](https://unknowndev.visualstudio.com/CoreHook/_apis/build/status/CoreHook/CoreHook)](https://unknowndev.visualstudio.com/CoreHook/_build/latest?definitionId=2) |
 | Travis CI       | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                                                         |
-
 
 ## Features
 * Intercept public API functions such as `CreateFile`
