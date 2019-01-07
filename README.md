@@ -87,7 +87,7 @@ If you are building the CoreHook project (for example, with `dotnet build`) and 
 
 The native hosting module requires either: 1) A global `dotnet.runtimeconfig.json` file or 2) a local `CoreHook.CoreLoad.runtimeconfig.json` file
 (located next to `CoreHook.CoreLoad.dll` in the CoreHook output directory) to initialize CoreCLR. The host module will first attempt to
-use the global configuration file if it exists, then it will check for a local configuration file, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
+use the local configuration file, then it will check for the the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
 
 The `runtimeconfig` file must contain the framework information for hosting .NET Core in the target application.
 When you build any .NET Core application, these files are generated to the output directory. [For more information on the
@@ -95,37 +95,7 @@ configuration options, see here](https://github.com/dotnet/cli/blob/master/Docum
 
 You can use the `CoreHook.FileMonitor.runtimeconfig.json` and `CoreHook.FileMonitor.runtimeconfig.dev.json` files found in your build output directory as references for creating the global or local configuration files.
 
-An example of the contents of a `runtimeconfig.json` configuration file is:
-```json
-{
-  "runtimeOptions": {
-    "tfm": "netcoreapp2.2",
-    "framework": {
-      "name": "Microsoft.NETCore.App",
-      "version": "2.2.0"
-    }
-  }
-}
-```
-
-You can also set additional probing paths for the host module to search for dependencies such as NuGet packages by creating a separate `CoreHook.CoreLoad.runtimeconfig.dev.json` file, which should look like:
-
-```json
-{
-  "runtimeOptions": {
-    "additionalProbingPaths": [
-      "C:\\Users\\<user>\\.dotnet\\store\\|arch|\\|tfm|",
-      "C:\\Users\\<user>\\.nuget\\packages",
-      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-    ]
-  }
-}
-```
-
-#### Global Configuration
-To use CoreHook, first create a `dotnet.runtimeconfig.json` file and save it to a folder. This will be the global configuration file the project uses to initialize the runtime in the target processs. In this example, our file is saved at `C:\CoreHook\dotnet.runtimeconfig.json`.
-
-The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies.
+The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies. This guide assumes you have installed the `2.2` runtime or SDK for both x86 and x64 architectures.
 
 **Notice: Either replace `<user>` with your local computer user name or modify the paths to point to where your NuGet packages are installed. Take a look at `CoreHook.FileMonitor.runtimeconfig.dev.json` in the output directory to find your paths.**
 
@@ -146,10 +116,17 @@ The runtime configuration file should look like the one below, where `additional
 }
 ```
 
-Set the environment variables for the `x86` and `x64` applications to the directory of the runtime configuration file. This allows you to have different configuration files for `32-bit` and `64-bit` applications. 
-This guide assumes you have installed the `2.2` runtime for both architectures.
+#### Local Configuration
 
-For example (if you saved the file another installation directory or drive, make sure to use that path):
+To use a local configuration, create a file with the contents described above called `CoreHook.CoreLoad.runtimeconfig.json` and save it to the project output directory where `CoreHook.CoreLoad.dll` is located.
+
+#### Global Configuration
+
+To use a global configuration, first create a `dotnet.runtimeconfig.json` file with the contents described above and save it to a folder. This will be the global configuration file the project uses to initialize the runtime in the target processs. In this example, our file is saved at `C:\CoreHook\dotnet.runtimeconfig.json`.
+
+Set the environment variables for the `x86` and `x64` applications to the directory of the runtime configuration file. This allows you to have different configuration files for `32-bit` and `64-bit` applications. 
+
+For example (if you saved the file another installation directory or drive, make sure to use that path instead):
 
  * Set `CORE_ROOT_32` to `C:\CoreHook` for `32-bit` applications.
  
