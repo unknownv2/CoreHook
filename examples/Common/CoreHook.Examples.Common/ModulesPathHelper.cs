@@ -81,6 +81,29 @@ namespace CoreHook.Examples.Common
         }
 
         /// <summary>
+        /// Determine if the current application is a self-contained application.
+        /// </summary>
+        /// <param name="applicationBase">The application base directory.</param>
+        /// <returns>True if the coreclr module exists in the application base.</returns>
+        private static bool IsPublishedApplication(string applicationBase)
+        {
+            return File.Exists(
+                Path.Combine(applicationBase, "coreclr.dll"));
+        }
+
+        /// <summary>
+        /// Determine if the CoreLoad module has a runtime configuration file.
+        /// </summary>
+        /// <param name="applicationBase">The application base directory.</param>
+        /// <returns>True if there is a runtime configuration file for CoreLoad.</returns>
+        private static bool HasLocalRuntimeConfiguration(string applicationBase)
+        {
+            // The configuration file should be named 'CoreHook.CoreLoad.runtimeconfig.json'
+            return File.Exists(Path.Combine(applicationBase,
+                CoreLoadModule.Replace("dll", "runtimeconfig.json")));
+        }
+
+        /// <summary>
         /// Get the directory path of the .NET Core runtime configuration file.
         /// </summary>
         /// <param name="is64BitProcess">Value to determine which native modules path to look for.</param>
@@ -97,18 +120,17 @@ namespace CoreHook.Examples.Common
             {
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    if (!string.IsNullOrWhiteSpace(currentDirectory))
+                    var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    if (!string.IsNullOrWhiteSpace(applicationBase))
                     {
                         // Check if we are using a published application or a local
                         // runtime configuration file, in which case we don't need
                         // the paths from the environment variables.
-                        if (File.Exists(
-                                Path.Combine(currentDirectory, "coreclr.dll"))
-                            || File.Exists(Path.Combine(currentDirectory,
-                                CoreLoadModule.Replace("dll", "runtimeconfig.json"))))
+                        if (IsPublishedApplication(applicationBase)
+                            || HasLocalRuntimeConfiguration(applicationBase))
                         {
-                            coreRootPath = currentDirectory;
+                            // Set the directory for finding dependencies to the application base directory.
+                            coreRootPath = applicationBase;
                             return true;
                         }
                     }
