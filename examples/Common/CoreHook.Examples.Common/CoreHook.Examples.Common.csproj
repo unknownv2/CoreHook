@@ -8,10 +8,14 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>$(OutputDir)</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>$(OutputDir)</OutputPath>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
-    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
   </ItemGroup>
 
 </Project>

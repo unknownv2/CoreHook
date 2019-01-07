@@ -14,14 +14,9 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// </summary>
         public string DetourLibrary { get; set; }
         /// <summary>
-        /// Directory path which contains the main CoreCLR modules for hosting the runtime
-        /// such as CoreCLR and clrjit libraries.
+        /// Directory path which contains the folder with a `dotnet.runtimeconfig.json`
+        /// containing properties for initializing CoreCLR.
         /// </summary>
         public string ClrRootPath { get; set; }
-        /// <summary>
-        /// Directory path which contains the CoreCLR Assembly reference
-        /// runtime libraries such as System.Private.CoreLib.dll.
-        /// </summary>
-        public string ClrLibrariesPath { get; set; }
     }
 }

@@ -26,7 +26,6 @@ namespace CoreHook.BinaryInjection.Loader
                 // Write the paths used for hosting the CLR.
                 writer.Write(PathArgumentsHelper.GetPathArray(LoaderArguments.PayloadFileName, LoaderConfig));
                 writer.Write(PathArgumentsHelper.GetPathArray(LoaderArguments.CoreRootPath, LoaderConfig));
-                writer.Write(PathArgumentsHelper.GetPathArray(LoaderArguments.CoreLibrariesPath ?? string.Empty, LoaderConfig));
 
                 return ms.ToArray();
             }

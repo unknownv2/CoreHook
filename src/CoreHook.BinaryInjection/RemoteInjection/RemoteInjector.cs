@@ -23,7 +23,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         private static readonly IAssemblyDelegate CoreHookLoaderDelegate =
                 new AssemblyDelegate(
                 assemblyName: "CoreHook.CoreLoad",
-                typeName: "Loader",
+                typeName: "PluginLoader",
                 methodName: "Load");
 
         /// <summary>
@@ -217,7 +217,6 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                                 Verbose = remoteInjectorConfig.VerboseLog,
                                                 PayloadFileName = remoteInjectorConfig.ClrBootstrapLibrary,
                                                 CoreRootPath = remoteInjectorConfig.ClrRootPath,
-                                                CoreLibrariesPath = remoteInjectorConfig.ClrLibrariesPath
                                             }),
                                         FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrStartFunctionName() },
                                     });

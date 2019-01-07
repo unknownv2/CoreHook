@@ -1,7 +1,7 @@
 # CoreHook
 
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![NuGet](https://img.shields.io/nuget/v/CoreHook.svg)](https://www.nuget.org/packages/CoreHook)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
+[![NuGet](https://img.shields.io/nuget/v/CoreHook.svg?style=flat-square&colorB=f97356)](https://www.nuget.org/packages/CoreHook)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
@@ -29,7 +29,6 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 | AppVeyor        | Windows     | [![Build status](https://ci.appveyor.com/api/projects/status/kj3n6vwax0ds9k2k?svg=true)](https://ci.appveyor.com/project/unknownv2/corehook)                                    |
 | Azure Pipelines | Linux, Windows     | [![Build Status](https://unknowndev.visualstudio.com/CoreHook/_apis/build/status/CoreHook/CoreHook)](https://unknowndev.visualstudio.com/CoreHook/_build/latest?definitionId=2) |
 | Travis CI       | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                                                         |
-
 
 ## Features
 * Intercept public API functions such as `CreateFile`
@@ -82,31 +81,76 @@ CoreHook supports application function call interception on various architecture
 
 ### Windows
 
-First, set the environment variables for the `x86` and `x64` applications to the installation folder of your desired dotnet runtime. 
+If you are building the CoreHook project (for example, with `dotnet build`) and not publishing it, you must setup the project configuration as described below.
 
-Using the `.NET Core 2.2` runtime as an example (validate the paths if you have another installation directory or drive):
+#### Project Configuration
 
- * Set `CORE_ROOT_32` to `C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0` for `32-bit` applications.
+The native hosting module requires either: 1) A global `dotnet.runtimeconfig.json` file or 2) a local `CoreHook.CoreLoad.runtimeconfig.json` file
+(located next to `CoreHook.CoreLoad.dll` in the CoreHook output directory) to initialize CoreCLR. The host module will first attempt to
+use the local configuration file, then it will check for the the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
+
+The `runtimeconfig` file must contain the framework information for hosting .NET Core in the target application.
+When you build any .NET Core application, these files are generated to the output directory. [For more information on the
+configuration options, see here](https://github.com/dotnet/cli/blob/master/Documentation/specs/runtime-configuration-file.md).
+
+You can use the `CoreHook.FileMonitor.runtimeconfig.json` and `CoreHook.FileMonitor.runtimeconfig.dev.json` files found in your build output directory as references for creating the global or local configuration files.
+
+The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies. This guide assumes you have installed the `2.2` runtime or SDK for both x86 and x64 architectures.
+
+**Notice: Either replace `<user>` with your local computer user name or modify the paths to point to where your NuGet packages are installed. Take a look at `CoreHook.FileMonitor.runtimeconfig.dev.json` in the output directory to find your paths.**
+
+```json
+{
+  "runtimeOptions": {
+    "tfm": "netcoreapp2.2",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "2.2.0"
+    },
+    "additionalProbingPaths": [
+      "C:\\Users\\<user>\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\<user>\\.nuget\\packages",
+      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+    ]
+  }
+}
+```
+
+#### Local Configuration
+
+To use a local configuration, create a file with the contents described above called `CoreHook.CoreLoad.runtimeconfig.json` and save it to the project output directory where `CoreHook.CoreLoad.dll` is located.
+
+#### Global Configuration
+
+To use a global configuration, first create a `dotnet.runtimeconfig.json` file with the contents described above and save it to a folder. This will be the global configuration file the project uses to initialize the runtime in the target processs. In this example, our file is saved at `C:\CoreHook\dotnet.runtimeconfig.json`.
+
+Set the environment variables for the `x86` and `x64` applications to the directory of the runtime configuration file. This allows you to have different configuration files for `32-bit` and `64-bit` applications. 
+
+For example (if you saved the file another installation directory or drive, make sure to use that path instead):
+
+ * Set `CORE_ROOT_32` to `C:\CoreHook` for `32-bit` applications.
  
- * Set `CORE_ROOT_64` to `C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0` for `64-bit` applications.
+ * Set `CORE_ROOT_64` to `C:\CoreHook` for `64-bit` applications.
 
-You can run the following commmands to set the environment variables for your user account, and they will be set for the next command prompt or the next program you open, such as Visual Studio:
 
 ```ps
-setx CORE_ROOT_64 "C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0"
-setx CORE_ROOT_32 "C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0"
+setx CORE_ROOT_64 "C:\CoreHook"
+setx CORE_ROOT_32 "C:\CoreHook"
 ```
 
 Or set them for the current command prompt session with:
 
 ```
-set CORE_ROOT_64=C:\Program Files\dotnet\shared\Microsoft.NETCore.App\2.2.0
-set CORE_ROOT_32=C:\Program Files (x86)\dotnet\shared\Microsoft.NETCore.App\2.2.0
+set CORE_ROOT_64=C:\CoreHook
+set CORE_ROOT_32=C:\CoreHook
 ```
 
 Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dotnet build` to build the library and the examples.
 
-Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `corerundll32.dll (X86, ARM)` and/or `corerundll64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
+#### Installing Dependencies
+
+Build or download the binary releases from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). You can use [download-deps](/download-deps.cmd) script, which downloads the latest binary releases to a folder called `deps` in the root of the project. 
+Place the `coreload32.dll (X86, ARM)` and/or `coreload64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
 
@@ -141,7 +185,7 @@ For `Windows 10 IoT Core`, you can publish the application by running the `publi
 .\publish -example win32 -runtime win-arm
 ```
 
-Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the directory of the program. For example, the application directory structure should look like this:
+Make sure to also copy the `coreload32.dll` and the `corehook32.dll` to the directory of the program. For example, the application directory structure should look like this:
 
 ```
 [+]Publish\win32\win-arm\
@@ -154,7 +198,7 @@ Make sure to also copy the `corerundll32.dll` and the `corehook32.dll` to the di
     [-] CoreHook.FileMonitor.dll
     [-] CoreHook.FileMonitor.exe
     [-] corehook32.dll
-    [-] corerundll32.dll
+    [-] coreload32.dll
     ...
 ```
 

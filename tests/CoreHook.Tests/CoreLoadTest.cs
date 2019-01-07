@@ -8,7 +8,7 @@ namespace CoreHook.Tests
         [Fact]
         public void ShouldThrowArgumentOutOfRange_For_Loader_IntPtrZeroParameter()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => CoreLoad.Loader.Load(IntPtr.Zero));
+            Assert.Throws<ArgumentOutOfRangeException>(() => CoreLoad.PluginLoader.Load(IntPtr.Zero));
         }
     }
 }

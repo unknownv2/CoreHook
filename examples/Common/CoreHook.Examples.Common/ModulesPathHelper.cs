@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.BinaryInjection.RemoteInjection;
 
@@ -11,11 +12,11 @@ namespace CoreHook.Examples.Common
         /// <summary>
         /// The name of the .NET Core hosting module for 64-bit processes.
         /// </summary>
-        private const string CoreHostModule64 = "corerundll64.dll";
+        private const string CoreHostModule64 = "coreload64.dll";
         /// <summary>
         /// The name of the .NET Core hosting module for 32-bit processes.
         /// </summary>
-        private const string CoreHostModule32 = "corerundll32.dll";
+        private const string CoreHostModule32 = "coreload32.dll";
         /// <summary>
         /// The name of the native detour module for 64-bit processes.
         /// </summary>
@@ -32,16 +33,6 @@ namespace CoreHook.Examples.Common
 
         // For more information o on these environment variables, see: 
         // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md
-        public static string GetCoreLibrariesPath(bool is64BitProcess)
-        {
-            return !ProcessHelper.IsArchitectureArm() ?
-             (
-                 is64BitProcess ?
-                 Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
-                 Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
-             )
-             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-        }
 
         public static string GetCoreRootPath(bool is64BitProcess)
         {
@@ -90,23 +81,60 @@ namespace CoreHook.Examples.Common
         }
 
         /// <summary>
-        /// Get the path of the .NET Assembly that is first loaded by the host 
-        /// and initializes the dependencies for hooking libraries.
+        /// Determine if the current application is a self-contained application.
+        /// </summary>
+        /// <param name="applicationBase">The application base directory.</param>
+        /// <returns>True if the coreclr module exists in the application base.</returns>
+        private static bool IsPublishedApplication(string applicationBase)
+        {
+            return File.Exists(
+                Path.Combine(applicationBase, "coreclr.dll"));
+        }
+
+        /// <summary>
+        /// Determine if the CoreLoad module has a runtime configuration file.
+        /// </summary>
+        /// <param name="applicationBase">The application base directory.</param>
+        /// <returns>True if there is a runtime configuration file for CoreLoad.</returns>
+        private static bool HasLocalRuntimeConfiguration(string applicationBase)
+        {
+            // The configuration file should be named 'CoreHook.CoreLoad.runtimeconfig.json'
+            return File.Exists(Path.Combine(applicationBase,
+                CoreLoadModule.Replace("dll", "runtimeconfig.json")));
+        }
+
+        /// <summary>
+        /// Get the directory path of the .NET Core runtime configuration file.
         /// </summary>
         /// <param name="is64BitProcess">Value to determine which native modules path to look for.</param>
-        /// <param name="coreLibsPath">Path to the CoreCLR native modules.</param>
-        /// <param name="coreRootPath">Path to the CoreCLR native modules.</param>
+        /// <param name="coreRootPath">Path to the directory containing the CoreCLR runtime configuration.</param>
         /// <returns>Whether the CoreCLR path was found or not.</returns>
         public static bool GetCoreClrRootPath(
             bool is64BitProcess,
-            out string coreLibsPath,
             out string coreRootPath)
         {
-            // Paths to the CoreCLR dlls used to host and execute .NET assemblies 
-            coreLibsPath = GetCoreLibrariesPath(is64BitProcess);
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (!string.IsNullOrWhiteSpace(applicationBase))
+                {
+                    // Check if we are using a published application or a local
+                    // runtime configuration file, in which case we don't need
+                    // the paths from the environment variables.
+                    if (IsPublishedApplication(applicationBase)
+                        || HasLocalRuntimeConfiguration(applicationBase))
+                    {
+                        // Set the directory for finding dependencies to the application base directory.
+                        coreRootPath = applicationBase;
+                        return true;
+                    }
+                }
+            }
+
+            // Path to the directory containing the CoreCLR runtime configuration file.
             coreRootPath = GetCoreRootPath(is64BitProcess);
 
-            if (string.IsNullOrWhiteSpace(coreRootPath) && string.IsNullOrWhiteSpace(coreLibsPath))
+            if (string.IsNullOrWhiteSpace(coreRootPath))
             {
                 Console.WriteLine(is64BitProcess
                     ? "CoreCLR root path was not set for 64-bit processes."
@@ -117,7 +145,7 @@ namespace CoreHook.Examples.Common
         }
 
         /// <summary>
-        /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process
+        /// Retrieve the required paths for initializing the CoreCLR and executing .NET assemblies in an unmanaged process.
         /// </summary>
         /// <param name="is64BitProcess">Flag for determining which native modules to load into the target process</param>
         /// <param name="nativeModulesConfig">Configuration class containing paths to the native modules used by CoreHook.</param>
@@ -132,7 +160,6 @@ namespace CoreHook.Examples.Common
 
             if (!string.IsNullOrWhiteSpace(currentDir) && GetCoreClrRootPath(
                 is64BitProcess,
-                out string coreLibsPath,
                 out string coreRootPath))
             {
                 // Module that initializes the .NET Core runtime and executes .NET assemblies
@@ -156,7 +183,6 @@ namespace CoreHook.Examples.Common
 
                 nativeModulesConfig = new NativeModulesConfiguration
                 {
-                    ClrLibrariesPath = coreLibsPath,
                     ClrRootPath = coreRootPath,
                     HostLibrary = coreRunPath,
                     DetourLibrary = corehookPath

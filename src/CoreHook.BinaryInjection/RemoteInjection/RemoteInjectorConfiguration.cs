@@ -33,7 +33,6 @@ namespace CoreHook.BinaryInjection.RemoteInjection
 
         public void SetNativeConfig(NativeModulesConfiguration nativeConfig)
         {
-            ClrLibrariesPath = nativeConfig.ClrLibrariesPath;
             ClrRootPath = nativeConfig.ClrRootPath;
             HostLibrary = nativeConfig.HostLibrary;
             DetourLibrary = nativeConfig.DetourLibrary;
