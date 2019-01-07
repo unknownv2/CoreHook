@@ -83,7 +83,7 @@ CoreHook supports application function call interception on various architecture
 
 If you are building the CoreHook project (for example, with `dotnet build`) and not publishing it, you must setup the project configuration as described below.
 
-#### Configuration
+#### Project Configuration
 
 The native hosting module requires either: 1) A global `dotnet.runtimeconfig.json` file or 2) a local `CoreHook.CoreLoad.runtimeconfig.json` file
 (located next to `CoreHook.CoreLoad.dll` in the CoreHook output directory) to initialize CoreCLR. The host module will first attempt to
@@ -147,7 +147,10 @@ set CORE_ROOT_32=C:\CoreHook
 
 Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dotnet build` to build the library and the examples.
 
-Finally, build or download the binary releases (in ZIP files) from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). Place the `coreload32.dll (X86, ARM)` and/or `coreload64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
+#### Installing Dependencies
+
+Build or download the binary releases from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). You can use [download-deps](/download-deps.cmd) script, which downloads the latest binary releases to a folder called `deps` in the root of the project. 
+Place the `coreload32.dll (X86, ARM)` and/or `coreload64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
 
