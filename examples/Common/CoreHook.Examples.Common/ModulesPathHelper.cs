@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.BinaryInjection.RemoteInjection;
 
@@ -37,8 +38,8 @@ namespace CoreHook.Examples.Common
             return !ProcessHelper.IsArchitectureArm() ?
              (
                  is64BitProcess ?
-                 Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
-                 Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
+                  Environment.GetEnvironmentVariable("CORE_LIBRARIES_64") :
+                  Environment.GetEnvironmentVariable("CORE_LIBRARIES_32")
              )
              : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
@@ -106,8 +107,27 @@ namespace CoreHook.Examples.Common
             coreLibsPath = GetCoreLibrariesPath(is64BitProcess);
             coreRootPath = GetCoreRootPath(is64BitProcess);
 
-            if (string.IsNullOrWhiteSpace(coreRootPath) && string.IsNullOrWhiteSpace(coreLibsPath))
+            if (string.IsNullOrWhiteSpace(coreRootPath))
             {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    if (!string.IsNullOrWhiteSpace(currentDirectory))
+                    {
+                        // Check if we are using a published application or a local
+                        // runtime configuration file, in which case we don't need
+                        // the paths from the environment variables.
+                        if (File.Exists(
+                                Path.Combine(currentDirectory, "coreclr.dll"))
+                            || File.Exists(Path.Combine(currentDirectory,
+                                CoreLoadModule.Replace("dll", "runtimeconfig.json"))))
+                        {
+                            coreLibsPath = coreRootPath = currentDirectory;
+                            return true;
+                        }
+                    }
+                }
+
                 Console.WriteLine(is64BitProcess
                     ? "CoreCLR root path was not set for 64-bit processes."
                     : "CoreCLR root path was not set for 32-bit processes.");
