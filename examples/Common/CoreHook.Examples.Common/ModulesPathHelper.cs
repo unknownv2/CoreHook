@@ -11,11 +11,11 @@ namespace CoreHook.Examples.Common
         /// <summary>
         /// The name of the .NET Core hosting module for 64-bit processes.
         /// </summary>
-        private const string CoreHostModule64 = "corerundll64.dll";
+        private const string CoreHostModule64 = "coreload64.dll";
         /// <summary>
         /// The name of the .NET Core hosting module for 32-bit processes.
         /// </summary>
-        private const string CoreHostModule32 = "corerundll32.dll";
+        private const string CoreHostModule32 = "coreload32.dll";
         /// <summary>
         /// The name of the native detour module for 64-bit processes.
         /// </summary>
