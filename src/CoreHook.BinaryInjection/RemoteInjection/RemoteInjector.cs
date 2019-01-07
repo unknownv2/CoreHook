@@ -217,7 +217,6 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                                 Verbose = remoteInjectorConfig.VerboseLog,
                                                 PayloadFileName = remoteInjectorConfig.ClrBootstrapLibrary,
                                                 CoreRootPath = remoteInjectorConfig.ClrRootPath,
-                                                CoreLibrariesPath = remoteInjectorConfig.ClrLibrariesPath
                                             }),
                                         FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrStartFunctionName() },
                                     });

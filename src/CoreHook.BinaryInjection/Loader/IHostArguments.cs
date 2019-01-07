@@ -11,6 +11,5 @@ namespace CoreHook.BinaryInjection.Loader
         bool Verbose { get; }
         string PayloadFileName { get; }
         string CoreRootPath { get; }
-        string CoreLibrariesPath { get; }
     }
 }
