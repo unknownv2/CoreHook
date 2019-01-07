@@ -113,29 +113,29 @@ namespace CoreHook.Examples.Common
             bool is64BitProcess,
             out string coreRootPath)
         {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (!string.IsNullOrWhiteSpace(applicationBase))
+                {
+                    // Check if we are using a published application or a local
+                    // runtime configuration file, in which case we don't need
+                    // the paths from the environment variables.
+                    if (IsPublishedApplication(applicationBase)
+                        || HasLocalRuntimeConfiguration(applicationBase))
+                    {
+                        // Set the directory for finding dependencies to the application base directory.
+                        coreRootPath = applicationBase;
+                        return true;
+                    }
+                }
+            }
+
             // Path to the directory containing the CoreCLR runtime configuration file.
             coreRootPath = GetCoreRootPath(is64BitProcess);
 
             if (string.IsNullOrWhiteSpace(coreRootPath))
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    var applicationBase = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    if (!string.IsNullOrWhiteSpace(applicationBase))
-                    {
-                        // Check if we are using a published application or a local
-                        // runtime configuration file, in which case we don't need
-                        // the paths from the environment variables.
-                        if (IsPublishedApplication(applicationBase)
-                            || HasLocalRuntimeConfiguration(applicationBase))
-                        {
-                            // Set the directory for finding dependencies to the application base directory.
-                            coreRootPath = applicationBase;
-                            return true;
-                        }
-                    }
-                }
-
                 Console.WriteLine(is64BitProcess
                     ? "CoreCLR root path was not set for 64-bit processes."
                     : "CoreCLR root path was not set for 32-bit processes.");
