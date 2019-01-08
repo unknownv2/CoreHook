@@ -47,7 +47,7 @@ namespace CoreHook
 
         /// <summary>
         /// Get the address used to call the original function,
-        /// while bypassing the user detour.
+        /// bypassing the user detour.
         /// </summary>
         public IntPtr OriginalAddress
         {
@@ -62,11 +62,6 @@ namespace CoreHook
                 return targetFunctionAddress;
             }
         }
-
-        /// <summary>
-        /// Address for calling the target function, bypassing the detour function.
-        /// </summary>
-        public IntPtr HookBypassAddress => OriginalAddress;
 
         /// <summary>
         /// Address of the function that is detoured.

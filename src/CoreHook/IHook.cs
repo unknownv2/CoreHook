@@ -25,10 +25,6 @@ namespace CoreHook
         /// </summary>
         IntPtr OriginalAddress { get; }
         /// <summary>
-        /// Address for calling the target function, bypassing the detour function.
-        /// </summary>
-        IntPtr HookBypassAddress { get; }
-        /// <summary>
         /// Class for managing the list of threads that are detoured.
         /// </summary>
         IHookAccessControl ThreadACL { get; }
