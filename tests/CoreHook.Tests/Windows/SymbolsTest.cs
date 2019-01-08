@@ -81,7 +81,7 @@ namespace CoreHook.Tests.Windows
                 new InternalAddAtomDelegate(InternalAddAtomHook),
                 this))
             {
-                InternalAddAtomFunction = hook.HookBypassAddress.ToFunction<InternalAddAtomDelegate>();
+                InternalAddAtomFunction = hook.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
@@ -128,7 +128,7 @@ namespace CoreHook.Tests.Windows
             {
 
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
-                InternalAddAtomFunction = hookInternal.HookBypassAddress.ToFunction<InternalAddAtomDelegate>();
+                InternalAddAtomFunction = hookInternal.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
 
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
@@ -172,7 +172,7 @@ namespace CoreHook.Tests.Windows
 
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                InternalAddAtomFunction = hookInternal.HookBypassAddress.ToFunction<InternalAddAtomDelegate>();
+                InternalAddAtomFunction = hookInternal.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
 
                 _internalAddAtomCalled = false;
                 _addAtomCalled = false;
@@ -271,7 +271,7 @@ namespace CoreHook.Tests.Windows
                 this))
             {
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
-                GetCurrentNlsCacheFunction = hook.HookBypassAddress.ToFunction<GetCurrentNlsCacheDelegate>();
+                GetCurrentNlsCacheFunction = hook.OriginalAddress.ToFunction<GetCurrentNlsCacheDelegate>();
 
                 string stringA = "HelloWorld";
                 string stringB = "Hello";

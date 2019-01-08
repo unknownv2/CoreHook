@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using Xunit;
 using CoreHook.Memory;
+using CoreHook.Memory.Processes;
 
 namespace CoreHook.Tests
 {

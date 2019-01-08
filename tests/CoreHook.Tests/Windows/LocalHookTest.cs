@@ -68,7 +68,7 @@ namespace CoreHook.Tests.Windows
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                var getTickCount = hook.HookBypassAddress.ToFunction<GetTickCountDelegate>();
+                var getTickCount = hook.OriginalAddress.ToFunction<GetTickCountDelegate>();
 
                 Assert.NotEqual<uint>(0, getTickCount());
 
@@ -106,7 +106,7 @@ namespace CoreHook.Tests.Windows
 
                 _getTickCount64Called = false;
 
-                var getTickCount64 = hook.HookBypassAddress.ToFunction<GetTickCount64Delegate>();
+                var getTickCount64 = hook.OriginalAddress.ToFunction<GetTickCount64Delegate>();
 
                 Assert.NotEqual(0, getTickCount64());
 
@@ -142,8 +142,8 @@ namespace CoreHook.Tests.Windows
             {    
                 Assert.Null(hook.Callback);
                 Assert.NotNull(hook.ThreadACL);
-                Assert.NotNull(hook.HookBypassAddress);
-                Assert.NotEqual(IntPtr.Zero, hook.HookBypassAddress);
+                Assert.NotNull(hook.OriginalAddress);
+                Assert.NotEqual(IntPtr.Zero, hook.OriginalAddress);
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using Xunit;
-using CoreHook.Memory;
+using CoreHook.Memory.Processes;
 
 namespace CoreHook.Tests
 {

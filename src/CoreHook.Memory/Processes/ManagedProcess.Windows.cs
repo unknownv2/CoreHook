@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using Microsoft.Win32.SafeHandles;
 
-namespace CoreHook.Memory
+namespace CoreHook.Memory.Processes
 {
-    public class ManagedProcess : IProcess
+    public sealed partial class ManagedProcess : IProcess
     {
         public Process ProcessHandle { get; }
         public SafeProcessHandle SafeHandle { get; }
@@ -20,12 +20,6 @@ namespace CoreHook.Memory
         {
             ProcessHandle = process;
             SafeHandle = GetProcessHandle(process.Id, access);
-        }
-
-        public ManagedProcess(int processId, int access)
-        {
-            SafeHandle = GetProcessHandle(processId, access);
-            ProcessHandle = Process.GetProcessById(processId);
         }
 
         private SafeProcessHandle GetProcessHandle(int processId, int access)

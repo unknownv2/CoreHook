@@ -1,4 +1,5 @@
-﻿
+﻿using CoreHook.Memory.Processes;
+
 namespace CoreHook.Memory
 {
     public class MemoryAllocation : MemoryRegion, IMemoryAllocation

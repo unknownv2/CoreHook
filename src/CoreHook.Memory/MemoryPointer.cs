@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreHook.Memory.Processes;
 
 namespace CoreHook.Memory
 {

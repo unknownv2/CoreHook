@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 
-namespace CoreHook.Memory
+namespace CoreHook.Memory.Processes
 {
     public static class ProcessExtensions
     {
