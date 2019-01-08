@@ -5,7 +5,7 @@ using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
-using CoreHook.Memory;
+using CoreHook.Memory.Processes;
 
 namespace CoreHook.FileMonitor
 {

@@ -1,5 +1,5 @@
 ﻿using System;
-using CoreHook.Memory;
+using CoreHook.Memory.Processes;
 
 namespace CoreHook.BinaryInjection.Loader
 {

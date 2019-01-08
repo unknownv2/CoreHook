@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
 
-namespace CoreHook.Memory
+namespace CoreHook.Memory.Processes
 {
     public interface IProcess
     {

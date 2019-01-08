@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.Memory
+namespace CoreHook.Memory.Processes
 {
     public interface IProcessManager : IDisposable
     {
