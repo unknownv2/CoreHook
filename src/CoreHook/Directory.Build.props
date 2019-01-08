@@ -6,7 +6,7 @@
     <DocumentationFile>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/$(MSBuildProjectName).xml</DocumentationFile>
     <Authors>Thierry Bizimungu</Authors>
     <Product>CoreHook</Product>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <PackageProjectUrl>https://github.com/unknownv2/CoreHook</PackageProjectUrl>
     <RepositoryUrl>https://github.com/unknownv2/CoreHook.git</RepositoryUrl>
     <PackageLicenseUrl>https://github.com/unknownv2/CoreHook/blob/master/LICENSE</PackageLicenseUrl>
