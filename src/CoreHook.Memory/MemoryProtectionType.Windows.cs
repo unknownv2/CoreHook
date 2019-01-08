@@ -1,7 +1,7 @@
 ﻿
 namespace CoreHook.Memory
 {
-    public partial class MemoryProtectionType
+    public sealed partial class MemoryProtectionType
     {
         public const uint Execute = Interop.Kernel32.MemoryProtection.Execute;
         public const uint ExecuteRead = Interop.Kernel32.MemoryProtection.ExecuteRead;
