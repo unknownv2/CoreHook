@@ -85,9 +85,13 @@ If you are building the CoreHook project (for example, with `dotnet build`) and 
 
 #### Project Configuration
 
-The native hosting module requires either: 1) A global `dotnet.runtimeconfig.json` file or 2) a local `CoreHook.CoreLoad.runtimeconfig.json` file
-(located next to `CoreHook.CoreLoad.dll` in the CoreHook output directory) to initialize CoreCLR. The host module will first attempt to
-use the local configuration file, then it will check for the the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
+The project provides two options for configuring the runtime: 
+
+1. A local configuration file named `CoreHook.CoreLoad.runtimeconfig.json`
+(which is located next to `CoreHook.CoreLoad.dll` assembly in the CoreHook output directory) to initialize CoreCLR. 
+2. A global configuration file named `dotnet.runtimeconfig.json`.
+
+The host module will first attempt to use the local configuration file, then it will check for the the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
 
 The `runtimeconfig` file must contain the framework information for hosting .NET Core in the target application.
 When you build any .NET Core application, these files are generated to the output directory. [For more information on the
@@ -149,7 +153,7 @@ Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dot
 
 #### Installing Dependencies
 
-Build or download the binary releases from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). You can use [download-deps](/download-deps.cmd) script, which downloads the latest binary releases to a folder called `deps` in the root of the project. 
+Build or download the binary releases from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). You can use the [download-deps](/download-deps.cmd) script, which downloads the latest binary releases to a folder called `deps` in the root of the project. 
 Place the `coreload32.dll (X86, ARM)` and/or `coreload64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
 
 You can then start the program you built above.
