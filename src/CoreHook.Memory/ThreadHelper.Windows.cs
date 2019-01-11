@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using CoreHook.Memory.Formats.PortableExecutable;
 using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory
@@ -40,28 +41,20 @@ namespace CoreHook.Memory
         {
             Interop.Kernel32.NtModuleInfo moduleInfo = GetModuleInfo(processHandle, moduleHandle);
 
-            ImageDataDirectory exportDirectory = 
-                ReadExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntry.ImageDirectoryEntryExport);
+            DataDirectory exportDirectory = 
+                GetExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntry.ImageDirectoryEntryExport);
 
-            var exportTable = new byte[exportDirectory.Size];
+            // Read and parse the export directory from the module.
             var exportTableAddress = moduleInfo.BaseOfDll + (int)exportDirectory.VirtualAddress;
-            if (!Interop.Kernel32.ReadProcessMemory(
-                processHandle,
-                exportTableAddress,
-                exportTable,
-                new UIntPtr((uint)exportTable.Length),
-                out UIntPtr bytesRead) || bytesRead.ToUInt32() != exportTable.Length)
-            {
-                throw new Win32Exception($"Cannot read export table at {exportTableAddress.ToInt64()}");
-            }
+            var exportTable = ReadPage(processHandle, exportTableAddress, (int)exportDirectory.Size);
 
             return new IntPtr(moduleInfo.BaseOfDll.ToInt64() +
-                GetAddressFromExportTable(exportTable, exportDirectory.VirtualAddress, functionName).ToInt64());
+                GetFunctionAddressFromExportDirectory(exportTable, exportDirectory.VirtualAddress, functionName).ToInt64());
         }
 
-        private static byte[] ReadPage(SafeProcessHandle processHandle, IntPtr pageAddress)
+        private static byte[] ReadPage(SafeProcessHandle processHandle, IntPtr pageAddress, int? pageSize = null)
         {
-            var page = new byte[Environment.SystemPageSize];
+            var page = new byte[pageSize ?? Environment.SystemPageSize];
             if(!Interop.Kernel32.ReadProcessMemory(
                 processHandle,
                 pageAddress,
@@ -70,7 +63,7 @@ namespace CoreHook.Memory
                 out UIntPtr bytesRead) || bytesRead.ToUInt32() != page.Length)
             {
                 throw new Win32Exception(
-                    $"Failed to read process memory page: {pageAddress.ToInt64():X16}.");
+                    $"Failed to read process memory at {pageAddress.ToInt64():X16}.");
             }
             return page;
         }
@@ -123,7 +116,7 @@ namespace CoreHook.Memory
             int moduleCount = 0;
             for (; ;)
             {
-                bool enumResult = false;
+                bool enumResult;
                 try
                 {
                     moduleHandlesArrayHandle = GCHandle.Alloc(moduleHandles, GCHandleType.Pinned);
@@ -152,91 +145,54 @@ namespace CoreHook.Memory
             return moduleHandles;
         }
 
-        private static ImageDataDirectory ReadExportDataDirectory(byte[] programHeader, ImageDirectoryEntry directoryEntry)
+        private static DataDirectory GetExportDataDirectory(byte[] programHeader, ImageDirectoryEntry directoryEntry)
         {
             using (var reader = new BinaryReader(new MemoryStream(programHeader)))
             {
-                const uint portableExecutableMagic = 0x00004550;
-                reader.BaseStream.Position = 0x3c;
+                var dosHeader = new DosHeader(reader);
+                reader.BaseStream.Position = dosHeader.e_lfanew;
+                var ntHeaders = new NtHeaders(reader);
 
-                reader.BaseStream.Position = reader.ReadInt32();
-
-                if(reader.ReadUInt32() != portableExecutableMagic)
-                {
-                    throw new Win32Exception(
-                        $"Invalid portable executable header {portableExecutableMagic}.");
-                }
-
-                reader.BaseStream.Position += 0x14;
-
-                switch(reader.ReadUInt16())
-                {
-                    case 0x10b:
-                        reader.BaseStream.Position += 0x5E;
-                        break;
-                    case 0x20b:
-                        reader.BaseStream.Position += 0x6E;
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Portable executable header not supported");
-                }
-
-                reader.BaseStream.Position += ((int)directoryEntry * 8);
-
-                var virtualAddress = reader.ReadUInt32();
-                var size = reader.ReadUInt32();
-
-                reader.Close();
-
-                return new ImageDataDirectory(virtualAddress, size);
+                return ntHeaders.OptionalHeader.GetDataDirectory(directoryEntry);
             }
         }
 
-        private static IntPtr GetAddressFromExportTable(byte[] exportTable, uint exportTableRva, string functionName)
+        private static IntPtr GetFunctionAddressFromExportDirectory(byte[] exportDirectoryBuffer, uint exportTableRva, string functionName)
         {
-            using (var reader = new BinaryReader(new MemoryStream(exportTable)))
+            uint RvaToDirectoryPosition(uint address) => address - exportTableRva;
+
+            using (var reader = new BinaryReader(new MemoryStream(exportDirectoryBuffer)))
             {
-                reader.BaseStream.Position = 0x10;
-
-                // Read Ordinal Base
-                reader.ReadInt32();
-
-                var addressTableEntryCount = reader.ReadUInt32();
-                var namePointerTableEntryCount = reader.ReadUInt32();
-                var exportAddressTableRva = reader.ReadUInt32() - exportTableRva;
-                var exportNamePointerTableRva = reader.ReadUInt32() - exportTableRva;
-                var ordinalTableRva = reader.ReadUInt32() - exportTableRva;
-
-                reader.BaseStream.Position = exportNamePointerTableRva;
+                var exportDirectory = new ExportDirectory(reader);
 
                 var functionAddress = IntPtr.Zero;
+                var exportFunctionOffset = RvaToDirectoryPosition(exportDirectory.AddressOfFunctions);
+                var ordinalOffset = RvaToDirectoryPosition(exportDirectory.AddressOfNameOrdinals);
+                var exportNameOffset = RvaToDirectoryPosition(exportDirectory.AddressOfNames);
 
-                for(var x = 0; x < namePointerTableEntryCount; ++x)
+                reader.BaseStream.Position = exportNameOffset;
+                for(var i = 0; i < exportDirectory.NumberOfNames; ++i)
                 {
-                    reader.BaseStream.Position = exportNamePointerTableRva + (x * 4);
+                    reader.BaseStream.Position = exportNameOffset + (i * sizeof(uint));
 
-                    var nameRva = reader.ReadUInt32();
-
-                    if(nameRva == 0)
+                    var nameOffset = reader.ReadUInt32();
+                    if(nameOffset == 0)
                     {
                         continue;
                     }
 
-                    reader.BaseStream.Position = nameRva - exportTableRva;
-
+                    reader.BaseStream.Position = RvaToDirectoryPosition(nameOffset);
                     if(functionName == ReadAsciiString(reader))
                     {
-                        reader.BaseStream.Position = ordinalTableRva + (x * 2);
-                        var ordinal = reader.ReadUInt16();
-
-                        if(ordinal >= addressTableEntryCount)
+                        reader.BaseStream.Position = ordinalOffset + (i * sizeof(ushort));
+                        var ordinalIndex = reader.ReadUInt16();
+                        if(ordinalIndex >= exportDirectory.NumberOfFunctions)
                         {
-                            throw new Win32Exception("Invalid function export table");
+                            throw new Win32Exception(
+                                $"Function ordinal out of range {ordinalIndex} >= {exportDirectory.NumberOfFunctions}");
                         }
 
-                        reader.BaseStream.Position = exportAddressTableRva + (ordinal * 4);
-
+                        reader.BaseStream.Position = exportFunctionOffset + (ordinalIndex * sizeof(uint));
                         functionAddress = new IntPtr(reader.ReadUInt32());
                     }
                 }
@@ -255,37 +211,6 @@ namespace CoreHook.Memory
             }
 
             return stringBuilder.ToString();
-        }
-
-        internal struct ImageDataDirectory
-        {
-            internal readonly uint VirtualAddress;
-            internal readonly uint Size;
-
-            internal ImageDataDirectory(uint virtualAddress, uint size)
-            {
-                VirtualAddress = virtualAddress;
-                Size = size;
-            }
-        }
-
-        internal enum ImageDirectoryEntry
-        {
-            ImageDirectoryEntryExport = 0,
-            ImageDirectoryEntryImport,
-            ImageDirectoryEntryResource,
-            ImageDirectoryEntryException,
-            ImageDirectoryEntrySecurity,
-            ImageDirectoryEntryBaseReloc,
-            ImageDirectoryEntryDebug,
-            ImageDirectoryEntryArchitecture,
-            ImageDirectoryEntryGlobalPtr,
-            ImageDirectoryEntryTls,
-            ImageDirectoryEntryLoadConfig,
-            ImageDirectoryEntryBoundImport,
-            ImageDirectoryEntryIat,
-            ImageDirectoryEntryDelayImport,
-            ImageDirectoryEntryCOMDescriptor
         }
     }
 }
