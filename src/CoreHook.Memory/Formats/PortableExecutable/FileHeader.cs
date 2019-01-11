@@ -4,13 +4,13 @@ namespace CoreHook.Memory.Formats.PortableExecutable
 {
     internal class FileHeader
     {
-        internal FileHeaderMachine Machine;
-        internal ushort NumberOfSections;
-        internal uint TimeDateStamp;
-        internal uint PointerToSymbolTable;
-        internal uint NumberOfSymbols;
-        internal ushort SizeOfOptionalHeader;
-        internal ushort Characteristics;
+        internal FileHeaderMachine Machine { get; }
+        internal ushort NumberOfSections { get; }
+        internal uint TimeDateStamp { get; }
+        internal uint PointerToSymbolTable { get; }
+        internal uint NumberOfSymbols { get; }
+        internal ushort SizeOfOptionalHeader { get; }
+        internal ushort Characteristics { get; }
 
         internal FileHeader(BinaryReader reader)
         {

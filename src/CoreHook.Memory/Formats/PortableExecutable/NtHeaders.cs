@@ -4,9 +4,9 @@ namespace CoreHook.Memory.Formats.PortableExecutable
 {
     internal class NtHeaders
     {
-        internal uint Signature;
-        internal FileHeader FileHeader;
-        internal OptionalHeader OptionalHeader;
+        internal uint Signature { get; }
+        internal FileHeader FileHeader { get; }
+        internal OptionalHeader OptionalHeader { get; }
 
         internal NtHeaders(BinaryReader reader)
         {

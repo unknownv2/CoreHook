@@ -4,8 +4,8 @@ namespace CoreHook.Memory.Formats.PortableExecutable
 {
     internal struct DataDirectory
     {
-        internal uint VirtualAddress;
-        internal uint Size;
+        internal uint VirtualAddress { get; }
+        internal uint Size { get; }
 
         internal DataDirectory(BinaryReader reader, int offset)
         {
