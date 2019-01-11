@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using CoreHook.Memory.Formats.PortableExecutable;
 using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory
@@ -40,8 +41,8 @@ namespace CoreHook.Memory
         {
             Interop.Kernel32.NtModuleInfo moduleInfo = GetModuleInfo(processHandle, moduleHandle);
 
-            ImageDataDirectory exportDirectory = 
-                ReadExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntry.ImageDirectoryEntryExport);
+            DataDirectory exportDirectory = 
+                GetExportDataDirectory(ReadPage(processHandle, moduleInfo.BaseOfDll), ImageDirectoryEntry.ImageDirectoryEntryExport);
 
             var exportTable = new byte[exportDirectory.Size];
             var exportTableAddress = moduleInfo.BaseOfDll + (int)exportDirectory.VirtualAddress;
@@ -152,44 +153,15 @@ namespace CoreHook.Memory
             return moduleHandles;
         }
 
-        private static ImageDataDirectory ReadExportDataDirectory(byte[] programHeader, ImageDirectoryEntry directoryEntry)
+        private static DataDirectory GetExportDataDirectory(byte[] programHeader, ImageDirectoryEntry directoryEntry)
         {
             using (var reader = new BinaryReader(new MemoryStream(programHeader)))
             {
-                const uint portableExecutableMagic = 0x00004550;
-                reader.BaseStream.Position = 0x3c;
+                var dosHeader = new DosHeader(reader);
+                reader.BaseStream.Position = dosHeader.e_lfanew;
+                var ntHeaders = new NtHeaders(reader);
 
-                reader.BaseStream.Position = reader.ReadInt32();
-
-                if(reader.ReadUInt32() != portableExecutableMagic)
-                {
-                    throw new Win32Exception(
-                        $"Invalid portable executable header {portableExecutableMagic}.");
-                }
-
-                reader.BaseStream.Position += 0x14;
-
-                switch(reader.ReadUInt16())
-                {
-                    case 0x10b:
-                        reader.BaseStream.Position += 0x5E;
-                        break;
-                    case 0x20b:
-                        reader.BaseStream.Position += 0x6E;
-                        break;
-
-                    default:
-                        throw new InvalidOperationException("Portable executable header not supported");
-                }
-
-                reader.BaseStream.Position += ((int)directoryEntry * 8);
-
-                var virtualAddress = reader.ReadUInt32();
-                var size = reader.ReadUInt32();
-
-                reader.Close();
-
-                return new ImageDataDirectory(virtualAddress, size);
+                return ntHeaders.OptionalHeader.GetDataDirectory(directoryEntry);
             }
         }
 
@@ -255,37 +227,6 @@ namespace CoreHook.Memory
             }
 
             return stringBuilder.ToString();
-        }
-
-        internal struct ImageDataDirectory
-        {
-            internal readonly uint VirtualAddress;
-            internal readonly uint Size;
-
-            internal ImageDataDirectory(uint virtualAddress, uint size)
-            {
-                VirtualAddress = virtualAddress;
-                Size = size;
-            }
-        }
-
-        internal enum ImageDirectoryEntry
-        {
-            ImageDirectoryEntryExport = 0,
-            ImageDirectoryEntryImport,
-            ImageDirectoryEntryResource,
-            ImageDirectoryEntryException,
-            ImageDirectoryEntrySecurity,
-            ImageDirectoryEntryBaseReloc,
-            ImageDirectoryEntryDebug,
-            ImageDirectoryEntryArchitecture,
-            ImageDirectoryEntryGlobalPtr,
-            ImageDirectoryEntryTls,
-            ImageDirectoryEntryLoadConfig,
-            ImageDirectoryEntryBoundImport,
-            ImageDirectoryEntryIat,
-            ImageDirectoryEntryDelayImport,
-            ImageDirectoryEntryCOMDescriptor
         }
     }
 }
