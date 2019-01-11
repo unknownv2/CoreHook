@@ -112,7 +112,7 @@ namespace CoreHook.Memory
 
         private static IntPtr[] GetProcessModuleHandles(SafeProcessHandle processHandle)
         {
-            IntPtr[] moduleHandles = new IntPtr[64];
+            IntPtr[] moduleHandles = new IntPtr[1024];
             GCHandle moduleHandlesArrayHandle = new GCHandle();
             int moduleCount = 0;
             for (; ;)
