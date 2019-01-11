@@ -3,6 +3,7 @@ using System.Text;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Threading;
 using CoreHook.Memory.Formats.PortableExecutable;
 using Microsoft.Win32.SafeHandles;
 
@@ -111,20 +112,30 @@ namespace CoreHook.Memory
 
         private static IntPtr[] GetProcessModuleHandles(SafeProcessHandle processHandle)
         {
-            IntPtr[] moduleHandles = new IntPtr[64];
+            IntPtr[] moduleHandles = new IntPtr[1024];
             GCHandle moduleHandlesArrayHandle = new GCHandle();
             int moduleCount = 0;
             for (; ;)
             {
-                bool enumResult;
+                bool enumResult = false;
                 try
                 {
                     moduleHandlesArrayHandle = GCHandle.Alloc(moduleHandles, GCHandleType.Pinned);
-                    enumResult = Interop.Psapi.EnumProcessModulesEx(processHandle,
-                        moduleHandlesArrayHandle.AddrOfPinnedObject(),
-                        (uint)(moduleHandles.Length * IntPtr.Size),
-                        ref moduleCount,
-                        Interop.Psapi.ModuleFilterFlags.All);
+                    // Attempt an arbitrary amount of times since EnumProcessModulesEx can fail
+                    // as a result of regular OS operations.
+                    for (int i = 0; i < 100; i++)
+                    {
+                        enumResult = Interop.Psapi.EnumProcessModulesEx(processHandle,
+                            moduleHandlesArrayHandle.AddrOfPinnedObject(),
+                            (uint) (moduleHandles.Length * IntPtr.Size),
+                            ref moduleCount,
+                            Interop.Psapi.ModuleFilterFlags.All);
+                        if (enumResult)
+                        {
+                            break;
+                        }
+                        Thread.Sleep(1);
+                    }
                 }
                 finally
                 {
@@ -138,7 +149,9 @@ namespace CoreHook.Memory
 
                 moduleCount /= IntPtr.Size;
                 if (moduleCount <= moduleHandles.Length)
+                {
                     break;
+                }
 
                 moduleHandles = new IntPtr[moduleHandles.Length * 2];
             }
