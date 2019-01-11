@@ -123,7 +123,7 @@ namespace CoreHook.Memory
                     moduleHandlesArrayHandle = GCHandle.Alloc(moduleHandles, GCHandleType.Pinned);
                     // Attempt an arbitrary amount of times since EnumProcessModulesEx can fail
                     // as a result of regular OS operations.
-                    for (int i = 0; i < 50; i++)
+                    for (int i = 0; i < 100; i++)
                     {
                         enumResult = Interop.Psapi.EnumProcessModulesEx(processHandle,
                             moduleHandlesArrayHandle.AddrOfPinnedObject(),
@@ -149,7 +149,9 @@ namespace CoreHook.Memory
 
                 moduleCount /= IntPtr.Size;
                 if (moduleCount <= moduleHandles.Length)
+                {
                     break;
+                }
 
                 moduleHandles = new IntPtr[moduleHandles.Length * 2];
             }
