@@ -4,7 +4,7 @@ namespace CoreHook.Memory.Formats.PortableExecutable
 {
     internal class OptionalHeader
     {
-        internal readonly DataDirectory[] DataDirectory;
+        internal DataDirectory[] DataDirectory { get; }
         private const int DirectoryEntryCount = 16;
 
         internal OptionalHeader(BinaryReader reader, bool is64Bit)

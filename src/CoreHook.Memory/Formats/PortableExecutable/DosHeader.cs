@@ -4,28 +4,28 @@ namespace CoreHook.Memory.Formats.PortableExecutable
 {
     internal class DosHeader
     {
-        public ushort e_magic;
-        public ushort e_cblp;
-        public ushort e_cp;
-        public ushort e_crlc;
-        public ushort e_cparhdr;
-        public ushort e_minalloc;
-        public ushort e_maxalloc;
-        public ushort e_ss;
-        public ushort e_sp;
-        public ushort e_csum;
-        public ushort e_ip;
-        public ushort e_cs;
-        public ushort e_lfarlc;
-        public ushort e_ovno;
-        public ushort[] e_res1;
-        public ushort e_oemid;
-        public ushort e_oeminfo;
-        public ushort[] e_res2;
-        public uint e_lfanew;
+        internal ushort e_magic{ get; }
+        internal ushort e_cblp{ get; }
+        internal ushort e_cp{ get; }
+        internal ushort e_crlc{ get; }
+        internal ushort e_cparhdr{ get; }
+        internal ushort e_minalloc{ get; }
+        internal ushort e_maxalloc{ get; }
+        internal ushort e_ss{ get; }
+        internal ushort e_sp{ get; }
+        internal ushort e_csum{ get; }
+        internal ushort e_ip{ get; }
+        internal ushort e_cs{ get; }
+        internal ushort e_lfarlc{ get; }
+        internal ushort e_ovno{ get; }
+        internal ushort[] e_res1{ get; }
+        internal ushort e_oemid{ get; }
+        internal ushort e_oeminfo{ get; }
+        internal ushort[] e_res2{ get; }
+        internal uint e_lfanew{ get; }
 
-        const int res1_count = 4;
-        const int res2_count = 10;
+        private const int res1_count = 4;
+        private const int res2_count = 10;
 
         internal DosHeader(BinaryReader reader)
         {
