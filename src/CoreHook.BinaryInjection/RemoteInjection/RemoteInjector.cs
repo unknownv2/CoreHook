@@ -8,7 +8,6 @@ using CoreHook.BinaryInjection.Loader;
 using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.CoreLoad.Data;
 using CoreHook.IPC.Platform;
-using CoreHook.Memory;
 using CoreHook.Memory.Processes;
 using static CoreHook.BinaryInjection.ProcessUtils.ProcessHelper;
 
@@ -172,7 +171,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
             }
 
             InjectionHelper.BeginInjection(targetProcessId);
-            
+
             using (InjectionHelper.CreateServer(remoteInjectorConfig.InjectionPipeName, pipePlatform))
             {
                 try
