@@ -2,10 +2,8 @@
 
 namespace CoreHook.Memory.Processes
 {
-    public interface IProcessManager : IDisposable
+    public interface IProcessManager : IModuleManager, IThreadManager, IDisposable
     {
-        void InjectBinary(string modulePath);
-        IntPtr Execute(string module, string function, byte[] arguments, bool waitForThreadExit = true);
         IntPtr CopyToProcess(byte[] data, int? size = null);
     }
 }

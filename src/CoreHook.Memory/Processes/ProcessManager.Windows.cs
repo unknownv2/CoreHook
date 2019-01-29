@@ -6,7 +6,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace CoreHook.Memory.Processes
 {
-    public sealed partial class ProcessManager : IProcessManager
+    public sealed class ProcessManager : IProcessManager
     {
         private readonly IMemoryManager _memoryManager;
         private readonly IProcess _process;
@@ -17,25 +17,26 @@ namespace CoreHook.Memory.Processes
             _memoryManager = new MemoryManager(process);
         }
 
-        public void InjectBinary(string modulePath)
+        public void LoadModule(string modulePath)
         {
-            ExecuteFunction(Path.Combine(
-                             Environment.ExpandEnvironmentVariables("%Windir%"),
-                             "System32",
-                             "kernel32.dll"),
-                             "LoadLibraryW",
-                             Encoding.Unicode.GetBytes(modulePath + "\0"));
+            ExecuteFunction(
+                Path.Combine(
+                    Environment.ExpandEnvironmentVariables("%Windir%"),
+                    "System32",
+                    "kernel32.dll"),
+                "LoadLibraryW",
+                Encoding.Unicode.GetBytes(modulePath + "\0"));
         }
 
         /// <summary>
-        /// Execute function inside the specified module with custom arguments.
+        /// Create a thread to execute a function within a module.
         /// </summary>
         /// <param name="module">The name of the module containing the desired function.</param>
         /// <param name="function">The name of the exported function we will call.</param>
         /// <param name="arguments">Serialized arguments for passing to the module function.</param>
         /// <param name="waitForThreadExit">We can wait for the thread to exit and then deallocate any memory
         /// we allocated or return immediately and deallocate the memory in a separate call.</param>
-        public IntPtr Execute(string module, string function, byte[] arguments, bool waitForThreadExit = true)
+        public IntPtr CreateThread(string module, string function, byte[] arguments, bool waitForThreadExit = true)
         {
             return ExecuteFunction(module, function, arguments, waitForThreadExit);
         }

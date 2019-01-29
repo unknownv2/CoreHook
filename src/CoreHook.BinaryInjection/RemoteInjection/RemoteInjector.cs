@@ -210,7 +210,8 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                 assemblyLoader.CreateThread(
                                     new RemoteFunctionCall
                                     {
-                                        Arguments = new HostFunctionArguments(pathConfig,
+                                        Arguments = new HostFunctionArguments(
+                                            pathConfig,
                                             new HostArguments
                                             {
                                                 Verbose = remoteInjectorConfig.VerboseLog,
@@ -221,18 +222,19 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                     });
 
                                 // Execute a .NET function in the remote process now that CoreCLR is started.
-                                assemblyLoader.CreateThread(new RemoteFunctionCall
-                                {
-                                    Arguments = new AssemblyFunctionArguments(
-                                        pathConfig,
-                                        CoreHookLoaderDelegate,
-                                        new PluginConfigurationArguments(
-                                            process.Is64Bit(),
-                                            assemblyLoader.CopyMemory(pluginArgumentsStream.GetBuffer(), pluginArgumentsLength),
-                                            pluginArgumentsLength)
-                                        ),
-                                    FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() }
-                                }, false);
+                                assemblyLoader.CreateThread(
+                                    new RemoteFunctionCall
+                                    {
+                                        Arguments = new AssemblyFunctionArguments(
+                                            pathConfig,
+                                            CoreHookLoaderDelegate,
+                                            new PluginConfigurationArguments(
+                                                process.Is64Bit(),
+                                                assemblyLoader.CopyMemory(pluginArgumentsStream.GetBuffer(), pluginArgumentsLength),
+                                                pluginArgumentsLength)
+                                            ),
+                                        FunctionName = new FunctionName { Module = remoteInjectorConfig.HostLibrary, Function = GetClrExecuteManagedFunctionName() }
+                                    }, false);
 
                                 InjectionHelper.WaitForInjection(targetProcessId);
                             }
