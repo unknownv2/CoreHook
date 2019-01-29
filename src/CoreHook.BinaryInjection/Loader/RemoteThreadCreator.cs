@@ -4,11 +4,11 @@ namespace CoreHook.BinaryInjection.Loader
 {
     internal class RemoteThreadCreator : IRemoteThreadCreator
     {
-        private readonly IProcessManager _processManager;
+        private readonly IThreadManager _threadManager;
 
-        internal RemoteThreadCreator(IProcessManager processManager)
+        internal RemoteThreadCreator(IThreadManager threadManager)
         {
-            _processManager = processManager;
+            _threadManager = threadManager;
         }
 
         public void ExecuteRemoteFunction(IRemoteFunctionCall call, bool waitForThreadExit)
@@ -18,7 +18,7 @@ namespace CoreHook.BinaryInjection.Loader
 
         private void ExecuteAssemblyWithArguments(IFunctionName moduleFunction, byte[] arguments, bool waitForThreadExit)
         {
-            _processManager.Execute(moduleFunction.Module, moduleFunction.Function, arguments, waitForThreadExit);
+            _threadManager.CreateThread(moduleFunction.Module, moduleFunction.Function, arguments, waitForThreadExit);
         }
     }
 }
