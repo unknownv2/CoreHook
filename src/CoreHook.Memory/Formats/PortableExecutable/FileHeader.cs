@@ -22,7 +22,5 @@ namespace CoreHook.Memory.Formats.PortableExecutable
             SizeOfOptionalHeader = reader.ReadUInt16();
             Characteristics = reader.ReadUInt16();
         }
-
-        internal bool Is64Bit => Machine == FileHeaderMachine.AMD64 || Machine == FileHeaderMachine.ARM64;
     }
 }
