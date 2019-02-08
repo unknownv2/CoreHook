@@ -272,5 +272,4 @@ namespace CoreHook
             Dispose();
         }
     }
-
 }
