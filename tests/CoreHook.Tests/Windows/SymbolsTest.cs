@@ -113,11 +113,9 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void DetourAPIAndInternalFunction()
         {
-            var internalAddAtomFuncAddress = LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom");
-
             // Create the internal function detour
             using (var hookInternal = LocalHook.Create(
-                 internalAddAtomFuncAddress,
+                 LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
                  new InternalAddAtomDelegate(InternalAddAtomHook),
                  this))
             // Create the public API detour 
@@ -128,7 +126,7 @@ namespace CoreHook.Tests.Windows
             {
 
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
-                InternalAddAtomFunction = hookInternal.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
+                InternalAddAtomFunction = hookInternal.TargetAddress.ToFunction<InternalAddAtomDelegate>();
 
                 hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
