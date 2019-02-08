@@ -12,7 +12,7 @@ namespace CoreHook.Memory.Formats.PortableExecutable
         {
             Signature = reader.ReadUInt32();
             FileHeader = new FileHeader(reader);
-            OptionalHeader = new OptionalHeader(reader, FileHeader.Is64Bit);
+            OptionalHeader = new OptionalHeader(reader);
         }
     }
 }
