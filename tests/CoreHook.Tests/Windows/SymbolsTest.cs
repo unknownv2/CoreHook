@@ -52,7 +52,8 @@ namespace CoreHook.Tests.Windows
         private bool _internalFindAtomCalled;
         private bool _addAtomCalled;
 
-        // Windows max file system path string size
+        // The default MAX_PATH file system string size for Windows.
+        // A new opt-in, long path limit was added in Windows 10, version 1607.
         private const int MaxPathLength = 260;
 
         private ushort InternalAddAtomHook(bool local,
@@ -71,7 +72,7 @@ namespace CoreHook.Tests.Windows
 
         /// <summary>
         /// Detour a private function and call the internal function 
-        /// using the detour bypass address to skip the detour barrier call
+        /// using the detour bypass address to skip the detour barrier call.
         /// </summary>
         [Fact]
         public void DetourInternalFunction()
@@ -108,23 +109,21 @@ namespace CoreHook.Tests.Windows
 
         /// <summary>
         /// Detour a private function and call the function's direct address
-        /// when the detour is called without skipping the detour barrier
+        /// when the detour is called without skipping the detour barrier.
         /// </summary>
         [Fact]
         public void DetourAPIAndInternalFunction()
         {
-            // Create the internal function detour
+            // Create the internal function and public API detours.
             using (var hookInternal = LocalHook.Create(
                  LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
                  new InternalAddAtomDelegate(InternalAddAtomHook),
                  this))
-            // Create the public API detour 
             using (var hookAPI = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
                 new AddAtomWDelegate(AddAtomHook),
                 this))
             {
-
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
                 InternalAddAtomFunction = hookInternal.TargetAddress.ToFunction<InternalAddAtomDelegate>();
 
@@ -244,7 +243,7 @@ namespace CoreHook.Tests.Windows
 
         private const int LOCALE_USER_DEFAULT = 0x400;
 
-        // case sensitive compare
+        // Case sensitive compare
         private const int NORM_LINGUISTIC_CASING = 0x08000000;
 
         // The string indicated by lpString1 is greater in lexical value
