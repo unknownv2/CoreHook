@@ -148,8 +148,8 @@ namespace CoreHook.Examples.Common
             if (string.IsNullOrWhiteSpace(coreRootPath) || !DoesDirectoryContainRuntimeConfiguration(coreRootPath))
             {
                 Console.WriteLine(is64BitProcess
-                    ? "CoreCLR root path was not set for 64-bit processes."
-                    : "CoreCLR root path was not set for 32-bit processes.");
+                    ? "CoreCLR configuration was not found for 64-bit processes."
+                    : "CoreCLR configuration was not found for 32-bit processes.");
                 return false;
             }
             return true;

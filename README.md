@@ -91,7 +91,7 @@ The project provides two options for configuring the runtime:
 (which is located next to `CoreHook.CoreLoad.dll` assembly in the CoreHook output directory) to initialize CoreCLR. 
 2. A global configuration file named `dotnet.runtimeconfig.json`.
 
-The host module will first attempt to use the local configuration file, then it will check for the the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
+The host module will first attempt to use the local configuration file, then it will check for the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
 
 The `runtimeconfig` file must contain the framework information for hosting .NET Core in the target application.
 When you build any .NET Core application, these files are generated to the output directory. [For more information on the
@@ -99,7 +99,7 @@ configuration options, see here](https://github.com/dotnet/cli/blob/master/Docum
 
 You can use the `CoreHook.FileMonitor.runtimeconfig.json` and `CoreHook.FileMonitor.runtimeconfig.dev.json` files found in your build output directory as references for creating the global or local configuration files.
 
-The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies. This guide assumes you have installed the `2.2` runtime or SDK for both x86 and x64 architectures.
+The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies. This guide assumes you have installed the `.NET Core 2.2` runtime or SDK for both x86 and x64 architectures.
 
 **Notice: Either replace `<user>` with your local computer user name or modify the paths to point to where your NuGet packages are installed. Take a look at `CoreHook.FileMonitor.runtimeconfig.dev.json` in the output directory to find your paths.**
 
