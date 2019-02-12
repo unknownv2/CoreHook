@@ -92,15 +92,26 @@ namespace CoreHook.Examples.Common
         }
 
         /// <summary>
-        /// Determine if the CoreLoad module has a runtime configuration file.
+        /// Determine if the application has a local CoreCLR runtime configuration file.
         /// </summary>
         /// <param name="applicationBase">The application base directory.</param>
-        /// <returns>True if there is a runtime configuration file for CoreLoad.</returns>
+        /// <returns>True if there the directory contains a runtime configuration file.</returns>
         private static bool HasLocalRuntimeConfiguration(string applicationBase)
         {
             // The configuration file should be named 'CoreHook.CoreLoad.runtimeconfig.json'
             return File.Exists(Path.Combine(applicationBase,
                 CoreLoadModule.Replace("dll", "runtimeconfig.json")));
+        }
+
+        /// <summary>
+        /// Determine if the path CoreCLR runtime configuration file.
+        /// </summary>
+        /// <param name="configurationBase">Directory that should contain a CoreCLR runtime configuration file.</param>
+        /// <returns>True if there the directory contains a runtime configuration file.</returns>
+        private static bool DoesDirectoryContainRuntimeConfiguration(string configurationBase)
+        {
+            // The configuration file should be named 'dotnet.runtimeconfig.json'
+            return File.Exists(Path.Combine(configurationBase, "dotnet.runtimeconfig.json"));
         }
 
         /// <summary>
@@ -134,11 +145,11 @@ namespace CoreHook.Examples.Common
             // Path to the directory containing the CoreCLR runtime configuration file.
             coreRootPath = GetCoreRootPath(is64BitProcess);
 
-            if (string.IsNullOrWhiteSpace(coreRootPath))
+            if (string.IsNullOrWhiteSpace(coreRootPath) || !DoesDirectoryContainRuntimeConfiguration(coreRootPath))
             {
                 Console.WriteLine(is64BitProcess
-                    ? "CoreCLR root path was not set for 64-bit processes."
-                    : "CoreCLR root path was not set for 32-bit processes.");
+                    ? "CoreCLR configuration was not found for 64-bit processes."
+                    : "CoreCLR configuration was not found for 32-bit processes.");
                 return false;
             }
             return true;
