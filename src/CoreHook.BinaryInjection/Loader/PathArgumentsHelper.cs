@@ -1,11 +1,16 @@
-﻿
+﻿using System;
+
 namespace CoreHook.BinaryInjection.Loader
 {
     internal static class PathArgumentsHelper
     {
-        internal static byte[] GetPathArray(string path, IPathConfiguration pathConfig, int? pathLength = null)
+        internal static byte[] GetPathArray(string path, IPathConfiguration pathConfig)
         {
-            return pathConfig.Encoding.GetBytes(path.PadRight(pathLength ?? pathConfig.MaxPathLength, pathConfig.PaddingCharacter));
+            if (string.IsNullOrWhiteSpace(path) || path.Length >= pathConfig.MaxPathLength)
+            {
+                throw new ArgumentException(nameof(path));
+            }
+            return pathConfig.Encoding.GetBytes(path.PadRight(pathConfig.MaxPathLength, pathConfig.PaddingCharacter));
         }
     }
 }
