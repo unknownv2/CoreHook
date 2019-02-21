@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace CoreHook.BinaryInjection.Loader
+namespace CoreHook.BinaryInjection.Loader.Configuration
 {
     public sealed partial class PathConfiguration : IPathConfiguration
     {

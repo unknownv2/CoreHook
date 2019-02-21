@@ -31,7 +31,7 @@ namespace CoreHook.CoreLoad
                 Log($"Image base path is {Path.GetDirectoryName(path)}");
 
                 Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-
+                
                 _dependencyContext = DependencyContext.Load(Assembly);
 
                 _assemblyResolver = new CompositeCompilationAssemblyResolver

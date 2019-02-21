@@ -1,5 +1,5 @@
 ﻿
-namespace CoreHook.BinaryInjection.RemoteInjection
+namespace CoreHook.BinaryInjection.RemoteInjection.Configuration
 {
     public class NativeModulesConfiguration
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using CoreHook.BinaryInjection.Loader.Serialization;
 
-namespace CoreHook.BinaryInjection.Loader
+namespace CoreHook.BinaryInjection.Loader.Configuration
 {
     /// <summary>
     /// Manages the arguments passed to the plugin loader.

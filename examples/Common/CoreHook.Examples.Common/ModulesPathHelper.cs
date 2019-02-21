@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using CoreHook.BinaryInjection.ProcessUtils;
 using CoreHook.BinaryInjection.RemoteInjection;
+using CoreHook.BinaryInjection.RemoteInjection.Configuration;
 
 namespace CoreHook.Examples.Common
 {
