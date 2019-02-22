@@ -2,7 +2,9 @@
 using System.IO;
 using System.Reflection;
 using CoreHook.BinaryInjection.ProcessUtils;
+using CoreHook.BinaryInjection.ProcessUtils.Configuration;
 using CoreHook.BinaryInjection.RemoteInjection;
+using CoreHook.BinaryInjection.RemoteInjection.Configuration;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.Memory.Processes;
@@ -131,7 +133,7 @@ namespace CoreHook.FileMonitor
             {
                 return true;
             }
-            
+
             var path = Environment.GetEnvironmentVariable("PATH");
             if (!string.IsNullOrWhiteSpace(path))
             {
@@ -220,7 +222,7 @@ namespace CoreHook.FileMonitor
             string injectionPipeName = InjectionPipeName)
         {
             ValidateFilePath(injectionLibrary);
-            
+
             if (Examples.Common.ModulesPathHelper.GetCoreLoadPaths(
                     ProcessHelper.GetProcessById(processId).Is64Bit(),
                     out NativeModulesConfiguration nativeConfig) &&

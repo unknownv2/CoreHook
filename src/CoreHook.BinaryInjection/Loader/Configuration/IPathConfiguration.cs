@@ -1,5 +1,5 @@
 ﻿
-namespace CoreHook.BinaryInjection.Loader
+namespace CoreHook.BinaryInjection.Loader.Configuration
 {
     public interface IPathConfiguration : IStringEncodingConfiguration
     {

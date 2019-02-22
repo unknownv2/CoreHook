@@ -1,5 +1,5 @@
 ﻿
-namespace CoreHook.BinaryInjection.ProcessUtils
+namespace CoreHook.BinaryInjection.ProcessUtils.Configuration
 {
     public class ProcessCreationConfiguration
     {

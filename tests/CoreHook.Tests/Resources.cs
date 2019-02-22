@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using CoreHook.BinaryInjection.RemoteInjection;
+using CoreHook.BinaryInjection.RemoteInjection.Configuration;
 using CoreHook.Memory.Processes;
 
 namespace CoreHook.Tests

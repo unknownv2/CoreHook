@@ -6,6 +6,7 @@ using System.Security.Principal;
 using System.Reflection;
 using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.BinaryInjection.ProcessUtils;
+using CoreHook.BinaryInjection.RemoteInjection.Configuration;
 using CoreHook.FileMonitor.Service;
 using CoreHook.IPC.Platform;
 using CoreHook.Memory.Processes;
@@ -72,7 +73,7 @@ namespace CoreHook.Uwp.FileMonitor
                     Console.WriteLine();
                     Console.Write("Please enter a process Id or the App Id to launch: ");
 
-                    args = new string[] 
+                    args = new string[]
                     {
                         Console.ReadLine()
                     };
@@ -124,7 +125,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// <param name="injectionLibrary">The path of the plugin that is loaded into the target process.</param>
         /// <param name="injectionPipeName">The pipe name which receives messages during the plugin initialization stage.</param>
         private static void InjectDllIntoTarget(
-            int processId, 
+            int processId,
             string injectionLibrary,
             string injectionPipeName = InjectionPipeName)
         {
@@ -226,7 +227,7 @@ namespace CoreHook.Uwp.FileMonitor
         /// <param name="rootDirectory">The root marking when to stop granting permissions if reached.</param>
         private static void GrantFolderRecursive(string path, string rootDirectory)
         {
-            while((path = Path.GetDirectoryName(path)) != rootDirectory)
+            while ((path = Path.GetDirectoryName(path)) != rootDirectory)
             {
                 GrantAllAppPackagesAccessToFolder(path);
             }
@@ -267,7 +268,7 @@ namespace CoreHook.Uwp.FileMonitor
 
                 var rule = new FileSystemAccessRule(AllAppPackagesSid,
                                FileSystemRights.ReadAndExecute, AccessControlType.Allow);
-  
+
                 acl.SetAccessRule(rule);
 
                 dirInfo.SetAccessControl(acl);

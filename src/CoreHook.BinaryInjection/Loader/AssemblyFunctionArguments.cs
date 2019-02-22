@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using CoreHook.BinaryInjection.Loader.Configuration;
 using CoreHook.BinaryInjection.Loader.Serialization;
 
 namespace CoreHook.BinaryInjection.Loader

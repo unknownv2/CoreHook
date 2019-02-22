@@ -1,4 +1,5 @@
 ﻿using System;
+using CoreHook.BinaryInjection.Loader.Configuration;
 
 namespace CoreHook.BinaryInjection.Loader
 {
