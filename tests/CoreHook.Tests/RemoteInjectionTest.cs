@@ -7,15 +7,15 @@ using CoreHook.Tests.Plugins.Shared;
 namespace CoreHook.Tests
 {
     [Collection("Remote Injection Tests")]
-    public class RemoteInjectionTest
+    public class RemoteInjectionTestSimpleParameter
     {
         [Theory]
         [InlineData("System32")]
         [InlineData("SysWOW64")]
-        private void TestRemoteInject64(string applicationFolder)
+        private void TestRemotePluginSimpleParameter(string applicationFolder)
         {
             const string testHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
-            const string testMessage = "Berner";
+            const string remoteArgument = "Berner";
 
             var testProcess = Resources.StartProcess(Path.Combine(
                             Environment.ExpandEnvironmentVariables("%Windir%"),
@@ -30,16 +30,16 @@ namespace CoreHook.Tests
                testHookLibrary
                ),
                Resources.GetUniquePipeName(),
-               testMessage);
+               remoteArgument);
 
-            Assert.Equal(testMessage, Resources.ReadFromProcess(testProcess));
+            Assert.Equal(remoteArgument, Resources.ReadFromProcess(testProcess));
 
             Resources.EndProcess(testProcess);
         }
     }
 
     [Collection("Remote Injection Tests")]
-    public class RemoteInjectionTestComplex
+    public class RemoteInjectionTestComplexParameter
     {
         [Theory]
         [InlineData("System32")]
@@ -47,11 +47,11 @@ namespace CoreHook.Tests
         private void TestRemotePluginComplexParameter(string applicationFolder)
         {
             const string testHookLibrary = "CoreHook.Tests.ComplexParameterTest.dll";
-            const string testMessage = "Berner";
+            const string testMessageParameter = "Berner";
 
             var complexParameter = new ComplexParameter
             {
-                Message = testMessage,
+                Message = testMessageParameter,
                 HostProcessId = Process.GetCurrentProcess().Id
             };
 
