@@ -5,7 +5,7 @@ using Xunit;
 
 namespace CoreHook.Tests.Windows
 {
-    [Collection("Sequential")]
+    [Collection("Local Hook Tests")]
     public class SymbolsTest
     {
         [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
@@ -112,14 +112,14 @@ namespace CoreHook.Tests.Windows
         /// when the detour is called without skipping the detour barrier.
         /// </summary>
         [Fact]
-        public void DetourAPIAndInternalFunction()
+        public void DetourApiAndInternalFunction()
         {
             // Create the internal function and public API detours.
             using (var hookInternal = LocalHook.Create(
                  LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
                  new InternalAddAtomDelegate(InternalAddAtomHook),
                  this))
-            using (var hookAPI = LocalHook.Create(
+            using (var hookApi = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
                 new AddAtomWDelegate(AddAtomHook),
                 this))
@@ -127,7 +127,7 @@ namespace CoreHook.Tests.Windows
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
                 InternalAddAtomFunction = hookInternal.TargetAddress.ToFunction<InternalAddAtomDelegate>();
 
-                hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                hookApi.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 _internalAddAtomCalled = false;
                 _addAtomCalled = false;
@@ -154,20 +154,20 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void DetourAPIAndInternalFunctionUsingBypassAddress()
+        public void DetourApiIAndInternalFunctionUsingBypassAddress()
         {
             using (var hookInternal = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
                 new InternalAddAtomDelegate(InternalAddAtomHook),
                 this))
-            using (var hookAPI = LocalHook.Create(
+            using (var hookApi = LocalHook.Create(
                 LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
                 new AddAtomWDelegate(AddAtomHook),
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                hookAPI.ThreadACL.SetInclusiveACL(new int[] { 0 });
+                hookApi.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
                 InternalAddAtomFunction = hookInternal.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
 

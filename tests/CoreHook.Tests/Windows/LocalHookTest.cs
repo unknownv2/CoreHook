@@ -4,7 +4,7 @@ using Xunit;
 
 namespace CoreHook.Tests.Windows
 {
-    [Collection("Sequential")]
+    [Collection("Local Hook Tests")]
     public class LocalHookTest
     {
         [DllImport("kernel32.dll", SetLastError = true)]
