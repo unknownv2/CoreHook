@@ -7,7 +7,7 @@ using CoreHook.Tests.Plugins.Shared;
 namespace CoreHook.Tests
 {
     [Collection("Remote Injection Tests")]
-    public class RemoteInjectionTests
+    public class RemoteInjectionTest
     {
         [Theory]
         [InlineData("System32")]
@@ -37,7 +37,6 @@ namespace CoreHook.Tests
             Resources.EndProcess(testProcess);
         }
     }
-
 
     [Collection("Remote Injection Tests")]
     public class RemoteInjectionTestComplex
