@@ -6,87 +6,66 @@ using CoreHook.Tests.Plugins.Shared;
 
 namespace CoreHook.Tests
 {
-    [Collection("Sequential")]
-    public class RemoteInjectionTest
+    [Collection("Remote Injection Tests")]
+    public class RemoteInjectionTestSimpleParameter
     {
-        [Fact]
-        private void TestRemoteInject64()
+        [Theory]
+        [InlineData("System32")]
+        [InlineData("SysWOW64")]
+        private void TestRemotePluginSimpleParameter(string applicationFolder)
         {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
-            const string TestMessage = "Berner";
+            const string testHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
+            const string remoteArgument = "Berner";
 
             var testProcess = Resources.StartProcess(Path.Combine(
                             Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "System32",
+                            applicationFolder,
                             "notepad.exe"
                         ));
 
+            System.Threading.Thread.Sleep(500);
+
             Resources.InjectDllIntoTarget(testProcess,
                Resources.GetTestDllPath(
-               TestHookLibrary
+               testHookLibrary
                ),
                Resources.GetUniquePipeName(),
-               TestMessage);
+               remoteArgument);
 
-            Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
+            Assert.Equal(remoteArgument, Resources.ReadFromProcess(testProcess));
 
             Resources.EndProcess(testProcess);
         }
     }
 
-    [Collection("Sequential")]
-    public class RemoteInjectionTest32
+    [Collection("Remote Injection Tests")]
+    public class RemoteInjectionTestComplexParameter
     {
-
-        [Fact]
-        private void TestRemoteInject32()
+        [Theory]
+        [InlineData("System32")]
+        [InlineData("SysWOW64")]
+        private void TestRemotePluginComplexParameter(string applicationFolder)
         {
-            const string TestHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
-            const string TestMessage = "Berner";
-
-            var testProcess = Resources.StartProcess(Path.Combine(
-                            Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "SysWOW64",
-                            "notepad.exe"
-                        ));
-
-            Resources.InjectDllIntoTarget(testProcess,
-               Resources.GetTestDllPath(
-               TestHookLibrary
-               ),
-               Resources.GetUniquePipeName(),
-               TestMessage);
-
-            Assert.Equal(TestMessage, Resources.ReadFromProcess(testProcess));
-
-            Resources.EndProcess(testProcess);
-        }
-    }
-
-    [Collection("Sequential")]
-    public class RemoteInjectionTestComplex
-    {
-        [Fact]
-        private void TestRemotePluginComplexParameter()
-        {
-            const string TestHookLibrary = "CoreHook.Tests.ComplexParameterTest.dll";
-            const string TestMessage = "Berner";
+            const string testHookLibrary = "CoreHook.Tests.ComplexParameterTest.dll";
+            const string testMessageParameter = "Berner";
 
             var complexParameter = new ComplexParameter
             {
-                Message = TestMessage,
+                Message = testMessageParameter,
                 HostProcessId = Process.GetCurrentProcess().Id
             };
 
             var testProcess = Resources.StartProcess(Path.Combine(
                             Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "System32",
+                            applicationFolder,
                             "notepad.exe"
                         ));
 
+            System.Threading.Thread.Sleep(500);
+
             Resources.InjectDllIntoTarget(testProcess,
                Resources.GetTestDllPath(
-               TestHookLibrary
+               testHookLibrary
                ),
                Resources.GetUniquePipeName(),
                complexParameter);

@@ -102,11 +102,11 @@ namespace CoreHook
         {
             if (module == null)
             {
-                throw new ArgumentNullException(module);
+                throw new ArgumentNullException(nameof(module));
             }
             if (function == null)
             {
-                throw new ArgumentNullException(function);
+                throw new ArgumentNullException(nameof(function));
             }
 
             IntPtr functionAddress = NativeApi.DetourFindFunction(module, function);
