@@ -7,21 +7,17 @@ namespace CoreHook.Tests.Windows
     [Collection("Local Hook Tests")]
     public class LocalHookTest
     {
-        [DllImport(Interop.Libraries.Kernel32, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool Beep(uint dwFreq, uint dwDuration);
-
-        [return: MarshalAs(UnmanagedType.Bool)]
-        private delegate bool BeepDelegate(uint dwFreq, uint dwDuration);
+        private delegate bool BeepDelegate(int dwFreq, int dwDuration);
 
         private bool _beepHookCalled;
 
         [return: MarshalAs(UnmanagedType.Bool)]
-        private bool BeepHook(uint dwFreq, uint dwDuration)
+        private bool BeepHook(int dwFreq, int dwDuration)
         {
             _beepHookCalled = true;
 
-            Beep(dwFreq, dwDuration);
+            Interop.Kernel32.Beep(dwFreq, dwDuration);
 
             return false;
         }
@@ -38,7 +34,7 @@ namespace CoreHook.Tests.Windows
 
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
-                Assert.False(Beep(100, 100));
+                Assert.False(Interop.Kernel32.Beep(100, 100));
 
                 Assert.True(_beepHookCalled);
             }
@@ -46,13 +42,16 @@ namespace CoreHook.Tests.Windows
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         public delegate uint GetTickCountDelegate();
+
         [DllImport(Interop.Libraries.Kernel32)]
         public static extern uint GetTickCount();
+
         private bool _getTickCountCalled;
 
         private uint Detour_GetTickCount()
         {
             _getTickCountCalled = true;
+
             return 0;
         }
 
@@ -78,13 +77,16 @@ namespace CoreHook.Tests.Windows
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         public delegate long GetTickCount64Delegate();
+
         [DllImport(Interop.Libraries.Kernel32)]
         public static extern long GetTickCount64();
+
         private bool _getTickCount64Called;
 
         private long Detour_GetTickCount64()
         {
             _getTickCount64Called = true;
+
             return 0;
         }
 
@@ -123,7 +125,7 @@ namespace CoreHook.Tests.Windows
                 this));
         }
 
-        [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+        [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         private delegate bool QueryPerformanceCounterDelegate(out long performanceCount);
 
         private bool Detour_QueryPerformanceCounter(out long performanceCount)
@@ -183,6 +185,7 @@ namespace CoreHook.Tests.Windows
                 Assert.NotEqual<uint>(0, hook.Target());
             }
         }
+
         private uint GetVersionDetour()
         {
             return 0;

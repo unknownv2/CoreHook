@@ -45,6 +45,9 @@
     <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
       <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
     </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.Beep.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.Beep.cs</Link>
+    </Compile>    
   </ItemGroup>   
 
 </Project>
