@@ -51,9 +51,9 @@ namespace CoreHook.IPC.NamedPipes
 
                 _pipeStream.Connect();
             }
-            catch (IOException ex)
+            catch (IOException e)
             {
-                Console.WriteLine(ex.ToString());
+                Console.WriteLine(e.ToString());
                 return false;
             }
 

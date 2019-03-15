@@ -81,9 +81,9 @@ namespace CoreHook.CoreLoad
                 Log(outOfRangeEx.ToString());
                 throw;
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
-                Log(exception.ToString());
+                Log(e.ToString());
             }
             return (int)PluginInitializationState.Failed;
         }
