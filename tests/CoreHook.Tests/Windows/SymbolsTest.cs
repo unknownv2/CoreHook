@@ -8,22 +8,22 @@ namespace CoreHook.Tests.Windows
     [Collection("Local Hook Tests")]
     public class SymbolsTest
     {
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+        [DllImport(Interop.Libraries.Kernel32, CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         private static extern ushort AddAtomW(string lpString);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+        [DllImport(Interop.Libraries.Kernel32, CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         private static extern uint GetAtomNameW(ushort nAtom, StringBuilder lpBuffer, int nSize);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+        [DllImport(Interop.Libraries.Kernel32, CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         private static extern ushort DeleteAtom(ushort nAtom);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
+        [DllImport(Interop.Libraries.Kernel32, CharSet = CharSet.Unicode,
             SetLastError = true,
             CallingConvention = CallingConvention.StdCall)]
         private static extern ushort FindAtomW(string lpString);
@@ -78,7 +78,7 @@ namespace CoreHook.Tests.Windows
         public void DetourInternalFunction()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
                 new InternalAddAtomDelegate(InternalAddAtomHook),
                 this))
             {
@@ -116,11 +116,11 @@ namespace CoreHook.Tests.Windows
         {
             // Create the internal function and public API detours.
             using (var hookInternal = LocalHook.Create(
-                 LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
+                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
                  new InternalAddAtomDelegate(InternalAddAtomHook),
                  this))
             using (var hookApi = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
                 new AddAtomWDelegate(AddAtomHook),
                 this))
             {
@@ -157,11 +157,11 @@ namespace CoreHook.Tests.Windows
         public void DetourApiIAndInternalFunctionUsingBypassAddress()
         {
             using (var hookInternal = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
                 new InternalAddAtomDelegate(InternalAddAtomHook),
                 this))
             using (var hookApi = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
                 new AddAtomWDelegate(AddAtomHook),
                 this))
             {
@@ -199,7 +199,7 @@ namespace CoreHook.Tests.Windows
         public void DetourApiAndInternalFunctionUsingInterfaceBypassAddress()
         {
             using (var hookInternal = HookFactory.CreateHook<InternalFindAtom>(
-                LocalHook.GetProcAddress("kernel32.dll", "InternalFindAtom"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalFindAtom"),
                 InternalFindAtom_Hook,
                 this))
             {
@@ -263,7 +263,7 @@ namespace CoreHook.Tests.Windows
             _GetCurrentNlsCacheCalled = false;
 
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernelbase.dll", "GetCurrentNlsCache"),
+                LocalHook.GetProcAddress(Interop.Libraries.KernelBase, "GetCurrentNlsCache"),
                 new GetCurrentNlsCacheDelegate(GetCurrentNlsCacheHook),
                 this))
             {
@@ -289,7 +289,7 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void Find_Invalid_Export_Function_Throws_MissingMethodException()
         {
-            Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress("kernel32.dll", "ThisFunctionDoesNotExist"));
+            Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "ThisFunctionDoesNotExist"));
         }
 
         [Fact]

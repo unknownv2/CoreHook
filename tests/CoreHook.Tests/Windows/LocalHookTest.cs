@@ -7,7 +7,7 @@ namespace CoreHook.Tests.Windows
     [Collection("Local Hook Tests")]
     public class LocalHookTest
     {
-        [DllImport("kernel32.dll", SetLastError = true)]
+        [DllImport(Interop.Libraries.Kernel32, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool Beep(uint dwFreq, uint dwDuration);
 
@@ -30,7 +30,7 @@ namespace CoreHook.Tests.Windows
         public void DetourIsInstalled()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "Beep"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "Beep"),
                 new BeepDelegate(BeepHook),
                 this))
             {
@@ -46,7 +46,7 @@ namespace CoreHook.Tests.Windows
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         public delegate uint GetTickCountDelegate();
-        [DllImport("kernel32.dll")]
+        [DllImport(Interop.Libraries.Kernel32)]
         public static extern uint GetTickCount();
         private bool _getTickCountCalled;
 
@@ -60,7 +60,7 @@ namespace CoreHook.Tests.Windows
         public void DetourIsBypassedByOriginalFunction()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "GetTickCount"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "GetTickCount"),
                 new GetTickCountDelegate(Detour_GetTickCount),
                 this))
             {
@@ -78,7 +78,7 @@ namespace CoreHook.Tests.Windows
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         public delegate long GetTickCount64Delegate();
-        [DllImport("kernel32.dll")]
+        [DllImport(Interop.Libraries.Kernel32)]
         public static extern long GetTickCount64();
         private bool _getTickCount64Called;
 
@@ -92,7 +92,7 @@ namespace CoreHook.Tests.Windows
         public void DetourCanBeBypassedAfterDetourCall()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "GetTickCount64"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "GetTickCount64"),
                 new GetTickCount64Delegate(Detour_GetTickCount64),
                 this))
             {
@@ -118,7 +118,7 @@ namespace CoreHook.Tests.Windows
         public void Invalid_LocalHook_Create_Detour_Delegate_Throws_ArgumentNUllException()
         {
             Assert.Throws<ArgumentNullException>(() => LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "CreateFileW"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "CreateFileW"),
                 null,
                 this));
         }
@@ -136,7 +136,7 @@ namespace CoreHook.Tests.Windows
         public void TestInvalidDetourCallback()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "QueryPerformanceCounter"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "QueryPerformanceCounter"),
                 new QueryPerformanceCounterDelegate(Detour_QueryPerformanceCounter),
                 null))
             {    
@@ -150,14 +150,14 @@ namespace CoreHook.Tests.Windows
         [UnmanagedFunctionPointer(CallingConvention.StdCall, SetLastError = true)]
         public delegate uint GetVersionDelegate();
 
-        [DllImport("kernel32.dll")]
+        [DllImport(Interop.Libraries.Kernel32)]
         public static extern uint GetVersion();
 
         [Fact]
         public void ShouldEnableHookWithProperty()
         {
             using (var hook = HookFactory.CreateHook<GetVersionDelegate>(
-                LocalHook.GetProcAddress("kernel32.dll", "GetVersion"),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "GetVersion"),
                 GetVersionDetour, this))
             {
                 // Enable the hook for all threads
