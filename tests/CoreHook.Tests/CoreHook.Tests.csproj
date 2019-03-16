@@ -47,6 +47,9 @@
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.Beep.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.Beep.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetVersion.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.GetVersion.cs</Link>
     </Compile>    
   </ItemGroup>   
 
