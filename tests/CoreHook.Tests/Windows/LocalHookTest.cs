@@ -13,21 +13,20 @@ namespace CoreHook.Tests.Windows
         private bool _beepHookCalled;
 
         [return: MarshalAs(UnmanagedType.Bool)]
-        private bool BeepHook(int dwFreq, int dwDuration)
+        private bool Detour_Beep(int dwFreq, int dwDuration)
         {
             _beepHookCalled = true;
 
             Interop.Kernel32.Beep(dwFreq, dwDuration);
-
             return false;
         }
 
         [Fact]
-        public void ShouldIntallDetourToFunctionAddress()
+        public void ShouldInstallDetourToFunctionAddress()
         {
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "Beep"),
-                new BeepDelegate(BeepHook),
+                new BeepDelegate(Detour_Beep),
                 this))
             {
                 _beepHookCalled = false;
@@ -128,6 +127,7 @@ namespace CoreHook.Tests.Windows
         private bool Detour_QueryPerformanceCounter(out long performanceCount)
         {
             performanceCount = 0;
+
             return false;
         }
 
