@@ -8,26 +8,6 @@ namespace CoreHook.Tests.Windows
     [Collection("Local Hook Tests")]
     public class SymbolsTest
     {
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
-            SetLastError = true,
-            CallingConvention = CallingConvention.StdCall)]
-        private static extern ushort AddAtomW(string lpString);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
-            SetLastError = true,
-            CallingConvention = CallingConvention.StdCall)]
-        private static extern uint GetAtomNameW(ushort nAtom, StringBuilder lpBuffer, int nSize);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
-            SetLastError = true,
-            CallingConvention = CallingConvention.StdCall)]
-        private static extern ushort DeleteAtom(ushort nAtom);
-
-        [DllImport("kernel32.dll", CharSet = CharSet.Unicode,
-            SetLastError = true,
-            CallingConvention = CallingConvention.StdCall)]
-        private static extern ushort FindAtomW(string lpString);
-
         [UnmanagedFunctionPointer(CallingConvention.StdCall,
             CharSet = CharSet.Unicode,
             SetLastError = true)]
@@ -56,18 +36,19 @@ namespace CoreHook.Tests.Windows
         // A new opt-in, long path limit was added in Windows 10, version 1607.
         private const int MaxPathLength = 260;
 
-        private ushort InternalAddAtomHook(bool local,
+        private ushort Detour_InternalAddAtomHook(bool local,
             bool unicode, string atomName, int arg4)
         {
             _internalAddAtomCalled = true;
 
             return InternalAddAtomFunction(local, unicode, atomName, arg4);
         }
-        private ushort AddAtomHook(string atomName)
+
+        private ushort Detour_AddAtom(string atomName)
         {
             _addAtomCalled = true;
 
-            return AddAtomW(atomName);
+            return Interop.Kernel32.AddAtomW(atomName);
         }
 
         /// <summary>
@@ -75,11 +56,11 @@ namespace CoreHook.Tests.Windows
         /// using the detour bypass address to skip the detour barrier call.
         /// </summary>
         [Fact]
-        public void DetourInternalFunction()
+        public void ShouldDetourInternalFunction()
         {
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
-                new InternalAddAtomDelegate(InternalAddAtomHook),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
+                new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
                 this))
             {
                 InternalAddAtomFunction = hook.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
@@ -89,13 +70,13 @@ namespace CoreHook.Tests.Windows
                 _internalAddAtomCalled = false;
 
                 string atomName = "TestLocalAtomName";
-                ushort atomId = AddAtomW(atomName);
+                ushort atomId = Interop.Kernel32.AddAtomW(atomName);
 
                 Assert.NotEqual(0, atomId);
                 Assert.True(_internalAddAtomCalled);
 
                 StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-                uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+                uint bufLength = Interop.Kernel32.GetAtomNameW(atomId, atomBuffer, MaxPathLength);
                 string retrievedAtomName = atomBuffer.ToString();
 
                 Assert.Equal((uint)atomName.Length, bufLength);
@@ -103,7 +84,7 @@ namespace CoreHook.Tests.Windows
 
                 Assert.Equal(retrievedAtomName, atomName);
 
-                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+                Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
             }
         }
 
@@ -112,16 +93,16 @@ namespace CoreHook.Tests.Windows
         /// when the detour is called without skipping the detour barrier.
         /// </summary>
         [Fact]
-        public void DetourApiAndInternalFunction()
+        public void ShouldDetourApiAndInternalFunctionCalledByAddAtom()
         {
             // Create the internal function and public API detours.
             using (var hookInternal = LocalHook.Create(
-                 LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
-                 new InternalAddAtomDelegate(InternalAddAtomHook),
+                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
+                 new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
                  this))
             using (var hookApi = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
-                new AddAtomWDelegate(AddAtomHook),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
+                new AddAtomWDelegate(Detour_AddAtom),
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -133,14 +114,14 @@ namespace CoreHook.Tests.Windows
                 _addAtomCalled = false;
 
                 string atomName = "TestLocalAtomName";
-                ushort atomId = AddAtomW(atomName);
+                ushort atomId = Interop.Kernel32.AddAtomW(atomName);
 
                 Assert.NotEqual(0, atomId);
                 Assert.True(_internalAddAtomCalled);
                 Assert.True(_addAtomCalled);
 
                 StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-                uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+                uint bufLength = Interop.Kernel32.GetAtomNameW(atomId, atomBuffer, MaxPathLength);
                 string retrievedAtomName = atomBuffer.ToString();
 
                 Assert.NotEqual<uint>(0, bufLength);
@@ -149,20 +130,20 @@ namespace CoreHook.Tests.Windows
 
                 Assert.Equal(retrievedAtomName, atomName);
 
-                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+                Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
             }
         }
 
         [Fact]
-        public void DetourApiIAndInternalFunctionUsingBypassAddress()
+        public void ShouldDetourApiIAndInternalFunctionUsingBypassAddress()
         {
             using (var hookInternal = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"),
-                new InternalAddAtomDelegate(InternalAddAtomHook),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
+                new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
                 this))
             using (var hookApi = LocalHook.Create(
-                LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"),
-                new AddAtomWDelegate(AddAtomHook),
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
+                new AddAtomWDelegate(Detour_AddAtom),
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -175,14 +156,14 @@ namespace CoreHook.Tests.Windows
                 _addAtomCalled = false;
 
                 string atomName = "TestLocalAtomName";
-                ushort atomId = AddAtomW(atomName);
+                ushort atomId = Interop.Kernel32.AddAtomW(atomName);
 
                 Assert.NotEqual(0, atomId);
                 Assert.True(_internalAddAtomCalled);
                 Assert.True(_addAtomCalled);
 
                 StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-                uint bufLength = GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+                uint bufLength = Interop.Kernel32.GetAtomNameW(atomId, atomBuffer, MaxPathLength);
                 string retrievedAtomName = atomBuffer.ToString();
 
                 Assert.NotEqual<uint>(0, bufLength);
@@ -191,16 +172,16 @@ namespace CoreHook.Tests.Windows
 
                 Assert.Equal(retrievedAtomName, atomName);
 
-                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+                Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
             }
         }
 
         [Fact]
-        public void DetourApiAndInternalFunctionUsingInterfaceBypassAddress()
+        public void ShouldDetourApiAndInternalFunctionUsingInterfaceBypassAddress()
         {
             using (var hookInternal = HookFactory.CreateHook<InternalFindAtom>(
-                LocalHook.GetProcAddress("kernel32.dll", "InternalFindAtom"),
-                InternalFindAtom_Hook,
+                LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalFindAtom"),
+                Detour_InternalFindAtom,
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -210,21 +191,22 @@ namespace CoreHook.Tests.Windows
                 _internalFindAtomCalled = false;
 
                 string atomName = "TestLocalAtomName";
-                ushort atomId = AddAtomW(atomName);
+                ushort atomId = Interop.Kernel32.AddAtomW(atomName);
 
-                ushort foundAtomId = FindAtomW(atomName);
+                ushort foundAtomId = Interop.Kernel32.FindAtomW(atomName);
 
                 Assert.NotEqual(0, atomId);
                 Assert.True(_internalFindAtomCalled);
                 Assert.Equal(atomId, foundAtomId);
 
-                Assert.Equal<ushort>(0, DeleteAtom(atomId));
+                Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
             }
         }
 
-        ushort InternalFindAtom_Hook(bool local, bool unicode, string atomName)
+        ushort Detour_InternalFindAtom(bool local, bool unicode, string atomName)
         {
             _internalFindAtomCalled = true;
+
             return InternalFindAtomFunction(local, unicode, atomName);
         }
 
@@ -233,13 +215,6 @@ namespace CoreHook.Tests.Windows
         private GetCurrentNlsCacheDelegate GetCurrentNlsCacheFunction;
 
         private bool _GetCurrentNlsCacheCalled;
-
-        [DllImport("kernelbase.dll",
-             CharSet = CharSet.Unicode,
-             SetLastError = true,
-             CallingConvention = CallingConvention.StdCall)]
-        private static extern int CompareStringW(uint locale, uint dwCmpFlags,
-            string lpString1, int cchCount1, string lpString2, int cchCount2);
 
         private const int LOCALE_USER_DEFAULT = 0x400;
 
@@ -250,7 +225,7 @@ namespace CoreHook.Tests.Windows
         // than the string indicated by lpString2.
         private const int CSTR_GREATER_THAN = 3;
 
-        private ulong GetCurrentNlsCacheHook()
+        private ulong Detour_GetCurrentNlsCache()
         {
             _GetCurrentNlsCacheCalled = true;
 
@@ -258,13 +233,13 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void DetourInternalFunction2()
+        public void ShouldDetourInternalFunctionCalledByCompareString()
         {
             _GetCurrentNlsCacheCalled = false;
 
             using (var hook = LocalHook.Create(
-                LocalHook.GetProcAddress("kernelbase.dll", "GetCurrentNlsCache"),
-                new GetCurrentNlsCacheDelegate(GetCurrentNlsCacheHook),
+                LocalHook.GetProcAddress(Interop.Libraries.KernelBase, "GetCurrentNlsCache"),
+                new GetCurrentNlsCacheDelegate(Detour_GetCurrentNlsCache),
                 this))
             {
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -273,7 +248,7 @@ namespace CoreHook.Tests.Windows
                 string stringA = "HelloWorld";
                 string stringB = "Hello";
 
-                int comparisonResult = CompareStringW(
+                int comparisonResult = Interop.KernelBase.CompareStringW(
                     LOCALE_USER_DEFAULT,
                     NORM_LINGUISTIC_CASING,
                     stringA,
@@ -289,7 +264,7 @@ namespace CoreHook.Tests.Windows
         [Fact]
         public void Find_Invalid_Export_Function_Throws_MissingMethodException()
         {
-            Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress("kernel32.dll", "ThisFunctionDoesNotExist"));
+            Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "ThisFunctionDoesNotExist"));
         }
 
         [Fact]

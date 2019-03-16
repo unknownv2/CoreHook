@@ -46,9 +46,9 @@ namespace CoreHook.CoreLoad
 
                 _loadContext.Resolving += OnResolving;
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Log($"AssemblyResolver error: {ex}");
+                Log($"AssemblyResolver error: {e}");
             }
         }
 
@@ -96,9 +96,9 @@ namespace CoreHook.CoreLoad
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                Log($"OnResolving error: {ex}");
+                Log($"OnResolving error: {e}");
             }
             return null;
         }

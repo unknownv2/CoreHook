@@ -48,14 +48,14 @@ namespace CoreHook
                     callback,
                     hook.Handle);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 Marshal.FreeCoTaskMem(hook.Handle);
                 hook.Handle = IntPtr.Zero;
 
                 hook.SelfHandle.Free();
 
-                throw ex;
+                throw e;
             }
 
             hook.AccessControl = new HookAccessControl(hook.Handle);
@@ -92,14 +92,14 @@ namespace CoreHook
                     GCHandle.ToIntPtr(hook.SelfHandle),
                     hook.Handle);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
                 Marshal.FreeCoTaskMem(hook.Handle);
                 hook.Handle = IntPtr.Zero;
 
                 hook.SelfHandle.Free();
 
-                throw ex;
+                throw e;
             }
 
             hook.AccessControl = new HookAccessControl(hook.Handle);

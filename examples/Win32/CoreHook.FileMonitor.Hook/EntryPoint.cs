@@ -37,9 +37,9 @@ namespace CoreHook.FileMonitor.Hook
             {
                 StartClient(pipeName);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                ClientWriteLine(ex.ToString());
+                ClientWriteLine(e.ToString());
             }
         }
 
@@ -176,9 +176,9 @@ namespace CoreHook.FileMonitor.Hook
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    ClientWriteLine(ex.ToString());
+                    ClientWriteLine(e.ToString());
                 }
             }
         }

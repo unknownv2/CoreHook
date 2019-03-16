@@ -50,10 +50,10 @@ namespace CoreHook.CoreLoad.Data
                     data.UnmanagedInfo.UserData,
                     data.UnmanagedInfo.UserDataSize);
             }
-            catch (Exception exception)
+            catch (Exception e)
             {
                 data.State = PluginInitializationState.Failed;
-                Debug.WriteLine(exception.ToString());
+                Debug.WriteLine(e.ToString());
             }
             return data;
         }

@@ -38,9 +38,9 @@ namespace CoreHook.Uwp.FileMonitor.Hook
             {
                 StartClient(pipeName);
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                ClientWriteLine(ex.ToString());
+                ClientWriteLine(e.ToString());
             }
         }
 
@@ -164,9 +164,9 @@ namespace CoreHook.Uwp.FileMonitor.Hook
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception e)
                 {
-                    ClientWriteLine(ex.ToString());
+                    ClientWriteLine(e.ToString());
                 }
             }
         }

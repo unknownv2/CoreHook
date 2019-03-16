@@ -241,9 +241,9 @@ namespace CoreHook.BinaryInjection.RemoteInjection
                                 InjectionHelper.WaitForInjection(targetProcessId);
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception e)
                         {
-                            Console.WriteLine(ex.ToString());
+                            Console.WriteLine(e.ToString());
                         }
                     }
                 }

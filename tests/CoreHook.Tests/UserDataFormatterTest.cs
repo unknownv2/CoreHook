@@ -10,13 +10,13 @@ namespace CoreHook.Tests
         [Serializable]
         internal class  UserDataFormatterTestClass
         {
-            public int IntegerMember;
+            internal int IntegerMember;
         }
 
         [Fact]
         public void ShouldThrowNullExceptionWhenSerializingNullObject()
         {
-            IUserDataFormatter formatter = new UserDataBinaryFormatter();
+            IUserDataFormatter formatter = CreateFormatter();
             Stream serializationStream = new MemoryStream();
             object objectToSerialize = null;
 
@@ -26,7 +26,7 @@ namespace CoreHook.Tests
         [Fact]
         public void ShouldThrowNullExceptionWhenSerializingWithNullStream()
         {
-            IUserDataFormatter formatter = new UserDataBinaryFormatter();
+            IUserDataFormatter formatter = CreateFormatter();
             Stream serializationStream = null;
             var objectToSerialize = new byte[4];
 
@@ -34,9 +34,9 @@ namespace CoreHook.Tests
         }
 
         [Fact]
-        public void ShouldThrowNullExceptionWhenSerializingWithNullStreamAndNUllObject()
+        public void ShouldThrowNullExceptionWhenSerializingWithNullStreamAndNullObject()
         {
-            IUserDataFormatter formatter = new UserDataBinaryFormatter();
+            IUserDataFormatter formatter = CreateFormatter();
             Stream serializationStream = null;
             object objectToSerialize = null;
 
@@ -46,7 +46,7 @@ namespace CoreHook.Tests
         [Fact]
         public void ShouldSerializeClassToStream()
         {
-            IUserDataFormatter formatter = new UserDataBinaryFormatter();
+            IUserDataFormatter formatter = CreateFormatter();
 
             using (Stream serializationStream = new MemoryStream())
             {
@@ -60,7 +60,7 @@ namespace CoreHook.Tests
         [Fact]
         public void ShouldSerializeAndDeserializeClassWithStream()
         {
-            IUserDataFormatter formatter = new UserDataBinaryFormatter();
+            IUserDataFormatter formatter = CreateFormatter();
             const int integerMemberValue = 1;
 
             using (Stream serializationStream = new MemoryStream())
@@ -77,5 +77,7 @@ namespace CoreHook.Tests
                 Assert.Equal(integerMemberValue, deserializedObject.IntegerMember);
             }
         }
+
+        private static IUserDataFormatter CreateFormatter() => new UserDataBinaryFormatter();
     }
 }
