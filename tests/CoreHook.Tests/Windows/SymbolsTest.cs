@@ -56,14 +56,15 @@ namespace CoreHook.Tests.Windows
         // A new opt-in, long path limit was added in Windows 10, version 1607.
         private const int MaxPathLength = 260;
 
-        private ushort InternalAddAtomHook(bool local,
+        private ushort Detour_InternalAddAtomHook(bool local,
             bool unicode, string atomName, int arg4)
         {
             _internalAddAtomCalled = true;
 
             return InternalAddAtomFunction(local, unicode, atomName, arg4);
         }
-        private ushort AddAtomHook(string atomName)
+
+        private ushort Detour_AddAtom(string atomName)
         {
             _addAtomCalled = true;
 
@@ -75,11 +76,11 @@ namespace CoreHook.Tests.Windows
         /// using the detour bypass address to skip the detour barrier call.
         /// </summary>
         [Fact]
-        public void DetourInternalFunction()
+        public void ShouldDetourInternalFunction()
         {
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
-                new InternalAddAtomDelegate(InternalAddAtomHook),
+                new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
                 this))
             {
                 InternalAddAtomFunction = hook.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
@@ -112,16 +113,16 @@ namespace CoreHook.Tests.Windows
         /// when the detour is called without skipping the detour barrier.
         /// </summary>
         [Fact]
-        public void DetourApiAndInternalFunction()
+        public void ShouldDetourApiAndInternalFunction()
         {
             // Create the internal function and public API detours.
             using (var hookInternal = LocalHook.Create(
                  LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
-                 new InternalAddAtomDelegate(InternalAddAtomHook),
+                 new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
                  this))
             using (var hookApi = LocalHook.Create(
                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
-                new AddAtomWDelegate(AddAtomHook),
+                new AddAtomWDelegate(Detour_AddAtom),
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -154,15 +155,15 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void DetourApiIAndInternalFunctionUsingBypassAddress()
+        public void ShouldDetourApiIAndInternalFunctionUsingBypassAddress()
         {
             using (var hookInternal = LocalHook.Create(
                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
-                new InternalAddAtomDelegate(InternalAddAtomHook),
+                new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
                 this))
             using (var hookApi = LocalHook.Create(
                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
-                new AddAtomWDelegate(AddAtomHook),
+                new AddAtomWDelegate(Detour_AddAtom),
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -196,11 +197,11 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void DetourApiAndInternalFunctionUsingInterfaceBypassAddress()
+        public void ShouldDetourApiAndInternalFunctionUsingInterfaceBypassAddress()
         {
             using (var hookInternal = HookFactory.CreateHook<InternalFindAtom>(
                 LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalFindAtom"),
-                InternalFindAtom_Hook,
+                Detour_InternalFindAtom,
                 this))
             {
                 hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
@@ -222,7 +223,7 @@ namespace CoreHook.Tests.Windows
             }
         }
 
-        ushort InternalFindAtom_Hook(bool local, bool unicode, string atomName)
+        ushort Detour_InternalFindAtom(bool local, bool unicode, string atomName)
         {
             _internalFindAtomCalled = true;
             return InternalFindAtomFunction(local, unicode, atomName);
@@ -250,7 +251,7 @@ namespace CoreHook.Tests.Windows
         // than the string indicated by lpString2.
         private const int CSTR_GREATER_THAN = 3;
 
-        private ulong GetCurrentNlsCacheHook()
+        private ulong Detour_GetCurrentNlsCache()
         {
             _GetCurrentNlsCacheCalled = true;
 
@@ -258,13 +259,13 @@ namespace CoreHook.Tests.Windows
         }
 
         [Fact]
-        public void DetourInternalFunction2()
+        public void ShouldDetourInternalFunction2()
         {
             _GetCurrentNlsCacheCalled = false;
 
             using (var hook = LocalHook.Create(
                 LocalHook.GetProcAddress(Interop.Libraries.KernelBase, "GetCurrentNlsCache"),
-                new GetCurrentNlsCacheDelegate(GetCurrentNlsCacheHook),
+                new GetCurrentNlsCacheDelegate(Detour_GetCurrentNlsCache),
                 this))
             {
                 hook.ThreadACL.SetInclusiveACL(new int[] { 0 });

@@ -50,6 +50,9 @@
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetVersion.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetVersion.cs</Link>
+    </Compile>
+    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetTickCount64.cs">
+      <Link>Common\Interop\Windows\kernel32\Interop.GetTickCount64.cs</Link>
     </Compile>    
   </ItemGroup>   
 
