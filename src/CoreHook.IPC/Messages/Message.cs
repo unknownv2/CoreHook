@@ -1,17 +1,32 @@
 ﻿
 namespace CoreHook.IPC.Messages
 {
+    /// <summary>
+    /// A representation of data containing information to be communicated between a client and server.
+    /// </summary>
     public class Message : CustomMessage, IMessage
     {
+        /// <inheritdoc />
         public string Header { get; }
+        /// <inheritdoc />
         public string Body { get; }
 
+        /// <summary>
+        /// Initialize a new instance of the <see cref="Message"/> class.
+        /// </summary>
+        /// <param name="header">The message properties.</param>
+        /// <param name="body">The message data.</param>
         public Message(string header, string body)
         {
             Header = header;
             Body = body;
         }
 
+        /// <summary>
+        /// Parse a string message.
+        /// </summary>
+        /// <param name="message">The message data.</param>
+        /// <returns>A new instance of the message class.</returns>
         public static IMessage FromString(string message)
         {
             string header = null;
@@ -28,6 +43,7 @@ namespace CoreHook.IPC.Messages
             return new Message(header, body);
         }
 
+        /// <inheritdoc />
         public override string ToString()
         {
             string result = string.Empty;
@@ -42,6 +58,7 @@ namespace CoreHook.IPC.Messages
             return result;
         }
 
+        /// <inheritdoc />
         public override string ToMessage()
         {
             return ToString();
