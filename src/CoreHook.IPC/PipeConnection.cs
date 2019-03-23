@@ -4,6 +4,9 @@ using System.IO.Pipes;
 
 namespace CoreHook.IPC
 {
+    /// <summary>
+    /// A communication channel for pipes.
+    /// </summary>
     internal class PipeConnection : IConnection
     {
         /// <inheritdoc />
