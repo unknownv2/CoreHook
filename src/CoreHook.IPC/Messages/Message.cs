@@ -23,7 +23,7 @@ namespace CoreHook.IPC.Messages
         }
 
         /// <summary>
-        /// Create a new instance of a message class from it's string representation.
+        /// Parse a string message.
         /// </summary>
         /// <param name="message">The message data.</param>
         /// <returns>A new instance of the message class.</returns>

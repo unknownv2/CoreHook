@@ -1,32 +1,6 @@
 ﻿using System;
 namespace CoreHook.IPC.Messages
 {
-    /// <summary>
-    /// Defines the types of message information.
-    /// </summary>
-    public enum LogLevel
-    {
-        /// <summary>
-        /// Debug diagnostic message.
-        /// </summary>
-        Debug = 0,
-        /// <summary>
-        /// Release diagnostic message.
-        /// </summary>
-        Trace,
-        /// <summary>
-        /// General information message.
-        /// </summary>
-        Info,
-        /// <summary>
-        /// Warning message.
-        /// </summary>
-        Warning,
-        /// <summary>
-        /// Error message.
-        /// </summary>
-        Error
-    }
 
     /// <summary>
     /// A message containing application status information.
@@ -54,7 +28,7 @@ namespace CoreHook.IPC.Messages
         }
 
         /// <summary>
-        /// Parse a log message from it's string data.
+        /// Parse a log message.
         /// </summary>
         /// <param name="body">The message data.</param>
         /// <returns>A new instance of <see cref="LogMessage"/>.</returns>
