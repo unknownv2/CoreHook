@@ -25,7 +25,6 @@ namespace CoreHook.Uwp.FileMonitor.Pipe
                 {
                     pipeSecurity.AddAccessRule(new PipeAccessRule(identity.Owner, pipeAccess, accessControl));
                 }
-                pipeSecurity.AddAccessRule(new PipeAccessRule(identity.User, pipeAccess, accessControl));
             }
 
             pipeSecurity.AddAccessRule(
