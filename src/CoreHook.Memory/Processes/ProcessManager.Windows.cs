@@ -36,6 +36,7 @@ namespace CoreHook.Memory.Processes
         /// <param name="arguments">Serialized arguments for passing to the module function.</param>
         /// <param name="waitForThreadExit">We can wait for the thread to exit and then deallocate any memory
         /// we allocated or return immediately and deallocate the memory in a separate call.</param>
+        /// <returns>The address containing the allocated memory for the function arguments.</returns>
         public IntPtr CreateThread(string module, string function, byte[] arguments, bool waitForThreadExit = true)
         {
             return ExecuteFunction(module, function, arguments, waitForThreadExit);
