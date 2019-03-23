@@ -8,7 +8,9 @@ namespace CoreHook.IPC.NamedPipes
 {
     public class NamedPipeClient : INamedPipe
     {
+        /// <inheritdoc />
         public IConnection Connection { get; private set; }
+        /// <inheritdoc />
         public IMessageHandler MessageHandler { get; private set; }
 
         private NamedPipeClientStream _pipeStream;
@@ -29,6 +31,7 @@ namespace CoreHook.IPC.NamedPipes
             return client.Connect() ? client._pipeStream : null;
         }
 
+        /// <inheritdoc />
         public bool Connect()
         {
             if (_pipeStream != null)
@@ -63,6 +66,7 @@ namespace CoreHook.IPC.NamedPipes
             return true;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _connectionStopped = true;
