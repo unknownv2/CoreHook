@@ -6,6 +6,9 @@ using CoreHook.IPC.Handlers;
 
 namespace CoreHook.IPC.NamedPipes
 {
+    /// <summary>
+    /// Creates a pipe client for communication with a pipe server.
+    /// </summary>
     public class NamedPipeClient : INamedPipe
     {
         /// <inheritdoc />
@@ -19,12 +22,21 @@ namespace CoreHook.IPC.NamedPipes
 
         private readonly string _pipeName;
 
+        /// <summary>
+        /// Initialize a new instance of the <see cref="NamedPipeClient"/> class.
+        /// </summary>
+        /// <param name="pipeName">The name of the pipe server to connect to.</param>
         public NamedPipeClient(string pipeName)
         {
             _pipeName = pipeName;
             _connectionStopped = false;
         }
 
+        /// <summary>
+        /// Initialize a pipe connection to a pipe by name.
+        /// </summary>
+        /// <param name="pipeName">The name of the pipe to connect to.</param>
+        /// <returns>The stream communication channel for the pipe client.</returns>
         public static PipeStream CreatePipeStream(string pipeName)
         {
             var client = new NamedPipeClient(pipeName);

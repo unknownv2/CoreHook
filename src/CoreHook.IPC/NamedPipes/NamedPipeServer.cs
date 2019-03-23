@@ -9,9 +9,14 @@ using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes
 {
+    /// <summary>
+    /// Creates a pipe server and allows custom handling of messages from clients.
+    /// </summary>
     public class NamedPipeServer : INamedPipe
     {
+        /// <inheritdoc />
         public IConnection Connection { get; private set; }
+        /// <inheritdoc />
         public IMessageHandler MessageHandler { get; private set; }
 
         private const int MaxPipeNameLength = 250;
@@ -23,6 +28,12 @@ namespace CoreHook.IPC.NamedPipes
         private readonly IPipePlatform _platform;
         private NamedPipeServerStream _pipe;
 
+        /// <summary>
+        /// Initialize a new instance of the <see cref="NamedPipeServer"/> class.
+        /// </summary>
+        /// <param name="pipeName">The name of the pipe server.</param>
+        /// <param name="platform">Method for initializing a new pipe-based server.</param>
+        /// <param name="handleTransportConnection">Event handler called when receiving a new connection.</param>
         private NamedPipeServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleTransportConnection)
         {
             _pipeName = pipeName;
@@ -31,25 +42,43 @@ namespace CoreHook.IPC.NamedPipes
             _connectionStopped = false;
         }
 
+        /// <summary>
+        /// Initialize a new pipe server.
+        /// </summary>
+        /// <param name="pipeName">The name of the pipe server.</param>
+        /// <param name="platform">Method for initializing a new pipe-based server.</param>
+        /// <param name="handleRequest">Event handler called when receiving a new message from a client.</param>
+        /// <returns>An instance of the new pipe server.</returns>
         public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
         {
-            if (pipeName.Length > MaxPipeNameLength)
-            {
-                throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
-            }
-
-            var pipeServer = new NamedPipeServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
-            pipeServer.Connect();
-            return pipeServer;
+            return CreateNewServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
         }
 
+        /// <summary>
+        /// Initialize a new pipe server.
+        /// </summary>
+        /// <param name="pipeName">The name of the pipe server.</param>
+        /// <param name="platform">Method for initializing a new pipe-based server.</param>
+        /// <param name="handleRequest">Event handler called when receiving a new connection.</param>
+        /// <returns>An instance of the new pipe server.</returns>
         public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
+        {
+            return CreateNewServer(pipeName, platform, handleRequest);
+        }
+
+        /// <summary>
+        /// Initialize a new pipe server.
+        /// </summary>
+        /// <param name="pipeName">The name of the pipe server.</param>
+        /// <param name="platform">Method for initializing a new pipe-based server.</param>
+        /// <param name="handleRequest">Event handler called when receiving a new connection.</param>
+        /// <returns>An instance of the new pipe server.</returns>
+        private static NamedPipeServer CreateNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
         {
             if (pipeName.Length > MaxPipeNameLength)
             {
                 throw new PipeMessageLengthException(pipeName, MaxPipeNameLength);
             }
-
             var pipeServer = new NamedPipeServer(pipeName, platform, handleRequest);
             pipeServer.Connect();
             return pipeServer;
@@ -72,6 +101,7 @@ namespace CoreHook.IPC.NamedPipes
             }
         }
 
+        /// <inheritdoc />
         public bool Connect()
         {
             try
@@ -161,6 +191,7 @@ namespace CoreHook.IPC.NamedPipes
             Console.WriteLine(e);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _connectionStopped = true;
