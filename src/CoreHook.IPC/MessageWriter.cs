@@ -20,7 +20,7 @@ namespace CoreHook.IPC
         }
 
         /// <inheritdoc />
-        public bool TryWrite(IMessage message)
+        public bool TryWrite(IStringMessage message)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace CoreHook.IPC
         }
 
         /// <inheritdoc />
-        public void Write(IMessage message)
+        public void Write(IStringMessage message)
         {
             Write(message.ToString());
         }

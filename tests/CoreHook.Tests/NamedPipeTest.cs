@@ -113,7 +113,7 @@ namespace CoreHook.Tests
             return new NamedPipeClient(pipeName);
         }
 
-        private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IMessage, ITransportChannel> handleRequest)
+        private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IStringMessage, ITransportChannel> handleRequest)
         {
             return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
         }
@@ -132,7 +132,7 @@ namespace CoreHook.Tests
             return SendPipeMessage(messageHandler, StringMessage.FromString(message));
         }
 
-        private static bool SendPipeMessage(IMessageHandler messageHandler, IMessage message)
+        private static bool SendPipeMessage(IMessageHandler messageHandler, IStringMessage message)
         {
             return messageHandler.TryWrite(message);
         }
@@ -142,12 +142,12 @@ namespace CoreHook.Tests
             return messageHandler.Read().ToString();
         }
 
-        private static IMessage ReadMessage(IMessageHandler messageHandler)
+        private static IStringMessage ReadMessage(IMessageHandler messageHandler)
         {
             return messageHandler.Read();
         }
 
-        private static IMessage ReadMessage(INamedPipe pipeClient)
+        private static IStringMessage ReadMessage(INamedPipe pipeClient)
         {
             return ReadMessage(pipeClient.MessageHandler);
         }

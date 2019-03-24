@@ -12,11 +12,11 @@ namespace CoreHook.IPC
         /// </summary>
         /// <param name="message">The message to send.</param>
         /// <returns>True if the message was sent successfully.</returns>
-        bool TryWrite(IMessage message);
+        bool TryWrite(IStringMessage message);
         /// <summary>
         /// Send a message with no feedback on whether it was sent successfully.
         /// </summary>
         /// <param name="message">The message to send.</param>
-        void Write(IMessage message);
+        void Write(IStringMessage message);
     }
 }

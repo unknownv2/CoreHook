@@ -20,7 +20,7 @@ namespace CoreHook.IPC
         }
 
         /// <inheritdoc />
-        public IMessage Read()
+        public IStringMessage Read()
         {
             try
             {

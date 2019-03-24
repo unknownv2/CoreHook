@@ -4,7 +4,7 @@ namespace CoreHook.IPC.Messages
     /// <summary>
     /// A representation of data containing information to be communicated between a client and server.
     /// </summary>
-    public class StringMessage : CustomMessage, IMessage
+    public class StringMessage : CustomMessage, IStringMessage
     {
         /// <inheritdoc />
         public string Header { get; }
@@ -27,7 +27,7 @@ namespace CoreHook.IPC.Messages
         /// </summary>
         /// <param name="message">The message data.</param>
         /// <returns>A new instance of the message class.</returns>
-        public static IMessage FromString(string message)
+        public static IStringMessage FromString(string message)
         {
             string header = null;
             string body = null;

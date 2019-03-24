@@ -38,7 +38,7 @@ namespace CoreHook.IPC.Messages
         /// Serialize the current message data to message class.
         /// </summary>
         /// <returns></returns>
-        public IMessage CreateMessage()
+        public IStringMessage CreateMessage()
         {
             return new StringMessage(Message, RequestData.ToMessage());
         }
@@ -49,7 +49,7 @@ namespace CoreHook.IPC.Messages
         /// <param name="level">The log message type.</param>
         /// <param name="message">The message data.</param>
         /// <returns>A new instance of a class representing a log message.</returns>
-        public static IMessage CreateMessage(LogLevel level, string message)
+        public static IStringMessage CreateMessage(LogLevel level, string message)
         {
             return new LogMessageNotification(level, message).CreateMessage();
         }
@@ -59,7 +59,7 @@ namespace CoreHook.IPC.Messages
         /// </summary>
         /// <param name="message">The message data.</param>
         /// <returns>A new instance of a class representing a log message.</returns>
-        public static LogMessage ParseMessage(IMessage message)
+        public static LogMessage ParseMessage(IStringMessage message)
         {
             return LogMessage.FromBody(message.Body);
         }

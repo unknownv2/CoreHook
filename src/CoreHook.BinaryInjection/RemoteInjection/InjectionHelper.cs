@@ -33,7 +33,7 @@ namespace CoreHook.BinaryInjection.RemoteInjection
         /// </summary>
         /// <param name="message">The message to process.</param>
         /// <param name="channel">The server communication channel.</param>
-        private static void HandleMessage(IMessage message, ITransportChannel channel)
+        private static void HandleMessage(IStringMessage message, ITransportChannel channel)
         {
             switch (message.Header)
             {
