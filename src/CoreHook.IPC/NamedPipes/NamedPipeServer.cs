@@ -49,7 +49,7 @@ namespace CoreHook.IPC.NamedPipes
         /// <param name="platform">Method for initializing a new pipe-based server.</param>
         /// <param name="handleRequest">Event handler called when receiving a new message from a client.</param>
         /// <returns>An instance of the new pipe server.</returns>
-        public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IMessage, ITransportChannel> handleRequest)
+        public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IStringMessage, ITransportChannel> handleRequest)
         {
             return CreateNewServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
         }
@@ -84,7 +84,7 @@ namespace CoreHook.IPC.NamedPipes
             return pipeServer;
         }
 
-        private static void HandleTransportConnection(ITransportChannel channel, Action<IMessage, ITransportChannel> handleRequest)
+        private static void HandleTransportConnection(ITransportChannel channel, Action<IStringMessage, ITransportChannel> handleRequest)
         {
             var connection = channel.Connection;
 

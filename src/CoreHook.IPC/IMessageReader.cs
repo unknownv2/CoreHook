@@ -11,6 +11,6 @@ namespace CoreHook.IPC
         /// Read an incoming message.
         /// </summary>
         /// <returns>A message from a remote process.</returns>
-        IMessage Read();
+        IStringMessage Read();
     }
 }

@@ -22,12 +22,12 @@ namespace CoreHook.IPC.Handlers
         }
 
         /// <inheritdoc />
-        public IMessage Read() => _messageReader.Read();
+        public IStringMessage Read() => _messageReader.Read();
 
         /// <inheritdoc />
-        public bool TryWrite(IMessage message) => _messageWriter.TryWrite(message);
+        public bool TryWrite(IStringMessage message) => _messageWriter.TryWrite(message);
 
         /// <inheritdoc />
-        public void Write(IMessage message) => _messageWriter.Write(message);
+        public void Write(IStringMessage message) => _messageWriter.Write(message);
     }
 }

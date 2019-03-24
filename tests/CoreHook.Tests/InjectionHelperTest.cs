@@ -81,7 +81,7 @@ namespace CoreHook.Tests
             return new PipePlatformBase();
         }
 
-        private static bool SendPipeMessage(IMessageWriter writer, IMessage message)
+        private static bool SendPipeMessage(IMessageWriter writer, IStringMessage message)
         {
             return writer.TryWrite(message);
         }

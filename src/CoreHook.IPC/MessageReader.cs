@@ -20,11 +20,11 @@ namespace CoreHook.IPC
         }
 
         /// <inheritdoc />
-        public IMessage Read()
+        public IStringMessage Read()
         {
             try
             {
-                return Message.FromString(_reader.ReadLine());
+                return StringMessage.FromString(_reader.ReadLine());
             }
             catch (IOException)
             {
