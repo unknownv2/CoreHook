@@ -24,7 +24,7 @@ namespace CoreHook.IPC
         {
             try
             {
-                return Message.FromString(_reader.ReadLine());
+                return StringMessage.FromString(_reader.ReadLine());
             }
             catch (IOException)
             {

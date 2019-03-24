@@ -4,7 +4,7 @@ namespace CoreHook.IPC.Messages
     /// <summary>
     /// A representation of data containing information to be communicated between a client and server.
     /// </summary>
-    public class Message : CustomMessage, IMessage
+    public class StringMessage : CustomMessage, IMessage
     {
         /// <inheritdoc />
         public string Header { get; }
@@ -12,11 +12,11 @@ namespace CoreHook.IPC.Messages
         public string Body { get; }
 
         /// <summary>
-        /// Initialize a new instance of the <see cref="Message"/> class.
+        /// Initialize a new instance of the <see cref="StringMessage"/> class.
         /// </summary>
         /// <param name="header">The message properties.</param>
         /// <param name="body">The message data.</param>
-        public Message(string header, string body)
+        public StringMessage(string header, string body)
         {
             Header = header;
             Body = body;
@@ -40,7 +40,7 @@ namespace CoreHook.IPC.Messages
                     body = parts[1];
                 }
             }
-            return new Message(header, body);
+            return new StringMessage(header, body);
         }
 
         /// <inheritdoc />

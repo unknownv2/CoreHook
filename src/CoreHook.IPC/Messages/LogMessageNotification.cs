@@ -40,7 +40,7 @@ namespace CoreHook.IPC.Messages
         /// <returns></returns>
         public IMessage CreateMessage()
         {
-            return new Message(Message, RequestData.ToMessage());
+            return new StringMessage(Message, RequestData.ToMessage());
         }
 
         /// <summary>

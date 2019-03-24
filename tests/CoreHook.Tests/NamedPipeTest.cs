@@ -43,7 +43,7 @@ namespace CoreHook.Tests
                 (message, channel) =>
                 {
                     Assert.Equal(message.ToString(), testMessage);
-                    channel.MessageHandler.Write(Message.FromString(testMessage));
+                    channel.MessageHandler.Write(StringMessage.FromString(testMessage));
                 }))
             using (var pipeClient = CreateClient(namedPipe))
             {
@@ -122,14 +122,14 @@ namespace CoreHook.Tests
         {
             if (pipeClient.Connect())
             {
-                return pipeClient.MessageHandler.TryWrite(Message.FromString(message));
+                return pipeClient.MessageHandler.TryWrite(StringMessage.FromString(message));
             }
             return false;
         }
 
         private static bool SendPipeMessage(IMessageHandler messageHandler, string message)
         {
-            return SendPipeMessage(messageHandler, Message.FromString(message));
+            return SendPipeMessage(messageHandler, StringMessage.FromString(message));
         }
 
         private static bool SendPipeMessage(IMessageHandler messageHandler, IMessage message)
