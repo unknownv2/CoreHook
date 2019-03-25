@@ -11,15 +11,14 @@ namespace CoreHook
         /// <summary>
         /// Convert a function address to a callable delegate method.
         /// </summary>
-        /// <typeparam name="T">The delegate type to cast the function to.</typeparam>
+        /// <typeparam name="TDelegate">The delegate type to cast the function to.</typeparam>
         /// <param name="function">A function address.</param>
         /// <returns>The callable delegate method at <paramref name="function"/>.</returns>
-        public static T ToFunction<T>(this IntPtr function) where T : class
+        public static TDelegate ToFunction<TDelegate>(this IntPtr function) where TDelegate : class
         {
-            // Verify that T is a Delegate type.
-            System.Diagnostics.Debug.Assert(typeof(Delegate).IsAssignableFrom(typeof(T)));
+            System.Diagnostics.Debug.Assert(typeof(Delegate).IsAssignableFrom(typeof(TDelegate)));
 
-            return Marshal.GetDelegateForFunctionPointer<T>(function);
+            return Marshal.GetDelegateForFunctionPointer<TDelegate>(function);
         }
     }
 }
