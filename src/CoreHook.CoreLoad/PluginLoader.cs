@@ -30,13 +30,13 @@ namespace CoreHook.CoreLoad
             {
                 if (remoteParameters == IntPtr.Zero)
                 {
-                    throw new ArgumentOutOfRangeException(nameof(remoteParameters), 
+                    throw new ArgumentOutOfRangeException(nameof(remoteParameters),
                         "Remote arguments address was zero");
                 }
 
                 // Extract the plugin initialization information
                 // from the remote host loader arguments.
-                var remoteInfoFormatter = new UserDataBinaryFormatter();
+                IUserDataFormatter remoteInfoFormatter = CreateRemoteDataFormatter();
 
                 var pluginConfig =
                     PluginConfiguration<RemoteEntryInfo, ManagedRemoteInfo>.LoadData(
@@ -141,7 +141,7 @@ namespace CoreHook.CoreLoad
                 try
                 {
                     // Execute the plugin 'Run' entry point.
-                    runMethod.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
+                    runMethod?.Invoke(instance, BindingFlags.Public | BindingFlags.Instance | BindingFlags.ExactBinding |
                                                BindingFlags.InvokeMethod, null, paramArray, null);
                 }
                 catch
@@ -241,6 +241,15 @@ namespace CoreHook.CoreLoad
         private static IDependencyResolver CreateDependencyResolver(string assemblyPath)
         {
             return new DependencyResolver(assemblyPath);
+        }
+
+        /// <summary>
+        /// Create the remote user data deserialization class for reading arguments for the plugin.
+        /// </summary>
+        /// <returns>The deserialization class.</returns>
+        private static IUserDataFormatter CreateRemoteDataFormatter()
+        {
+            return new UserDataBinaryFormatter();
         }
 
         /// <summary>
