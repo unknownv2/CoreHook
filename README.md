@@ -8,7 +8,7 @@ A library that simplifies intercepting application function calls using managed 
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 
 
 ## Contents
-
+- [Donations](#donations)
 - [Build Status](#build-status)
 - [Features](#features)
 - [Supported Platforms](#supported-platforms)
@@ -22,7 +22,10 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [License](#license)
 - [Credits](#credits)
 
-## Build status
+# Donations
+If the project has helped you in any way and you want to give back, consider donating to great organizations such as [Black Girls Code](http://www.blackgirlscode.com/donations.html) and [Hack the Hood](https://www.hackthehood.org/donate.html), or volunteering at others like [The Hidden Genius Project](http://www.hiddengeniusproject.org/upcoming-volunteer-opportunities/).
+
+# Build status
 
 | Build server    | Platform           | Build status                                                                                                                                                                    |
 | --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
