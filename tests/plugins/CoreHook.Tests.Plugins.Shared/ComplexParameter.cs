@@ -1,11 +1,10 @@
 ﻿using System;
 
-namespace CoreHook.Tests.Plugins.Shared
+namespace CoreHook.Tests.Plugins.Shared;
+
+[Serializable]
+public class ComplexParameter
 {
-    [Serializable]
-    public class ComplexParameter
-    {
-        public string Message;
-        public int HostProcessId;
-    }
+    public string Message;
+    public int HostProcessId;
 }

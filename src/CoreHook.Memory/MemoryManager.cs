@@ -1,69 +1,97 @@
-﻿using System;
+﻿
+using System;
+using System.Buffers;
 using System.Collections.Generic;
+
 using System.Linq;
-using CoreHook.Memory.Processes;
 
-namespace CoreHook.Memory
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+
+namespace CoreHook.Memory;
+
+public class MemoryManager : IDisposable
 {
-    public class MemoryManager : IMemoryManager
+    private readonly List<MemoryAllocation> _memoryAllocations;
+
+    private readonly SafeHandle _process;
+
+    public IEnumerable<MemoryAllocation> Allocations => _memoryAllocations.AsReadOnly();
+
+    public MemoryManager(SafeHandle process)
     {
-        protected readonly List<IMemoryAllocation> MemoryAllocations;
-
-        private readonly IProcess _process;
-
-        public IEnumerable<IMemoryAllocation> Allocations => MemoryAllocations.AsReadOnly();
-
-          public MemoryManager(IProcess process)
-        {
-            _process = process ?? throw new ArgumentNullException(nameof(process));
-            MemoryAllocations = new List<IMemoryAllocation>();
-        }
-
-        public IMemoryAllocation Allocate(
-            int size,
-            uint protection,
-            bool mustBeDisposed = true)
-        {
-            var memory = new MemoryAllocation(_process, size, protection, mustBeDisposed);
-            MemoryAllocations.Add(memory);
-            return memory;
-        }
-
-        public void Deallocate(IMemoryAllocation allocation)
-        {
-            if (!allocation.IsFree)
-            {
-                allocation.Dispose();
-            }
-
-            if (MemoryAllocations.Contains(allocation))
-            {
-                MemoryAllocations.Remove(allocation);
-            }
-        }
-
-        public byte[] ReadMemory(long address)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void WriteMemory(long address, byte[] data)
-        {
-            MemoryHelper.WriteBytes(
-                _process.SafeHandle,
-                new IntPtr(address),
-                data);
-        }
-
-        public virtual void Dispose()
-        {
-            foreach(var memoryAllocation in MemoryAllocations.Where(m => m.MusBeDisposed).ToArray())
-            {
-                memoryAllocation.Dispose();
-            }
-            GC.SuppressFinalize(this);
-        }
-
-        ~MemoryManager() => Dispose();
+        _process = process ?? throw new ArgumentNullException(nameof(process));
+        _memoryAllocations = new List<MemoryAllocation>();
     }
+
+    public MemoryAllocation Allocate(int size, MemoryProtectionType protection, bool mustBeDisposed = true)
+    {
+        var memory = new MemoryAllocation(_process, size, protection, mustBeDisposed);
+        _memoryAllocations.Add(memory);
+        return memory;
+    }
+
+    public void Deallocate(MemoryAllocation allocation)
+    {
+        if (!allocation.IsFree)
+        {
+            allocation.Dispose();
+        }
+
+        if (_memoryAllocations.Contains(allocation))
+        {
+            _memoryAllocations.Remove(allocation);
+        }
+    }
+
+    public byte[] ReadMemory(long address)
+    {
+        throw new NotImplementedException();
+    }
+
+
+    public unsafe MemoryAllocation AllocateAndCopy<T>(T obj, bool mustBeDisposed = true)
+    {
+        int size;
+        byte[] bytes;
+
+        if (obj is string str)
+        {
+            bytes = Encoding.Unicode.GetBytes(str + "\0");
+            size = bytes.Length;
+        }
+        else
+        {
+            nint handle = IntPtr.Zero;
+            try
+            {
+                size = Marshal.SizeOf(obj);
+                handle = Marshal.AllocHGlobal(size);
+                Marshal.StructureToPtr(obj, handle, false);
+                bytes = new Span<byte>((void*)handle, size).ToArray();
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(handle);
+            }
+        }
+
+        var argumentsAllocation = Allocate(size, MemoryProtectionType.ReadWrite, mustBeDisposed);
+
+        argumentsAllocation.WriteBytes(bytes);
+
+        return argumentsAllocation;
+    }
+
+    public virtual void Dispose()
+    {
+        foreach (var memoryAllocation in _memoryAllocations.Where(m => m.MustBeDisposed).ToArray())
+        {
+            memoryAllocation.Dispose();
+        }
+        GC.SuppressFinalize(this);
+    }
+
+    ~MemoryManager() => Dispose();
 }

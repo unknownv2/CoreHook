@@ -2,21 +2,23 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <PublishDir>..\..\..\Publish\Win32</PublishDir>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <Nullable>Enable</Nullable>
+    <!--<SelfContained>true</SelfContained>-->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>$(OutputDir)</OutputPath>
+    <!--<OutputPath>$(OutputDir)</OutputPath>-->
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>$(OutputDir)</OutputPath>
+    <!--<OutputPath>$(OutputDir)</OutputPath>-->
     <Prefer32Bit>false</Prefer32Bit>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningsAsErrors />    
@@ -29,8 +31,23 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook.CoreLoad\CoreHook.CoreLoad.csproj" />
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook.Memory\CoreHook.Memory.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
     <ProjectReference Include="..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
+    <ProjectReference Include="..\CoreHook.FileMonitor.Hook\CoreHook.FileMonitor.Hook.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETCore.DotNetAppHost" Version="7.0.5">
+      <IncludeAssets>runtime;native</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <!--<ItemGroup Condition="'$(Platform)'=='x86'">
+    <PackageReference Include="Microsoft.NETCore.App.Host.win-x86" Version="7.0.5" GeneratePathProperty="True" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Platform)'=='x64'">
+    <PackageReference Include="Microsoft.NETCore.App.Host.win-x64" Version="7.0.5" GeneratePathProperty="True" />
+  </ItemGroup>-->
 </Project>

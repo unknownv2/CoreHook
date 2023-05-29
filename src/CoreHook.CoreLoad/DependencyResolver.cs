@@ -8,109 +8,108 @@ using System.Runtime.Loader;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.DependencyModel.Resolution;
 
-namespace CoreHook.CoreLoad
+namespace CoreHook.CoreLoad;
+
+/// <summary>
+/// Resolves assembly dependencies for the plugins during initialization,
+/// such as NuGet packages dependencies.
+/// </summary>
+internal sealed class DependencyResolver
 {
-    /// <summary>
-    /// Resolves assembly dependencies for the plugins during initialization,
-    /// such as NuGet packages dependencies.
-    /// </summary>
-    internal sealed class DependencyResolver : IDependencyResolver
+    private readonly ICompilationAssemblyResolver _assemblyResolver;
+    private readonly DependencyContext _dependencyContext;
+    private readonly AssemblyLoadContext _loadContext;
+
+    private const string CoreHookModuleName = "CoreHook";
+
+    public Assembly Assembly { get; }
+
+    public DependencyResolver(string path)
     {
-        private readonly ICompilationAssemblyResolver _assemblyResolver;
-        private readonly DependencyContext _dependencyContext;
-        private readonly AssemblyLoadContext _loadContext;
-
-        private const string CoreHookModuleName = "CoreHook";
-
-        public Assembly Assembly { get; }
-
-        public DependencyResolver(string path)
+        try
         {
-            try
+            Log($"Image base path is {Path.GetDirectoryName(path)}");
+
+            Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+            
+            _dependencyContext = DependencyContext.Load(Assembly);
+
+            _assemblyResolver = new CompositeCompilationAssemblyResolver
+                                    (new ICompilationAssemblyResolver[]
             {
-                Log($"Image base path is {Path.GetDirectoryName(path)}");
+                new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
+                new ReferenceAssemblyPathResolver(),
+                new CoreHook.CoreLoad.PackageCompilationAssemblyResolver()
+            });
 
-                Assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
-                
-                _dependencyContext = DependencyContext.Load(Assembly);
+            _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
 
-                _assemblyResolver = new CompositeCompilationAssemblyResolver
-                                        (new ICompilationAssemblyResolver[]
-                {
-                    new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
-                    new ReferenceAssemblyPathResolver(),
-                    new DependencyModel.Resolution.PackageCompilationAssemblyResolver()
-                });
+            _loadContext.Resolving += OnResolving;
+        }
+        catch (Exception e)
+        {
+            Log($"AssemblyResolver error: {e}");
+        }
+    }
 
-                _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
-
-                _loadContext.Resolving += OnResolving;
-            }
-            catch (Exception e)
+    private Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
+    {
+        bool NamesMatchOrContain(RuntimeLibrary runtime)
+        {
+            bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
+            // if not matched by exact name or not a default corehook module (which should be matched exactly)
+            if (!matched && !runtime.Name.Contains(CoreHookModuleName))
             {
-                Log($"AssemblyResolver error: {e}");
+                return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
             }
+            return matched;
         }
 
-        private Assembly OnResolving(AssemblyLoadContext context, AssemblyName name)
+        Log($"OnResolving: {name}");
+
+        try
         {
-            bool NamesMatchOrContain(RuntimeLibrary runtime)
+            RuntimeLibrary library = _dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatchOrContain);
+
+            if (library != null)
             {
-                bool matched = string.Equals(runtime.Name, name.Name, StringComparison.OrdinalIgnoreCase);
-                // if not matched by exact name or not a default corehook module (which should be matched exactly)
-                if (!matched && !runtime.Name.Contains(CoreHookModuleName))
+                var wrapper = new CompilationLibrary(
+                    library.Type,
+                    library.Name,
+                    library.Version,
+                    library.Hash,
+                    library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths),
+                    library.Dependencies,
+                    library.Serviceable);
+
+                var assemblies = new List<string>();
+                _assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
+
+                if (assemblies.Count > 0)
                 {
-                    return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
+                    Log($"Resolved {assemblies[0]}");
+                    return _loadContext.LoadFromAssemblyPath(assemblies[0]);
                 }
-                return matched;
-            }
-
-            Log($"OnResolving: {name}");
-
-            try
-            {
-                RuntimeLibrary library = _dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatchOrContain);
-
-                if (library != null)
+                else
                 {
-                    var wrapper = new CompilationLibrary(
-                        library.Type,
-                        library.Name,
-                        library.Version,
-                        library.Hash,
-                        library.RuntimeAssemblyGroups.SelectMany(g => g.AssetPaths),
-                        library.Dependencies,
-                        library.Serviceable);
-
-                    var assemblies = new List<string>();
-                    _assemblyResolver.TryResolveAssemblyPaths(wrapper, assemblies);
-
-                    if (assemblies.Count > 0)
-                    {
-                        Log($"Resolved {assemblies[0]}");
-                        return _loadContext.LoadFromAssemblyPath(assemblies[0]);
-                    }
-                    else
-                    {
-                        Log("Failed to resolve assembly");
-                    }
+                    Log("Failed to resolve assembly");
                 }
             }
-            catch (Exception e)
-            {
-                Log($"OnResolving error: {e}");
-            }
-            return null;
         }
-
-        public void Dispose()
+        catch (Exception e)
         {
-            _loadContext.Resolving -= OnResolving;
+            Log($"OnResolving error: {e}");
         }
+        return null;
+    }
 
-        private static void Log(string message)
-        {
-            Debug.WriteLine(message);
-        }
+    public void Dispose()
+    {
+        _loadContext.Resolving -= OnResolving;
+    }
+
+    private static void Log(string message)
+    {
+        Debug.WriteLine(message);
     }
 }

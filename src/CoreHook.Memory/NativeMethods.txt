@@ -1,0 +1,2 @@
+VirtualAllocEx
+VirtualFreeEx

@@ -1,21 +1,20 @@
 ﻿using System.IO.Pipes;
 using CoreHook.IPC.Platform;
 
-namespace CoreHook.FileMonitor
+namespace CoreHook.FileMonitor;
+
+public class PipePlatform : IPipePlatform
 {
-    public class PipePlatform : IPipePlatform
+    public NamedPipeServerStream CreatePipeByName(string pipeName, string serverName)
     {
-        public NamedPipeServerStream CreatePipeByName(string pipeName, string serverName)
-        {
-            return new NamedPipeServerStream(
-                 pipeName,
-                 PipeDirection.InOut,
-                 1,
-                 PipeTransmissionMode.Byte,
-                 PipeOptions.Asynchronous,
-                 65536,
-                 65536
-             );
-        }
+        return new NamedPipeServerStream(
+             pipeName,
+             PipeDirection.InOut,
+             1,
+             PipeTransmissionMode.Byte,
+             PipeOptions.Asynchronous,
+             65536,
+             65536
+         );
     }
 }

@@ -1,0 +1,8 @@
+{
+  "$schema": "https://aka.ms/CsWin32.schema.json",
+  "emitSingleFile": false,
+  "className": "NativeMethods",
+  "multiTargetingFriendlyAPIs": false,
+  "comInterop": { "useIntPtrForComOutPointers": true },
+  "public": false
+}

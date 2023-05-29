@@ -1,39 +1,52 @@
-﻿using CoreHook.Memory.Processes;
+﻿using System;
+using System.Runtime.InteropServices;
 
-namespace CoreHook.Memory
+using Windows.Win32.System.Memory;
+
+namespace CoreHook.Memory;
+
+public partial class MemoryAllocation : IDisposable
 {
-    public class MemoryAllocation : MemoryRegion, IMemoryAllocation
+    public IntPtr Address { get; private set; }
+    public int Size { get; init; }
+    public bool IsFree => IsDisposed;
+    public bool IsDisposed { get; private set; }
+    public bool MustBeDisposed { get; init; }
+
+    private readonly SafeHandle _processHandle;
+
+    private MemoryAllocation() { }
+
+    internal static MemoryAllocation Wrap(IntPtr address, int size)
     {
-        public int Size { get; set; }
-        public bool IsFree => IsDisposed;
-        public bool IsDisposed { get; private set; }
-        public bool MusBeDisposed { get; set; }
+        return new MemoryAllocation() { Address = address, MustBeDisposed = false, Size = size };
+    }
 
-        internal MemoryAllocation(IProcess process, int size,
-            uint protection, bool mustBeDisposed = true)
-            : base(process, MemoryHelper.Allocate(process.SafeHandle, size, protection))
+    internal MemoryAllocation(SafeHandle process, int size, MemoryProtectionType protection, bool mustBeDisposed = true)
+    {
+        _processHandle = process;
+
+        Address = Allocate(size, (PAGE_PROTECTION_FLAGS)(uint)protection);
+        Size = size;
+        MustBeDisposed = mustBeDisposed;
+        IsDisposed = false;
+    }
+
+    public void Dispose()
+    {
+        if (!IsDisposed)
         {
-            Size = size;
-
-            MusBeDisposed = mustBeDisposed;
-            IsDisposed = false;
+            IsDisposed = true;
+            Free();
+            Address = IntPtr.Zero;
         }
+    }
 
-        public void Dispose()
+    ~MemoryAllocation()
+    {
+        if (MustBeDisposed)
         {
-            if (!IsDisposed)
-            {
-                IsDisposed = true;
-                Release();
-            }
-        }
-
-        ~MemoryAllocation()
-        {
-            if (MusBeDisposed)
-            {
-                Dispose();
-            }
+            Dispose();
         }
     }
 }

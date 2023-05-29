@@ -1,23 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath> 
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>$(OutputDir)</OutputPath>
+    <!--<OutputPath>$(OutputDir)</OutputPath>-->
     <WarningsAsErrors />
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>$(OutputDir)</OutputPath>
+    <!--<OutputPath>$(OutputDir)</OutputPath>-->
     <WarningsAsErrors />
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs">
+    <!--<Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.IsWow64Process_SafeProcessHandle.cs</Link>
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\Interop.BOOL.cs">
@@ -25,20 +25,14 @@
     </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
       <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\advapi32\Interop.ProcessOptions.cs">
-      <Link>Common\Interop\Windows\advapi32\Interop.ProcessOptions.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CloseHandle.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.CloseHandle.cs</Link>
-    </Compile>
+    </Compile>    
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.CreateRemoteThread.cs</Link>
-    </Compile>
+    </Compile>-->
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateProcess.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.CreateProcess.cs</Link>
     </Compile>    
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs">
+    <!--<Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.GetModuleFileNameEx.cs</Link>
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.GetModuleInformation.cs">
@@ -61,12 +55,17 @@
     </Compile>
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WaitForSingleObject.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.WaitForSingleObject.cs</Link>
-    </Compile>
+    </Compile>-->
     <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs">
       <Link>Common\Interop\Windows\kernel32\Interop.WriteProcessMemory.cs</Link>
     </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs">
+    <!--<Compile Include="$(CommonPath)\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs">
       <Link>Common\Interop\Windows\psapi\Interop.EnumProcessModulesEx.cs</Link>
-    </Compile>
+    </Compile>-->
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.229-beta">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

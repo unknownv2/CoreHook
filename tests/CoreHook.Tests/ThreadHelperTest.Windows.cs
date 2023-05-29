@@ -1,33 +1,29 @@
-﻿using System;
+﻿using CoreHook.BinaryInjection.RemoteInjection;
+
+using System;
 using System.Diagnostics;
 using System.IO;
+
 using Xunit;
-using CoreHook.Memory;
-using CoreHook.Memory.Processes;
 
-namespace CoreHook.Tests
+namespace CoreHook.Tests;
+
+public partial class ThreadHelperTest
 {
-    public partial class ThreadHelperTest
+    [Fact]
+    public void ShouldGetFunctionAddressForCurrentProcess()
     {
-        [Fact]
-        public void ShouldGetFunctionAddressForCurrentProcess()
-        {
-            IntPtr functionAddress = IntPtr.Zero;
-            string moduleFileName = Path.Combine(
-                    Environment.ExpandEnvironmentVariables("%Windir%"),
-                    "System32",
-                    "kernel32.dll");
-            const string functionName = "LoadLibraryW";
+        IntPtr functionAddress = IntPtr.Zero;
+        string moduleFileName = Path.Combine(
+                Environment.ExpandEnvironmentVariables("%Windir%"),
+                "System32",
+                "kernel32.dll");
+        const string functionName = "LoadLibraryW";
 
-            using (var processHandle = new ManagedProcess(Process.GetCurrentProcess()).SafeHandle)
-            {
-                functionAddress = ThreadHelper.GetProcAddress(
-                                 processHandle,
-                                 moduleFileName,
-                                 functionName);
-            }
+        using var process = new ManagedProcess(Process.GetCurrentProcess());
 
-            Assert.NotEqual(IntPtr.Zero, functionAddress);
-        }
+        functionAddress = process.GetProcAddress(moduleFileName, functionName);
+
+        Assert.NotEqual(IntPtr.Zero, functionAddress);
     }
 }

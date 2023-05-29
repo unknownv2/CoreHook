@@ -6,9 +6,9 @@ internal partial class Interop
 {
     internal partial class Kernel32
     {
-        [DllImport(Libraries.Kernel32, CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "WriteProcessMemory")]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true, EntryPoint = "WriteProcessMemory")]
         internal static extern bool WriteProcessMemory(
-            SafeProcessHandle processHandle,
+            SafeHandle processHandle,
             IntPtr baseAddress, 
             byte[] buffer, 
             int size,

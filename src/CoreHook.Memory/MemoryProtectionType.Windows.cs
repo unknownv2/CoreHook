@@ -1,18 +1,18 @@
-﻿
-namespace CoreHook.Memory
+﻿using Windows.Win32.System.Memory;
+
+namespace CoreHook.Memory;
+
+public enum MemoryProtectionType : uint
 {
-    public sealed partial class MemoryProtectionType
-    {
-        public const uint Execute = Interop.Kernel32.MemoryProtection.Execute;
-        public const uint ExecuteRead = Interop.Kernel32.MemoryProtection.ExecuteRead;
-        public const uint ExecuteReadWrite = Interop.Kernel32.MemoryProtection.ExecuteReadWrite;
-        public const uint ExecuteWriteCopy = Interop.Kernel32.MemoryProtection.ExecuteWriteCopy;
-        public const uint NoAccess = Interop.Kernel32.MemoryProtection.NoAccess;
-        public const uint ReadOnly = Interop.Kernel32.MemoryProtection.ReadOnly;
-        public const uint ReadWrite = Interop.Kernel32.MemoryProtection.ReadWrite;
-        public const uint WriteCopy = Interop.Kernel32.MemoryProtection.WriteCopy;
-        public const uint GuardModifierflag = Interop.Kernel32.MemoryProtection.GuardModifierflag;
-        public const uint NoCacheModifierflag = Interop.Kernel32.MemoryProtection.NoCacheModifierflag;
-        public const uint WriteCombineModifierflag = Interop.Kernel32.MemoryProtection.WriteCombineModifierflag;
-    }
+    Execute = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE,
+    ExecuteRead = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE_READ,
+    ExecuteReadWrite = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE_READWRITE,
+    ExecuteWriteCopy = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE_WRITECOPY,
+    NoAccess = PAGE_PROTECTION_FLAGS.PAGE_NOACCESS,
+    ReadOnly = PAGE_PROTECTION_FLAGS.PAGE_READONLY,
+    ReadWrite = PAGE_PROTECTION_FLAGS.PAGE_READWRITE,
+    WriteCopy = PAGE_PROTECTION_FLAGS.PAGE_WRITECOPY,
+    GuardModifierflag = PAGE_PROTECTION_FLAGS.PAGE_GUARD,
+    NoCacheModifierflag = PAGE_PROTECTION_FLAGS.PAGE_NOCACHE,
+    WriteCombineModifierflag = PAGE_PROTECTION_FLAGS.PAGE_WRITECOMBINE
 }

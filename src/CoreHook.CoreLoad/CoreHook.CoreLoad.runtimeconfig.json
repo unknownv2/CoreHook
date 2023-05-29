@@ -1,0 +1,15 @@
+{
+  "runtimeOptions": {
+    "tfm": "net7.0",
+    "includedFrameworks": [
+      {
+        "name": "Microsoft.NETCore.App",
+        "version": "7.0.4"
+      }
+    ],
+    "additionalProbingPaths": [
+      "C:\\Users\\jsali\\.nuget\\packages",
+      "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+    ]
+  }
+}

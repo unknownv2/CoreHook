@@ -1,14 +1,14 @@
 <Project>
 
   <PropertyGroup Condition="'$(Configuration)' != ''">
-    <ConfigurationGroup Condition="$(Configuration.EndsWith('Debug'))">Debug</ConfigurationGroup>
-    <ConfigurationGroup Condition="$(Configuration.EndsWith('Release'))">Release</ConfigurationGroup>
+    <!--<ConfigurationGroup Condition="$(Configuration.EndsWith('Debug'))">Debug</ConfigurationGroup>
+    <ConfigurationGroup Condition="$(Configuration.EndsWith('Release'))">Release</ConfigurationGroup>-->
     <ProjectDir>$(MSBuildThisFileDirectory)</ProjectDir>
     <SourceDir>$(ProjectDir)src\</SourceDir>
     <CommonPath>$(SourceDir)Common\src</CommonPath>
     <BinDir Condition="'$(BinDir)'==''">$(ProjectDir)Build/bin/</BinDir>
-    <DefaultTargetFramework>netcoreapp2.2</DefaultTargetFramework>
-    <OutputDir>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/</OutputDir>
+    <DefaultTargetFramework>net7.0</DefaultTargetFramework>
+    <!--<OutputDir>$(BinDir)$(Configuration)/$(DefaultTargetFramework)/$(Platform)/</OutputDir>-->
   </PropertyGroup>
 
 </Project>

@@ -8,82 +8,81 @@ using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC;
 using CoreHook.IPC.Platform;
 
-namespace CoreHook.Tests
+namespace CoreHook.Tests;
+
+public class InjectionHelperTest
 {
-    public class InjectionHelperTest
+    private readonly int _targetProcessId = Environment.ProcessId;
+
+    [Fact]
+    public void InjectionHelperCompleted()
     {
-        private readonly int _targetProcessId = Process.GetCurrentProcess().Id;
+        var injectionComplete = false;
+        var InjectionHelperPipeName = "InjectionHelperPipeTest";
 
-        [Fact]
-        public void InjectionHelperCompleted()
+        InjectionHelper.BeginInjection(_targetProcessId);
+        using (InjectionHelper.CreateServer(InjectionHelperPipeName, GetPipePlatform()))
         {
-            var injectionComplete = false;
-            var InjectionHelperPipeName = "InjectionHelperPipeTest";
-
-            InjectionHelper.BeginInjection(_targetProcessId);
-            using (InjectionHelper.CreateServer(InjectionHelperPipeName, GetPipePlatform()))
+            try
             {
-                try
-                {
-                    Task.Run(() => SendInjectionComplete(InjectionHelperPipeName, _targetProcessId));
+                Task.Run(() => SendInjectionComplete(InjectionHelperPipeName, _targetProcessId));
 
-                    InjectionHelper.WaitForInjection(_targetProcessId);
-                }
-                finally
-                {
-                    InjectionHelper.InjectionCompleted(_targetProcessId);
-
-                    injectionComplete = true;
-                }
+                InjectionHelper.WaitForInjection(_targetProcessId);
             }
-            Assert.True(injectionComplete);
-        }
-
-        [Fact]
-        public void InjectionHelperDidNotComplete()
-        {
-            var InjectionHelperPipeName = "InjectionHelperFailedPipeTest";
-
-            InjectionHelper.BeginInjection(_targetProcessId);
-            using (InjectionHelper.CreateServer(InjectionHelperPipeName, GetPipePlatform()))
+            finally
             {
-                try
-                {
-                    Assert.Throws<TimeoutException>(() => InjectionHelper.WaitForInjection(_targetProcessId, 500));
-                }
-                finally
-                {
-                    InjectionHelper.InjectionCompleted(_targetProcessId);
-                }
+                InjectionHelper.InjectionCompleted(_targetProcessId);
+
+                injectionComplete = true;
             }
         }
+        Assert.True(injectionComplete);
+    }
 
-        private static bool SendInjectionComplete(string pipeName, int pid)
+    [Fact]
+    public void InjectionHelperDidNotComplete()
+    {
+        var InjectionHelperPipeName = "InjectionHelperFailedPipeTest";
+
+        InjectionHelper.BeginInjection(_targetProcessId);
+        using (InjectionHelper.CreateServer(InjectionHelperPipeName, GetPipePlatform()))
         {
-            using (var pipeClient = CreateClient(pipeName))
+            try
             {
-                if (pipeClient.Connect())
-                {
-                    return SendPipeMessage(pipeClient.MessageHandler,
-                        InjectionCompleteNotification.CreateMessage(pid, true));
-                }
+                Assert.Throws<TimeoutException>(() => InjectionHelper.WaitForInjection(_targetProcessId, 500));
             }
-            return false;
+            finally
+            {
+                InjectionHelper.InjectionCompleted(_targetProcessId);
+            }
         }
+    }
 
-        private static INamedPipe CreateClient(string pipeName)
+    private static bool SendInjectionComplete(string pipeName, int pid)
+    {
+        using (var pipeClient = CreateClient(pipeName))
         {
-            return new NamedPipeClient(pipeName);
+            if (pipeClient.Connect())
+            {
+                return SendPipeMessage(pipeClient.MessageHandler,
+                    InjectionCompleteNotification.CreateMessage(pid, true));
+            }
         }
+        return false;
+    }
 
-        private static IPipePlatform GetPipePlatform()
-        {
-            return new PipePlatformBase();
-        }
+    private static INamedPipe CreateClient(string pipeName)
+    {
+        return new NamedPipeClient(pipeName);
+    }
 
-        private static bool SendPipeMessage(IMessageWriter writer, IStringMessage message)
-        {
-            return writer.TryWrite(message);
-        }
+    private static IPipePlatform GetPipePlatform()
+    {
+        return new PipePlatformBase();
+    }
+
+    private static bool SendPipeMessage(IMessageWriter writer, IStringMessage message)
+    {
+        return writer.TryWrite(message);
     }
 }

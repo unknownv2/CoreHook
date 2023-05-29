@@ -1,0 +1,16 @@
+OpenProcess
+
+GetModuleFileNameEx
+GetModuleInformation
+
+GetModuleInformation
+CreateRemoteThread
+ReadProcessMemory
+
+WaitForSingleObject
+
+EnumProcessModulesEx
+
+IsWow64Process
+
+GetProcAddress

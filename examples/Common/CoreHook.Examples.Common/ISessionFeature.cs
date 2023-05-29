@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 
-namespace CoreHook.Examples.Common
+namespace CoreHook.Examples.Common;
+
+public interface ISessionFeature
 {
-    public interface ISessionFeature
-    {
-        CancellationToken CancellationToken { get; }
-        void StopServer();
-    }
+    CancellationToken CancellationToken { get; }
+    void StopServer();
 }

@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace CoreHook.Tests.TargetApp
+namespace CoreHook.Tests.TargetApp;
+
+class Program
 {
-    class Program
+    static void Main(string[] args)
     {
-        static void Main(string[] args)
+        string command = string.Empty;
+        while ((command = Console.ReadLine()) != null)
         {
-            string command = string.Empty;
-            while ((command = Console.ReadLine()) != null)
+            switch (command)
             {
-                switch (command)
-                {
-                    default:
-                        break;
-                }
+                default:
+                    break;
             }
         }
     }

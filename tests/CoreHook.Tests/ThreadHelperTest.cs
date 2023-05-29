@@ -1,18 +1,18 @@
-﻿using System.Diagnostics;
-using Xunit;
-using CoreHook.Memory.Processes;
+﻿using CoreHook.BinaryInjection.RemoteInjection;
 
-namespace CoreHook.Tests
+using System.Diagnostics;
+using Xunit;
+
+namespace CoreHook.Tests;
+
+public partial class ThreadHelperTest
 {
-    public partial class ThreadHelperTest
+    [Fact]
+    public void ShouldOpenProcessHandleForCurrentProcess()
     {
-        [Fact]
-        public void ShouldOpenProcessHandleForCurrentProcess()
+        using (var processHandle = new ManagedProcess(Process.GetCurrentProcess()).SafeHandle)
         {
-            using (var processHandle = new ManagedProcess(Process.GetCurrentProcess()).SafeHandle)
-            {
-                Assert.NotEqual(true, processHandle.IsInvalid);
-            }
+            Assert.NotEqual(true, processHandle.IsInvalid);
         }
     }
 }

@@ -1,35 +1,34 @@
 ﻿using System.IO;
 using CoreHook.IPC.Messages;
 
-namespace CoreHook.IPC
+namespace CoreHook.IPC;
+
+/// <summary>
+/// Reads messages from a user-defined communication protocol.
+/// </summary>
+public class MessageReader : IMessageReader
 {
+    private readonly StreamReader _reader;
+
     /// <summary>
-    /// Reads messages from a user-defined communication protocol.
+    /// Initializes a new instance of the <see cref="MessageReader"/> class.
     /// </summary>
-    public class MessageReader : IMessageReader
+    /// <param name="connection">The communication provider which messages are from.</param>
+    public MessageReader(IConnection connection)
     {
-        private readonly StreamReader _reader;
+        _reader = new StreamReader(connection.Stream);
+    }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MessageReader"/> class.
-        /// </summary>
-        /// <param name="connection">The communication provider which messages are from.</param>
-        public MessageReader(IConnection connection)
+    /// <inheritdoc />
+    public IStringMessage Read()
+    {
+        try
         {
-            _reader = new StreamReader(connection.Stream);
+            return StringMessage.FromString(_reader.ReadLine());
         }
-
-        /// <inheritdoc />
-        public IStringMessage Read()
+        catch (IOException)
         {
-            try
-            {
-                return StringMessage.FromString(_reader.ReadLine());
-            }
-            catch (IOException)
-            {
-                return null;
-            }
+            return null;
         }
     }
 }
