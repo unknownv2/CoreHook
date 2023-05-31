@@ -6,6 +6,7 @@ GetModuleInformation
 GetModuleInformation
 CreateRemoteThread
 ReadProcessMemory
+WriteProcessMemory
 
 WaitForSingleObject
 
@@ -14,3 +15,6 @@ EnumProcessModulesEx
 IsWow64Process
 
 GetProcAddress
+
+VirtualAllocEx
+VirtualFreeEx

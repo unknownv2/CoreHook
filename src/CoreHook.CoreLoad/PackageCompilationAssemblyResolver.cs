@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.DependencyModel.Resolution;
+
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using Microsoft.DotNet.PlatformAbstractions;
-using Microsoft.Extensions.DependencyModel.Resolution;
-using Microsoft.Extensions.DependencyModel;
+using System.Runtime.InteropServices;
 
 namespace CoreHook.CoreLoad;
 
@@ -17,9 +17,7 @@ internal class PackageCompilationAssemblyResolver : ICompilationAssemblyResolver
         _nugetPackageDirectories = nugetPackageDirectories;
     }
 
-    private static string[] GetDefaultProbeDirectories() => GetDefaultProbeDirectories(RuntimeEnvironment.OperatingSystemPlatform);
-
-    internal static string[] GetDefaultProbeDirectories(Platform osPlatform)
+    private static string[] GetDefaultProbeDirectories()
     {
 #if !NETSTANDARD1_3            
 #if NETSTANDARD1_6
@@ -44,7 +42,7 @@ internal class PackageCompilationAssemblyResolver : ICompilationAssemblyResolver
         }
 
         string basePath;
-        if (osPlatform == Platform.Windows)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             basePath = Environment.GetEnvironmentVariable("USERPROFILE");
         }
@@ -64,7 +62,7 @@ internal class PackageCompilationAssemblyResolver : ICompilationAssemblyResolver
 
     public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string> assemblies)
     {
-        if (_nugetPackageDirectories == null || _nugetPackageDirectories.Length == 0 ||
+        if (_nugetPackageDirectories is null || _nugetPackageDirectories.Length == 0 ||
             !string.Equals(library.Type, "package", StringComparison.OrdinalIgnoreCase))
         {
             return false;

@@ -1,4 +1,6 @@
 ﻿using System;
+
+using CoreHook.EntryPoint;
 using CoreHook.Tests.Plugins.Shared;
 
 namespace CoreHook.Tests.ComplexParameterTest;

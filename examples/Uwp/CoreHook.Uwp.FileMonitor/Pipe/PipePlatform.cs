@@ -27,9 +27,7 @@ public class PipePlatform : IPipePlatform
             }
         }
 
-        pipeSecurity.AddAccessRule(
-            new PipeAccessRule(
-                new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), pipeAccess, accessControl));
+        pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), pipeAccess, accessControl));
 
         pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), pipeAccess, accessControl));
         pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier("S-1-15-2-1"), pipeAccess, accessControl));

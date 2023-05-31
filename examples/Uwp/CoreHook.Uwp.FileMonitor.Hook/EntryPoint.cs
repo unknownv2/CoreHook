@@ -10,6 +10,8 @@ using JsonRpc.DynamicProxy.Client;
 using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
+using CoreHook.EntryPoint;
+using CoreHook.HookDefinition;
 
 namespace CoreHook.Uwp.FileMonitor.Hook;
 
@@ -30,9 +32,9 @@ public class EntryPoint : IEntryPoint
     // The number of arguments in the constructor and Run method
     // must be equal to the number passed during injection
     // in the FileMonitor application.
-    public EntryPoint(IContext context, string arg1) { }
+    public EntryPoint(string _) { }
 
-    public void Run(IContext context, string pipeName)
+    public void Run(string pipeName)
     {
         try
         {
@@ -54,41 +56,21 @@ public class EntryPoint : IEntryPoint
         clientTask.GetAwaiter().GetResult();
     }
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall,
-        CharSet = CharSet.Unicode,
-        SetLastError = true)]
-    delegate IntPtr DelCreateFile2(
-        string fileName,
-        uint desiredAccess,
-        uint shareMode,
-        uint creationDisposition,
-        IntPtr pCreateExParams);
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    delegate IntPtr DelCreateFile2(string fileName, uint desiredAccess, uint shareMode, uint creationDisposition, IntPtr pCreateExParams);
 
-    [DllImport("kernelbase.dll",
-    CharSet = CharSet.Unicode,
-    SetLastError = true,
-    CallingConvention = CallingConvention.StdCall)]
-    static extern IntPtr CreateFile2(
-        string fileName,
-        uint desiredAccess,
-        uint shareMode,
-        uint creationDisposition,
-        IntPtr pCreateExParams);
+    [DllImport("kernelbase.dll", CharSet = CharSet.Unicode, SetLastError = true, CallingConvention = CallingConvention.StdCall)]
+    static extern IntPtr CreateFile2(string fileName, uint desiredAccess, uint shareMode, uint creationDisposition, IntPtr pCreateExParams);
 
     // this is where we are intercepting all file accesses!
-    private static IntPtr CreateFile2_Hooked(
-       string fileName,
-       uint desiredAccess,
-       uint shareMode,
-       uint creationDisposition,
-       IntPtr pCreateExParams)
+    private static IntPtr CreateFile2_Hooked(string fileName, uint desiredAccess, uint shareMode, uint creationDisposition, IntPtr pCreateExParams)
     { 
         ClientWriteLine($"Creating file: '{fileName}'...");
 
         try
         {
             EntryPoint This = (EntryPoint)HookRuntimeInfo.Callback;
-            if (This != null)
+            if (This is not null)
             {
                 lock (This._queue)
                 {
@@ -102,12 +84,7 @@ public class EntryPoint : IEntryPoint
         }
 
         // call original API...
-        return CreateFile2(
-            fileName,
-            desiredAccess,
-            shareMode,
-            creationDisposition,
-            pCreateExParams);
+        return CreateFile2(fileName, desiredAccess, shareMode, creationDisposition, pCreateExParams);
     }
 
     private void CreateHooks()
@@ -115,10 +92,7 @@ public class EntryPoint : IEntryPoint
         string[] functionName = { "kernelbase.dll", "CreateFile2" };
         ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
-        _createFileHook = LocalHook.Create(
-            LocalHook.GetProcAddress(functionName[0], functionName[1]),
-            new DelCreateFile2(CreateFile2_Hooked),
-            this);
+        _createFileHook = LocalHook.Create(LocalHook.GetProcAddress(functionName[0], functionName[1]), new DelCreateFile2(CreateFile2_Hooked), this);
 
         _createFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
     }

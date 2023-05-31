@@ -1,5 +1,8 @@
 ﻿
 
+using CoreHook.BinaryInjection;
+using CoreHook.Helpers;
+
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -19,17 +22,13 @@ internal static class Resources
     {
         get
         {
-            if (_testProcess64 == null)
+            if (_testProcess64 is null)
             {
                 _testProcess64 = new Process
                 {
                     StartInfo =
                     {
-                        FileName = Path.Combine(
-                            Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "System32",
-                            "notepad.exe"
-                        ),
+                        FileName = Path.Combine(Environment.ExpandEnvironmentVariables("%Windir%"), "System32", "notepad.exe" ),
                         UseShellExecute = false,
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true
@@ -45,17 +44,13 @@ internal static class Resources
     {
         get
         {
-            if (_testProcess32 == null)
+            if (_testProcess32 is null)
             {
                 _testProcess32 = new Process
                 {
                     StartInfo =
                     {
-                        FileName = Path.Combine(
-                            Environment.ExpandEnvironmentVariables("%Windir%"),
-                            "SysWOW64",
-                            "notepad.exe"
-                        ),
+                        FileName = Path.Combine(Environment.ExpandEnvironmentVariables("%Windir%"), "SysWOW64", "notepad.exe" ),
                         UseShellExecute = false,
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true
@@ -90,18 +85,14 @@ internal static class Resources
     {
         get
         {
-            if (_targetApp == null)
+            if (_targetApp is null)
             {
                 _targetApp = new Process
                 {
                     StartInfo =
                     {
                         FileName = "dotnet",
-                        Arguments = Path.Combine(
-                            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-                            TestModuleDir,
-                            TargetAppName
-                        ),
+                        Arguments = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), TestModuleDir, TargetAppName ),
                         UseShellExecute = false,
                         RedirectStandardInput = true,
                         RedirectStandardOutput = true
@@ -150,34 +141,15 @@ internal static class Resources
 
     internal static string GetTestDllPath(string dllName)
     {
-        return Path.Combine(
-            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
-            TestModuleDir,
-            dllName
-            );
+        return Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), TestModuleDir, dllName);
     }
 
-    internal static void InjectDllIntoTarget(
-        Process target,
-        string injectionLibrary,
-        string injectionPipeName,
-        params object[] remoteArguments
-        )
+    internal static void InjectDllIntoTarget(Process target, string injectionLibrary, string injectionPipeName, params object[] remoteArguments)
     {
-        //(string coreRootPath, string coreRunPath, string corehookPath, string _) = Examples.Common.ModulesPathHelper.GetCoreLoadPaths(false);
+        var (coreRootPath, coreLoadLibrary, _, _, _) = ModulesPathHelper.GetCoreLoadPaths(false);
 
-        //TODO: InternalsVisibleTo
-        //var (_, coreLoadLibrary, _, _, _) = CoreHook.ModulesPathHelper.GetCoreLoadPaths(false);
-
-        //using var injector = new RemoteInjector(target.Id);
-        //injector.Inject(
-        //    new RemoteInjectorConfiguration()
-        //    {
-        //        InjectionPipeName = injectionPipeName,
-        //        PayloadLibrary = injectionLibrary,
-        //        NetHostStartArguments = new(coreLoadLibrary, null, false)
-        //    },
-        //    remoteArguments);
+        using var injector = new RemoteInjector(target.Id, null, injectionPipeName);
+        injector.Inject(injectionLibrary, "", new CoreHook.Managed.NetHostStartArguments(coreLoadLibrary, coreRootPath, false));
 
     }
 

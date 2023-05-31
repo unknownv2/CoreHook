@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CoreHook.EntryPoint;
+
+using System;
 
 namespace CoreHook.Tests.SimpleParameterTest;
 

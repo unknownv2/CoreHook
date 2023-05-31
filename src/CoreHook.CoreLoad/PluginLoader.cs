@@ -1,4 +1,5 @@
-﻿using CoreHook.IPC.Messages;
+﻿using CoreHook.EntryPoint;
+using CoreHook.IPC.Messages;
 
 using System;
 using System.Diagnostics;
@@ -17,7 +18,7 @@ public class PluginLoader
     /// <summary>
     /// The interface implemented by each plugin that we initialize.
     /// </summary>
-    private const string EntryPointInterface = "CoreHook.IEntryPoint";
+    private static string EntryPointInterface = typeof(IEntryPoint).FullName!;
 
     /// <summary>
     /// The name of the first method called in each plugin after initializing the class.
@@ -39,10 +40,7 @@ public class PluginLoader
                 throw new ArgumentOutOfRangeException(nameof(payLoadPtr), "Remote arguments address was zero");
             }
 
-
             var payLoadStr = Marshal.PtrToStringUni(payLoadPtr);
-            
-            Thread.Sleep(10000);
             
             var payLoad = JsonSerializer.Deserialize<ManagedRemoteInfo>(payLoadStr, new JsonSerializerOptions() { IncludeFields = true });
 
@@ -52,7 +50,6 @@ public class PluginLoader
             var hostNotifier = new NotificationHelper(payLoad.ChannelName);
 
             hostNotifier.Log($"Initializing plugin: {payLoad.UserLibrary}.");
-
 
             //TODO: deps.json file is not copied to output! fix this
             var resolver = new DependencyResolver(payLoad.UserLibrary);

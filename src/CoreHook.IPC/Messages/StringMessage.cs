@@ -51,7 +51,7 @@ public class StringMessage : CustomMessage, IStringMessage
         {
             result = Header;
         }
-        if (Body != null)
+        if (Body is not null)
         {
             result = result + MessageSeparator + Body;
         }

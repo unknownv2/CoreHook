@@ -1,0 +1,11 @@
+Beep
+GetTickCount64
+
+FindAtom
+AddAtom
+GetAtomName
+DeleteAtom
+
+GetVersion
+
+CompareString

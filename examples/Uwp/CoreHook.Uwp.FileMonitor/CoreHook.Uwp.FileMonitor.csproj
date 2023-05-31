@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <PublishDir>..\..\..\Publish\UWP</PublishDir>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -21,9 +21,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="4.5.0" />
-    <PackageReference Include="System.IO.Pipes.AccessControl" Version="4.5.1" />
-    <PackageReference Include="System.Security.AccessControl" Version="4.5.0" />
+    <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
+    <PackageReference Include="System.IO.Pipes.AccessControl" Version="5.0.0" />
+    <PackageReference Include="System.Security.AccessControl" Version="6.0.0" />
     <PackageReference Include="System.Security.Principal" Version="4.3.0" />
   </ItemGroup>
 
@@ -34,30 +34,4 @@
     <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="$(CommonPath)\Interop\Windows\Interop.Libraries.cs">
-      <Link>Common\Interop\Windows\Interop.Libraries.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\Interop.BOOL.cs">
-      <Link>Common\Interop\Windows\Interop.BOOL.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\Interop.Errors.cs">
-      <Link>Common\Interop\Windows\Interop.Errors.cs</Link>
-    </Compile> 
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.CreateNamedPipe.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.CreateNamedPipe.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.FileOperations.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.FileOperations.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.PipeOptions.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.PipeOptions.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.SECURITY_ATTRIBUTES.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.SECURITY_ATTRIBUTES.cs</Link>
-    </Compile>
-    <Compile Include="$(CommonPath)\Interop\Windows\kernel32\Interop.WaitNamedPipe.cs">
-      <Link>Common\Interop\Windows\kernel32\Interop.WaitNamedPipe.cs</Link>
-    </Compile>
-  </ItemGroup>
 </Project>

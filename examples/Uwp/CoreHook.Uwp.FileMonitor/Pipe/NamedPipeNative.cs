@@ -2,22 +2,26 @@
 using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
+
 using Microsoft.Win32.SafeHandles;
+
+using static Interop.Kernel32;
 
 namespace CoreHook.Uwp.FileMonitor.Pipe;
 
 internal static class NamedPipeNative
 {
-    internal static Interop.Kernel32.SECURITY_ATTRIBUTES GetSecurityAttributes(
-        GCHandle securityDescriptorHandle,
-        Interop.BOOL inheritHandle = Interop.BOOL.FALSE)
+    internal static SECURITY_ATTRIBUTES GetSecurityAttributes(GCHandle securityDescriptorHandle, Interop.BOOL inheritHandle = Interop.BOOL.FALSE)
     {
-        Interop.Kernel32.SECURITY_ATTRIBUTES securityAttributes = new Interop.Kernel32.SECURITY_ATTRIBUTES {bInheritHandle = inheritHandle};
-        securityAttributes.nLength = (uint)Marshal.SizeOf(securityAttributes);
-        securityAttributes.lpSecurityDescriptor = securityDescriptorHandle.AddrOfPinnedObject();
+        SECURITY_ATTRIBUTES securityAttributes = new SECURITY_ATTRIBUTES
+        {
+            bInheritHandle = inheritHandle,
+            nLength = (uint)Marshal.SizeOf<SECURITY_ATTRIBUTES>(),
+            lpSecurityDescriptor = securityDescriptorHandle.AddrOfPinnedObject()
+        };
         return securityAttributes;
     }
-    
+
     internal static NamedPipeServerStream CreateNamedServerPipe(string serverName, string namespaceName, string pipeName, PipeSecurity pipeSecurity)
     {
         string fullPipeName = $@"\\{serverName}\{namespaceName}\{pipeName}";
@@ -29,17 +33,17 @@ internal static class NamedPipeNative
         GCHandle? securityDescriptorHandle = GCHandle.Alloc(securityDescriptorBuffer, GCHandleType.Pinned);
         var securityAttributes = GetSecurityAttributes(securityDescriptorHandle.Value);
 
-        if(Interop.Kernel32.WaitNamedPipe(fullPipeName, System.Threading.Timeout.Infinite))
-        { 
-            if(Marshal.GetLastWin32Error() != Interop.Errors.ERROR_FILE_NOT_FOUND)
+        if (WaitNamedPipe(fullPipeName, System.Threading.Timeout.Infinite))
+        {
+            if (Marshal.GetLastWin32Error() != Interop.Errors.ERROR_FILE_NOT_FOUND)
             {
                 throw new InvalidOperationException();
             }
         }
 
-        SafePipeHandle pipeHandle = Interop.Kernel32.CreateNamedPipe(
+        SafePipeHandle pipeHandle = CreateNamedPipe(
             fullPipeName,
-            Interop.Kernel32.PipeOptions.PIPE_ACCESS_DUPLEX | Interop.Kernel32.FileOperations.FILE_FLAG_OVERLAPPED,
+            Interop.Kernel32.PipeOptions.PIPE_ACCESS_DUPLEX | FileOperations.FILE_FLAG_OVERLAPPED,
             Interop.Kernel32.PipeOptions.PIPE_TYPE_BYTE | Interop.Kernel32.PipeOptions.PIPE_READMODE_BYTE,
             1,
             65536,
@@ -49,7 +53,7 @@ internal static class NamedPipeNative
 
         securityDescriptorHandle.Value.Free();
 
-        if(pipeHandle.IsInvalid)
+        if (pipeHandle.IsInvalid)
         {
             throw new InvalidOperationException();
         }
@@ -58,7 +62,7 @@ internal static class NamedPipeNative
         {
             return new NamedPipeServerStream(PipeDirection.InOut, true, true, pipeHandle);
         }
-        catch(Exception)
+        catch (Exception)
         {
             pipeHandle.Dispose();
             throw;

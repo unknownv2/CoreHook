@@ -9,6 +9,8 @@ using JsonRpc.DynamicProxy.Client;
 using JsonRpc.Standard.Client;
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Streams;
+using CoreHook.EntryPoint;
+using CoreHook.HookDefinition;
 
 namespace CoreHook.FileMonitor.Hook;
 
@@ -69,7 +71,7 @@ public partial class EntryPoint : IEntryPoint
         try
         {
             EntryPoint This = (EntryPoint)HookRuntimeInfo.Callback;
-            if (This != null)
+            if (This is not null)
             {
                 lock (This._queue)
                 {

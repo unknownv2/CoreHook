@@ -1,6 +1,13 @@
-﻿using System;
+﻿using CoreHook.Extensions;
+using CoreHook.HookDefinition;
+
+using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Text;
+
+using Windows.Win32;
+
 using Xunit;
 
 namespace CoreHook.Tests.Windows;
@@ -8,22 +15,20 @@ namespace CoreHook.Tests.Windows;
 [Collection("Local Hook Tests")]
 public class SymbolsTest
 {
-    [UnmanagedFunctionPointer(CallingConvention.StdCall,
-        CharSet = CharSet.Unicode,
-        SetLastError = true)]
+    //TODO: check why CsWin32 uses PWSTR for managed calls instead of taking care of marshaling
+    [DllImport("KERNEL32.dll", ExactSpelling = true, EntryPoint = "GetAtomNameW", SetLastError = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [SupportedOSPlatform("windows5.0")]
+    internal static extern uint GetAtomName(ushort nAtom, StringBuilder lpBuffer, int nSize);
+
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
     private delegate ushort AddAtomWDelegate(string lpString);
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall,
-        CharSet = CharSet.Unicode,
-        SetLastError = true)]
-    private delegate ushort InternalAddAtomDelegate(bool local, bool unicode,
-        string atomName, int arg4);
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    private delegate ushort InternalAddAtomDelegate(bool local, bool unicode, string atomName, int arg4);
 
-    [UnmanagedFunctionPointer(CallingConvention.StdCall,
-        CharSet = CharSet.Unicode,
-        SetLastError = true)]
-    private delegate ushort InternalFindAtom(bool local, bool unicode,
-        string atomName);
+    [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
+    private delegate ushort InternalFindAtom(bool local, bool unicode, string atomName);
 
     private InternalAddAtomDelegate InternalAddAtomFunction;
     private InternalFindAtom InternalFindAtomFunction;
@@ -48,7 +53,7 @@ public class SymbolsTest
     {
         _addAtomCalled = true;
 
-        return Interop.Kernel32.AddAtomW(atomName);
+        return NativeMethods.AddAtom(atomName);
     }
 
     /// <summary>
@@ -58,10 +63,7 @@ public class SymbolsTest
     [Fact]
     public void ShouldDetourInternalFunction()
     {
-        using (var hook = LocalHook.Create(
-            LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
-            new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
-            this))
+        using (var hook = LocalHook.Create(LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"), new InternalAddAtomDelegate(Detour_InternalAddAtomHook), this))
         {
             InternalAddAtomFunction = hook.OriginalAddress.ToFunction<InternalAddAtomDelegate>();
 
@@ -70,13 +72,14 @@ public class SymbolsTest
             _internalAddAtomCalled = false;
 
             string atomName = "TestLocalAtomName";
-            ushort atomId = Interop.Kernel32.AddAtomW(atomName);
+            ushort atomId = NativeMethods.AddAtom(atomName);
 
             Assert.NotEqual(0, atomId);
             Assert.True(_internalAddAtomCalled);
 
             StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-            uint bufLength = Interop.Kernel32.GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+            
+            uint bufLength = GetAtomName(atomId, atomBuffer, MaxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
             Assert.Equal((uint)atomName.Length, bufLength);
@@ -84,7 +87,7 @@ public class SymbolsTest
 
             Assert.Equal(retrievedAtomName, atomName);
 
-            Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
+            Assert.Equal<ushort>(0, NativeMethods.DeleteAtom(atomId));
         }
     }
 
@@ -96,14 +99,8 @@ public class SymbolsTest
     public void ShouldDetourApiAndInternalFunctionCalledByAddAtom()
     {
         // Create the internal function and public API detours.
-        using (var hookInternal = LocalHook.Create(
-             LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
-             new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
-             this))
-        using (var hookApi = LocalHook.Create(
-            LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
-            new AddAtomWDelegate(Detour_AddAtom),
-            this))
+        using (var hookInternal = LocalHook.Create(LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"), new InternalAddAtomDelegate(Detour_InternalAddAtomHook), this))
+        using (var hookApi = LocalHook.Create(LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"), new AddAtomWDelegate(Detour_AddAtom), this))
         {
             hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
             InternalAddAtomFunction = hookInternal.TargetAddress.ToFunction<InternalAddAtomDelegate>();
@@ -114,14 +111,14 @@ public class SymbolsTest
             _addAtomCalled = false;
 
             string atomName = "TestLocalAtomName";
-            ushort atomId = Interop.Kernel32.AddAtomW(atomName);
+            ushort atomId = NativeMethods.AddAtom(atomName);
 
             Assert.NotEqual(0, atomId);
             Assert.True(_internalAddAtomCalled);
             Assert.True(_addAtomCalled);
 
             StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-            uint bufLength = Interop.Kernel32.GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+            uint bufLength = GetAtomName(atomId, atomBuffer, MaxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
             Assert.NotEqual<uint>(0, bufLength);
@@ -130,21 +127,15 @@ public class SymbolsTest
 
             Assert.Equal(retrievedAtomName, atomName);
 
-            Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
+            Assert.Equal<ushort>(0, NativeMethods.DeleteAtom(atomId));
         }
     }
 
     [Fact]
     public void ShouldDetourApiIAndInternalFunctionUsingBypassAddress()
     {
-        using (var hookInternal = LocalHook.Create(
-            LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalAddAtom"),
-            new InternalAddAtomDelegate(Detour_InternalAddAtomHook),
-            this))
-        using (var hookApi = LocalHook.Create(
-            LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "AddAtomW"),
-            new AddAtomWDelegate(Detour_AddAtom),
-            this))
+        using (var hookInternal = LocalHook.Create(LocalHook.GetProcAddress("kernel32.dll", "InternalAddAtom"), new InternalAddAtomDelegate(Detour_InternalAddAtomHook), this))
+        using (var hookApi = LocalHook.Create(LocalHook.GetProcAddress("kernel32.dll", "AddAtomW"), new AddAtomWDelegate(Detour_AddAtom), this))
         {
             hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
 
@@ -156,14 +147,14 @@ public class SymbolsTest
             _addAtomCalled = false;
 
             string atomName = "TestLocalAtomName";
-            ushort atomId = Interop.Kernel32.AddAtomW(atomName);
+            ushort atomId = NativeMethods.AddAtom(atomName);
 
             Assert.NotEqual(0, atomId);
             Assert.True(_internalAddAtomCalled);
             Assert.True(_addAtomCalled);
 
             StringBuilder atomBuffer = new StringBuilder(MaxPathLength);
-            uint bufLength = Interop.Kernel32.GetAtomNameW(atomId, atomBuffer, MaxPathLength);
+            uint bufLength = GetAtomName(atomId, atomBuffer, MaxPathLength);
             string retrievedAtomName = atomBuffer.ToString();
 
             Assert.NotEqual<uint>(0, bufLength);
@@ -172,17 +163,14 @@ public class SymbolsTest
 
             Assert.Equal(retrievedAtomName, atomName);
 
-            Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
+            Assert.Equal<ushort>(0, NativeMethods.DeleteAtom(atomId));
         }
     }
 
     [Fact]
     public void ShouldDetourApiAndInternalFunctionUsingInterfaceBypassAddress()
     {
-        using (var hookInternal = HookFactory.CreateHook<InternalFindAtom>(
-            LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "InternalFindAtom"),
-            Detour_InternalFindAtom,
-            this))
+        using (var hookInternal = HookFactory.CreateHook<InternalFindAtom>(LocalHook.GetProcAddress("kernel32.dll", "InternalFindAtom"), Detour_InternalFindAtom, this))
         {
             hookInternal.ThreadACL.SetInclusiveACL(new int[] { 0 });
         
@@ -191,15 +179,15 @@ public class SymbolsTest
             _internalFindAtomCalled = false;
 
             string atomName = "TestLocalAtomName";
-            ushort atomId = Interop.Kernel32.AddAtomW(atomName);
+            ushort atomId = NativeMethods.AddAtom(atomName);
 
-            ushort foundAtomId = Interop.Kernel32.FindAtomW(atomName);
+            ushort foundAtomId = NativeMethods.FindAtom(atomName);
 
             Assert.NotEqual(0, atomId);
             Assert.True(_internalFindAtomCalled);
             Assert.Equal(atomId, foundAtomId);
 
-            Assert.Equal<ushort>(0, Interop.Kernel32.DeleteAtom(atomId));
+            Assert.Equal<ushort>(0, NativeMethods.DeleteAtom(atomId));
         }
     }
 
@@ -237,10 +225,7 @@ public class SymbolsTest
     {
         _GetCurrentNlsCacheCalled = false;
 
-        using (var hook = LocalHook.Create(
-            LocalHook.GetProcAddress(Interop.Libraries.KernelBase, "GetCurrentNlsCache"),
-            new GetCurrentNlsCacheDelegate(Detour_GetCurrentNlsCache),
-            this))
+        using (var hook = LocalHook.Create(LocalHook.GetProcAddress("kernelbase.dll", "GetCurrentNlsCache"), new GetCurrentNlsCacheDelegate(Detour_GetCurrentNlsCache), this))
         {
             hook.ThreadACL.SetInclusiveACL(new int[] { 0 });
             GetCurrentNlsCacheFunction = hook.OriginalAddress.ToFunction<GetCurrentNlsCacheDelegate>();
@@ -248,13 +233,7 @@ public class SymbolsTest
             string stringA = "HelloWorld";
             string stringB = "Hello";
 
-            int comparisonResult = Interop.KernelBase.CompareStringW(
-                LOCALE_USER_DEFAULT,
-                NORM_LINGUISTIC_CASING,
-                stringA,
-                stringA.Length,
-                stringB,
-                stringB.Length);
+            int comparisonResult = (int)NativeMethods.CompareString((uint)LOCALE_USER_DEFAULT, (uint)NORM_LINGUISTIC_CASING, stringA, stringA.Length, stringB, stringB.Length);
 
             Assert.Equal(CSTR_GREATER_THAN, comparisonResult);
             Assert.True(_GetCurrentNlsCacheCalled);
@@ -264,7 +243,7 @@ public class SymbolsTest
     [Fact]
     public void Find_Invalid_Export_Function_Throws_MissingMethodException()
     {
-        Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress(Interop.Libraries.Kernel32, "ThisFunctionDoesNotExist"));
+        Assert.Throws<MissingMethodException>(() => LocalHook.GetProcAddress("kernel32.dll", "ThisFunctionDoesNotExist"));
     }
 
     [Fact]

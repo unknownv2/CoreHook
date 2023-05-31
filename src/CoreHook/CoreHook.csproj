@@ -9,6 +9,10 @@
     <Nullable>Enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="CoreHook.Tests" />
+  </ItemGroup>
+  
   <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>$(OutputDir)</OutputPath>
   </PropertyGroup>-->

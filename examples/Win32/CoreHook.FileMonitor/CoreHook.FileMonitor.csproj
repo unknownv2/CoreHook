@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net7.0-windows</TargetFramework>
     <Platforms>AnyCPU</Platforms>
     <PublishDir>..\..\..\Publish\Win32</PublishDir>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -31,9 +31,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
-    <ProjectReference Include="..\..\..\src\CoreHook.CoreLoad\CoreHook.CoreLoad.csproj" />
+    <!--<ProjectReference Include="..\..\..\src\CoreHook.CoreLoad\CoreHook.CoreLoad.csproj" />-->
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
-    <ProjectReference Include="..\..\..\src\CoreHook.Memory\CoreHook.Memory.csproj" />
+    <!--<ProjectReference Include="..\..\..\src\CoreHook.Memory\CoreHook.Memory.csproj" />-->
     <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
     <ProjectReference Include="..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
     <ProjectReference Include="..\CoreHook.FileMonitor.Hook\CoreHook.FileMonitor.Hook.csproj" />

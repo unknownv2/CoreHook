@@ -71,7 +71,7 @@ internal sealed class DependencyResolver
         {
             RuntimeLibrary library = _dependencyContext.RuntimeLibraries.FirstOrDefault(NamesMatchOrContain);
 
-            if (library != null)
+            if (library is not null)
             {
                 var wrapper = new CompilationLibrary(
                     library.Type,

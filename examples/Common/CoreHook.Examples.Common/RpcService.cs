@@ -1,16 +1,18 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using CoreHook.IPC.NamedPipes;
+﻿using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 using CoreHook.IPC.Transport;
+
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
 using JsonRpc.Streams;
 
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace CoreHook.Examples.Common;
 
-public class RpcService
+public class RpcService<T>
 {
     private readonly ISessionFeature _session;
     private readonly Type _service;
@@ -26,21 +28,17 @@ public class RpcService
         ParameterValueConverter = new CamelCaseJsonValueConverter()
     };
 
-    public RpcService(ISessionFeature session, Type service, Func<RequestContext, Func<Task>, Task> handler)
+    public RpcService(ISessionFeature session, Func<RequestContext, Func<Task>, Task> handler)
     {
+        _service = typeof(T);
+
         _session = session;
-        _service = service;
         _handler = handler;
     }
 
-    public static RpcService CreateRpcService(
-        string namedPipeName,
-        IPipePlatform pipePlatform,
-        ISessionFeature session,
-        Type rpcService,
-        Func<RequestContext, Func<Task>, Task> handler)
+    public static RpcService<T> CreateRpcService(string namedPipeName, IPipePlatform pipePlatform, ISessionFeature session, Func<RequestContext, Func<Task>, Task> handler)
     {
-        var service = new RpcService(session, rpcService, handler);
+        var service = new RpcService<T>(session, handler);
 
         _rpcServerThread = new Thread(() => service.CreateServer(namedPipeName, pipePlatform))
         {

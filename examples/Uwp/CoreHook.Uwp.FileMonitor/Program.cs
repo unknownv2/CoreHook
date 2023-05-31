@@ -1,23 +1,21 @@
 ﻿using CoreHook.FileMonitor.Service;
+using CoreHook.HookDefinition;
 using CoreHook.IPC.Platform;
 
+using JsonRpc.Standard.Server;
+
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Threading.Tasks;
 
 namespace CoreHook.Uwp.FileMonitor;
 
 class Program
 {
-    /// <summary>
-    /// The directory containing the CoreHook modules to be loaded in the target process.
-    /// </summary>
-    private const string HookLibraryDirName = "";
-
     /// <summary>
     /// The library to be injected into the target process and executed
     /// using it's 'Run' Method.
@@ -25,17 +23,10 @@ class Program
     private const string HookLibraryName = "CoreHook.Uwp.FileMonitor.Hook.dll";
 
     /// <summary>
-    /// The name of the pipe used for notifying the host process
-    /// if the hooking plugin has been loaded successfully in
-    /// the target process or if loading failed.
+    /// The name of the communication pipe that will be used for this program
     /// </summary>
-    private const string InjectionPipeName = "UwpCoreHookInjection";
-
-    /// <summary>
-    /// Enable verbose logging to the console for the CoreCLR native host module.
-    /// </summary>
-    private const bool HostVerboseLog = false;
-
+    private const string PipeName = "FileMonitorUwpHookPipe";
+    
     /// <summary>
     /// Class that handles creating a named pipe server for communicating with the target process.
     /// </summary>
@@ -85,7 +76,7 @@ class Program
 
         var currentDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        string injectionLibrary = Path.Combine(currentDir, HookLibraryDirName, HookLibraryName);
+        string injectionLibrary = Path.Combine(currentDir, HookLibraryName);
 
         if (!File.Exists(injectionLibrary))
         {
@@ -105,7 +96,7 @@ class Program
         }
 
         // Inject the FileMonitor.Hook dll into the process.
-        RemoteHook.InjectDllIntoTarget(targetProcessId, injectionLibrary, PipePlatform);
+        RemoteHook.InjectDllIntoTarget(targetProcessId, injectionLibrary, PipePlatform, true, PipeName);
 
         // Start the RPC server for handling requests from the hooked app.
         StartListener();
@@ -118,22 +109,20 @@ class Program
     {
         var session = new FileMonitorSessionFeature();
 
-        Examples.Common.RpcService.CreateRpcService(
-              "CoreHook",
-              PipePlatform,
-              session,
-              typeof(FileMonitorService),
-              async (context, next) =>
-              {
-                  Console.WriteLine("> {0}", context.Request);
-                  await next();
-                  Console.WriteLine("< {0}", context.Response);
-              });
+        Examples.Common.RpcService<FileMonitorService>.CreateRpcService(PipeName, PipePlatform, session, AsyncHandler);
 
         Console.WriteLine("Press Enter to quit.");
         Console.ReadLine();
 
         session.StopServer();
+    }
+
+
+    private static async Task AsyncHandler(RequestContext context, Func<Task> next)
+    {
+        Console.WriteLine("> {0}", context.Request);
+        await next();
+        Console.WriteLine("< {0}", context.Response);
     }
 
     /// <summary>

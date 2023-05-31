@@ -2,11 +2,11 @@
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Xunit;
-using CoreHook.BinaryInjection.RemoteInjection;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC;
 using CoreHook.IPC.Platform;
+using CoreHook.BinaryInjection;
 
 namespace CoreHook.Tests;
 

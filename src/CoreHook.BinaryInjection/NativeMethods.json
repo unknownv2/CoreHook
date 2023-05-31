@@ -3,7 +3,5 @@
   "emitSingleFile": false,
   "className": "NativeMethods",
   "multiTargetingFriendlyAPIs": false,
-  "comInterop": { "useIntPtrForComOutPointers": true },
-  "public": false, 
-  "allowMarshaling":  true
+  "public": false
 }

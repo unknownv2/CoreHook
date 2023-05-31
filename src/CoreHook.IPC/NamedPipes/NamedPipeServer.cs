@@ -91,8 +91,8 @@ public class NamedPipeServer : INamedPipe
         while (connection.IsConnected)
         {
             var message = channel.MessageHandler.Read();
-            if (message == null ||
-                (message.Header == null && message.Body == null) ||
+            if (message is null ||
+                (message.Header is null && message.Body is null) ||
                 !connection.IsConnected)
             {
                 break;
@@ -106,7 +106,7 @@ public class NamedPipeServer : INamedPipe
     {
         try
         {
-            if (_pipe != null)
+            if (_pipe is not null)
             {
                 throw new InvalidOperationException("Pipe server already started");
             }

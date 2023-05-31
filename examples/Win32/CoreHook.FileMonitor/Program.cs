@@ -1,21 +1,29 @@
 ﻿using CoreHook.FileMonitor.Service;
+using CoreHook.HookDefinition;
 using CoreHook.IPC.Platform;
+
+using JsonRpc.Standard.Server;
 
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace CoreHook.FileMonitor;
 
 class Program
 {
     /// <summary>
-    /// The library to be injected into the target process and executed
-    /// using the EntryPoint's 'Run' Method.
+    /// The library to be injected into the target process and executed using the EntryPoint's 'Run' Method.
     /// </summary>
     private const string HookLibraryName = "CoreHook.FileMonitor.Hook.dll";
+
+    /// <summary>
+    /// The name of the communication pipe that will be used for this program
+    /// </summary>
+    private const string PipeName = "FileMonitorHookPipe";
 
     /// <summary>
     /// Class that handles creating a named pipe server for communicating with the target process.
@@ -63,14 +71,14 @@ class Program
 
         string injectionLibrary = Path.Combine(currentDir, HookLibraryName);
 
-        // Start process and begin dll loading.
+        // Start process
         if (!string.IsNullOrWhiteSpace(targetProgram))
         {
             targetProcessId = Process.Start(targetProgram)?.Id ?? throw new InvalidOperationException($"Failed to start the executable at {targetProgram}");
         }
 
         // Inject FileMonitor dll into process.
-        RemoteHook.InjectDllIntoTarget(targetProcessId, injectionLibrary, PipePlatform, true, "FileMonitorHookPipe");
+        RemoteHook.InjectDllIntoTarget(targetProcessId, injectionLibrary, PipePlatform, true, PipeName);
 
         // Start the RPC server for handling requests from the hooked program.
         StartListener();
@@ -87,7 +95,7 @@ class Program
         if (!int.TryParse(targetProgram, out processId))
         {
             var process = Process.GetProcessesByName(targetProgram).FirstOrDefault();
-            if (process != null)
+            if (process is not null)
             {
                 processId = process.Id;
                 return true;
@@ -103,23 +111,25 @@ class Program
     /// <returns>True of the program is found on the path.</returns>
     private static bool FindOnPath(string targetProgram)
     {
+        // File is in current dir or path was fully specified
         if (File.Exists(targetProgram))
         {
             return true;
         }
 
+        // File wasn't found and path wasn't absolute: stop here
+        if (Path.IsPathRooted(targetProgram))
+        {
+            return false;
+        }
+
+        // Or check in the configured paths
         var path = Environment.GetEnvironmentVariable("PATH");
         if (!string.IsNullOrWhiteSpace(path))
         {
-            foreach (var pathDir in path.Split(";"))
-            {
-                var programPath = Path.Combine(pathDir, targetProgram);
-                if (File.Exists(programPath))
-                {
-                    return true;
-                }
-            }
+            return path.Split(";").Any(pathDir => File.Exists(Path.Combine(pathDir, targetProgram)));
         }
+
         return false;
     }
 
@@ -131,21 +141,18 @@ class Program
     {
         var session = new FileMonitorSessionFeature();
 
-        Examples.Common.RpcService.CreateRpcService(
-              "FileMonitorHookPipe",
-              PipePlatform,
-              session,
-              typeof(FileMonitorService),
-              async (context, next) =>
-              {
-                  Console.WriteLine("> {0}", context.Request);
-                  await next();
-                  Console.WriteLine("< {0}", context.Response);
-              });
+        Examples.Common.RpcService<FileMonitorService>.CreateRpcService(PipeName, PipePlatform, session, AsyncHandler);
 
         Console.WriteLine("Press Enter to quit.");
         Console.ReadLine();
 
         session.StopServer();
+    }
+
+    private static async Task AsyncHandler(RequestContext context, Func<Task> next)
+    {
+        Console.WriteLine("> {0}", context.Request);
+        await next();
+        Console.WriteLine("< {0}", context.Response);
     }
 }

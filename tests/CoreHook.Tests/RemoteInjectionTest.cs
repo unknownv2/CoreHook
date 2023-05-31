@@ -17,20 +17,11 @@ public class RemoteInjectionTestSimpleParameter
         const string testHookLibrary = "CoreHook.Tests.SimpleParameterTest.dll";
         const string remoteArgument = "Berner";
 
-        var testProcess = Resources.StartProcess(Path.Combine(
-                        Environment.ExpandEnvironmentVariables("%Windir%"),
-                        applicationFolder,
-                        "notepad.exe"
-                    ));
+        var testProcess = Resources.StartProcess(Path.Combine(Environment.ExpandEnvironmentVariables("%Windir%"), applicationFolder, "notepad.exe"));
 
         System.Threading.Thread.Sleep(500);
 
-        Resources.InjectDllIntoTarget(testProcess,
-           Resources.GetTestDllPath(
-           testHookLibrary
-           ),
-           Resources.GetUniquePipeName(),
-           remoteArgument);
+        Resources.InjectDllIntoTarget(testProcess, Resources.GetTestDllPath(testHookLibrary), Resources.GetUniquePipeName(), remoteArgument);
 
         Assert.Equal(remoteArgument, Resources.ReadFromProcess(testProcess));
 
@@ -55,20 +46,11 @@ public class RemoteInjectionTestComplexParameter
             HostProcessId = Environment.ProcessId
         };
 
-        var testProcess = Resources.StartProcess(Path.Combine(
-                        Environment.ExpandEnvironmentVariables("%Windir%"),
-                        applicationFolder,
-                        "notepad.exe"
-                    ));
+        var testProcess = Resources.StartProcess(Path.Combine(Environment.ExpandEnvironmentVariables("%Windir%"), applicationFolder, "notepad.exe"));
 
         System.Threading.Thread.Sleep(500);
 
-        Resources.InjectDllIntoTarget(testProcess,
-           Resources.GetTestDllPath(
-           testHookLibrary
-           ),
-           Resources.GetUniquePipeName(),
-           complexParameter);
+        Resources.InjectDllIntoTarget(testProcess, Resources.GetTestDllPath(testHookLibrary), Resources.GetUniquePipeName(), complexParameter);
 
         Assert.Equal(complexParameter.Message, Resources.ReadFromProcess(testProcess));
         Assert.Equal(complexParameter.HostProcessId.ToString(), Resources.ReadFromProcess(testProcess));

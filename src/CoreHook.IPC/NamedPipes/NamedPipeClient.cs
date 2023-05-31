@@ -46,23 +46,18 @@ public class NamedPipeClient : INamedPipe
     /// <inheritdoc />
     public bool Connect()
     {
-        if (_pipeStream != null)
+        if (_pipeStream is not null)
         {
             throw new InvalidPipeOperationException("Client pipe already connected");
         }
-        if (_pipeName == null)
+        if (_pipeName is null)
         {
             throw new InvalidPipeOperationException("Client pipe name was not set");
         }
 
         try
         {
-            _pipeStream = new NamedPipeClientStream(
-                ".",
-                _pipeName,
-                PipeDirection.InOut,
-                PipeOptions.Asynchronous,
-                TokenImpersonationLevel.Impersonation);
+            _pipeStream = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Impersonation);
 
             _pipeStream.Connect();
         }
