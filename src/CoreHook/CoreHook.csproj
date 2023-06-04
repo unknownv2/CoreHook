@@ -33,9 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="nativelibs\corehook32.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="%(Filename)%(Extension)" />
-    <None Include="nativelibs\corehook64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="%(Filename)%(Extension)" />
-    <None Update="nativelibs\**" Visible="False" />
+    <None Include="Native\corehook32.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="%(Filename)%(Extension)" />
+    <None Include="Native\corehook64.dll" CopyToOutputDirectory="PreserveNewest" TargetPath="%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -49,9 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="CoreHook - Copier.runtimeconfig.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="CoreHook.runtimeconfig.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

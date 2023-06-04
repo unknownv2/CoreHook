@@ -116,7 +116,7 @@ public class NamedPipeTest
 
     private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IStringMessage, INamedPipe> handleRequest)
     {
-        return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
+        return NamedPipeServer.StartNew(namedPipeName, pipePlatform, handleRequest);
     }
 
     private static bool SendPipeMessage(INamedPipe pipeClient, string message)

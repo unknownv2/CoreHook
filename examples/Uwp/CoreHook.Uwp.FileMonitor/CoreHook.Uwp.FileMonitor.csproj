@@ -29,8 +29,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
-    <ProjectReference Include="..\..\..\src\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    
     <ProjectReference Include="..\..\Win32\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
   </ItemGroup>
 

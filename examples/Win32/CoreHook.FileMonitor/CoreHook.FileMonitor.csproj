@@ -30,11 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\CoreHook.BinaryInjection\CoreHook.BinaryInjection.csproj" />
-    <!--<ProjectReference Include="..\..\..\src\CoreHook.CoreLoad\CoreHook.CoreLoad.csproj" />-->
-    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
-    <!--<ProjectReference Include="..\..\..\src\CoreHook.Memory\CoreHook.Memory.csproj" />-->
     <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
+    <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    
     <ProjectReference Include="..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
     <ProjectReference Include="..\CoreHook.FileMonitor.Hook\CoreHook.FileMonitor.Hook.csproj" />
   </ItemGroup>

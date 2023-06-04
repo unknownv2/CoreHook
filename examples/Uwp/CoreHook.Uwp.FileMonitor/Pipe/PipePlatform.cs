@@ -1,6 +1,7 @@
 ﻿using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
+
 using CoreHook.IPC.Platform;
 
 namespace CoreHook.Uwp.FileMonitor.Pipe;
@@ -18,13 +19,11 @@ public class PipePlatform : IPipePlatform
 
         var pipeSecurity = new PipeSecurity();
 
-        using (var identity = WindowsIdentity.GetCurrent())
+        using var identity = WindowsIdentity.GetCurrent();
+        pipeSecurity.AddAccessRule(new PipeAccessRule(identity.User, pipeAccess, accessControl));
+        if (identity.User != identity.Owner)
         {
-            pipeSecurity.AddAccessRule(new PipeAccessRule(identity.User, pipeAccess, accessControl));
-            if (identity.User != identity.Owner)
-            {
-                pipeSecurity.AddAccessRule(new PipeAccessRule(identity.Owner, pipeAccess, accessControl));
-            }
+            pipeSecurity.AddAccessRule(new PipeAccessRule(identity.Owner, pipeAccess, accessControl));
         }
 
         pipeSecurity.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null), pipeAccess, accessControl));

@@ -52,7 +52,7 @@ public class RpcService<T>
     {
         _pipeName = namedPipeName;
         //TODO: ensure the pipe is disposed when detaching the service (not supported yet)
-        return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleTransportConnection);
+        return NamedPipeServer.StartNew(namedPipeName, pipePlatform, HandleTransportConnection);
     }
 
     public IJsonRpcServiceHost BuildServiceHost(Type service)

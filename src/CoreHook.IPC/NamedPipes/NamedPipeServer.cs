@@ -50,9 +50,9 @@ public class NamedPipeServer : INamedPipe
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleRequest">Event handler called when receiving a new message from a client.</param>
     /// <returns>An instance of the new pipe server.</returns>
-    public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IStringMessage, INamedPipe> handleRequest)
+    public static NamedPipeServer StartNew(string pipeName, IPipePlatform platform, Action<IStringMessage, INamedPipe> handleRequest)
     {
-        return CreateNewServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
+        return StartNewInternal(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
     }
 
     /// <summary>
@@ -62,9 +62,9 @@ public class NamedPipeServer : INamedPipe
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleRequest">Event handler called when receiving a new connection.</param>
     /// <returns>An instance of the new pipe server.</returns>
-    public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<INamedPipe> handleRequest)
+    public static NamedPipeServer StartNew(string pipeName, IPipePlatform platform, Action<INamedPipe> handleRequest)
     {
-        return CreateNewServer(pipeName, platform, handleRequest);
+        return StartNewInternal(pipeName, platform, handleRequest);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class NamedPipeServer : INamedPipe
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleRequest">Event handler called when receiving a new connection.</param>
     /// <returns>An instance of the new pipe server.</returns>
-    private static NamedPipeServer CreateNewServer(string pipeName, IPipePlatform platform, Action<INamedPipe> handleRequest)
+    private static NamedPipeServer StartNewInternal(string pipeName, IPipePlatform platform, Action<INamedPipe> handleRequest)
     {
         if (pipeName.Length > MaxPipeNameLength)
         {

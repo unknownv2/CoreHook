@@ -1,4 +1,5 @@
-﻿using CoreHook.IPC.Messages;
+﻿using CoreHook.BinaryInjection.IPC;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 
@@ -25,7 +26,7 @@ public class InjectionHelper
     /// <returns>The named pipe server.</returns>
     public static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform)
     {
-        return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleMessage);
+        return NamedPipeServer.StartNew(namedPipeName, pipePlatform, HandleMessage);
     }
 
     /// <summary>
@@ -37,8 +38,8 @@ public class InjectionHelper
     {
         switch (message.Header)
         {
-            case IPC.InjectionCompleteNotification.InjectionComplete:
-                var messageData = IPC.InjectionCompleteNotification.ParseMessage(message);
+            case InjectionCompleteNotification.InjectionComplete:
+                var messageData = InjectionCompleteNotification.ParseMessage(message);
                 if (messageData.Completed)
                 {
                     InjectionCompleted(messageData.ProcessId);
@@ -48,14 +49,14 @@ public class InjectionHelper
                     throw new InjectionLoadException($"Injection into process {messageData.ProcessId} failed.");
                 }
                 break;
+            
             case LogMessageNotification.Message:
                 var logMessageData = LogMessageNotification.ParseMessage(message);
                 Log($"{logMessageData.Level}: {logMessageData.Message}");
                 break;
+         
             default:
-                {
-                    throw new InvalidOperationException($"Message type {message.Header} is not supported");
-                }
+                throw new InvalidOperationException($"Message type {message.Header} is not supported");
         }
     }
 

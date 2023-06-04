@@ -39,7 +39,7 @@ internal sealed class DependencyResolver
             {
                 new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
                 new ReferenceAssemblyPathResolver(),
-                new Loader.PackageCompilationAssemblyResolver()
+                new PackageCompilationAssemblyResolver()
             });
 
             _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);

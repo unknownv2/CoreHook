@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
+    
     <ProjectReference Include="..\..\Common\CoreHook.Examples.Common\CoreHook.Examples.Common.csproj" />
   </ItemGroup>
 
