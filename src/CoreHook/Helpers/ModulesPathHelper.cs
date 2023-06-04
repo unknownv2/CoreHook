@@ -32,7 +32,7 @@ internal class ModulesPathHelper
     /// Module that loads and executes the IEntryPoint.Run method of our hook dll.
     /// It also resolves any dependencies for the CoreHook plugin.
     /// </summary>
-    private const string CoreLoadModule = "CoreHook.CoreLoad.dll";
+    private const string CoreLoadModule = "CoreHook.dll";
 
     // For more information o on these environment variables, see: 
     // https://github.com/dotnet/coreclr/blob/master/Documentation/workflow/UsingCoreRun.md

@@ -1,5 +1,6 @@
-﻿
-namespace CoreHook.IPC.Messages;
+﻿using CoreHook.IPC.Messages;
+
+namespace CoreHook.BinaryInjection.IPC;
 
 /// <summary>
 /// Notification message sent to the host process
@@ -15,7 +16,7 @@ public class InjectionCompleteNotification
     /// <summary>
     /// The message data.
     /// </summary>
-    private readonly InjectionCompleteMessage _requestData;
+    private readonly CoreHook.BinaryInjection.IPC.InjectionCompleteMessage _requestData;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="InjectionCompleteNotification"/> class.
@@ -23,7 +24,7 @@ public class InjectionCompleteNotification
     /// <param name="body">The message data.</param>
     public InjectionCompleteNotification(string body)
     {
-        _requestData = InjectionCompleteMessage.FromBody(body);
+        _requestData = CoreHook.BinaryInjection.IPC.InjectionCompleteMessage.FromBody(body);
     }
 
     /// <summary>
@@ -33,7 +34,7 @@ public class InjectionCompleteNotification
     /// <param name="didComplete">True if the module loading attempt completed successfully.</param>
     public InjectionCompleteNotification(int processId, bool didComplete)
     {
-        _requestData = new InjectionCompleteMessage(didComplete, processId);
+        _requestData = new CoreHook.BinaryInjection.IPC.InjectionCompleteMessage(didComplete, processId);
     }
 
     /// <summary>
@@ -53,7 +54,7 @@ public class InjectionCompleteNotification
     /// <returns>The formatted message data.</returns>
     public static IStringMessage CreateMessage(int processId, bool didComplete)
     {
-        return new InjectionCompleteNotification(processId, didComplete).CreateMessage();
+        return new CoreHook.BinaryInjection.IPC.InjectionCompleteNotification(processId, didComplete).CreateMessage();
     }
 
     /// <summary>
@@ -61,8 +62,8 @@ public class InjectionCompleteNotification
     /// </summary>
     /// <param name="message">The serialized message data.</param>
     /// <returns>The newly constructed message data container.</returns>
-    public static InjectionCompleteMessage ParseMessage(IStringMessage message)
+    public static CoreHook.BinaryInjection.IPC.InjectionCompleteMessage ParseMessage(IStringMessage message)
     {
-        return InjectionCompleteMessage.FromBody(message.Body);
+        return CoreHook.BinaryInjection.IPC.InjectionCompleteMessage.FromBody(message.Body);
     }
 }

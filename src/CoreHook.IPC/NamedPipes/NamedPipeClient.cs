@@ -2,6 +2,8 @@
 using System.IO;
 using System.IO.Pipes;
 using System.Security.Principal;
+using System.Threading;
+
 using CoreHook.IPC.Handlers;
 
 namespace CoreHook.IPC.NamedPipes;
@@ -12,13 +14,12 @@ namespace CoreHook.IPC.NamedPipes;
 public class NamedPipeClient : INamedPipe
 {
     /// <inheritdoc />
-    public IConnection Connection { get; private set; }
-    /// <inheritdoc />
     public IMessageHandler MessageHandler { get; private set; }
 
-    private NamedPipeClientStream _pipeStream;
+    /// <inheritdoc />
+    public PipeStream Stream => _pipeStream;
 
-    private bool _connectionStopped;
+    private NamedPipeClientStream _pipeStream;
 
     private readonly string _pipeName;
 
@@ -29,7 +30,6 @@ public class NamedPipeClient : INamedPipe
     public NamedPipeClient(string pipeName)
     {
         _pipeName = pipeName;
-        _connectionStopped = false;
     }
 
     /// <summary>
@@ -40,11 +40,19 @@ public class NamedPipeClient : INamedPipe
     public static PipeStream CreatePipeStream(string pipeName)
     {
         var client = new NamedPipeClient(pipeName);
-        return client.Connect() ? client._pipeStream : null;
+        try
+        {
+            client.Connect();
+            return client._pipeStream;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     /// <inheritdoc />
-    public bool Connect()
+    public void Connect()
     {
         if (_pipeStream is not null)
         {
@@ -64,20 +72,18 @@ public class NamedPipeClient : INamedPipe
         catch (IOException e)
         {
             Console.WriteLine(e.ToString());
-            return false;
+            //return false;
         }
 
-        Connection = new PipeConnection(_pipeStream, () => _connectionStopped);
-        MessageHandler = new MessageHandler(Connection);
+        //Connection = new PipeConnection(_pipeStream, () => _connectionStopped);
+        MessageHandler = new MessageHandler(_pipeStream);
 
-        return true;
+        //return true;
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        _connectionStopped = true;
-        _pipeStream?.Dispose();
-        _pipeStream = null;
+        Interlocked.Exchange(ref _pipeStream, null)?.Dispose();
     }
 }

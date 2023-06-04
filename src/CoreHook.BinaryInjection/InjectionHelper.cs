@@ -1,7 +1,6 @@
 ﻿using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
-using CoreHook.IPC.Transport;
 
 using System;
 using System.Collections.Generic;
@@ -34,12 +33,12 @@ public class InjectionHelper
     /// </summary>
     /// <param name="message">The message to process.</param>
     /// <param name="channel">The server communication channel.</param>
-    private static void HandleMessage(IStringMessage message, ITransportChannel channel)
+    private static void HandleMessage(IStringMessage message, INamedPipe _)
     {
         switch (message.Header)
         {
-            case InjectionCompleteNotification.InjectionComplete:
-                var messageData = InjectionCompleteNotification.ParseMessage(message);
+            case IPC.InjectionCompleteNotification.InjectionComplete:
+                var messageData = IPC.InjectionCompleteNotification.ParseMessage(message);
                 if (messageData.Completed)
                 {
                     InjectionCompleted(messageData.ProcessId);

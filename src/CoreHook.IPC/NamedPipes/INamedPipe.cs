@@ -1,16 +1,26 @@
-﻿using System;
-using CoreHook.IPC.Transport;
+﻿using CoreHook.IPC.Handlers;
+
+using System;
+using System.IO;
+using System.IO.Pipes;
 
 namespace CoreHook.IPC.NamedPipes;
 
 /// <summary>
 /// Interface defining a named pipe communication channel.
 /// </summary>
-public interface INamedPipe : ITransportChannel, IDisposable
+public interface INamedPipe : IDisposable
 {
+    public PipeStream Stream { get; }
+
     /// <summary>
     /// Initialize the pipe connection.
     /// </summary>
     /// <returns>True if initialization completed successfully.</returns>
-    bool Connect();
+    void Connect();
+
+    /// <summary>
+    /// Manages sending and receiving messages through the <see cref="Stream"/>.
+    /// </summary>
+    IMessageHandler MessageHandler { get; }
 }

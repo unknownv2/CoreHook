@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyModel;
+using Microsoft.Extensions.DependencyModel.Resolution;
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
-using Microsoft.Extensions.DependencyModel;
-using Microsoft.Extensions.DependencyModel.Resolution;
 
-namespace CoreHook.CoreLoad;
+namespace CoreHook.Loader;
 
 /// <summary>
 /// Resolves assembly dependencies for the plugins during initialization,
@@ -34,12 +35,11 @@ internal sealed class DependencyResolver
             
             _dependencyContext = DependencyContext.Load(Assembly);
 
-            _assemblyResolver = new CompositeCompilationAssemblyResolver
-                                    (new ICompilationAssemblyResolver[]
+            _assemblyResolver = new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[]
             {
                 new AppBaseCompilationAssemblyResolver(Path.GetDirectoryName(path)),
                 new ReferenceAssemblyPathResolver(),
-                new CoreHook.CoreLoad.PackageCompilationAssemblyResolver()
+                new Loader.PackageCompilationAssemblyResolver()
             });
 
             _loadContext = AssemblyLoadContext.GetLoadContext(Assembly);
@@ -60,7 +60,7 @@ internal sealed class DependencyResolver
             // if not matched by exact name or not a default corehook module (which should be matched exactly)
             if (!matched && !runtime.Name.Contains(CoreHookModuleName))
             {
-                return runtime.Name.IndexOf(name.Name, StringComparison.OrdinalIgnoreCase) >= 0;
+                return runtime.Name.Contains(name.Name, StringComparison.OrdinalIgnoreCase);
             }
             return matched;
         }

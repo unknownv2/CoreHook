@@ -7,6 +7,7 @@ using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC;
 using CoreHook.IPC.Platform;
 using CoreHook.BinaryInjection;
+using CoreHook.IPC.Handlers;
 
 namespace CoreHook.Tests;
 
@@ -60,15 +61,17 @@ public class InjectionHelperTest
 
     private static bool SendInjectionComplete(string pipeName, int pid)
     {
-        using (var pipeClient = CreateClient(pipeName))
+        using var pipeClient = CreateClient(pipeName);
+
+        try
         {
-            if (pipeClient.Connect())
-            {
-                return SendPipeMessage(pipeClient.MessageHandler,
-                    InjectionCompleteNotification.CreateMessage(pid, true));
-            }
+            pipeClient.Connect();
+            return SendPipeMessage(pipeClient.MessageHandler, CoreHook.BinaryInjection.IPC.InjectionCompleteNotification.CreateMessage(pid, true));
         }
-        return false;
+        catch
+        {
+            return false;
+        }
     }
 
     private static INamedPipe CreateClient(string pipeName)
@@ -81,7 +84,7 @@ public class InjectionHelperTest
         return new PipePlatformBase();
     }
 
-    private static bool SendPipeMessage(IMessageWriter writer, IStringMessage message)
+    private static bool SendPipeMessage(IMessageHandler writer, IStringMessage message)
     {
         return writer.TryWrite(message);
     }

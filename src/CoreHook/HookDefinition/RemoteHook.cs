@@ -2,6 +2,7 @@
 using CoreHook.EntryPoint;
 using CoreHook.Helpers;
 using CoreHook.IPC.Platform;
+using CoreHook.Managed;
 
 using System;
 using System.Diagnostics;
@@ -16,11 +17,6 @@ namespace CoreHook.HookDefinition;
 /// </summary>
 public static class RemoteHook
 {
-
-    /// <summary>
-    /// The pipe name the FileMonitor RPC service communicates over between processes.
-    /// </summary>
-    private const string? CoreHookPipeName = "CoreHook";
     /// <summary>
     /// The name of the pipe used for notifying the host process
     /// if the hooking plugin has been loaded successfully in
@@ -32,7 +28,7 @@ public static class RemoteHook
     /// The .NET Assembly class that loads the .NET plugin, resolves any references, and executes
     /// the IEntryPoint.Run method for that plugin.
     /// </summary>
-    private static readonly CoreHook.Managed.AssemblyDelegate CoreHookLoaderDelegate = new("CoreHook.CoreLoad", "CoreHook.CoreLoad.PluginLoader", "Load", "CoreHook.CoreLoad.PluginLoader+LoadDelegate, CoreHook.CoreLoad");
+    private static readonly AssemblyDelegate CoreHookLoaderDelegate = new("CoreHook", "CoreHook.Loader.PluginLoader", "Load", "CoreHook.Loader.PluginLoader+LoadDelegate, CoreHook");
 
     /// <summary>
     /// Check if a file path is valid, otherwise throw an exception.
@@ -73,10 +69,10 @@ public static class RemoteHook
 
         using var injector = new RemoteInjector(targetProcessId, pipePlatform, InjectionPipeName);
         
-        var startCoreCLRArgs = new CoreHook.Managed.NetHostStartArguments(coreLoadPath, coreRootPath, verboseLog);
+        var startCoreCLRArgs = new NetHostStartArguments(coreLoadPath, coreRootPath, verboseLog);
         injector.Inject(coreRunPath, "StartCoreCLR", startCoreCLRArgs, true, hostpath, corehookPath);
 
-        var managedFuncArgs = new CoreHook.Managed.ManagedFunctionArguments(CoreHookLoaderDelegate, new ManagedRemoteInfo(Environment.ProcessId, InjectionPipeName, Path.GetFullPath(hookLibrary), parameters));
+        var managedFuncArgs = new ManagedFunctionArguments(CoreHookLoaderDelegate, new ManagedRemoteInfo(Environment.ProcessId, InjectionPipeName, Path.GetFullPath(hookLibrary), parameters));
         injector.Inject(coreRunPath, "ExecuteAssemblyFunction", managedFuncArgs, false);
     }
 

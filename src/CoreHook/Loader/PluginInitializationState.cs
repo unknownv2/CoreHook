@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CoreHook.CoreLoad;
+namespace CoreHook.Loader;
 
 [Flags]
 internal enum PluginInitializationState

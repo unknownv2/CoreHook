@@ -1,7 +1,8 @@
-﻿using System.IO;
-using Microsoft.Extensions.DependencyModel;
+﻿using Microsoft.Extensions.DependencyModel;
 
-namespace CoreHook.CoreLoad;
+using System.IO;
+
+namespace CoreHook.Loader;
 
 internal static class ResolverUtils
 {

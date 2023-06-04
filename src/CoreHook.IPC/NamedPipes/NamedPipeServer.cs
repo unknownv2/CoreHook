@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CoreHook.IPC.Handlers;
+using CoreHook.IPC.Messages;
+using CoreHook.IPC.Platform;
+
+using System;
 using System.IO;
 using System.IO.Pipes;
 using System.Threading;
-using CoreHook.IPC.Handlers;
-using CoreHook.IPC.Messages;
-using CoreHook.IPC.Platform;
-using CoreHook.IPC.Transport;
 
 namespace CoreHook.IPC.NamedPipes;
 
@@ -15,17 +15,18 @@ namespace CoreHook.IPC.NamedPipes;
 public class NamedPipeServer : INamedPipe
 {
     /// <inheritdoc />
-    public IConnection Connection { get; private set; }
-    /// <inheritdoc />
     public IMessageHandler MessageHandler { get; private set; }
 
-    private const int MaxPipeNameLength = 250;
- 
-    private readonly Action<ITransportChannel> _handleTransportConnection;
-    private bool _connectionStopped;
+    /// <inheritdoc />
+    public PipeStream Stream => _pipe;
 
+    private const int MaxPipeNameLength = 250;
+
+    private readonly Action<INamedPipe> _handleTransportConnection;
     private readonly string _pipeName;
     private readonly IPipePlatform _platform;
+
+    private bool _connectionStopped;
     private NamedPipeServerStream _pipe;
 
     /// <summary>
@@ -34,7 +35,7 @@ public class NamedPipeServer : INamedPipe
     /// <param name="pipeName">The name of the pipe server.</param>
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleTransportConnection">Event handler called when receiving a new connection.</param>
-    private NamedPipeServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleTransportConnection)
+    private NamedPipeServer(string pipeName, IPipePlatform platform, Action<INamedPipe> handleTransportConnection)
     {
         _pipeName = pipeName;
         _platform = platform;
@@ -49,7 +50,7 @@ public class NamedPipeServer : INamedPipe
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleRequest">Event handler called when receiving a new message from a client.</param>
     /// <returns>An instance of the new pipe server.</returns>
-    public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IStringMessage, ITransportChannel> handleRequest)
+    public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<IStringMessage, INamedPipe> handleRequest)
     {
         return CreateNewServer(pipeName, platform, connection => HandleTransportConnection(connection, handleRequest));
     }
@@ -61,7 +62,7 @@ public class NamedPipeServer : INamedPipe
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleRequest">Event handler called when receiving a new connection.</param>
     /// <returns>An instance of the new pipe server.</returns>
-    public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
+    public static INamedPipe StartNewServer(string pipeName, IPipePlatform platform, Action<INamedPipe> handleRequest)
     {
         return CreateNewServer(pipeName, platform, handleRequest);
     }
@@ -73,7 +74,7 @@ public class NamedPipeServer : INamedPipe
     /// <param name="platform">Method for initializing a new pipe-based server.</param>
     /// <param name="handleRequest">Event handler called when receiving a new connection.</param>
     /// <returns>An instance of the new pipe server.</returns>
-    private static NamedPipeServer CreateNewServer(string pipeName, IPipePlatform platform, Action<ITransportChannel> handleRequest)
+    private static NamedPipeServer CreateNewServer(string pipeName, IPipePlatform platform, Action<INamedPipe> handleRequest)
     {
         if (pipeName.Length > MaxPipeNameLength)
         {
@@ -84,11 +85,11 @@ public class NamedPipeServer : INamedPipe
         return pipeServer;
     }
 
-    private static void HandleTransportConnection(ITransportChannel channel, Action<IStringMessage, ITransportChannel> handleRequest)
+    private static void HandleTransportConnection(INamedPipe channel, Action<IStringMessage, INamedPipe> handleRequest)
     {
-        var connection = channel.Connection;
+        var connection = channel.Stream;
 
-        while (connection.IsConnected)
+        while (connection?.IsConnected ?? false)
         {
             var message = channel.MessageHandler.Read();
             if (message is null ||
@@ -102,7 +103,7 @@ public class NamedPipeServer : INamedPipe
     }
 
     /// <inheritdoc />
-    public bool Connect()
+    public async void Connect()
     {
         try
         {
@@ -112,76 +113,23 @@ public class NamedPipeServer : INamedPipe
             }
 
             _pipe = _platform.CreatePipeByName(_pipeName);
-            _pipe.BeginWaitForConnection(OnConnection, _pipe);
 
-            return true;
+            await _pipe.WaitForConnectionAsync();// BeginWaitForConnection(OnConnection, _pipe);
+
+            if (!_connectionStopped)
+            {
+                MessageHandler = new MessageHandler(_pipe);
+
+                _handleTransportConnection?.Invoke(this);
+            }
+        }
+        catch (IOException e)
+        {
+            Log($"Pipe {_pipeName} broken with: ", e);
         }
         catch (Exception e)
         {
             Log("Unhandled exception during server start", e);
-        }
-
-        return false;
-    }
-
-    private void OnConnection(IAsyncResult ar)
-    {
-        // Check if we should be accepting any new connections.
-        if (_connectionStopped)
-        {
-            return;
-        }
-
-        _pipe = null;
-        var connectionBroken = false;
-        if (!(ar.AsyncState is NamedPipeServerStream pipe))
-        {
-            return;
-        }
-
-        try
-        {
-            try
-            {
-                pipe.EndWaitForConnection(ar);
-            }
-            catch (IOException e)
-            {
-                connectionBroken = true;
-                if (!_connectionStopped)
-                {
-                    Log($"Pipe {_pipeName} broken with: ", e);
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                if (!_connectionStopped)
-                {
-                    throw;
-                }
-            }
-            catch (Exception e)
-            {
-                Log("Unhandled exception during connection initialization", e);
-            }
-            if (!_connectionStopped && !connectionBroken)
-            {
-                try
-                {
-                    Connection = new PipeConnection(pipe, () => _connectionStopped);
-                    MessageHandler = new MessageHandler(Connection);
-
-                    _handleTransportConnection?.Invoke(this);
-                }
-                catch (Exception e)
-                {
-                    Log("Unhandled exception during message transport initialization", e);
-                }
-            }
-        }
-        finally
-        {
-            pipe.Dispose();
         }
     }
 
@@ -196,7 +144,6 @@ public class NamedPipeServer : INamedPipe
     {
         _connectionStopped = true;
 
-        NamedPipeServerStream pipe = Interlocked.Exchange(ref _pipe, null);
-        pipe?.Dispose();
+        Interlocked.Exchange(ref _pipe, null)?.Dispose();
     }
 }

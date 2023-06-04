@@ -1,10 +1,11 @@
-﻿using System;
-using Xunit;
+﻿using CoreHook.IPC.Handlers;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
-using CoreHook.IPC.Transport;
-using CoreHook.IPC.Handlers;
+
+using System;
+
+using Xunit;
 
 namespace CoreHook.Tests;
 
@@ -25,7 +26,7 @@ public class NamedPipeTest
             }))
         using (var pipeClient = CreateClient(namedPipe))
         {
-            if(SendPipeMessage(pipeClient, testMessage))
+            if (SendPipeMessage(pipeClient, testMessage))
             {
                 ReadMessage(pipeClient);
             }
@@ -43,7 +44,7 @@ public class NamedPipeTest
             (message, channel) =>
             {
                 Assert.Equal(message.ToString(), testMessage);
-                channel.MessageHandler.Write(StringMessage.FromString(testMessage));
+                channel.MessageHandler.TryWrite(StringMessage.FromString(testMessage));
             }))
         using (var pipeClient = CreateClient(namedPipe))
         {
@@ -68,17 +69,17 @@ public class NamedPipeTest
               (request, channel) => SendPipeMessage(channel.MessageHandler, request)))
         using (var pipeClient = CreateClient(namedPipe))
         {
-            if (pipeClient.Connect())
-            {
-                var messageHandler = pipeClient.MessageHandler;
-                Assert.True(SendPipeMessage(messageHandler, testMessage1));
-                Assert.True(SendPipeMessage(messageHandler, testMessage2));
-                Assert.True(SendPipeMessage(messageHandler, testMessage3));
+            pipeClient.Connect();
 
-                Assert.Equal(ReadMessageToString(messageHandler), testMessage1);
-                Assert.Equal(ReadMessageToString(messageHandler), testMessage2);
-                Assert.Equal(ReadMessageToString(messageHandler), testMessage3);
-            }
+            var messageHandler = pipeClient.MessageHandler;
+            Assert.True(SendPipeMessage(messageHandler, testMessage1));
+            Assert.True(SendPipeMessage(messageHandler, testMessage2));
+            Assert.True(SendPipeMessage(messageHandler, testMessage3));
+
+            Assert.Equal(ReadMessageToString(messageHandler), testMessage1);
+            Assert.Equal(ReadMessageToString(messageHandler), testMessage2);
+            Assert.Equal(ReadMessageToString(messageHandler), testMessage3);
+
         }
     }
 
@@ -113,18 +114,22 @@ public class NamedPipeTest
         return new NamedPipeClient(pipeName);
     }
 
-    private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IStringMessage, ITransportChannel> handleRequest)
+    private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IStringMessage, INamedPipe> handleRequest)
     {
         return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, handleRequest);
     }
-    
+
     private static bool SendPipeMessage(INamedPipe pipeClient, string message)
     {
-        if (pipeClient.Connect())
+        try
         {
+            pipeClient.Connect();
             return pipeClient.MessageHandler.TryWrite(StringMessage.FromString(message));
         }
-        return false;
+        catch
+        {
+            return false;
+        }
     }
 
     private static bool SendPipeMessage(IMessageHandler messageHandler, string message)

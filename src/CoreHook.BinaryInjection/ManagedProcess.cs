@@ -10,8 +10,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
-
-using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.ProcessStatus;
 using Windows.Win32.System.Threading;
@@ -23,7 +21,7 @@ public sealed partial class ManagedProcess : IDisposable
     [LibraryImport("kernel32.dll", SetLastError = true)]
     internal static partial SafeWaitHandle CreateRemoteThread(SafeHandle processHandle, IntPtr lpThreadAttributes, UIntPtr dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
 
-    private readonly CoreHook.BinaryInjection.Memory.MemoryManager _memoryManager;
+    private readonly Memory.MemoryManager _memoryManager;
     private int targetProcessId;
 
     public Process Process { get; }
@@ -46,7 +44,7 @@ public sealed partial class ManagedProcess : IDisposable
         Process = process;
         SafeHandle = GetProcessHandle((uint)process.Id, access);
 
-        _memoryManager = new CoreHook.BinaryInjection.Memory.MemoryManager(this.SafeHandle);
+        _memoryManager = new Memory.MemoryManager(this.SafeHandle);
     }
 
     public ManagedProcess(int targetProcessId, int access = DefaultProcessAccess) : this(Process.GetProcessById(targetProcessId), access)
@@ -80,7 +78,7 @@ public sealed partial class ManagedProcess : IDisposable
     public nint CreateThread<T>(string module, string function, ref T arguments, bool waitForThreadExit = true)
     {
         SafeHandle? remoteThread = null;
-        CoreHook.BinaryInjection.Memory.MemoryAllocation? argumentsAllocation = null;
+        Memory.MemoryAllocation? argumentsAllocation = null;
 
         try
         {

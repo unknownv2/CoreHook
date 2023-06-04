@@ -3,7 +3,6 @@ using CoreHook.IPC.Messages;
 
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -11,7 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Threading;
 
-namespace CoreHook.CoreLoad;
+namespace CoreHook.Loader;
 
 public class PluginLoader
 {
@@ -41,13 +40,13 @@ public class PluginLoader
             }
 
             var payLoadStr = Marshal.PtrToStringUni(payLoadPtr);
-            
+
             var payLoad = JsonSerializer.Deserialize<ManagedRemoteInfo>(payLoadStr, new JsonSerializerOptions() { IncludeFields = true });
 
             payLoad.UserParams = payLoad.UserParams?.Zip(payLoad.UserParamsTypeNames!, (param, typeName) => param is null ? null : ((JsonElement)param).Deserialize(Type.GetType(typeName, true))).ToArray() ?? Array.Empty<object>();
 
             // Start the IPC message notifier with a connection to the host application.
-            var hostNotifier = new NotificationHelper(payLoad.ChannelName);
+            using var hostNotifier = new NotificationHelper(payLoad.ChannelName);
 
             hostNotifier.Log($"Initializing plugin: {payLoad.UserLibrary}.");
 

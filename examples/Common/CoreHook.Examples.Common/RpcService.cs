@@ -1,6 +1,5 @@
 ﻿using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
-using CoreHook.IPC.Transport;
 
 using JsonRpc.Standard.Contracts;
 using JsonRpc.Standard.Server;
@@ -52,6 +51,7 @@ public class RpcService<T>
     private INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform)
     {
         _pipeName = namedPipeName;
+        //TODO: ensure the pipe is disposed when detaching the service (not supported yet)
         return NamedPipeServer.StartNewServer(namedPipeName, pipePlatform, HandleTransportConnection);
     }
 
@@ -69,11 +69,9 @@ public class RpcService<T>
         return builder.Build();
     }
 
-    public void HandleTransportConnection(ITransportChannel channel)
+    public void HandleTransportConnection(INamedPipe channel)
     {
         Console.WriteLine($"Connection received from pipe {_pipeName}.");
-
-        var serverStream = channel.Connection.Stream;
 
         IJsonRpcServiceHost host = BuildServiceHost(_service);
 
@@ -81,8 +79,8 @@ public class RpcService<T>
 
         serverHandler.DefaultFeatures.Set(_session);
 
-        using (var reader = new ByLineTextMessageReader(serverStream))
-        using (var writer = new ByLineTextMessageWriter(serverStream))
+        using (var reader = new ByLineTextMessageReader(channel.Stream))
+        using (var writer = new ByLineTextMessageWriter(channel.Stream))
         using (serverHandler.Attach(reader, writer))
         {
             // Wait for exit
