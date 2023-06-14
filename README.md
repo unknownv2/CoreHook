@@ -5,6 +5,9 @@
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
 
+This is a fork from the original [CoreHook](https://github.com/unknownv2/CoreHook) by @unknownv2, adding .NET 5+ compatibility and widly refactoring the sources (I hope the original author won't be upset about it :wink:).
+
+
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 
 
 ## Contents
@@ -23,6 +26,11 @@ Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook)
 - [Credits](#credits)
 
 # Donations
+
+Since this project is a fork and all initial credits goes to @unknownv2, please consider donating to the causes he supports.
+
+I kept them here unmodified:
+
 If the project has helped you in any way and you want to give back, consider donating to great organizations such as [Black Girls Code](http://www.blackgirlscode.com/donations.html) and [Hack the Hood](https://www.hackthehood.org/donate.html), or volunteering at others like [The Hidden Genius Project](http://www.hiddengeniusproject.org/upcoming-volunteer-opportunities/).
 
 # Build status
@@ -34,6 +42,7 @@ If the project has helped you in any way and you want to give back, consider don
 | Travis CI       | Linux              | [![Build Status](https://travis-ci.com/unknownv2/CoreHook.svg?branch=master)](https://travis-ci.com/unknownv2/CoreHook)                                                         |
 
 ## Features
+
 * Intercept public API functions such as `CreateFile`
 * Intercept internal functions by address or [name if symbol files are available](#windows-symbol-support)
 * Supports NuGet package references for the plugin libraries 
@@ -41,10 +50,19 @@ If the project has helped you in any way and you want to give back, consider don
 
 For more information, [see the wiki](https://github.com/unknownv2/CoreHook/wiki).
 
+## Differences with the original CoreHook project
+
+* Now supports .NET 5+.
+* Major refactoring to simplify the code (too many interfaces and split classes for me!)
+* CoreHook.Loader is now embedded into the main CoreHook project (I guess there was a good reason for not doing it, but I have yet to check that...)
+* Updated the C++ .NET host to support .NET 5+ and moved it into the same solution (now named CoreHook.NativeHost)
+* Simplified the examples while keeping the same functionality
+
+Note: the CoreHook.IPC project should be moved outside the CoreHook repository and probably renamed as it is not solely usable in this context but for any inter-process communication needs.
+
 ## Supported Platforms
 
 CoreHook supports application function call interception on various architectures running [Windows](https://docs.microsoft.com/en-us/dotnet/core/windows-prerequisites?tabs=netcore2x). [Linux and macOS support is also planned](https://github.com/unknownv2/CoreHook/wiki/Linux-and-macOS-Support).
-
 
 | Architecture  | Operating System      |
 | ------------- |:---------------------:|
@@ -67,9 +85,8 @@ CoreHook supports application function call interception on various architecture
 
 ## Dependencies
 
-* [.NET Core](https://docs.microsoft.com/en-us/dotnet/core/)
+* [.NET 5+](https://docs.microsoft.com/en-us/dotnet/core/)
 * [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking)
-* [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host)
 
 ## Examples
 
@@ -90,17 +107,18 @@ If you are building the CoreHook project (for example, with `dotnet build`) and 
 
 The project provides two options for configuring the runtime: 
 
-1. A local configuration file named `CoreHook.CoreLoad.runtimeconfig.json`
-(which is located next to `CoreHook.CoreLoad.dll` assembly in the CoreHook output directory) to initialize CoreCLR. 
+1. A local configuration file named `CoreHook.runtimeconfig.json` (which is located next to `CoreHook.dll` assembly in the CoreHook output directory) to initialize CoreCLR. 
 2. A global configuration file named `dotnet.runtimeconfig.json`.
 
-The host module will first attempt to use the local configuration file, then it will check for the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.CoreLoad.dll` assembly for resolving dependencies.
+The host module will first attempt to use the local configuration file, then it will check for the global configuration file and use that if it exists, and finally it will use the directory of the `CoreHook.dll` assembly for resolving dependencies.
 
 The `runtimeconfig` file must contain the framework information for hosting .NET Core in the target application.
-When you build any .NET Core application, these files are generated to the output directory. [For more information on the
-configuration options, see here](https://github.com/dotnet/cli/blob/master/Documentation/specs/runtime-configuration-file.md).
+When you build any .NET 5+ application, these files are generated to the output directory. [For more information on the configuration options, see here](https://github.com/dotnet/cli/blob/master/Documentation/specs/runtime-configuration-file.md).
 
 You can use the `CoreHook.FileMonitor.runtimeconfig.json` and `CoreHook.FileMonitor.runtimeconfig.dev.json` files found in your build output directory as references for creating the global or local configuration files.
+
+:warn: The following has to be reviewed and hasn't been updated for this fork.
+------------------------------------------------------------------------------
 
 The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies. This guide assumes you have installed the `.NET Core 2.2` runtime or SDK for both x86 and x64 architectures.
 
@@ -125,7 +143,7 @@ The runtime configuration file should look like the one below, where `additional
 
 #### Local Configuration
 
-To use a local configuration, create a file with the contents described above called `CoreHook.CoreLoad.runtimeconfig.json` and save it to the project output directory where `CoreHook.CoreLoad.dll` is located.
+To use a local configuration, create a file with the contents described above called `CoreHook.runtimeconfig.json` and save it to the project output directory where `CoreHook.dll` is located.
 
 #### Global Configuration
 
@@ -156,10 +174,7 @@ Then, you can either open the `CoreHook` solution in `Visual Studio` or run `dot
 
 #### Installing Dependencies
 
-Build or download the binary releases from [CoreHook.Hooking](https://github.com/unknownv2/CoreHook.Hooking) and [CoreHook.Host](https://github.com/unknownv2/CoreHook.Host). You can use the [download-deps](/download-deps.cmd) script, which downloads the latest binary releases to a folder called `deps` in the root of the project. 
-Place the `coreload32.dll (X86, ARM)` and/or `coreload64.dll (X64, ARM64)` binaries in the output directory of your program. Then, place the `corehook32.dll (X86, ARM)` and/or `corehook64.dll (X64, ARM64)` binaries in the same output directory. These are all of the required files for using the examples above. 
-
-You can then start the program you built above.
+Dependencies are already embedded in this project as they shouldn't be updated that regularly. They are saved in the Native folder of the CoreHook project.
 
 ### Windows 10 UWP
 
@@ -184,6 +199,7 @@ $aumidList
  **Notes:** There is currently no way to set the proper access control on our pipes on the .NET Core platform and the issue is [being tracked here](https://github.com/dotnet/corefx/issues/31190) so we use P/Invoke to call `kernel32.dll!CreateNamedPipe` directly.
 
 ### Windows 10 IoT Core (ARM)
+
 **[Raspberry Pi itself is supported only as deployment target but there is an unsupported version of the SDK available as well. Read more about the publishing process by following this link.](https://github.com/dotnet/core/blob/master/samples/RaspberryPiInstructions.md)**
 
 For `Windows 10 IoT Core`, you can publish the application by running the `publish.ps1` [PowerShell script](#publishing-script).

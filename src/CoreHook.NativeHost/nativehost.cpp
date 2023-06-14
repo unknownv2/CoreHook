@@ -13,6 +13,8 @@
 #include <assert.h>
 #include <iostream>
 #include <vector>
+#include <comdef.h>
+#include <comutil.h>
 
 // Provided by the AppHost NuGet package and installed as an SDK pack
 #include "nethost.h"
@@ -58,33 +60,27 @@ load_assembly_and_get_function_pointer_fn get_dotnet_load_assembly(const char_t*
 void* load_library(const char_t*);
 void* get_export(void*, const char*);
 
-#ifdef WINDOWS
 void* load_library(const char_t* path)
 {
+#ifdef WINDOWS
 	HMODULE h = ::LoadLibraryW(path);
+#else
+	void* h = dlopen(path, RTLD_LAZY | RTLD_LOCAL);
+#endif
 	assert(h != nullptr);
 	return (void*)h;
 }
+
 void* get_export(void* h, const char* name)
 {
+#ifdef WINDOWS
 	void* f = ::GetProcAddress((HMODULE)h, name);
-	assert(f != nullptr);
-	return f;
-}
 #else
-void* load_library(const char_t* path)
-{
-	void* h = dlopen(path, RTLD_LAZY | RTLD_LOCAL);
-	assert(h != nullptr);
-	return h;
-}
-void* get_export(void* h, const char* name)
-{
 	void* f = dlsym(h, name);
+#endif
 	assert(f != nullptr);
 	return f;
 }
-#endif
 
 // <SnippetLoadHostFxr>
 // Using the nethost library, discover the location of hostfxr and get exports
@@ -93,9 +89,18 @@ bool load_hostfxr()
 	// Pre-allocate a large buffer for the path to hostfxr
 	char_t buffer[MAX_PATH];
 	size_t buffer_size = sizeof(buffer) / sizeof(char_t);
+
 	int rc = get_hostfxr_path(buffer, &buffer_size, nullptr);
-	if (rc != 0) {
+	switch (rc) {
+	case 0x00000000:
+		// Log
+		break;
+
+	case 0x80008098: // HostApiBufferTooSmall: The buffer specified to an API is not big enough to fit the requested value
+	default:
 		return false;
+		break;
+
 	}
 
 	// Load hostfxr and get desired exports
@@ -116,19 +121,42 @@ load_assembly_and_get_function_pointer_fn get_dotnet_load_assembly(const char_t*
 	void* load_assembly_and_get_function_pointer = nullptr;
 	hostfxr_handle cxt = nullptr;
 	int rc = init_fptr(config_path, nullptr, &cxt);
-	if (rc != 0 || cxt == nullptr)
-	{
+
+	switch (rc) {
+	case 0x00000000: // Success: Hosting components were successfully initialized 
+		// Add log or respond to initiator using a managed callback?
+		break;
+
+	case 0x00000001: // Success_HostAlreadyInitialized: Config is compatible with already initialized hosting components
+		// Add log or respond to initiator using a managed callback?
+		break;
+
+	case 0x00000002: // Success_DifferentRuntimeProperties: Config has runtime properties that differ from already initialized hosting components
+		// Add log or respond to initiator using a managed callback?
+		break;
+
+	case 0x800080a5: // CoreHostIncompatibleConfig: Config is incompatible with already initialized hosting components
+		break;
+
+	case 0x80008093: // InvalidConfigFile: The .runtimeconfig.json file is invalid
+	default:
 		std::cerr << "Init failed: " << std::hex << std::showbase << rc << std::endl;
 		close_fptr(cxt);
 		return nullptr;
+		break;
 	}
 
 	// Get the load assembly function pointer
 	rc = get_delegate_fptr(cxt, hdt_load_assembly_and_get_function_pointer, &load_assembly_and_get_function_pointer);
 
-	if (rc != 0 || load_assembly_and_get_function_pointer == nullptr)
-	{
+	switch (rc) {
+	case 0x00000000: // Success
+		break;
+
+	case 0x800080a6: // HostApiUnsupportedScenario: the given delegate type is not supported using the given context
+	case 0x800080a7: // HostFeatureDisabled: managed feature support for native host is disabled
 		std::cerr << "Get delegate failed: " << std::hex << std::showbase << rc << std::endl;
+		break;
 	}
 
 	close_fptr(cxt);
@@ -153,17 +181,22 @@ SHARED_API int StartCoreCLR(const core_host_arguments* arguments)
 		return 1;// coreload::StatusCode::InvalidArgFailure;
 	}
 
+	//while (!::IsDebuggerPresent())
+	//	::Sleep(100); // to avoid 100% CPU load
+
+	//DebugBreak();
+
+	/*string_t pipename = arguments->pipename;
+	HANDLE pipeHandle = CreateFile((STR("\\\\.\\pipe\\") + pipename).c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+
+	WriteToPipe(pipeHandle, "CoreHook.NativeHost successfully loaded! Now starting the .NET Host.");*/
+
 	// STEP 1: Load HostFxr and get exported hosting functions
 	if (!load_hostfxr())
 	{
 		assert(false && "Failure: load_hostfxr()");
 		return EXIT_FAILURE;
 	}
-
-	//while (!::IsDebuggerPresent())
-	//	::Sleep(100); // to avoid 100% CPU load
-
-	//DebugBreak();
 
 	// STEP 2: Initialize and start the .NET Core runtime
 	string_t host_path_str = arguments->assembly_file_path;
@@ -172,7 +205,21 @@ SHARED_API int StartCoreCLR(const core_host_arguments* arguments)
 
 	assert(load_assembly_and_get_function_pointer != nullptr && "Failure: StartCoreCLR()");
 
+	// Release the pipe handle to allow further connections
+	//CloseHandle(pipeHandle);
+
 	return 0;
+}
+
+
+
+void WriteToPipe(const HANDLE pipeHandle, const std::string msg)
+{
+	const std::string message = std::string("LogMessage|1|") + msg;
+
+	BSTR data = _com_util::ConvertStringToBSTR(message.c_str());
+ 
+	WriteFile(pipeHandle, &data, sizeof(data), nullptr, NULL);
 }
 
 

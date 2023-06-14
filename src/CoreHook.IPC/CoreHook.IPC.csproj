@@ -5,6 +5,7 @@
     <Platforms>AnyCPU</Platforms>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Nullable>Enable</Nullable>
   </PropertyGroup>
 
   <!--<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

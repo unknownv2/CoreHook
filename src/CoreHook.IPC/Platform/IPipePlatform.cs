@@ -1,4 +1,5 @@
-﻿using System.IO.Pipes;
+﻿
+using System.IO.Pipes;
 
 namespace CoreHook.IPC.Platform;
 
@@ -7,6 +8,8 @@ namespace CoreHook.IPC.Platform;
 /// </summary>
 public interface IPipePlatform
 {
+    public static readonly IPipePlatform Default = DefaultPipePlatform.Instance;
+
     /// <summary>
     /// Creates a named pipe server for communication with a client.
     /// </summary>

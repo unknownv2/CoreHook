@@ -1,5 +1,4 @@
-﻿using CoreHook.IPC.Handlers;
-using CoreHook.IPC.Messages;
+﻿using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
 
@@ -18,11 +17,10 @@ public class NamedPipeTest
         const string testMessage = "TestMessage";
         bool receivedMessage = false;
 
-        using (CreateServer(namedPipe, GetPipePlatform(),
-            (request, channel) =>
+        using (CreateServer(namedPipe, GetPipePlatform(), (request) =>
             {
                 receivedMessage = true;
-                SendPipeMessage(channel.MessageHandler, "RandomResponse");
+                SendPipeMessage(request, "RandomResponse");
             }))
         using (var pipeClient = CreateClient(namedPipe))
         {
@@ -41,18 +39,16 @@ public class NamedPipeTest
         const string testMessage = "TestMessage";
 
         using (CreateServer(namedPipe, GetPipePlatform(),
-            (message, channel) =>
+            async (channel) =>
             {
-                Assert.Equal(message.ToString(), testMessage);
-                channel.MessageHandler.TryWrite(StringMessage.FromString(testMessage));
+                Assert.Equal((await channel.Read()).ToString(), testMessage);
+                channel.TryWrite(new StringMessage(testMessage));
             }))
         using (var pipeClient = CreateClient(namedPipe))
         {
             if (SendPipeMessage(pipeClient, testMessage))
             {
-
-
-                Assert.Equal(ReadMessageToString(pipeClient.MessageHandler), testMessage);
+                Assert.Equal(ReadMessageToString(pipeClient), testMessage);
             }
         }
     }
@@ -65,20 +61,19 @@ public class NamedPipeTest
         const string testMessage2 = "TestMessage2";
         const string testMessage3 = "TestMessage3";
 
-        using (CreateServer(namedPipe, GetPipePlatform(),
-              (request, channel) => SendPipeMessage(channel.MessageHandler, request)))
+        using var server = new NamedPipeServer(namedPipe, GetPipePlatform(), async pipe => SendPipeMessage(server, await pipe.Read());
+        //(CreateServer(namedPipe, GetPipePlatform(), (pipe) => SendPipeMessage(namedPipe, await pipe.Read()))
         using (var pipeClient = CreateClient(namedPipe))
         {
             pipeClient.Connect();
 
-            var messageHandler = pipeClient.MessageHandler;
-            Assert.True(SendPipeMessage(messageHandler, testMessage1));
-            Assert.True(SendPipeMessage(messageHandler, testMessage2));
-            Assert.True(SendPipeMessage(messageHandler, testMessage3));
+            Assert.True(SendPipeMessage(pipeClient, testMessage1));
+            Assert.True(SendPipeMessage(pipeClient, testMessage2));
+            Assert.True(SendPipeMessage(pipeClient, testMessage3));
 
-            Assert.Equal(ReadMessageToString(messageHandler), testMessage1);
-            Assert.Equal(ReadMessageToString(messageHandler), testMessage2);
-            Assert.Equal(ReadMessageToString(messageHandler), testMessage3);
+            Assert.Equal(ReadMessageToString(pipeClient), testMessage1);
+            Assert.Equal(ReadMessageToString(pipeClient), testMessage2);
+            Assert.Equal(ReadMessageToString(pipeClient), testMessage3);
 
         }
     }
@@ -90,10 +85,10 @@ public class NamedPipeTest
         const string testMessage = "TestMessage";
 
         using (CreateServer(namedPipe, GetPipePlatform(),
-            (message, channel) =>
+            (message) =>
             {
                 Assert.Equal(message.ToString(), testMessage);
-                SendPipeMessage(channel.MessageHandler, "RandomResponse");
+                SendPipeMessage(message, "RandomResponse");
             }))
         using (var pipeClient = CreateClient(namedPipe))
         {
@@ -114,9 +109,14 @@ public class NamedPipeTest
         return new NamedPipeClient(pipeName);
     }
 
-    private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<IStringMessage, INamedPipe> handleRequest)
+    private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<CustomMessage> handleRequest)
     {
-        return NamedPipeServer.StartNew(namedPipeName, pipePlatform, handleRequest);
+        return new NamedPipeServer(namedPipeName, pipePlatform, handleRequest);
+    }
+
+    private static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform, Action<INamedPipe> handleConnection)
+    {
+        return new NamedPipeServer(namedPipeName, pipePlatform, handleConnection);
     }
 
     private static bool SendPipeMessage(INamedPipe pipeClient, string message)
@@ -124,7 +124,7 @@ public class NamedPipeTest
         try
         {
             pipeClient.Connect();
-            return pipeClient.MessageHandler.TryWrite(StringMessage.FromString(message));
+            return pipeClient.TryWrite(new StringMessage("", message)).Result;
         }
         catch
         {
@@ -132,33 +132,24 @@ public class NamedPipeTest
         }
     }
 
-    private static bool SendPipeMessage(IMessageHandler messageHandler, string message)
+    private static bool SendPipeMessage2(INamedPipe pipe, string message)
     {
-        return SendPipeMessage(messageHandler, StringMessage.FromString(message));
+        return SendPipeMessage(pipe, new StringMessage("", message));
     }
 
-    private static bool SendPipeMessage(IMessageHandler messageHandler, IStringMessage message)
+    private static bool SendPipeMessage(INamedPipe pipe, CustomMessage message)
     {
-        return messageHandler.TryWrite(message);
+        return pipe.TryWrite(message).Result;
     }
 
-    private static string ReadMessageToString(IMessageHandler messageHandler)
+    private static string ReadMessageToString(INamedPipe pipe)
     {
-        return messageHandler.Read().ToString();
+        return pipe.Read().ToString();
     }
 
-    private static IStringMessage ReadMessage(IMessageHandler messageHandler)
+    private static CustomMessage ReadMessage(INamedPipe pipe)
     {
-        return messageHandler.Read();
+        return pipe.Read().Result;
     }
 
-    private static IStringMessage ReadMessage(INamedPipe pipeClient)
-    {
-        return ReadMessage(pipeClient.MessageHandler);
-    }
-
-    private static string ReadMessageToString(INamedPipe pipeClient)
-    {
-        return ReadMessageToString(pipeClient.MessageHandler);
-    }
 }

@@ -1,16 +1,14 @@
-﻿using CoreHook.FileMonitor.Service;
-using CoreHook.HookDefinition;
+﻿using CoreHook.HookDefinition;
+using CoreHook.IPC.Messages;
+using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
-
-using JsonRpc.Standard.Server;
+using CoreHook.Uwp.FileMonitor.Hook;
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Threading.Tasks;
 
 namespace CoreHook.Uwp.FileMonitor;
 
@@ -30,7 +28,7 @@ class Program
     /// <summary>
     /// Class that handles creating a named pipe server for communicating with the target process.
     /// </summary>
-    private static readonly IPipePlatform PipePlatform = new Pipe.PipePlatform();
+    private static readonly IPipePlatform PipePlatform = new PipePlatform();
 
     /// <summary>
     /// Security Identifier representing ALL_APPLICATION_PACKAGES permission.
@@ -107,22 +105,22 @@ class Program
     /// </summary>
     private static void StartListener()
     {
-        var session = new FileMonitorSessionFeature();
+        using var server = new NamedPipeServer(PipeName, IPipePlatform.Default, handleRequest);
 
-        Examples.Common.RpcService<FileMonitorService>.CreateRpcService(PipeName, PipePlatform, session, AsyncHandler);
-
+        Console.WriteLine($"Now listening on {PipeName}.");
         Console.WriteLine("Press Enter to quit.");
         Console.ReadLine();
-
-        session.StopServer();
     }
 
-
-    private static async Task AsyncHandler(RequestContext context, Func<Task> next)
+    private static void handleRequest(CustomMessage obj)
     {
-        Console.WriteLine("> {0}", context.Request);
-        await next();
-        Console.WriteLine("< {0}", context.Response);
+        if (obj is CreateFileMessage message)
+        {
+            foreach (var f in message.Queue)
+            {
+                Console.WriteLine(f);
+            }
+        }
     }
 
     /// <summary>

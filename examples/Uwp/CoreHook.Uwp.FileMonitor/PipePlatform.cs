@@ -4,7 +4,7 @@ using System.Security.Principal;
 
 using CoreHook.IPC.Platform;
 
-namespace CoreHook.Uwp.FileMonitor.Pipe;
+namespace CoreHook.Uwp.FileMonitor;
 
 public class PipePlatform : IPipePlatform
 {
@@ -42,6 +42,10 @@ public class PipePlatform : IPipePlatform
     /// <returns>The named pipe used for communicating with UWP applications.</returns>
     public NamedPipeServerStream CreatePipeByName(string pipeName, string serverName = ".")
     {
-        return NamedPipeNative.CreateNamedServerPipe(serverName, "pipe", pipeName, CreateUwpPipeSecurity());
+        var pipeServerStream = NamedPipeServerStreamAcl.Create(/*$"\\\\{serverName}\\pipe\\{pipeName}"*/pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 65536, 65536, CreateUwpPipeSecurity());
+        //var pipeServerStream = new NamedPipeServerStream(/*$"\\\\{serverName}\\pipe\\{pipeName}"*/pipeName, PipeDirection.InOut, 1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, 65536, 65536);
+        //pipeServerStream.SetAccessControl(CreateUwpPipeSecurity());
+
+        return pipeServerStream;
     }
 }

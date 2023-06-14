@@ -2,6 +2,9 @@
 #define NATIVEHOST_DLL_H_
 
 #include "hostfxr.h"
+#include <windows.h>
+#include <iostream>
+#include <comutil.h>
 
 // The max length of a function to be executed in a .NET class
 constexpr auto max_function_name_size = 256;
@@ -19,6 +22,7 @@ struct core_host_arguments
 	const char_t	assembly_file_path[max_path];
 	const char_t	core_root_path[max_path];
 	unsigned char	verbose;
+	const char_t	pipename[max_path];
 };
 
 // Arguments for executing a function located in a .NET assembly,
@@ -33,23 +37,9 @@ struct assembly_function_call
 	const char_t payload[1024];
 };
 
-//struct core_load_arguments
-//{
-//	const unsigned char* user_data;
-//	unsigned long        user_data_size;
-//};
+void WriteToPipe(const HANDLE pipeHandle, const std::string msg);
 
-//struct remote_entry_info
-//{
-//	unsigned long        host_process_id;
-//	char_t				 user_library_path[max_path];
-//	char_t				 user_library_name[max_function_name_size];
-//	char_t				 channel[max_function_name_size];
-//
-//	unsigned long        user_data_size;
-//	const unsigned char* user_data;
-//};
-
+// ===============================================================================
 // DLL exports used for starting, executing in, and stopping the .NET Core runtime
 
 // Create a native function delegate for a function inside a .NET assembly

@@ -25,15 +25,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CXuesong.JsonRpc.Standard" Version="0.4.1" />
-    <PackageReference Include="CXuesong.JsonRpc.Streams" Version="0.4.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\src\CoreHook\CoreHook.csproj" />
     <ProjectReference Include="..\..\..\src\CoreHook.IPC\CoreHook.IPC.csproj" />
-    
-    <ProjectReference Include="..\CoreHook.FileMonitor.Service\CoreHook.FileMonitor.Service.csproj" />
     <ProjectReference Include="..\CoreHook.FileMonitor.Hook\CoreHook.FileMonitor.Hook.csproj" />
   </ItemGroup>
 

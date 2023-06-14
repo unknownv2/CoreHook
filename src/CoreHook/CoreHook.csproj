@@ -43,6 +43,7 @@
     <ProjectReference Include="..\CoreHook.NativeHost\CoreHook.NativeHost.vcxproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <OutputItemType>Content</OutputItemType>
+      <IncludeAssets>All</IncludeAssets>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
   </ItemGroup>

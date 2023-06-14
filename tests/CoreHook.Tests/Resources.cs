@@ -149,7 +149,7 @@ internal static class Resources
         var (coreRootPath, coreLoadLibrary, _, _, _) = ModulesPathHelper.GetCoreLoadPaths(false);
 
         using var injector = new RemoteInjector(target.Id, null, injectionPipeName);
-        injector.Inject(injectionLibrary, "", new CoreHook.Managed.NetHostStartArguments(coreLoadLibrary, coreRootPath, false));
+        injector.Inject(injectionLibrary, "", new Managed.NetHostStartArguments(coreLoadLibrary, coreRootPath, false, null));
 
     }
 

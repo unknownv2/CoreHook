@@ -1,15 +1,14 @@
-﻿using CoreHook.FileMonitor.Service;
+﻿using CoreHook.FileMonitor.Hook;
 using CoreHook.HookDefinition;
+using CoreHook.IPC.Messages;
+using CoreHook.IPC.NamedPipes;
 using CoreHook.IPC.Platform;
-
-using JsonRpc.Standard.Server;
 
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace CoreHook.FileMonitor;
 
@@ -24,11 +23,6 @@ class Program
     /// The name of the communication pipe that will be used for this program
     /// </summary>
     private const string PipeName = "FileMonitorHookPipe";
-
-    /// <summary>
-    /// Class that handles creating a named pipe server for communicating with the target process.
-    /// </summary>
-    private static readonly IPipePlatform PipePlatform = new PipePlatform();
 
     private static void Main(string[] args)
     {
@@ -77,8 +71,8 @@ class Program
             targetProcessId = Process.Start(targetProgram)?.Id ?? throw new InvalidOperationException($"Failed to start the executable at {targetProgram}");
         }
 
-        // Inject FileMonitor dll into process.
-        RemoteHook.InjectDllIntoTarget(targetProcessId, injectionLibrary, PipePlatform, true, PipeName);
+        // Inject FileMonitor dll into process using default pipe platform
+        RemoteHook.InjectDllIntoTarget(targetProcessId, injectionLibrary, verboseLog: true, parameters: PipeName);
 
         // Start the RPC server for handling requests from the hooked program.
         StartListener();
@@ -139,20 +133,22 @@ class Program
     /// </summary>
     private static void StartListener()
     {
-        var session = new FileMonitorSessionFeature();
-
-        Examples.Common.RpcService<FileMonitorService>.CreateRpcService(PipeName, PipePlatform, session, AsyncHandler);
-
+        using var server = new NamedPipeServer(PipeName, IPipePlatform.Default, handleRequest);
+       
+        Console.WriteLine($"Now listening on {PipeName}."); 
         Console.WriteLine("Press Enter to quit.");
         Console.ReadLine();
-
-        session.StopServer();
     }
 
-    private static async Task AsyncHandler(RequestContext context, Func<Task> next)
+    private static void handleRequest(CustomMessage obj)
     {
-        Console.WriteLine("> {0}", context.Request);
-        await next();
-        Console.WriteLine("< {0}", context.Response);
+        if (obj is CreateFileMessage message)
+        {
+            foreach (var f in message.Queue)
+            {
+                Console.WriteLine(f);
+            }
+        }
     }
+
 }

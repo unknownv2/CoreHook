@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace CoreHook.Loader;
 
@@ -48,13 +49,15 @@ public class PluginLoader
             // Start the IPC message notifier with a connection to the host application.
             using var hostNotifier = new NotificationHelper(payLoad.ChannelName);
 
-            hostNotifier.Log($"Initializing plugin: {payLoad.UserLibrary}.");
+            _ = hostNotifier.Log($"Initializing plugin: {payLoad.UserLibrary}.");
 
             //TODO: deps.json file is not copied to output! fix this
             var resolver = new DependencyResolver(payLoad.UserLibrary);
 
             // Execute the plugin library's entry point and pass in the user arguments.
-            return (int)LoadPlugin(resolver.Assembly, payLoad.UserParams, hostNotifier);
+            var t = LoadPlugin(resolver.Assembly, payLoad.UserParams, hostNotifier);
+            t.Wait();
+            return (int)t.Result;
         }
         catch (ArgumentOutOfRangeException outOfRangeEx)
         {
@@ -74,7 +77,7 @@ public class PluginLoader
     /// <param name="assembly">The plugin assembly containing the entry point.</param>
     /// <param name="paramArray">The parameters passed to the plugin Run method.</param>
     /// <param name="hostNotifier">Used to notify the host about the state of the plugin initialization.</param>
-    private static PluginInitializationState LoadPlugin(Assembly assembly, object[] paramArray, NotificationHelper hostNotifier)
+    private static async Task<PluginInitializationState> LoadPlugin(Assembly assembly, object[] paramArray, NotificationHelper hostNotifier)
     {
         var entryPoint = FindEntryPoint(assembly);
         if (entryPoint is null)
@@ -88,16 +91,16 @@ public class PluginLoader
             Log(hostNotifier, new MissingMethodException($"Failed to find the 'Run' function with {paramArray.Length} parameter(s) in {assembly.FullName}."));
         }
 
-        hostNotifier.Log("Found entry point, initializing plugin class.");
+        _ = hostNotifier.Log("Found entry point, initializing plugin class.");
 
         var instance = InitializeInstance(entryPoint, paramArray);
         if (instance is null)
         {
             Log(hostNotifier, new MissingMethodException($"Failed to find the constructor {entryPoint.Name} in {assembly.FullName}"));
         }
-        hostNotifier.Log("Plugin successfully initialized. Executing the plugin entry point.");
+        _ = hostNotifier.Log("Plugin successfully initialized. Executing the plugin entry point.");
 
-        if (hostNotifier.SendInjectionComplete(Environment.ProcessId))
+        if (await hostNotifier.SendInjectionComplete(Environment.ProcessId))
         {
             // Close the plugin loading message channel.
             hostNotifier.Dispose();

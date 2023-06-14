@@ -55,9 +55,11 @@ public static class RemoteHook
     /// <param name="pipePlatform"></param>
     /// <param name="verboseLog"></param>
     /// <param name="parameters"></param>
-    public static void InjectDllIntoTarget(int targetProcessId, string hookLibrary, IPipePlatform pipePlatform, bool verboseLog = false, params object[] parameters)
+    public static void InjectDllIntoTarget(int targetProcessId, string hookLibrary, IPipePlatform? pipePlatform = null, bool verboseLog = false, params object[] parameters)
     {
         ValidateFilePath(hookLibrary);
+
+        pipePlatform ??= IPipePlatform.Default;
 
         var is64Bits = Process.GetProcessById(targetProcessId).Is64Bit();
 
@@ -68,14 +70,13 @@ public static class RemoteHook
         //GrantAllAppPackagesAccessToFile(corehookPath);
 
         using var injector = new RemoteInjector(targetProcessId, pipePlatform, InjectionPipeName);
-        
-        var startCoreCLRArgs = new NetHostStartArguments(coreLoadPath, coreRootPath, verboseLog);
+
+        var startCoreCLRArgs = new NetHostStartArguments(coreLoadPath, coreRootPath, verboseLog, InjectionPipeName);
         injector.Inject(coreRunPath, "StartCoreCLR", startCoreCLRArgs, true, hostpath, corehookPath);
 
         var managedFuncArgs = new ManagedFunctionArguments(CoreHookLoaderDelegate, new ManagedRemoteInfo(Environment.ProcessId, InjectionPipeName, Path.GetFullPath(hookLibrary), parameters));
         injector.Inject(coreRunPath, "ExecuteAssemblyFunction", managedFuncArgs, false);
     }
-
 
     private static readonly SecurityIdentifier AllAppPackagesSid = new SecurityIdentifier("S-1-15-2-1");
 

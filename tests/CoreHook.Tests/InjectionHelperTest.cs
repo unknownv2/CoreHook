@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Threading.Tasks;
-using Xunit;
+﻿using CoreHook.BinaryInjection;
+using CoreHook.BinaryInjection.IPC;
 using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
-using CoreHook.IPC;
 using CoreHook.IPC.Platform;
-using CoreHook.BinaryInjection;
-using CoreHook.IPC.Handlers;
+
+using System;
+using System.Threading.Tasks;
+
+using Xunit;
 
 namespace CoreHook.Tests;
 
@@ -66,7 +66,7 @@ public class InjectionHelperTest
         try
         {
             pipeClient.Connect();
-            return SendPipeMessage(pipeClient.MessageHandler, CoreHook.BinaryInjection.IPC.InjectionCompleteNotification.CreateMessage(pid, true));
+            return SendPipeMessage(pipeClient, new InjectionCompleteMessage(pid, true));
         }
         catch
         {
@@ -84,8 +84,8 @@ public class InjectionHelperTest
         return new PipePlatformBase();
     }
 
-    private static bool SendPipeMessage(IMessageHandler writer, IStringMessage message)
+    private static bool SendPipeMessage(INamedPipe pipe, CustomMessage message)
     {
-        return writer.TryWrite(message);
+        return pipe.TryWrite(message).Result;
     }
 }

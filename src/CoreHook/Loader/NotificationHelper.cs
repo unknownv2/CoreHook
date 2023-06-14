@@ -1,7 +1,9 @@
-﻿using CoreHook.IPC.Messages;
+﻿using CoreHook.BinaryInjection.IPC;
+using CoreHook.IPC.Messages;
 using CoreHook.IPC.NamedPipes;
 
 using System;
+using System.Threading.Tasks;
 
 namespace CoreHook.Loader;
 
@@ -21,14 +23,14 @@ internal class NotificationHelper : IDisposable
     /// </summary>
     /// <param name="processId">The process ID to send in the notification message.</param>
     /// <returns>True if the injection completion notification was sent successfully.</returns>
-    internal bool SendInjectionComplete(int processId)
+    internal async Task<bool> SendInjectionComplete(int processId)
     {
-        return _pipe.MessageHandler.TryWrite(BinaryInjection.IPC.InjectionCompleteNotification.CreateMessage(processId, true));
+        return await _pipe.TryWrite(new InjectionCompleteMessage(processId, true));
     }
 
-    internal bool Log(string message, LogLevel level = LogLevel.Info)
+    internal async Task<bool> Log(string message, LogLevel level = LogLevel.Info)
     {
-        return _pipe.MessageHandler.TryWrite(LogMessageNotification.CreateMessage(level, message));
+        return await _pipe.TryWrite(new LogMessage(level, message));
     }
 
     public void Dispose()

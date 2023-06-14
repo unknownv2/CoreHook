@@ -4,86 +4,37 @@ using System.IO.Pipes;
 using System.Security.Principal;
 using System.Threading;
 
-using CoreHook.IPC.Handlers;
-
 namespace CoreHook.IPC.NamedPipes;
 
 /// <summary>
 /// Creates a pipe client for communication with a pipe server.
 /// </summary>
-public class NamedPipeClient : INamedPipe
+public class NamedPipeClient : NamedPipeBase
 {
-    /// <inheritdoc />
-    public IMessageHandler MessageHandler { get; private set; }
-
-    /// <inheritdoc />
-    public PipeStream Stream => _pipeStream;
-
-    private NamedPipeClientStream _pipeStream;
-
-    private readonly string _pipeName;
-
-    /// <summary>
-    /// Initialize a new instance of the <see cref="NamedPipeClient"/> class.
-    /// </summary>
-    /// <param name="pipeName">The name of the pipe server to connect to.</param>
-    public NamedPipeClient(string pipeName)
+    public NamedPipeClient(string pipeName, bool connect = false) 
     {
         _pipeName = pipeName;
-    }
 
-    /// <summary>
-    /// Initialize a pipe connection to a pipe by name.
-    /// </summary>
-    /// <param name="pipeName">The name of the pipe to connect to.</param>
-    /// <returns>The stream communication channel for the pipe client.</returns>
-    public static PipeStream CreatePipeStream(string pipeName)
-    {
-        var client = new NamedPipeClient(pipeName);
-        try
+        if (connect)
         {
-            client.Connect();
-            return client._pipeStream;
-        }
-        catch
-        {
-            return null;
+            Connect();
         }
     }
 
     /// <inheritdoc />
-    public void Connect()
+    public override void Connect()
     {
-        if (_pipeStream is not null)
+        if (Stream is not null)
         {
-            throw new InvalidPipeOperationException("Client pipe already connected");
-        }
-        if (_pipeName is null)
-        {
-            throw new InvalidPipeOperationException("Client pipe name was not set");
+            throw new IOException("Client pipe already connected");
         }
 
-        try
-        {
-            _pipeStream = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Impersonation);
+        ArgumentNullException.ThrowIfNull(_pipeName);
 
-            _pipeStream.Connect();
-        }
-        catch (IOException e)
-        {
-            Console.WriteLine(e.ToString());
-            //return false;
-        }
+        var pipeStream = new NamedPipeClientStream(".", _pipeName, PipeDirection.InOut, PipeOptions.Asynchronous, TokenImpersonationLevel.Impersonation);
 
-        //Connection = new PipeConnection(_pipeStream, () => _connectionStopped);
-        MessageHandler = new MessageHandler(_pipeStream);
+        Stream = pipeStream;
 
-        //return true;
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Interlocked.Exchange(ref _pipeStream, null)?.Dispose();
+        pipeStream.Connect();
     }
 }

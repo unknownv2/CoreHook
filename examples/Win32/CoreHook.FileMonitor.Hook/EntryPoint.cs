@@ -1,29 +1,17 @@
-﻿using System;
+﻿using CoreHook.EntryPoint;
+using CoreHook.HookDefinition;
+using CoreHook.IPC.NamedPipes;
+
+using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
-using CoreHook.IPC.NamedPipes;
-using JsonRpc.DynamicProxy.Client;
-using JsonRpc.Standard.Client;
-using JsonRpc.Standard.Contracts;
-using JsonRpc.Streams;
-using CoreHook.EntryPoint;
-using CoreHook.HookDefinition;
 
 namespace CoreHook.FileMonitor.Hook;
 
 public partial class EntryPoint : IEntryPoint
 {
-    private static readonly IJsonRpcContractResolver MyContractResolver = new JsonRpcContractResolver
-    {
-        // Use camelcase for RPC method names.
-        NamingStrategy = new CamelCaseJsonRpcNamingStrategy(),
-        // Use camelcase for the property names in parameter value objects.
-        ParameterValueConverter = new CamelCaseJsonValueConverter()
-    };
-
     private readonly Queue<string> _queue = new Queue<string>();
 
     private LocalHook _createFileHook;
@@ -37,7 +25,7 @@ public partial class EntryPoint : IEntryPoint
     {
         try
         {
-            StartClient(pipeName);
+            _ = RunClientAsync(pipeName);
         }
         catch (Exception e)
         {
@@ -47,16 +35,8 @@ public partial class EntryPoint : IEntryPoint
 
     private static void ClientWriteLine(string msg) => Console.WriteLine(msg);
 
-    private void StartClient(string pipeName)
-    {
-        var clientTask = RunClientAsync(NamedPipeClient.CreatePipeStream(pipeName));
-
-        // Wait for the client to exit.
-        clientTask.GetAwaiter().GetResult();
-    }
-
     [UnmanagedFunctionPointer(CallingConvention.StdCall, CharSet = CharSet.Unicode, SetLastError = true)]
-    delegate IntPtr DelCreateFile(string fileName, uint desiredAccess, uint shareMode, IntPtr securityAttributes, uint creationDisposition, uint flagsAndAttributes, IntPtr templateFile);
+    delegate IntPtr CreateFileDelegate(string fileName, uint desiredAccess, uint shareMode, IntPtr securityAttributes, uint creationDisposition, uint flagsAndAttributes, IntPtr templateFile);
 
     [DllImport("kernel32.dll", CallingConvention = CallingConvention.StdCall, SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern IntPtr CreateFile(string fileName, uint desiredAccess, uint shareMode, IntPtr securityAttributes, uint creationDisposition, uint flagsAndAttributes, IntPtr templateFile);
@@ -65,7 +45,6 @@ public partial class EntryPoint : IEntryPoint
     // Intercepts all file accesses and stores the requested filenames to a Queue.
     private static IntPtr CreateFile_Hooked(string fileName, uint desiredAccess, uint shareMode, IntPtr securityAttributes, uint creationDisposition, uint flagsAndAttributes, IntPtr templateFile)
     {
-
         ClientWriteLine($"Creating file: '{fileName}'...");
 
         try
@@ -75,7 +54,7 @@ public partial class EntryPoint : IEntryPoint
             {
                 lock (This._queue)
                 {
-                    This._queue.Enqueue(fileName);
+                    This._queue.Enqueue($"{DateTime.Now:'dd/mm'} - Called CreateFile on {fileName}");
                 }
             }
         }
@@ -94,56 +73,41 @@ public partial class EntryPoint : IEntryPoint
 
         ClientWriteLine($"Adding hook to {functionName[0]}!{functionName[1]}");
 
-        _createFileHook = LocalHook.Create(LocalHook.GetProcAddress(functionName[0], functionName[1]), new DelCreateFile(CreateFile_Hooked), this);
+        _createFileHook = LocalHook.Create(LocalHook.GetProcAddress(functionName[0], functionName[1]), new CreateFileDelegate(CreateFile_Hooked), this);
 
         _createFileHook.ThreadACL.SetExclusiveACL(new int[] { 0 });
     }
 
-    private async Task RunClientAsync(Stream clientStream)
+    private async Task RunClientAsync(string pipename)// Stream clientStream)
     {
         await Task.Yield(); // We want this task to run on another thread.
 
-        // Initialize the client connection to the RPC server.
-        var clientHandler = new StreamRpcClientHandler();
+        var client = new NamedPipeClient(pipename, true);
 
-        using (var reader = new ByLineTextMessageReader(clientStream))
-        using (var writer = new ByLineTextMessageWriter(clientStream))
-        using (clientHandler.Attach(reader, writer))
+        CreateHooks();
+
+        try
         {
-            var builder = new JsonRpcProxyBuilder
+            while (true)
             {
-                ContractResolver = MyContractResolver
-            };
+                Thread.Sleep(500);
 
-            var proxy = builder.CreateProxy<Shared.IFileMonitor>(new JsonRpcClient(clientHandler));
-
-            // Create the function hooks after connection to the server.
-            CreateHooks();
-
-            try
-            {
-                while (true)
+                if (_queue.Count > 0)
                 {
-                    Thread.Sleep(500);
-
-                    if (_queue.Count > 0)
+                    CreateFileMessage message;
+                    lock (_queue)
                     {
-                        string[] package = null;
-
-                        lock (_queue)
-                        {
-                            package = _queue.ToArray();
-
-                            _queue.Clear();
-                        }
-                        await proxy.OnCreateFile(package);
+                        message = new CreateFileMessage() { Queue = _queue.ToArray() };
+                        _queue.Clear();
                     }
+
+                    await client.TryWrite(message);
                 }
             }
-            catch (Exception e)
-            {
-                ClientWriteLine(e.ToString());
-            }
+        }
+        catch (Exception e)
+        {
+            ClientWriteLine(e.ToString());
         }
     }
 }

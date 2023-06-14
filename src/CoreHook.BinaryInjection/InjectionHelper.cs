@@ -26,7 +26,7 @@ public class InjectionHelper
     /// <returns>The named pipe server.</returns>
     public static INamedPipe CreateServer(string namedPipeName, IPipePlatform pipePlatform)
     {
-        return NamedPipeServer.StartNew(namedPipeName, pipePlatform, HandleMessage);
+        return new NamedPipeServer(namedPipeName, pipePlatform, HandleMessage);
     }
 
     /// <summary>
@@ -34,12 +34,12 @@ public class InjectionHelper
     /// </summary>
     /// <param name="message">The message to process.</param>
     /// <param name="channel">The server communication channel.</param>
-    private static void HandleMessage(IStringMessage message, INamedPipe _)
+    private static void HandleMessage(CustomMessage message)
     {
-        switch (message.Header)
+        switch (message.GetType().Name)
         {
-            case InjectionCompleteNotification.InjectionComplete:
-                var messageData = InjectionCompleteNotification.ParseMessage(message);
+            case nameof(InjectionCompleteMessage):
+                var messageData = (InjectionCompleteMessage)message;
                 if (messageData.Completed)
                 {
                     InjectionCompleted(messageData.ProcessId);
@@ -50,13 +50,13 @@ public class InjectionHelper
                 }
                 break;
             
-            case LogMessageNotification.Message:
-                var logMessageData = LogMessageNotification.ParseMessage(message);
+            case nameof(LogMessage):
+                var logMessageData = (LogMessage)message;
                 Log($"{logMessageData.Level}: {logMessageData.Message}");
                 break;
          
             default:
-                throw new InvalidOperationException($"Message type {message.Header} is not supported");
+                throw new InvalidOperationException($"Message type {message.GetType().Name} is not supported");
         }
     }
 

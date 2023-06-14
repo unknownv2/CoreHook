@@ -1,8 +1,8 @@
-﻿using CoreHook.IPC.Handlers;
+﻿using CoreHook.IPC.Messages;
 
 using System;
-using System.IO;
 using System.IO.Pipes;
+using System.Threading.Tasks;
 
 namespace CoreHook.IPC.NamedPipes;
 
@@ -19,8 +19,7 @@ public interface INamedPipe : IDisposable
     /// <returns>True if initialization completed successfully.</returns>
     void Connect();
 
-    /// <summary>
-    /// Manages sending and receiving messages through the <see cref="Stream"/>.
-    /// </summary>
-    IMessageHandler MessageHandler { get; }
+    Task<CustomMessage?> Read();
+
+    Task<bool> TryWrite(CustomMessage message);
 }
