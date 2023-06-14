@@ -4,11 +4,12 @@
 [![NuGet](https://img.shields.io/nuget/v/CoreHook.svg?style=flat-square&colorB=f97356)](https://www.nuget.org/packages/CoreHook)
 
 A library that simplifies intercepting application function calls using managed code and the .NET Core runtime. 
-
-This is a fork from the original [CoreHook](https://github.com/unknownv2/CoreHook) by @unknownv2, adding .NET 5+ compatibility and widly refactoring the sources (I hope the original author won't be upset about it :wink:).
-
-
 Inspired and based on the great [EasyHook](https://github.com/EasyHook/EasyHook). 
+
+:sparkles: This is a fork from the original [CoreHook](https://github.com/unknownv2/CoreHook) by @unknownv2, adding .NET 5+ compatibility and widly refactoring the sources (I hope the original author won't be upset about it :wink:).
+
+:information_source: _This project name will probably change in a near future, since .NET isn't named Core anymore._
+
 
 ## Contents
 - [Donations](#donations)
@@ -117,8 +118,12 @@ When you build any .NET 5+ application, these files are generated to the output 
 
 You can use the `CoreHook.FileMonitor.runtimeconfig.json` and `CoreHook.FileMonitor.runtimeconfig.dev.json` files found in your build output directory as references for creating the global or local configuration files.
 
-:warn: The following has to be reviewed and hasn't been updated for this fork.
+////////////////////////////////////////////////////////////////////////////////
+
+:warning: The following has to be reviewed and hasn't been updated for this fork.
 ------------------------------------------------------------------------------
+
+////////////////////////////////////////////////////////////////////////////////
 
 The runtime configuration file should look like the one below, where `additionalProbingPaths` contains file paths the host module can check for additional dependencies. This guide assumes you have installed the `.NET Core 2.2` runtime or SDK for both x86 and x64 architectures.
 
